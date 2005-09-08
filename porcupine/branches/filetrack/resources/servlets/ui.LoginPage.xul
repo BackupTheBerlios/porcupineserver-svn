@@ -1,0 +1,35 @@
+<a:desktop xmlns:a="http://www.innoscript.org/quix" bgcolor="#93AECA">
+
+	<a:prop name="CLOSE" value="%(CLOSE)s"></a:prop>
+	<a:prop name="CANCEL" value="%(CANCEL)s"></a:prop>
+	<a:prop name="YES" value="%(YES)s"></a:prop>
+	<a:prop name="NO" value="%(NO)s"></a:prop>
+
+	<a:script name="Login Script" src="scripts/login.js"></a:script>
+	<a:dialog
+		id="logindialog"
+		title="%(LOGIN)s"
+		align="center"
+		width="280"
+		height="155"
+		status="true"
+		left="center"
+		top="center">
+		<a:prop name="ServiceURI" value="%(URI)s"></a:prop>
+		<a:prop name="FailMsg" value="%(LOGIN_FAILED)s"></a:prop>
+		<a:wbody>
+			<a:splitter orientation="v" width="100%%" height="100%%">
+				<a:pane length="70">
+					<a:icon left="center" top="center" width="48" height="48" img="images/kgpg.gif"></a:icon>
+				</a:pane>
+				<a:pane length="-1">
+					<a:label align="right" top="14" width="25%%" height="20" caption="User:"></a:label>
+					<a:field id="user" left="60" top="12" width="68%%"></a:field>
+					<a:label align="right" top="41" width="25%%" height="20" caption="Password:"></a:label>
+					<a:field id="password" type="password" top="39" left="60" width="68%%"></a:field>
+				</a:pane>
+			</a:splitter>
+		</a:wbody>
+		<a:dlgbutton width="80" height="22" onclick="login.login" caption="%(LOGIN)s" default="true"></a:dlgbutton>
+	</a:dialog>
+</a:desktop>
