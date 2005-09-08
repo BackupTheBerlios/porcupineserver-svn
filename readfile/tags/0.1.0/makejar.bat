@@ -1,2 +1,0 @@
-jar cf ReadFile.jar ReadFile.class ReadFile$1.class ReadFile$2.class ReadFile$3.class ReadFile$FileInfo.class Base64.class Base64$OutputStream.class Base64$InputStream.class
-jarsigner -keystore .key ReadFile.jar mykey
