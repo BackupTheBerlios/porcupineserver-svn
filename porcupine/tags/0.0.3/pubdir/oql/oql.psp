@@ -1,0 +1,51 @@
+<%
+	if request.serverVariables['REQUEST_METHOD'] == 'POST':
+		from porcupine.oql.command import OqlCommand
+		query = request.form['q'].value
+		oqlcommand = OqlCommand()
+		rs = oqlcommand.execute(query)
+	else:
+		query = ''
+	end
+%>
+<html>
+<body>
+<h2>OQL test query sample page</h2>
+<form action="oql" method="POST">
+	<textarea name="q" rows="12" cols="60"><%response.write(query)%></textarea><br>
+	<input type="submit" value="execute">
+</form>
+<%
+if request.serverVariables['REQUEST_METHOD'] == 'POST':
+	response.write('<h3>Variables:</h3>&nbsp;')
+	response.write(oqlcommand.oql_vars)
+	response.write('<br>')
+	response.write('<h3>Output:</h3>')
+	response.write('<table cellspacing="0" border=1 style="font-size:11px">')
+	response.write('<tr bgcolor="#cccccc"><th></th>')
+	if rs.schema:
+		for field in rs.schema:
+			response.write('<th>%s</th>' % field)
+		end
+		response.write('</tr>')
+		for recnum, rec in enumerate(rs):
+			response.write('<tr><td>%i</td>' % (recnum+1))
+			for field in rs.schema:
+				response.write('<td>%s</td>' % str(rec[field]))
+			end
+			response.write('</tr>')
+		end
+	else:
+		response.write('<th>Object id</th><th>Name</th>')
+		response.write('</tr>')
+		for object_num, object in enumerate(rs):
+			response.write('<tr><td>%i</td>' % (object_num + 1))
+			response.write('<td>%s</td><td>%s</td>' % (object.id, object.displayName))
+			response.write('</tr>')
+		end
+	end
+	response.write('</table>')
+end
+%>
+</body>
+</html>
