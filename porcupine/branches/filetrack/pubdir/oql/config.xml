@@ -1,4 +1,0 @@
-<!-- edited with XML Spy v3.5 NT (http://www.xmlspy.com) by  () -->
-<config>
-	<context path="" method=".*" client=".*" lang=".*" action="oql.psp"/>
-</config>
