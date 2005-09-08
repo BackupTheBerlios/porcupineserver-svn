@@ -1,0 +1,35 @@
+<?xml version="1.0"?>
+<a:splitter xmlns:a="http://www.innoscript.org/quix" orientation="h" spacing="0" width="100%%" height="100%%">
+	<a:script name="Desktop Script" src="scripts/desktop.js"></a:script>
+	<a:script name="Generic Functions" src="scripts/generic.js"></a:script>
+	<a:pane length="-1" overflow="hidden">
+		<a:icon top="10"
+				left="10"
+				width="80"
+				height="80"
+				imgalign="top"
+				ondblclick="generic.openContainer"
+				img="images/store.gif"
+				color="white"
+				caption="%(ROOT)s">
+				<a:prop name="folderID" value=""></a:prop>
+		</a:icon>
+		%(RECYCLE_BIN)s
+	</a:pane>
+	<a:pane length="24" overflow="hidden">
+		<a:menubar width="100%%" height="100%%" bgcolor="menu" style="font-weight:bolder">
+			<a:menu caption=">%(START)s">
+				<a:menuoption caption="%(APPLICATIONS)s" img="images/appsfolder.gif">
+					%(APPS)s
+				</a:menuoption>
+				<a:menuoption caption="%(SETTINGS)s" disabled="true"></a:menuoption>
+				<a:sep></a:sep>
+				<a:menuoption caption="%(INFO)s" img="images/about16.gif" onclick="desktop.showAbout"></a:menuoption>
+				<a:menuoption caption="%(LOGOFF)s %(USER)s" img="images/exit.gif" onclick="desktop.logoff">
+					<a:prop name="logoff" value="%(LOGOFF)s"></a:prop>
+					<a:prop name="ask_logoff" value="%(LOGOFF?)s"></a:prop>
+				</a:menuoption>
+			</a:menu>
+		</a:menubar>
+	</a:pane>
+</a:splitter>
