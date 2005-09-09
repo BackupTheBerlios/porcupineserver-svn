@@ -1,0 +1,33 @@
+<config>
+	<!-- SCRIPTS -->
+	<context path="contacts.js" method=".*" client=".*" lang=".*" action="contacts.js"/>
+	<context path="issues_search.js" method=".*" client=".*" lang=".*" action="issues_search.js"/>
+	<context path="issues.js" method=".*" client=".*" lang=".*" action="issues.js"/>
+	<context path="options.js" method=".*" client=".*" lang=".*" action="options.js"/>
+	<context path="pagenav.js" method=".*" client=".*" lang=".*" action="pagenav.js"/>
+	<context path="protocol_search.js" method=".*" client=".*" lang=".*" action="protocol_search.psp"/>
+	<context path="protocol.js" method=".*" client=".*" lang=".*" action="protocol.js"/>
+	<context path="reports.js" method=".*" client=".*" lang=".*" action="reports.psp"/>
+	<context path="search.js" method=".*" client=".*" lang=".*" action="search.js"/>
+	<context path="selectpersons.js" method=".*" client=".*" lang=".*" action="selectpersons.js"/>
+	
+	<!-- IMAGES -->
+	<context path="images/archive16.gif" method=".*" client=".*" lang=".*" action="images/archive16.gif"/>
+	<context path="images/archive32.gif" method=".*" client=".*" lang=".*" action="images/archive32.gif"/>
+	<context path="images/entries16.gif" method=".*" client=".*" lang=".*" action="images/entries16.gif"/>
+	<context path="images/export_excel22.gif" method=".*" client=".*" lang=".*" action="images/export_excel22.gif"/>
+	<context path="images/inbound.gif" method=".*" client=".*" lang=".*" action="images/inbound.gif"/>
+	<context path="images/issue_closed.gif" method=".*" client=".*" lang=".*" action="images/issue_closed.gif"/>	
+	<context path="images/issue_folder.gif" method=".*" client=".*" lang=".*" action="images/issue_folder.gif"/>	
+	<context path="images/issue_open.gif" method=".*" client=".*" lang=".*" action="images/issue_open.gif"/>	
+	<context path="images/issue.gif" method=".*" client=".*" lang=".*" action="images/issue.gif"/>	
+	<context path="images/issue32.gif" method=".*" client=".*" lang=".*" action="images/issue32.gif"/>	
+	<context path="images/options.gif" method=".*" client=".*" lang=".*" action="images/options.gif"/>	
+	<context path="images/outbound.gif" method=".*" client=".*" lang=".*" action="images/outbound.gif"/>	
+	<context path="images/reply16.gif" method=".*" client=".*" lang=".*" action="images/reply16.gif"/>	
+	<context path="images/reports32.gif" method=".*" client=".*" lang=".*" action="images/reports32.gif"/>	
+	<context path="images/reset_counters.gif" method=".*" client=".*" lang=".*" action="images/reset_counters.gif"/>	
+	<context path="images/root16.gif" method=".*" client=".*" lang=".*" action="images/root16.gif"/>	
+	<context path="images/root32.gif" method=".*" client=".*" lang=".*" action="images/root32.gif"/>	
+
+</config>

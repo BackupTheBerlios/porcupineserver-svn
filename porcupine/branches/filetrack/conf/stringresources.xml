@@ -222,5 +222,148 @@
 	</locale>
 	<!--_______________________________PACKAGES_SECTION________________________________-->
 	<packages>
-	</packages>
+	<package name="FileTrack">
+			<locale lang="*">
+				<res id="schemas.org.innoscript.filetrack.LogEntries">Log</res>
+				<res id="schemas.org.innoscript.filetrack.LogEntry">Log entry</res>
+				<res id="schemas.org.innoscript.filetrack.Issue">Issue</res>
+				
+				<res id="entryDate">Date sent/received</res>
+				<res id="entryType">Document type</res>
+				<res id="aa">Α/Α</res>
+				<res id="sender">Sender</res>
+				<res id="receiver">Receiver</res>
+				<res id="cc">Carbon Copy</res>
+				<res id="senderDate">Sender date</res>
+				<res id="senderCode">Sender protocol number</res>
+				<res id="logEntryDocuments">Files</res>
+				<res id="comments">Comments</res>
+				<res id="currentOwner">Current owner</res>
+				<res id="issues">Issues</res>
+		
+				<res id="issueStatus">Status</res>
+				<res id="issueClosed">Issue closed</res>
+				<res id="issueItems">Issue items</res>
+		
+				<res id="ABOUT_FILETRACK">About FileTrack</res>
+				<res id="NEW_PROTOCOL_ENTRY">Create new entry</res>
+				<res id="PROTOCOL">Protocol</res>
+				<res id="SHORTCUTS">Shortcuts</res>
+				<res id="INBOUND">Inbound</res>
+				<res id="OUTBOUND">Outbound</res>
+				<res id="PROTOCOL_NO">Code</res>
+				<res id="CONTACTS">Contacts</res>
+				<res id="SURNAME">Surname</res>
+				<res id="RECORDS">Records</res>
+				<res id="ISSUE_OPEN">Open</res>
+				<res id="ISSUE_CLOSED">Closed</res>
+				<res id="REPLY">Reply</res>
+				<res id="REPLY_TO">Reply to</res>
+				<res id="REPORTS">Reports</res>
+				<res id="PROTOCOL_REPORT">Protocol Report</res>
+				<res id="REPORT_CRITERIA">Report criteria</res>
+	
+				<res id="SHOW_ALL">Show all</res>
+				<res id="SHOW_INCOMING">Show incoming</res>
+				<res id="SHOW_OUTGOING">Show outgoing</res>
+				<res id="SHOW_OPEN">Show open</res>
+				<res id="SHOW_CLOSED">Show closed</res>
+		
+				<res id="PAGE_SIZE">Page size</res>
+				<res id="GO_TO_PAGE">Go to page</res>
+				<res id="MAX_SEARCH_RES">Max search results</res>
+		
+				<res id="SELECT_SET">Select set</res>
+				<res id="DO_ARCHIVE">Archive</res>
+				<res id="ARCHIVE_WARNING">WARNING: This action is irreversible!</res>
+				<res id="FILETRACK_WARNING">Warning</res>
+				<res id="FILETRACK_DISPLAYING">Displaying</res>
+				<res id="FILETRACK_ASK_DELETE">Are you sure you want to delete the selected items?</res>
+				
+				<res id="QUEST_RESET_COUNTERS">Are you sure?</res>
+	
+				<res id="GO_TO_PAGE">Go to page</res>
+				<res id="RESET_COUNTERS">Reset numbering</res>
+				<res id="AUTO_ARCHIVE">Auto archive</res>
+				
+				<res id="SEARCH_SCOPE">Search scope</res>
+				<res id="SEARCH_ARCHIVE">Search archive</res>
+				<res id="WARN_SELECT_SCOPE">Please select one ore more search scopes.</res>
+				<res id="GENERATE_REPORT">Generate report</res>
+
+				<res id="INDEX_BY_NAME">Index by name</res>
+				<res id="INDEX_BY_COMPANY">Index by company</res>
+			</locale>
+			<locale lang="el">
+				<res id="schemas.org.innoscript.filetrack.LogEntries">Πρωτόκολλο</res>
+				<res id="schemas.org.innoscript.filetrack.LogEntry">Εγγραφή πρωτοκόλλου</res>
+				<res id="schemas.org.innoscript.filetrack.Issue">Θέμα</res>
+		
+				<res id="entryDate">Ημ/νία παραλαβής/αποστολής</res>
+				<res id="entryType">Είδος εγγράφου</res>
+				<res id="aa">Α/Α</res>
+				<res id="sender">Αποστολέας</res>
+				<res id="receiver">Παραλήπτης</res>
+				<res id="cc">Κοινοποίηση</res>
+				<res id="senderDate">Ημερομηνία αποστολέα</res>
+				<res id="senderCode">Αριθμός πρωτοκόλλου αποστολέα</res>
+				<res id="logEntryDocuments">Αρχεία</res>
+				<res id="comments">Σχόλια</res>
+				<res id="currentOwner">Κάτοχος</res>
+				<res id="issues">Θέματα</res>
+		
+				<res id="issueStatus">Κατάσταση</res>
+				<res id="issueClosed">Έκλεισε</res>
+				<res id="issueItems">Αντικείμενα θέματος</res>
+		
+				<res id="ABOUT_FILETRACK">Σχετικά με το FileTrack</res>
+				<res id="NEW_PROTOCOL_ENTRY">Δημιουργία νέας εγγραφής</res>
+				<res id="PROTOCOL">Πρωτόκολλο</res>
+				<res id="SHORTCUTS">Συντομεύσεις</res>
+				<res id="INBOUND">Εισερχόμενο</res>
+				<res id="OUTBOUND">Εξερχόμενο</res>
+				<res id="PROTOCOL_NO">Αρ. Πρωτοκόλλου</res>
+				<res id="CONTACTS">Επαφές</res>
+				<res id="SURNAME">Ονοματεπώνυμο</res>
+				<res id="RECORDS">Εγγραφές</res>
+				<res id="ISSUE_OPEN">Ανοικτό</res>
+				<res id="ISSUE_CLOSED">Κλειστό</res>
+				<res id="REPLY">Απάντηση</res>
+				<res id="REPLY_TO">Απάντηση στο</res>
+				<res id="REPORTS">Αναφορές</res>
+				<res id="PROTOCOL_REPORT">Αναφορά Πρωτοκόλλου</res>
+				<res id="REPORT_CRITERIA">Κριτήρια αναφοράς</res>
+	
+				<res id="SHOW_ALL">Εμφανιση όλων</res>
+				<res id="SHOW_INCOMING">Εμφάνιση εισερχόμενων</res>
+				<res id="SHOW_OUTGOING">Εμφάνιση εξερχόμενων</res>
+				<res id="SHOW_OPEN">Εμφάνιση ανοικτών</res>
+				<res id="SHOW_CLOSED">Εμφάνιση κλειστών</res>
+		
+				<res id="PAGE_SIZE">Μέγεθος σελίδας</res>
+				<res id="GO_TO_PAGE">Μετάβαση στη σελίδα</res>
+				<res id="MAX_SEARCH_RES">Όριο αποτελεσμάτων αναζήτησης</res>
+		
+				<res id="SELECT_SET">Επιλέξτε σετ</res>
+				<res id="DO_ARCHIVE">Αρχειοθέτηση</res>
+				<res id="ARCHIVE_WARNING">ΠΡΟΣΟΧΗ: Η αρχειοθέτηση είναι μη αναστρέψιμη ενέργεια</res>
+				<res id="FILETRACK_WARNING">Προσοχή</res>
+				<res id="FILETRACK_DISPLAYING">Εμφανίζονται</res>
+				<res id="FILETRACK_ASK_DELETE">Είστε σίγουροι ότι θέλετε να διαγράψετε τα επιλεγμένα αντικείμενα;</res>
+				
+				<res id="QUEST_RESET_COUNTERS">Είστε σίγουροι;</res>
+		
+				<res id="GO_TO_PAGE">Μετάβαση στη σελίδα</res>
+				<res id="RESET_COUNTERS">Αρχικοποίηση αρίθμησης</res>
+				<res id="AUTO_ARCHIVE">Αυτόματη αρχειοθέτηση</res>
+	
+				<res id="SEARCH_SCOPE">Τομείς αναζήτησης</res>
+				<res id="SEARCH_ARCHIVE">Αναζήτηση στο αρχείο</res>
+				<res id="WARN_SELECT_SCOPE">Παρακαλώ επιλέξτε έναν ή περισσότερους τομείς αναζήτησης.</res>
+				<res id="GENERATE_REPORT">Δημιουργία αναφοράς</res>
+
+				<res id="INDEX_BY_NAME">Κατηγοριοποίηση ανά όνομα</res>
+				<res id="INDEX_BY_COMPANY">Κατηγοριοποίηση ανά εταιρεία</res>
+			</locale>
+		</package></packages>
 </resources>

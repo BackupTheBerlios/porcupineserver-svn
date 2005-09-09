@@ -1,217 +1,107 @@
+<?xml version="1.0" encoding="utf-8"?>
 <config>
 	<!--_______________________________PACKAGES_SECTION________________________________-->
 	
 	<packages>
 	<!-- insert here your own registrations. Leave SYSTEM_REGISTRATIONS as is -->
-	</packages>
+	<package name="FileTrack">
+			<reg action="resources.servlets.filetrack.ui.Frg_Search" cc="schemas.org.innoscript.filetrack.FiletrackRoot" client=".*" lang=".*" method="GET" param="search"/>
+	
+			<reg action="resources.servlets.filetrack.ui.Frg_Reports" cc="schemas.org.innoscript.filetrack.FiletrackRoot" client=".*" lang=".*" method="GET" param="reports"/>
+	
+			<reg action="resources.servlets.filetrack.reports.Report1" cc="schemas.org.innoscript.filetrack.FiletrackRoot" client=".*" lang=".*" method="GET" param="report1"/>
+	
+			<reg action="resources.servlets.filetrack.reports.Report1_Excel" cc="schemas.org.innoscript.filetrack.FiletrackRoot" client=".*" lang=".*" method="GET" param="report1_excel"/>
+	
+			<reg action="resources.servlets.filetrack.ui.Dlg_Report" cc="schemas.org.innoscript.filetrack.FiletrackRoot" client=".*" lang=".*" method="GET" param="report"/>
+	
+			<reg action="resources.servlets.filetrack.ui.Frm_LogEntryNew" cc="schemas.org.innoscript.filetrack.LogEntries" client=".*" lang=".*" method="GET" param="new"/>
+	
+			<reg action="resources.servlets.filetrack.ui.Frg_LogEntries" cc="schemas.org.innoscript.filetrack.LogEntries" client=".*" lang=".*" method="GET" param="filetrackui"/>
+	
+			<reg action="resources.servlets.filetrack.ui.Frg_Issues" cc="schemas.org.innoscript.filetrack.IssueFolder" client=".*" lang=".*" method="GET" param="filetrackui"/>
+	
+			<reg action="resources.servlets.filetrack.ui.Frg_Contacts" cc="schemas.org.innoscript.collab.ContactsFolder" client=".*" lang=".*" method="GET" param="filetrackui"/>
+	
+			<reg action="resources.servlets.ui.Frm_AutoNew" cc="schemas.org.innoscript.filetrack.(FiletrackRoot|LogArchive)" client=".*" lang=".*" method="GET" param="new"/>
+		
+			<reg action="resources.servlets.filetrack.ui.Dlg_SelectPersons" cc="schemas.org.innoscript.common.RootFolder" client=".*" lang=".*" method="GET" param="selectpersons"/>
+					
+			<reg action="resources.servlets.filetrack.ui.Frm_LogEntryProperties" cc="schemas.org.innoscript.filetrack.LogEntry" client=".*" lang=".*" method="GET" param="properties"/>
+	
+			<reg action="resources.servlets.filetrack.ui.Frm_LogEntryReply" cc="schemas.org.innoscript.filetrack.LogEntry" client=".*" lang=".*" method="GET" param="reply"/>
+					
+			<reg action="resources/PSP/document/getdocument.psp" cc="schemas.org.innoscript.filetrack.LogEntryDocument" client=".*" lang=".*" method="GET" param="getfile"/>
+	
+			<reg action="resources.servlets.filetrack.XMLRPC.LogEntries" cc="schemas.org.innoscript.filetrack.LogEntries" client="vcXMLRPC" lang=".*" method="POST" param=""/>
+					
+			<reg action="resources.servlets.filetrack.XMLRPC.LogEntry" cc="schemas.org.innoscript.filetrack.LogEntry" client="vcXMLRPC" lang=".*" method="POST" param=""/>
+		
+			<reg action="resources.servlets.XMLRPC.ContainerGeneric" cc="schemas.org.innoscript.filetrack.(FiletrackRoot|LogArchive)" client="vcXMLRPC" lang=".*" method="POST" param=""/>
+		</package></packages>
 	
 	<!--_____________________________SYSTEM_REGISTRATIONS______________________________-->
 	<!--_________________________________HTTP_SERVLETS_________________________________-->
-	<reg cc="schemas.org.innoscript.common.Application"
-			method="GET"
-			param="run"
-			client="(MSIE 6)|(Mozilla/5.0.+rv:1.[7-9])"
-			lang=".*"
-			action="resources.servlets.ui.Run_App"/>
+	<reg action="resources.servlets.ui.Run_App" cc="schemas.org.innoscript.common.Application" client="(MSIE 6)|(Mozilla/5.0.+rv:1.[7-9])" lang=".*" method="GET" param="run"/>
 
-	<reg cc="schemas.org.innoscript.common.Application"
-			method="GET"
-			param="getscript"
-			client="(MSIE 6)|(Mozilla/5.0.+rv:1.[7-9])"
-			lang=".*"
-			action="resources.servlets.ui.GetAppScript"/>
+	<reg action="resources.servlets.ui.GetAppScript" cc="schemas.org.innoscript.common.Application" client="(MSIE 6)|(Mozilla/5.0.+rv:1.[7-9])" lang=".*" method="GET" param="getscript"/>
 
-	<reg cc="schemas.org.innoscript.common.Document"
-			method="GET"
-			param="getfile"
-			client=".*"
-			lang=".*"
-			action="resources/PSP/document/getdocument.psp"/>
+	<reg action="resources/PSP/document/getdocument.psp" cc="schemas.org.innoscript.common.Document" client=".*" lang=".*" method="GET" param="getfile"/>
 	
 	<!--________________________________QUIX_INTERFACES________________________________-->
-	<reg cc="schemas.org.innoscript.common.RootFolder"
-			method="GET"
-			param=""
-			client="(MSIE 6)|(Mozilla/5.0.+rv:1.[7-9])"
-			lang=".*"
-			action="resources.servlets.ui.Desktop"/>
+	<reg action="resources.servlets.ui.Desktop" cc="schemas.org.innoscript.common.RootFolder" client="(MSIE 6)|(Mozilla/5.0.+rv:1.[7-9])" lang=".*" method="GET" param=""/>
 
-	<reg cc="schemas.org.innoscript.common.RootFolder"
-			method="GET"
-			param="login"
-			client="(MSIE 6)|(Mozilla/5.0.+rv:1.[7-9])"
-			lang=".*"
-			action="resources.servlets.ui.LoginPage"/>
+	<reg action="resources.servlets.ui.LoginPage" cc="schemas.org.innoscript.common.RootFolder" client="(MSIE 6)|(Mozilla/5.0.+rv:1.[7-9])" lang=".*" method="GET" param="login"/>
 
-	<reg cc="schemas.org.innoscript.common.RootFolder"
-			method="GET"
-			param="about"
-			client="(MSIE 6)|(Mozilla/5.0.+rv:1.[7-9])"
-			lang=".*"
-			action="resources.servlets.ui.AboutDialog"/>
+	<reg action="resources.servlets.ui.AboutDialog" cc="schemas.org.innoscript.common.RootFolder" client="(MSIE 6)|(Mozilla/5.0.+rv:1.[7-9])" lang=".*" method="GET" param="about"/>
 			
-	<reg cc="schemas.org.innoscript.common.(Root)?Folder"
-			method="GET"
-			param="list"
-			client="(MSIE 6)|(Mozilla/5.0.+rv:1.[7-9])"
-			lang=".*"
-			action="resources.servlets.ui.ContainerList"/>
+	<reg action="resources.servlets.ui.ContainerList" cc="schemas.org.innoscript.common.(Root)?Folder" client="(MSIE 6)|(Mozilla/5.0.+rv:1.[7-9])" lang=".*" method="GET" param="list"/>
 			
-	<reg cc="schemas.org.innoscript.common.RecycleBin"
-			method="GET"
-			param="list"
-			client="(MSIE 6)|(Mozilla/5.0.+rv:1.[7-9])"
-			lang=".*"
-			action="resources.servlets.ui.RecycleList"/>
+	<reg action="resources.servlets.ui.RecycleList" cc="schemas.org.innoscript.common.RecycleBin" client="(MSIE 6)|(Mozilla/5.0.+rv:1.[7-9])" lang=".*" method="GET" param="list"/>
 			
-	<reg cc="schemas.org.innoscript.security.UsersFolder"
-			method="GET"
-			param="new"
-			client="(MSIE 6)|(Mozilla/5.0.+rv:1.[7-9])"
-			lang=".*"
-			action="resources.servlets.ui.Frm_UserGroupNew"/>
+	<reg action="resources.servlets.ui.Frm_UserGroupNew" cc="schemas.org.innoscript.security.UsersFolder" client="(MSIE 6)|(Mozilla/5.0.+rv:1.[7-9])" lang=".*" method="GET" param="new"/>
 
-	<reg cc="schemas.org.innoscript.common.AppsFolder"
-			method="GET"
-			param="new"
-			client="(MSIE 6)|(Mozilla/5.0.+rv:1.[7-9])"
-			lang=".*"
-			action="resources.servlets.ui.Frm_AppNew"/>
+	<reg action="resources.servlets.ui.Frm_AppNew" cc="schemas.org.innoscript.common.AppsFolder" client="(MSIE 6)|(Mozilla/5.0.+rv:1.[7-9])" lang=".*" method="GET" param="new"/>
 			
 
-	<reg cc="schemas.org.innoscript.\w+.(\w*Folder|Category)|schemas.org.innoscript.common.AdminTools"
-			method="GET"
-			param="selectobjects"
-			client="(MSIE 6)|(Mozilla/5.0.+rv:1.[7-9])"
-			lang=".*"
-			action="resources.servlets.ui.Dlg_SelectObjects"/>
+	<reg action="resources.servlets.ui.Dlg_SelectObjects" cc="schemas.org.innoscript.\w+.(\w*Folder|Category)|schemas.org.innoscript.common.AdminTools" client="(MSIE 6)|(Mozilla/5.0.+rv:1.[7-9])" lang=".*" method="GET" param="selectobjects"/>
 			
-	<reg cc="schemas.org.innoscript.\w+.(\w*Folder|Category)"
-			method="GET"
-			param="new"
-			client="(MSIE 6)|(Mozilla/5.0.+rv:1.[7-9])"
-			lang=".*"
-			action="resources.servlets.ui.Frm_AutoNew"/>
+	<reg action="resources.servlets.ui.Frm_AutoNew" cc="schemas.org.innoscript.\w+.(\w*Folder|Category)" client="(MSIE 6)|(Mozilla/5.0.+rv:1.[7-9])" lang=".*" method="GET" param="new"/>
 			
-	<reg cc="schemas.org.innoscript.common.Application"
-			method="GET"
-			param="properties"
-			client="(MSIE 6)|(Mozilla/5.0.+rv:1.[7-9])"
-			lang=".*"
-			action="resources.servlets.ui.Frm_AppProperties"/>
+	<reg action="resources.servlets.ui.Frm_AppProperties" cc="schemas.org.innoscript.common.Application" client="(MSIE 6)|(Mozilla/5.0.+rv:1.[7-9])" lang=".*" method="GET" param="properties"/>
 
-	<reg cc="schemas.org.innoscript.security.User$"
-			method="GET"
-			param="resetpsw"
-			client="(MSIE 6)|(Mozilla/5.0.+rv:1.[7-9])"
-			lang=".*"
-			action="resources.servlets.ui.Frm_UserResetPassword"/>
+	<reg action="resources.servlets.ui.Frm_UserResetPassword" cc="schemas.org.innoscript.security.User$" client="(MSIE 6)|(Mozilla/5.0.+rv:1.[7-9])" lang=".*" method="GET" param="resetpsw"/>
 			
-	<reg cc="schemas.org.innoscript.security.User$"
-			method="GET"
-			param="properties"
-			client="(MSIE 6)|(Mozilla/5.0.+rv:1.[7-9])"
-			lang=".*"
-			action="resources.servlets.ui.Frm_UserProperties"/>
+	<reg action="resources.servlets.ui.Frm_UserProperties" cc="schemas.org.innoscript.security.User$" client="(MSIE 6)|(Mozilla/5.0.+rv:1.[7-9])" lang=".*" method="GET" param="properties"/>
 			
-	<reg cc="schemas.org.innoscript.security.Group"
-			method="GET"
-			param="properties"
-			client="(MSIE 6)|(Mozilla/5.0.+rv:1.[7-9])"
-			lang=".*"
-			action="resources.servlets.ui.Frm_GroupProperties"/>
+	<reg action="resources.servlets.ui.Frm_GroupProperties" cc="schemas.org.innoscript.security.Group" client="(MSIE 6)|(Mozilla/5.0.+rv:1.[7-9])" lang=".*" method="GET" param="properties"/>
 			
-	<reg cc="porcupine.systemObjects.DeletedItem"
-			method="GET"
-			param="properties"
-			client="(MSIE 6)|(Mozilla/5.0.+rv:1.[7-9])"
-			lang=".*"
-			action="resources.servlets.ui.Frm_DeletedItem"/>
+	<reg action="resources.servlets.ui.Frm_DeletedItem" cc="porcupine.systemObjects.DeletedItem" client="(MSIE 6)|(Mozilla/5.0.+rv:1.[7-9])" lang=".*" method="GET" param="properties"/>
 
-	<reg cc=".*"
-			method="GET"
-			param="rename"
-			client="(MSIE 6)|(Mozilla/5.0.+rv:1.[7-9])"
-			lang=".*"
-			action="resources.servlets.ui.Dlg_Rename"/>
+	<reg action="resources.servlets.ui.Dlg_Rename" cc=".*" client="(MSIE 6)|(Mozilla/5.0.+rv:1.[7-9])" lang=".*" method="GET" param="rename"/>
 
-	<reg cc=".*"
-			method="GET"
-			param="selectcontainer"
-			client="(MSIE 6)|(Mozilla/5.0.+rv:1.[7-9])"
-			lang=".*"
-			action="resources.servlets.ui.Dlg_SelectContainer"/>
+	<reg action="resources.servlets.ui.Dlg_SelectContainer" cc=".*" client="(MSIE 6)|(Mozilla/5.0.+rv:1.[7-9])" lang=".*" method="GET" param="selectcontainer"/>
 
-	<reg cc=".*"
-			method="GET"
-			param="properties"
-			client="(MSIE 6)|(Mozilla/5.0.+rv:1.[7-9])"
-			lang=".*"
-			action="resources.servlets.ui.Frm_AutoProperties"/>
+	<reg action="resources.servlets.ui.Frm_AutoProperties" cc=".*" client="(MSIE 6)|(Mozilla/5.0.+rv:1.[7-9])" lang=".*" method="GET" param="properties"/>
 
 	<!--_________________________________XML_RPC_________________________________-->
-	<reg cc="schemas.org.innoscript.common.RootFolder"
-			method="POST"
-			param=""
-			client="vcXMLRPC"
-			lang=".*"
-			action="resources.servlets.XMLRPC.RootFolder"/>
+	<reg action="resources.servlets.XMLRPC.RootFolder" cc="schemas.org.innoscript.common.RootFolder" client="vcXMLRPC" lang=".*" method="POST" param=""/>
 
-	<reg cc="schemas.org.innoscript.common.RootFolder"
-			method="POST"
-			param="login"
-			client="vcXMLRPC"
-			lang=".*"
-			action="resources.servlets.XMLRPC.Login"/>
+	<reg action="resources.servlets.XMLRPC.Login" cc="schemas.org.innoscript.common.RootFolder" client="vcXMLRPC" lang=".*" method="POST" param="login"/>
 			
-	<reg cc="schemas.org.innoscript.common.Category"
-			method="POST"
-			param=""
-			client="vcXMLRPC"
-			lang=".*"
-			action="resources.servlets.XMLRPC.Category"/>
+	<reg action="resources.servlets.XMLRPC.Category" cc="schemas.org.innoscript.common.Category" client="vcXMLRPC" lang=".*" method="POST" param=""/>
 	
-	<reg cc="schemas.org.innoscript.\w+.\w*Folder|schemas.org.innoscript.common.AdminTools"
-			method="POST"
-			param=""
-			client="vcXMLRPC"
-			lang=".*"
-			action="resources.servlets.XMLRPC.ContainerGeneric"/>
+	<reg action="resources.servlets.XMLRPC.ContainerGeneric" cc="schemas.org.innoscript.\w+.\w*Folder|schemas.org.innoscript.common.AdminTools" client="vcXMLRPC" lang=".*" method="POST" param=""/>
 
-	<reg cc="schemas.org.innoscript.common.RecycleBin"
-			method="POST"
-			param=""
-			client="vcXMLRPC"
-			lang=".*"
-			action="resources.servlets.XMLRPC.RecycleBin"/>
+	<reg action="resources.servlets.XMLRPC.RecycleBin" cc="schemas.org.innoscript.common.RecycleBin" client="vcXMLRPC" lang=".*" method="POST" param=""/>
 	
-	<reg cc="schemas.org.innoscript.security.User"
-			method="POST"
-			param=""
-			client="vcXMLRPC"
-			lang=".*"
-			action="resources.servlets.XMLRPC.User"/>
+	<reg action="resources.servlets.XMLRPC.User" cc="schemas.org.innoscript.security.User" client="vcXMLRPC" lang=".*" method="POST" param=""/>
 
-	<reg cc="porcupine.systemObjects.DeletedItem"
-			method="POST"
-			param=""
-			client="vcXMLRPC"
-			lang=".*"
-			action="resources.servlets.XMLRPC.DeletedItem"/>
+	<reg action="resources.servlets.XMLRPC.DeletedItem" cc="porcupine.systemObjects.DeletedItem" client="vcXMLRPC" lang=".*" method="POST" param=""/>
 
-	<reg cc=".*"
-			method="POST"
-			param=""
-			client="vcXMLRPC"
-			lang=".*"
-			action="resources.servlets.XMLRPC.ItemGeneric"/>
+	<reg action="resources.servlets.XMLRPC.ItemGeneric" cc=".*" client="vcXMLRPC" lang=".*" method="POST" param=""/>
 
 	<!--__________________________BROWSER_NOT_SUPPORTED__________________________-->
-	<reg cc="schemas.org.innoscript.common.RootFolder"
-		method="GET"
-		param="login"
-		client=".*"
-		lang=".*"
-		action="resources/PSP/browsernotsuppoted.psp"/>
+	<reg action="resources/PSP/browsernotsuppoted.psp" cc="schemas.org.innoscript.common.RootFolder" client=".*" lang=".*" method="GET" param="login"/>
 			
 </config>
