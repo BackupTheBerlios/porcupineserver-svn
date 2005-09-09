@@ -1,0 +1,3 @@
+<config>
+	<context path="quix.css" method="GET" client=".*" lang=".*" action="quix.css"/>
+</config>
