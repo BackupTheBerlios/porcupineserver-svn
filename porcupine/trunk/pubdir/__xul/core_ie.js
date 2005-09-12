@@ -30,7 +30,7 @@ function Clipboard() {
 }
 
 var QuiX = function() {}
-QuiX.version = '0.2 build 20050806';
+QuiX.version = '0.2 build 20050912';
 QuiX.namespace = 'http://www.innoscript.org/quix';
 QuiX.browser = 'ie';
 QuiX.startX = 0;
@@ -57,7 +57,7 @@ QuiX.modules = [
 	new Module('Toolbars', '__xul/toolbars.js', [3]),
 	new Module('Forms & Fields', '__xul/formfields.js', [3]),
 	new Module('Common Widgets', '__xul/common.js', [3]),
-	new Module('Datagrid', '__xul/datagrid.js', [5]),
+	new Module('Datagrid', '__xul/datagrid.js', [5,8]),
 	new Module('File Control', '__xul/file.js', [3,8]),
 	new Module('Date Picker', '__xul/datepicker.js', [9])
 ];
@@ -315,7 +315,10 @@ XULParser.prototype.parseXul = function(oNode, parentW, prm) {
 				break;
 			case 'flatbutton':
 				oWidget = new FlatButton(params);
-				if (params.type=='menu') oWidget = oWidget.contextmenu;
+				if (params.type=='menu') {
+					parentW.appendChild(oWidget);
+					oWidget = oWidget.contextmenu;
+				}
 				break;
 			case 'form':
 				oWidget = new Form(params);
