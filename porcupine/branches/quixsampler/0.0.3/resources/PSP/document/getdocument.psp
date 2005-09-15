@@ -1,3 +1,0 @@
-<%
-	response.writeFile(item.file.filename, item.file.value)
-%>
