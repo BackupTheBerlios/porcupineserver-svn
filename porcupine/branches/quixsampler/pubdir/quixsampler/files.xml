@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<a:rect xmlns:a="http://www.innoscript.org/quix" width="100%" height="100%" overflow="auto" padding="8,8,8,8">
+	<a:label caption="Single file upload" style="font-weight:bolder;font-size:10pt"></a:label>
+	<a:file top="32" readonly="false"></a:file>
+
+	<a:hr top="64" width="100%"></a:hr>
+	<a:label top="72" caption="Multiple file upload" style="font-weight:bolder;font-size:10pt"></a:label>
+	<a:multifile top="94" width="200" height="120"></a:multifile>
+	
+	<a:rect top="230" width="100%" height="80">
+		<a:xhtml>
+			<span>Uploaded files are stored in the server's temporary folder
+			and they are automatically deleted when the session expires.
+			If a file control is included in a QuiX form, the posted value
+			is the original filename of the file and the name of the temporary file.</span>
+		</a:xhtml>
+	</a:rect>
+</a:rect>

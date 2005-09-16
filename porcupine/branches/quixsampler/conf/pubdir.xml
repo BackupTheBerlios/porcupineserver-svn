@@ -5,5 +5,6 @@
 		<dir name="scripts" path="scripts"/>
 		<dir name="styles" path="styles"/>
 		<dir name="images" path="images"/>
+		<dir name="quixsampler" path="quixsampler"/>
 	</dirs>
 </config>
