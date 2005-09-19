@@ -1,4 +1,23 @@
 -------------
+Version 0.0.4
+-------------
+OPT: Removed the limitation that requires the data type class name and the Porcupine
+     object attribute to be identical.
+OPT: ItemNotFound exception displays info about the missing resource.
+OPT: The "pakager" utility is update ready.
+
+FIX: Fixed image positioning of QuiX menu options of type "check" or "radio".
+FIX: Added "formfields.js" to QuiX data grid dependencies.
+FIX: QuiX flat buttons of type menu, if not inside a toolbar, are now displayed.
+FIX: Added "menu_check.gif" missing image.
+FIX: Fixed "Add" and "Remove" buttons on user and group forms.
+FIX: It is now possible to assign "onclick" event handlers to the options of select
+     lists.
+FIX: QuiX Images with an empty "src" attribute are not loaded.
+FIX: Reference1 attributes are displayed in the OQL Query Performer.
+FIX: The "pakager" utility when uninstalling a package, removes published directories.
+
+-------------
 Version 0.0.3
 -------------
 OPT: QuiX interface images are treated as script modules. They are preloaded and

@@ -117,8 +117,15 @@ class Package(object):
                 self.db.putItem(oParent, txn)
             self.db.putItem(oItem, txn)
         else:
-            print 'WARNING: Item "%s" already exists. Skipping import...' % \
-                  oItem.displayName.value
+            print 'WARNING: Item "%s" already exists. Upgrading object...' % \
+                oItem.displayName.value
+            oItem.displayName.value = oOldItem.displayName.value
+            oItem.description.value = oOldItem.description.value
+            oItem.security = oOldItem.security
+            if oItem.isCollection:
+                oItem._subfolders = oOldItem._subfolders
+                oItem._items = oOldItem._items
+            self.db.putItem(oItem, txn)
         
     def _deltree(self, top):
         for root, dirs, files in os.walk(top, topdown=False):
