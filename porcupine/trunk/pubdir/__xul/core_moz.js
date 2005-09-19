@@ -31,7 +31,7 @@ function Clipboard() {
 }
 
 var QuiX = function() {}
-QuiX.version = '0.2 build 20050912';
+QuiX.version = '0.2 build 20050917';
 QuiX.namespace = 'http://www.innoscript.org/quix';
 QuiX.browser = 'moz';
 QuiX.startX = 0;
@@ -204,7 +204,7 @@ XULParser.prototype.detectModules = function (oNode) {
 	}
 	if (iMod && oNode.hasAttribute('img')) {
 		src = oNode.getAttribute('img');
-		if (!QuiX.images.hasItem(src)) {
+		if (src!='' && !QuiX.images.hasItem(src)) {
 			this.__imagesToLoad.push(src);
 		}
 	}
@@ -326,6 +326,7 @@ XULParser.prototype.parseXul = function(oNode, parentW, prm) {
 				if (params.type=='menu') {
 					parentW.appendChild(oWidget);
 					oWidget = oWidget.contextmenu;
+					appendIt = false;
 				}
 				break;
 			case 'form':

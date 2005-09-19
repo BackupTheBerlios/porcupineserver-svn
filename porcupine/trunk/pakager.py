@@ -21,6 +21,7 @@ import getopt, sys, os, cPickle, tarfile, ConfigParser, imp
 from xml.dom import minidom
 
 from porcupine import datatypes
+from porcupine import serverExceptions
 from porcupine.administration import offlinedb
 from porcupine.config import serverSettings
 
@@ -68,7 +69,7 @@ class Package(object):
     
     def _exportItem(self, id, clearRolesInherited=True):
         it_file = file(serverSettings.temp_folder + '/' + id, 'wb')
-        item = cPickle.loads(self.db._getItem(id))
+        item = self.db.getItem(id)
         if clearRolesInherited:
             item.inheritRoles = False
         
@@ -96,23 +97,28 @@ class Package(object):
     def _importItem(self, fileobj, txn):
         sItem = fileobj.read()
         oItem = cPickle.loads(sItem)
-        oParent = cPickle.loads(self.db._getItem(oItem.parentid, txn))
-
-        # write external attributes
-        for prop in [getattr(oItem, x) for x in oItem.__props__]:
-            if isinstance(prop, datatypes.ExternalAttribute):
-                prop._isDirty = True
-                prop._eventHandler.on_create(oItem, prop, txn)
-
-        if oParent and not(oItem._id in oParent._items.values() + \
-                                       oParent._subfolders.values()):
-            if oItem.isCollection:
-                oParent._subfolders[oItem.displayName.value] = oItem._id
-            else:
-                oParent._items[oItem.displayName.value] = oItem._id
-            self.db._putItem(oParent._id, cPickle.dumps(oParent, 2), txn)
-        
-        self.db._putItem(oItem._id, sItem, txn)
+        oParent = self.db.getItem(oItem.parentid, txn)
+        #check if the item already exists
+        try:
+            oOldItem = self.db.getItem(oItem.id, txn)
+        except serverExceptions.DBItemNotFound:
+            # write external attributes
+            for prop in [getattr(oItem, x) for x in oItem.__props__]:
+                if isinstance(prop, datatypes.ExternalAttribute):
+                    prop._isDirty = True
+                    prop._eventHandler.on_create(oItem, prop, txn)
+    
+            if oParent and not(oItem._id in oParent._items.values() + \
+                                           oParent._subfolders.values()):
+                if oItem.isCollection:
+                    oParent._subfolders[oItem.displayName.value] = oItem._id
+                else:
+                    oParent._items[oItem.displayName.value] = oItem._id
+                self.db.putItem(oParent, txn)
+            self.db.putItem(oItem, txn)
+        else:
+            print 'WARNING: Item "%s" already exists. Skipping import...' % \
+                  oItem.displayName.value
         
     def _deltree(self, top):
         for root, dirs, files in os.walk(top, topdown=False):
@@ -200,7 +206,7 @@ class Package(object):
         # database
         dbfiles = [x for x in contents if x[:4] == '_db/']
         if dbfiles:
-            self.db = offlinedb.getHandle().db_handle
+            self.db = offlinedb.getHandle()
             txn = offlinedb.OfflineTransaction()
             try:
                 for dbfile in dbfiles:
@@ -308,7 +314,7 @@ class Package(object):
                 self._deltree(dirname)
                 
         # web apps
-        if '_apps.xml' in contents:
+        if '_pubdir.xml' in contents:
             print 'INFO: uninstalling web apps...'
             appsfile = self.package_file.extractfile('_pubdir.xml')
             _dom = minidom.parse(appsfile)
@@ -423,7 +429,7 @@ class Package(object):
         # Database Items
         items = self.config_file.options('items')
         itemids = [self.config_file.get('items', x) for x in items]
-        self.db = offlinedb.getHandle().db_handle
+        self.db = offlinedb.getHandle()
         try:
             for itemid in itemids:
                 self._exportItem(itemid)
