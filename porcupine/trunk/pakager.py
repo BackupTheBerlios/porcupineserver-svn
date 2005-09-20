@@ -121,6 +121,10 @@ class Package(object):
                 oItem.displayName.value
             oItem.displayName.value = oOldItem.displayName.value
             oItem.description.value = oOldItem.description.value
+            oItem.inheritRoles = oOldItem.inheritRoles
+            oItem.modifiedBy = oOldItem.modifiedBy
+            oItem.modified = oOldItem.modified
+            oItem._created = oOldItem._created
             oItem.security = oOldItem.security
             if oItem.isCollection:
                 oItem._subfolders = oOldItem._subfolders
