@@ -1,0 +1,65 @@
+-------------
+Version 0.0.4
+-------------
+OPT: Removed the limitation that requires the data type class name and the Porcupine
+     object attribute to be identical.
+OPT: ItemNotFound exception displays info about the missing resource.
+OPT: The "pakager" utility is update ready.
+
+FIX: Fixed image positioning of QuiX menu options of type "check" or "radio".
+FIX: Added "formfields.js" to QuiX data grid dependencies.
+FIX: QuiX flat buttons of type menu, if not inside a toolbar, are now displayed.
+FIX: Added "menu_check.gif" missing image.
+FIX: Fixed "Add" and "Remove" buttons on user and group forms.
+FIX: It is now possible to assign "onclick" event handlers to the options of select
+     lists.
+FIX: QuiX Images with an empty "src" attribute are not loaded.
+FIX: Reference1 attributes are displayed in the OQL Query Performer.
+FIX: The "pakager" utility when uninstalling a package, removes published directories.
+
+-------------
+Version 0.0.3
+-------------
+OPT: QuiX interface images are treated as script modules. They are preloaded and
+     displayed inside the preload progress widget.
+OPT: "webApps" directory is renamed to "pubdir". The old name was misleading.
+     This directoty actually contains published directories.
+OPT: All scripts, QuiX modules, images and stylesheets are moved inside Porcupine,
+     under the "pubdir" directory. This completely separates the connectors files
+     from the server files, so that if adding a new QuiX module does not require
+     a new release of the web connectors.
+
+FIX: QuiX multiple file upload progress bar is displayed behind the active window
+FIX: Pakager temporary files cleanup when creating a package
+FIX: QuiX CSS font sizes, in order to have the same look under Windows and
+     Linux
+
+-------------
+Version 0.0.2
+-------------
+NEW: OQL subqueries
+NEW: QuiX List View now has global default date format
+     and default text displayed for "undefined" values
+NEW: XML-RPC lib now serializes object sets and Porcupine objects
+NEW: File control supports saving text files locally
+
+OPT: QuiX modules are loaded asynchronously, allowing debugging
+OPT: QuiX progress bar widget appears while loading interfaces
+OPT: QuiX synchronous image preloading (Patch 0.0.1-20050619)
+
+FIX: Enabling and disabling tree nodes
+FIX: Line numbers of JavaScript errors inside QuiX modules are
+     now reported correctly
+FIX: OQL Performer save query
+FIX: Users and Groups Management "Delete" menu option
+FIX: Desktop back button
+FIX: Login after logout now works
+FIX: Fixed OQL division
+FIX: Enabling and disabling a widget causes the browser to
+     request the URL "http://SERVER_NAME/porcupine.py/undefined"
+     (Patch 0.0.1-20050619)
+
+-------------
+Version 0.0.1
+-------------
+Initial release
