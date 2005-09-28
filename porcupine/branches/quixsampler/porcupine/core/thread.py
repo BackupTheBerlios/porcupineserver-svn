@@ -98,7 +98,8 @@ class PorcupineThread(BaseServerThread):
                         registration = webApp.getRegistration(
                             sAppPath, sMethod, sBrowser, sLang)
                     if not registration:
-                        raise serverExceptions.ItemNotFound
+                        raise serverExceptions.ItemNotFound, \
+                            'The resource "%s" does not exist' % sPath
                 
                 rtype = registration.type
 
@@ -125,13 +126,15 @@ class PorcupineThread(BaseServerThread):
 
         except serverExceptions.PorcupineException, e:
             self.response._writeError(e)
-            e.writeToLog()
+            if e.severity:
+                e.writeToLog()
         except serverExceptions.ProxyRequest, e:
             raise e
         except:
-            exc = serverExceptions.InternalServerError()
-            self.response._writeError(exc)
-            exc.writeToLog()
+            e = serverExceptions.InternalServerError()
+            self.response._writeError(e)
+            if e.severity:
+                e.writeToLog()
 
         # abort uncommited transaction
         if self.trans and not self.trans._iscommited:

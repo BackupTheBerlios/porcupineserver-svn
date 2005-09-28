@@ -44,8 +44,8 @@
 							</a:selectlist>
 						</a:pane>
 						<a:pane length="24" disabled="%(READONLY)s">
-							<a:flatbutton width="50" caption="Add..." onclick="generic.selectItems"></a:flatbutton>
-							<a:flatbutton left="60" width="50" caption="Remove" onclick="generic.removeSelectedItems"></a:flatbutton>
+							<a:flatbutton width="60" height="22" caption="Add..." onclick="generic.selectItems"></a:flatbutton>
+							<a:flatbutton left="70" width="60" height="22" caption="Remove" onclick="generic.removeSelectedItems"></a:flatbutton>
 						</a:pane>
 					</a:splitter>
 				</a:tab>
@@ -58,8 +58,8 @@
 							</a:selectlist>
 						</a:pane>
 						<a:pane length="24" disabled="%(READONLY)s">
-							<a:flatbutton width="50" caption="Add..." onclick="generic.selectItems"></a:flatbutton>
-							<a:flatbutton left="60" width="50" caption="Remove" onclick="generic.removeSelectedItems"></a:flatbutton>
+							<a:flatbutton width="60" height="22" caption="Add..." onclick="generic.selectItems"></a:flatbutton>
+							<a:flatbutton left="70" width="60" height="22" caption="Remove" onclick="generic.removeSelectedItems"></a:flatbutton>
 						</a:pane>
 					</a:splitter>
 				</a:tab>

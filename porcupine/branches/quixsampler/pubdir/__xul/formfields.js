@@ -154,7 +154,7 @@ SelectList.prototype.addOption = function(params) {
 	var oSelectList = this;
 	params.imgalign = 'left';
 	params.align = 'left';
-	params.onclick = function(evt, w){oSelectList._optionSelected(evt, w)};
+	params.onclick = QuiX.getEventWrapper(SelectOption__onclick, params.onclick);
 	var w = new Icon(params);
 	this.appendChild(w);
 	w.isSelected = false;
@@ -209,8 +209,8 @@ SelectList.prototype.getValue = function() {
 	}
 }
 
-SelectList.prototype._optionSelected = function(evt, option) {
-	var oSelectList = this;
+SelectOption__onclick = function(evt, option) {
+	var oSelectList = option.parent;
 	function selectOption(option) {
 		option.div.className = 'optionselected';
 		option.isSelected = true;
@@ -221,13 +221,13 @@ SelectList.prototype._optionSelected = function(evt, option) {
 		option.isSelected = false;
 		oSelectList.selection.removeItem(option);
 	}
-	if (!this.multiple) {
-		this.clearSelection();
+	if (!oSelectList.multiple) {
+		oSelectList.clearSelection();
 		selectOption(option);
 	}
 	else {
 		if (!evt.shiftKey) {
-			this.clearSelection();
+			oSelectList.clearSelection();
 			selectOption(option);
 		}
 		else if (evt.shiftKey && !option.isSelected) {

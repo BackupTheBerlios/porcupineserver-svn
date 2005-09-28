@@ -38,18 +38,22 @@ class PorcupineException(Exception):
         self.info = info
 
     def writeToLog(self):
-        if self.severity:
-            serverLogger = logging.getLogger('serverlog')
-            sDescr = self.description
-            if self.info:
-                sDescr += '\n%s' % self.info
-            if self.outputTraceback:
-                serverLogger.log(self.severity, sDescr, *(), **{'exc_info':1})
-            else:
-                serverLogger.log(self.severity, sDescr)
+        serverLogger = logging.getLogger('serverlog')
+        sDescr = self.description
+        if self.info:
+            sDescr += '\n%s' % self.info
+        serverLogger.log(
+            self.severity,
+            sDescr,
+            *(), 
+            **{'exc_info':self.outputTraceback}
+       )
 
     def getDescription(self):
-        return errors.ERROR_DESCRIPTIONS.setdefault(self.code, 'No description available.')
+        return errors.ERROR_DESCRIPTIONS.setdefault(
+            self.code, 
+            'No description available.'
+        )
     
     description = property(getDescription)
 
@@ -81,8 +85,8 @@ class NoViewRegistered(PorcupineException):
         self.severity = logging.WARNING
 
 class ItemNotFound(PorcupineException):
-    def __init__(self):
-        PorcupineException.__init__(self)
+    def __init__(self, info=''):
+        PorcupineException.__init__(self, info)
         self.code = errors.SERVER_NOT_FOUND
         self.severity = logging.WARNING
 
