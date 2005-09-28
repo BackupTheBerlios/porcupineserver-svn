@@ -86,17 +86,16 @@ def removeDeletedItem(oItem, trans):
             removeDeletedItem(oChild, trans)
 
 def handle_update(oItem, oOldItem, trans):
-    attrs = [
-        getattr(oItem, attr_name)
-        for attr_name in oItem.__props__
-        if hasattr(oItem, attr_name)
-    ]
-    for oAttr in attrs:
+    for attr_name in oItem.__props__:
+        try:
+            oAttr = getattr(oItem, attr_name)
+        except AttributeError:
+            continue
         oAttr.validate()
         if oAttr._eventHandler:
             if oOldItem:
                 # it is an update
-                old_attr = getattr(oOldItem, oAttr.__class__.__name__)
+                old_attr = getattr(oOldItem, attr_name)
                 oAttr._eventHandler.on_update(oItem, oAttr, old_attr, trans)
             else:
                 # it is a new object or undeleting

@@ -84,8 +84,9 @@ MenuOption.prototype._addIndicator = function() {
 	img.height=16;
 	img.border=0;
 	img.align='absmiddle';
+	img.style.marginRight='4px';
 
-	this.padding[0] -= 16;
+	this.padding[0] -= 20;
 	this.repad();
 	this.div.insertBefore(img, this.div.firstChild);
 }
@@ -140,8 +141,8 @@ function MenuOption__onmouseover(evt, w) {
 
 function MenuOption__onclick(evt, w) {
 	if (w.type) w.select();
+	QuiX.cleanupOverlays();
 	if (w.onclick) {
-		QuiX.cleanupOverlays();
 		w.onclick(evt, w);
 	}
 }

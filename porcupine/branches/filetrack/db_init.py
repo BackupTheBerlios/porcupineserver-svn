@@ -671,6 +671,13 @@ queryPerformer.expandNode = function(w) {
                     );
                     oNode.attributes.obj = oAttr;
                 }
+                else if (oAttr.constructor == Object) {
+                    oNode = new TreeNode(
+                        {haschildren:true, caption: attr},
+                        w
+                    );
+                    oNode.attributes.obj = oAttr;
+                }
             }
             if (w.childNodes.length == 0) {
                 oNode = new TreeNode (

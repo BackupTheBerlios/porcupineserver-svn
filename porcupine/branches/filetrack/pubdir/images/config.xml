@@ -45,6 +45,7 @@
     <context path="leftarrow16.gif" method="GET" client=".*" lang=".*" action="leftarrow16.gif"/>
     <context path="list_header.gif" method="GET" client=".*" lang=".*" action="list_header.gif"/>
     <context path="menu_radio.gif" method="GET" client=".*" lang=".*" action="menu_radio.gif"/>
+    <context path="menu_check.gif" method="GET" client=".*" lang=".*" action="menu_check.gif"/>
     <context path="messagebox_info.gif" method="GET" client=".*" lang=".*" action="messagebox_info.gif"/>
     <context path="messagebox_question.gif" method="GET" client=".*" lang=".*" action="messagebox_question.gif"/>
     <context path="messagebox_warning.gif" method="GET" client=".*" lang=".*" action="messagebox_warning.gif"/>
