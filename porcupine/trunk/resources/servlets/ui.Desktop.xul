@@ -17,6 +17,10 @@
 		%(RECYCLE_BIN)s
 	</a:pane>
 	<a:pane length="24" overflow="hidden">
+		<a:contextmenu  onshow="desktop.getWindows">
+			<a:menuoption caption="Minimize all" onclick="desktop.minimizeAll"/>
+			<a:sep/>
+		</a:contextmenu>
 		<a:menubar width="100%%" height="100%%" bgcolor="menu" style="font-weight:bolder">
 			<a:menu caption=">%(START)s">
 				<a:menuoption caption="%(APPLICATIONS)s" img="images/appsfolder.gif">
