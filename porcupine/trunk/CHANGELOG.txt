@@ -3,6 +3,7 @@ Version 0.0.5
 -------------
 NEW: Task bar context menu
 NEW: QuiX timers
+NEW: Clock displayed on the right of the task bar
 
 
 -------------
