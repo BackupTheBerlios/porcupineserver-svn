@@ -50,6 +50,14 @@ desktop.minimizeAll = function() {
 	var oWindows = document.desktop.getWidgetsByType(Window);
 	for (var i=0; i<oWindows.length; i++) {
 		if (oWindows[i].parent == document.desktop && oWindows[i].canMini)
-			oWindows[i].minimize();
+			if (!oWindows[i].isMinimized) oWindows[i].minimize();
 	}
+}
+
+desktop.displayTime = function(timer) {
+	timer.div.innerHTML = new Date().format("time");	
+}
+
+desktop.check = function(t) {
+	alert('timeout');
 }

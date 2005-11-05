@@ -18,7 +18,7 @@
 	</a:pane>
 	<a:pane length="24" overflow="hidden">
 		<a:contextmenu  onshow="desktop.getWindows">
-			<a:menuoption caption="Minimize all" onclick="desktop.minimizeAll"/>
+			<a:menuoption img="images/mini_all.gif" caption="Minimize all" onclick="desktop.minimizeAll"/>
 			<a:sep/>
 		</a:contextmenu>
 		<a:menubar width="100%%" height="100%%" bgcolor="menu" style="font-weight:bolder">
@@ -35,5 +35,10 @@
 				</a:menuoption>
 			</a:menu>
 		</a:menubar>
+		<a:timer interval="60000"
+				left="this.parent.getWidth()-50"
+				top="5" width="46"
+				handler="desktop.displayTime"
+				auto="true"  />
 	</a:pane>
 </a:splitter>

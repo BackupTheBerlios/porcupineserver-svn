@@ -1,4 +1,11 @@
 -------------
+Version 0.0.5
+-------------
+NEW: Task bar context menu
+NEW: QuiX timers
+
+
+-------------
 Version 0.0.4
 -------------
 OPT: Removed the limitation that requires the data type class name and the Porcupine

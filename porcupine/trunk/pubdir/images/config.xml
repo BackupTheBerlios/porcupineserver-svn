@@ -49,6 +49,7 @@
     <context path="messagebox_info.gif" method="GET" client=".*" lang=".*" action="messagebox_info.gif"/>
     <context path="messagebox_question.gif" method="GET" client=".*" lang=".*" action="messagebox_question.gif"/>
     <context path="messagebox_warning.gif" method="GET" client=".*" lang=".*" action="messagebox_warning.gif"/>
+    <context path="mini_all.gif" method="GET" client=".*" lang=".*" action="mini_all.gif"/>
     <context path="object.gif" method="GET" client=".*" lang=".*" action="object.gif"/>
     <context path="ok.gif" method="GET" client=".*" lang=".*" action="ok.gif"/>
     <context path="ok10.gif" method="GET" client=".*" lang=".*" action="ok10.gif"/>
