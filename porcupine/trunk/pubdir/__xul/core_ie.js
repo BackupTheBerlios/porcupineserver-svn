@@ -214,13 +214,13 @@ XULParser.prototype.detectModules = function(oNode) {
 }
 
 XULParser.prototype.loadModules= function(w) {
-	var oModule;
+	var oModule, imgurl, img;
 	if (w) {
 		this.progressWidget = w;
 		w.getWidgetById('pb').maxvalue = this.__modulesToLoad.length + this.__imagesToLoad.length;
 	}
 	if (this.__modulesToLoad.length > 0) {
-		var oModule = this.__modulesToLoad.pop();
+		oModule = this.__modulesToLoad.pop();
 		if (this.progressWidget) {
 			this.progressWidget.getWidgetById('pb').increase(1);
 			this.progressWidget.div.getElementsByTagName('SPAN')[0].innerHTML = oModule.name;
