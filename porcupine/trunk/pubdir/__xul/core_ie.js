@@ -576,12 +576,14 @@ QImage.prototype.load = function(parser) {
 	var img = new Image();
 	QuiX.images.push(this.url);
 	img.resource = this;
-	img.onreadystatechange = Resource_onstatechange;
+	img.onload = Resource_onstatechange;
 	img.src = this.url;
+	if (document.desktop) document.body.appendChild(img);
 }
 
 Resource_onstatechange = function() {
 	if (this.readyState=='loaded' || this.readyState=='complete') {
+		if (this.tagName=='IMG') this.removeNode();
 		this.resource.isLoaded = true;
 		this.resource.parser.loadModules();
 	}
