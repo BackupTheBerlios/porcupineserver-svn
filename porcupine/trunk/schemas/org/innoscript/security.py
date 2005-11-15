@@ -20,6 +20,7 @@ import md5
 
 from porcupine import systemObjects as system
 from schemas.org.innoscript import properties
+from porcupine import datatypes
 
 class PoliciesFolder(system.Container):
     """
@@ -140,6 +141,7 @@ class User(GenericUser):
         GenericUser.__init__(self)
         self.password = properties.password()
         self.email = properties.email()
+        self.settings = datatypes.Dictionary()
 
     def authenticate(self, sPsw):
         """Checks if the given string matches the
