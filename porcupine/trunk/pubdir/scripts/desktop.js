@@ -16,6 +16,10 @@ desktop.showAbout = function (evt, w) {
 	desktop.parseFromUrl(QuiX.root + '?cmd=about');
 }
 
+desktop.showSettings = function(evt, w) {
+	document.desktop.parseFromUrl(QuiX.root + '?cmd=user_settings');
+}
+
 desktop.do_logoff = function() {
 	var xmlrpc = new XMLRPCRequest(QuiX.root);
 	xmlrpc.oncomplete = function() {
@@ -58,6 +62,13 @@ desktop.displayTime = function(timer) {
 	timer.div.innerHTML = new Date().format("time");	
 }
 
-desktop.check = function(t) {
-	alert('timeout');
+desktop.applyUserSettings = function(evt ,w) {
+	var oDialog = w.getParentByType(Dialog);
+	oDialog.getWidgetsByType(Form)[0].submit(
+		function(){
+			oDialog.close();
+			document.desktop.clear();
+			document.desktop.parseFromUrl(QuiX.root);
+		}
+	);
 }

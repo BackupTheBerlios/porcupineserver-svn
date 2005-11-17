@@ -78,6 +78,8 @@
     <context path="spin_up.gif" method="GET" client=".*" lang=".*" action="spin_up.gif"/>
     <context path="store.gif" method="GET" client=".*" lang=".*" action="store.gif"/>
     <context path="submenu.gif" method="GET" client=".*" lang=".*" action="submenu.gif"/>
+    <context path="taskbar_top.gif" method="GET" client=".*" lang=".*" action="taskbar_top.gif"/>
+    <context path="taskbar_bottom.gif" method="GET" client=".*" lang=".*" action="taskbar_bottom.gif"/>
     <context path="tb_handle.gif" method="GET" client=".*" lang=".*" action="tb_handle.gif"/>
     <context path="transp.gif" method="GET" client=".*" lang=".*" action="transp.gif"/>
     <context path="trashcan_empty22.gif" method="GET" client=".*" lang=".*" action="trashcan_empty22.gif"/>

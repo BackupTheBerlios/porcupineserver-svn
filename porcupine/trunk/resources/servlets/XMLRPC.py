@@ -229,7 +229,19 @@ class Login(XMLRPCServlet):
                 self.session.user = oUser
                 return True
         return False
-
+        
+class ApplyUserSettings(XMLRPCServlet):
+    def applySettings(self, data):
+        activeUser = self.session.user
+        self.runAsSystem()
+        
+        activeUser.settings.value = data
+        
+        txn = self.server.store.getTransaction()
+        activeUser.update(txn)
+        txn.commit()
+        
+        return True
 
 #================================================================================
 # Category
