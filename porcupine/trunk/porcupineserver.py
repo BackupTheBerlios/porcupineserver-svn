@@ -31,7 +31,7 @@ from porcupine import serverExceptions
 from porcupine.config import serverLogging
 
 warnings.filterwarnings('ignore', '', exceptions.Warning, 'logging')
-__version__ = '0.0.4 build(20050919)'
+__version__ = '0.0.5 build(20051117)'
 PID_FILE = 'conf/.pid'
 
 class PorcupineServer(asyncBaseServer.BaseServer):
