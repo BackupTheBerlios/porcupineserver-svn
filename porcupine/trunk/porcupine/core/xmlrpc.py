@@ -127,7 +127,10 @@ class XMLRPCParams(list):
         elif isinstance(param, systemObjects.GenericItem):
             xmlrpc_object = {}
             for attr in dir(param):
-                oAttr = getattr(param, attr)
+                try:
+                    oAttr = getattr(param, attr)
+                except AttributeError:
+                    continue
                 if attr in DEFAULT_PROPS or \
                 isinstance(oAttr, datatypes.DataType):
                     if isinstance(oAttr, datatypes.ExternalAttribute):
