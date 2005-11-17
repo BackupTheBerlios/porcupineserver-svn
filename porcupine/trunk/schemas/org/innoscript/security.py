@@ -133,6 +133,9 @@ class User(GenericUser):
 
     @ivar email: The user's email.
     @type email: L{email<schemas.org.innoscript.properties.email>}
+
+    @ivar settings: User specific preferences.
+    @type email: L{Dictionary<porcupine.datatypes.Dictionary>}
     """
     __slots__ = ('password', 'email', 'settings')
     __props__ = GenericUser.__props__ + __slots__
