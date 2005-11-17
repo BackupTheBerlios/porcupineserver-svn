@@ -134,7 +134,7 @@ class User(GenericUser):
     @ivar email: The user's email.
     @type email: L{email<schemas.org.innoscript.properties.email>}
     """
-    __slots__ = ('password', 'email')
+    __slots__ = ('password', 'email', 'settings')
     __props__ = GenericUser.__props__ + __slots__
     
     def __init__(self):
