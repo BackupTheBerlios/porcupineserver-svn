@@ -49,6 +49,13 @@
 			client="(MSIE 6)|(Mozilla/5.0.+rv:1.[7-9])"
 			lang=".*"
 			action="resources.servlets.ui.AboutDialog"/>
+
+	<reg cc="schemas.org.innoscript.common.RootFolder"
+			method="GET"
+			param="user_settings"
+			client="(MSIE 6)|(Mozilla/5.0.+rv:1.[7-9])"
+			lang=".*"
+			action="resources.servlets.ui.Dlg_UserSettings"/>
 			
 	<reg cc="schemas.org.innoscript.common.(Root)?Folder"
 			method="GET"
@@ -163,6 +170,13 @@
 			client="vcXMLRPC"
 			lang=".*"
 			action="resources.servlets.XMLRPC.Login"/>
+
+	<reg cc="schemas.org.innoscript.common.RootFolder"
+			method="POST"
+			param="applySettings"
+			client="vcXMLRPC"
+			lang=".*"
+			action="resources.servlets.XMLRPC.ApplyUserSettings"/>
 			
 	<reg cc="schemas.org.innoscript.common.Category"
 			method="POST"
