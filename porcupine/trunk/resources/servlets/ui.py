@@ -395,6 +395,7 @@ class ContainerList(PorcupineDesktopServlet):
 
 class Desktop(PorcupineDesktopServlet):
     def setParams(self):
+        self.response.setHeader('cache-control', 'no-cache')
         sLang = self.request.getLang()        
         self.params = {
             'LOGOFF': self.server.resources.getResource('LOGOFF', sLang),
@@ -464,9 +465,8 @@ class AboutDialog(XULServlet):
 
 class Dlg_UserSettings(XULServlet):
     def setParams(self):
-        sLang = self.request.getLang()
         self.response.setHeader('cache-control', 'no-cache')
-        self.response.setExpiration(1200)
+        sLang = self.request.getLang()
         
         self.params = self.server.resources.getLocale(sLang).copy()
         if self.session.user.settings.value['TASK_BAR_POS'] == 'bottom':
