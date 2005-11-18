@@ -559,6 +559,7 @@ class Frm_GroupNew(PorcupineDesktopServlet):
 
 class Frm_GroupProperties(PorcupineDesktopServlet):
     def setParams(self):
+        self.response.setHeader('cache-control', 'no-cache')
         sLang = self.request.getLang()
 
         user = self.session.user
@@ -623,6 +624,7 @@ class Frm_UserResetPassword(PorcupineDesktopServlet):
         
 class Frm_UserProperties(PorcupineDesktopServlet):
     def setParams(self):
+        self.response.setHeader('cache-control', 'no-cache')
         sLang = self.request.getLang()
 
         user = self.session.user
