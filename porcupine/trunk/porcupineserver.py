@@ -124,7 +124,9 @@ class PorcupineServer(asyncBaseServer.BaseServer):
         
         logger.info('Porcupine Server started succesfully')
         print 'Porcupine Server v%s' % __version__
-        print 'Python version is: %s' % sys.version
+        sPythonVersion = 'Python %s' % sys.version
+        logger.info(sPythonVersion)
+        print sPythonVersion
         print '''Porcupine comes with ABSOLUTELY NO WARRANTY.
 This is free software, and you are welcome to redistribute it under
 certain conditions; See COPYING for more details.'''
