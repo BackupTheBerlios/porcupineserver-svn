@@ -81,7 +81,7 @@
 						<a:prop name="action" value="copy"></a:prop>
 					</a:menuoption>
 					<a:menuoption img="images/paste.gif" caption="%(PASTE)s" onclick="containerList.paste"></a:menuoption>
-					<a:menuoption img="images/editdelete.gif" caption="Delete" onclick="containerList.deleteItem"></a:menuoption>
+					<a:menuoption img="images/editdelete.gif" caption="%(DELETE)s" onclick="containerList.deleteItem"></a:menuoption>
 					<a:sep></a:sep>
 					<a:menuoption caption="%(MOVE)s..." onclick="containerList.copyMove">
 						<a:prop name="action" value="move"></a:prop>
