@@ -15,6 +15,7 @@ NEW: New module named "configfiles" in the administration package.
 	 It also contains a function for merging configuration files.
 
 OPT: Did some code cleanup on the "pakager" and added some minor optimizations
+OPT: No caching to user and group property dialogs
 
 FIX: Fixed QuiX bug on IE that causes one of the two interfaces loading
      simultaneously not to load (the "onload" event of the images
