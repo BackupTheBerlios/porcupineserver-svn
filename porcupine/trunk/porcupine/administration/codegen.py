@@ -145,6 +145,7 @@ class GenericSchemaEditor(object):
 class ItemEditor(GenericSchemaEditor):
     def __init__(self, classobj):
         GenericSchemaEditor.__init__(self, classobj)
+        self._addedProps = {}
         if issubclass(self._class, systemObjects.GenericItem):
             self.containment = None
             self.image = self._class.__image__
@@ -155,29 +156,8 @@ class ItemEditor(GenericSchemaEditor):
                 'ItemEditor accepts only subclasses of GenericItem'
     
     def addProperty(self, name, value):
-        from porcupine.oql.command import OqlCommand
-        db = offlinedb.getHandle()
-        oql_command = OqlCommand()
-        rs = oql_command.execute(
-            "select * from deep('/') where instanceof('%s')" %
-            self._instance.contentclass)
-        try:
-            if len(rs):
-                txn = offlinedb.OfflineTransaction()
-                try:
-                    for item in rs:
-                        if not hasattr(item, name):
-                            setattr(item, name, value)
-                        db.putItem(item, txn)
-                    txn.commit()
-                except Exception, e:
-                    txn.abort()
-                    raise e
-                    sys.exit(2)
-        finally:
-            offlinedb.close()
-
         self._attrs[name] = value
+        self._addedProps[name] = value
         
     def removeProperty(self, name):
         from porcupine.oql.command import OqlCommand
@@ -204,6 +184,38 @@ class ItemEditor(GenericSchemaEditor):
         
         if self._attrs.has_key(name):
             del self._attrs[name]
+            
+    def commitChanges(self):
+        GenericSchemaEditor.commitChanges(self)
+        if len(self._addedProps):
+            #we must reload the class module
+            oMod = misc.getClassByName(self._class.__module__)
+            reload(oMod)
+            from porcupine.oql.command import OqlCommand
+            
+            db = offlinedb.getHandle()
+            oql_command = OqlCommand()
+            rs = oql_command.execute(
+                "select * from deep('/') where instanceof('%s')" %
+                self._instance.contentclass)
+            try:
+                if len(rs):
+                    txn = offlinedb.OfflineTransaction()
+                    try:
+                        for item in rs:
+                            for name in self._addedProps:
+                                if not hasattr(item, name):
+                                    setattr(item, name, self._addedProps[name])
+                            db.putItem(item, txn)
+                        txn.commit()
+                    except Exception, e:
+                        txn.abort()
+                        raise e
+                        sys.exit(2)
+            finally:
+                offlinedb.close()
+
+
 
     def generateCode(self):
         bases = [self._getFullName(x) for x in self._bases]
