@@ -51,6 +51,13 @@
 		<res id="APPLICATIONS">Applications</res>
 		<res id="SETTINGS">Settings</res>
 		<res id="START">Start</res>
+		
+		<res id="TASK_BAR">Task bar</res>
+		<res id="TASK_BAR_POSITION">Task bar position</res>
+		<res id="TOP">Top</res>
+		<res id="BOTTOM">Bottom</res>
+		<res id="APPLY">Apply</res>
+		
 		<res id="RECYCLE_BIN">Recycle Bin</res>
 		<res id="EMPTY_BIN">Empty Bin</res>
 		<res id="ORIGINAL_LOC">Original location</res>
@@ -160,6 +167,13 @@
 		<res id="APPLICATIONS">Εφαρμογές</res>
 		<res id="SETTINGS">Ρυθμίσεις</res>
 		<res id="START">Έναρξη</res>
+
+		<res id="TASK_BAR">Γραμμή εργασιών</res>
+		<res id="TASK_BAR_POSITION">Θέση γραμμής εργασιών</res>
+		<res id="TOP">Επάνω</res>
+		<res id="BOTTOM">Κάτω</res>
+		<res id="APPLY">Εφαρμογή</res>
+
 		<res id="RECYCLE_BIN">Κάδος Ανακύκλωσης</res>
 		<res id="EMPTY_BIN">Άδειασμα Κάδου</res>
 		<res id="ORIGINAL_LOC">Αρχική τοποθεσία</res>

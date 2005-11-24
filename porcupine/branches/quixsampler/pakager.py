@@ -22,7 +22,7 @@ from xml.dom import minidom
 
 from porcupine import datatypes
 from porcupine import serverExceptions
-from porcupine.administration import offlinedb
+from porcupine.administration import offlinedb, configfiles
 from porcupine.config import serverSettings
 
 __usage__ = """
@@ -165,7 +165,7 @@ class Package(object):
             _dom = minidom.parse(regsfile)
             package_node = _dom.getElementsByTagName('package')[0]
             package_node = package_node.cloneNode(True)
-            conf_file = ConfigFile('conf/store.xml')
+            conf_file = configfiles.ConfigFileManager('conf/store.xml')
             old_node = conf_file.getPackageNode(self.name)
             if old_node:
                 conf_file.replacePackageNode(package_node, old_node)
@@ -174,14 +174,14 @@ class Package(object):
             _dom.unlink()
             conf_file.close()
 
-        # registrations
+        # string resources
         if '_resources.xml' in contents:
             print 'INFO: installing package resources...'
             resfile = self.package_file.extractfile('_resources.xml')
             _dom = minidom.parse(resfile)
             package_node = _dom.getElementsByTagName('package')[0]
             package_node = package_node.cloneNode(True)
-            conf_file = ConfigFile('conf/stringresources.xml')
+            conf_file = configfiles.ConfigFileManager('conf/stringresources.xml')
             old_node = conf_file.getPackageNode(self.name)
             if old_node:
                 conf_file.replacePackageNode(package_node, old_node)
@@ -190,24 +190,24 @@ class Package(object):
             _dom.unlink()
             conf_file.close()
             
-        # web apps
+        # published directories
         if '_pubdir.xml' in contents:
             print 'INFO: installing published directories...'
-            appsfile = self.package_file.extractfile('_pubdir.xml')
-            _dom = minidom.parse(appsfile)
-            appsConfig = AppConfigFile()
-            app_nodes = _dom.getElementsByTagName('dir')
-            for app_node in app_nodes:
-                app_node = app_node.cloneNode(True)
-                app_name = app_node.getAttribute('name')
-                print 'INFO: installing published directory "%s"' % app_name
-                old_node = appsConfig.getAppNode(app_name)
+            dirsfile = self.package_file.extractfile('_pubdir.xml')
+            _dom = minidom.parse(dirsfile)
+            dirsConfig = configfiles.PubDirManager()
+            dir_nodes = _dom.getElementsByTagName('dir')
+            for dir_node in dir_nodes:
+                dir_node = dir_node.cloneNode(True)
+                dir_name = dir_node.getAttribute('name')
+                print 'INFO: installing published directory "%s"' % dir_name
+                old_node = dirsConfig.getDirNode(dir_name)
                 if old_node:
-                    appsConfig.replaceAppNode(app_node, old_node)
+                    dirsConfig.replaceDirNode(dir_node, old_node)
                 else:
-                    appsConfig.addAppNode(app_node)
+                    dirsConfig.addDirNode(dir_node)
             _dom.unlink()
-            appsConfig.close(True)
+            dirsConfig.close(True)
                 
         # files and dirs
         for pfile in [x for x in contents if x[0] != '_']:
@@ -254,23 +254,23 @@ class Package(object):
     def uninstall(self):
         print 'INFO: uninstalling [%s-%s] package...' % (self.name, self.version)
         
-        # Registrations
-        conf_file = ConfigFile('conf/store.xml')
+        # registrations
+        conf_file = configfiles.ConfigFileManager('conf/store.xml')
         pkgnode = conf_file.getPackageNode(self.name)
         if pkgnode:
             print 'INFO: removing package registrations'
             conf_file.removePackageNode(pkgnode)
             conf_file.close()
         
-        # Resources
-        conf_file = ConfigFile('conf/stringresources.xml')
+        # string resources
+        conf_file = configfiles.ConfigFileManager('conf/stringresources.xml')
         pkgnode = conf_file.getPackageNode(self.name)
         if pkgnode:
             print 'INFO: removing package resources'
             conf_file.removePackageNode(pkgnode)
             conf_file.close()
             
-        # Database Items
+        # database items
         items = self.config_file.options('items')
         itemids = [self.config_file.get('items', x) for x in items]
         self.db = offlinedb.getHandle()
@@ -301,7 +301,7 @@ class Package(object):
             execfile(serverSettings.temp_folder + '/_uninstall.py')
             os.remove(serverSettings.temp_folder + '/_uninstall.py')
         
-        # Files
+        # files
         files = self.config_file.options('files')
         for fl in files:
             fname = self.config_file.get('files', fl)
@@ -316,7 +316,7 @@ class Package(object):
                     if os.path.exists(fname + x)
                 ]
     
-        # Directories
+        # directories
         dirs = self.config_file.options('dirs')
         for dir in dirs:
             dirname = self.config_file.get('dirs', dir)
@@ -324,32 +324,32 @@ class Package(object):
                 print 'INFO: removing directory ' + dirname
                 self._deltree(dirname)
                 
-        # web apps
+        # published dirs
         if '_pubdir.xml' in contents:
             print 'INFO: uninstalling web apps...'
-            appsfile = self.package_file.extractfile('_pubdir.xml')
-            _dom = minidom.parse(appsfile)
-            appsConfig = AppConfigFile()
-            app_nodes = _dom.getElementsByTagName('dir')
-            for app_node in app_nodes:
+            dirsfile = self.package_file.extractfile('_pubdir.xml')
+            _dom = minidom.parse(dirsfile)
+            dirsConfig = configfiles.PubDirManager()
+            dir_nodes = _dom.getElementsByTagName('dir')
+            for dir_node in dir_nodes:
                 #app_node = app_node.cloneNode(True)
-                app_name = app_node.getAttribute('name')
+                dir_name = dir_node.getAttribute('name')
                 print 'INFO: uninstalling published directory "%s"' % app_name
-                old_node = appsConfig.getAppNode(app_name)
+                old_node = dirsConfig.getDirNode(dir_name)
                 if old_node:
-                    appsConfig.removeAppNode(old_node)
+                    dirsConfig.removeDirNode(old_node)
                 else:
                     print 'WARNING: published directory "%s" does not exist' % app_name
-                dirname = 'pubdir/' + app_name
+                dirname = 'pubdir/' + dir_name
                 if os.path.exists(dirname):
                     self._deltree(dirname)
 
             _dom.unlink()
-            appsConfig.close(True)
+            dirsConfig.close(True)
 
     def create(self):
-        # Registrations
-        conf_file = ConfigFile('conf/store.xml')
+        # registrations
+        conf_file = configfiles.ConfigFileManager('conf/store.xml')
         pkgnode = conf_file.getPackageNode(self.name)
         if pkgnode:
             print 'INFO: extracting package registrations'
@@ -367,8 +367,8 @@ class Package(object):
         else:
             print 'WARNING: Package "' + self.name + '" has no registrations'
         
-        # Resources
-        conf_file = ConfigFile('conf/stringresources.xml')
+        # resources
+        conf_file = configfiles.ConfigFileManager('conf/stringresources.xml')
         pkgnode = conf_file.getPackageNode(self.name)
         if pkgnode:
             print 'INFO: extracting package resources'
@@ -387,7 +387,7 @@ class Package(object):
         else:
             print 'WARNING: Package "' + self.name + '" has no resources'
         
-        # Files
+        # files
         files = self.config_file.options('files')
         for fl in files:
             fname = self.config_file.get('files', fl)
@@ -396,48 +396,48 @@ class Package(object):
                 (self.package_file.gettarinfo(fname, fname), fname)
             )
     
-        # Directories
+        # directories
         dirs = self.config_file.options('dirs')
         for dir in dirs:
             dirname = self.config_file.get('dirs', dir)
             print 'INFO: adding directory ' + dirname
             self._addtree(dirname)
         
-        # pub dirs
+        # published directories
         if self.config_file.has_section('pubdir'):
-            webapps = self.config_file.options('pubdir')
-            appsConfig = AppConfigFile()
+            pubdirs = self.config_file.options('pubdir')
+            dirsConfig = configfiles.PubDirManager()
             
-            app_nodes = []
-            for app in webapps:
-                appname = self.config_file.get('pubdir', app)
+            dir_nodes = []
+            for dir in pubdirs:
+                dirname = self.config_file.get('pubdir', dir)
                 print 'INFO: adding published directory "%s"' % appname
-                app_node = appsConfig.getAppNode(appname)
-                if app_node:
-                        app_nodes.append(app_node)
-                        app_dir = 'pubdir/' + app_node.getAttribute('path')
-                        self._addtree(app_dir)
+                dir_node = dirsConfig.getDirNode(dirname)
+                if dir_node:
+                        dir_nodes.append(dir_node)
+                        dir_location = 'pubdir/' + dir_node.getAttribute('path')
+                        self._addtree(dir_location)
                 else:
-                    print 'WARNING: webapp "%s" does not exist' % appname
+                    print 'WARNING: published directory "%s" does not exist' % appname
             
-            if app_nodes:
-                appsFile = file(serverSettings.temp_folder + '/_pubdir.xml', 'w')
-                appsFile.write('<?xml version="1.0" encoding="utf-8"?><dirs>')
-                for app_node in app_nodes:
-                    appsFile.write(app_node.toxml('utf-8'))
-                appsFile.write('</dirs>')
-                appsFile.close()
+            if dir_nodes:
+                dirsFile = file(serverSettings.temp_folder + '/_pubdir.xml', 'w')
+                dirsFile.write('<?xml version="1.0" encoding="utf-8"?><dirs>')
+                for dir_node in dir_nodes:
+                    dirsFile.write(dir_node.toxml('utf-8'))
+                dirsFile.write('</dirs>')
+                dirsFile.close()
                 self.package_files.append(
                     (
                         self.package_file.gettarinfo(
-                            appsFile.name, os.path.basename(appsFile.name)
+                            dirsFile.name, os.path.basename(dirsFile.name)
                         ),
-                        appsFile.name
+                        dirsFile.name
                     )
                 )
-            appsConfig.close(False)
+            dirsConfig.close(False)
         
-        # Database Items
+        # database items
         items = self.config_file.options('items')
         itemids = [self.config_file.get('items', x) for x in items]
         self.db = offlinedb.getHandle()
@@ -447,7 +447,7 @@ class Package(object):
         finally:
             offlinedb.close()
                 
-        # Scripts
+        # scripts
         if self.config_file.has_option('scripts', 'preinstall'):
             preinstall = self.config_file.get('scripts', 'preinstall')
             print 'INFO: adding pre-install script "%s"' % preinstall
@@ -478,7 +478,7 @@ class Package(object):
                 )
             )
             
-        # Definition file
+        # definition file
         self.package_files.append(
             (
                 self.package_file.gettarinfo(definition, '_pkg.ini'),
@@ -486,7 +486,7 @@ class Package(object):
             )
         )
     
-        # Compact files
+        # compact files
         print 'INFO: compacting...'
         for tarinfo, fname in self.package_files:
             if tarinfo.isfile():
@@ -497,64 +497,6 @@ class Package(object):
                     os.remove(fname)
             else:
                 self.package_file.add(fname)
-                
-class AppConfigFile(object):
-    def __init__(self):
-        self._xmlfile = minidom.parse('conf/pubdir.xml')
-        
-    def getAppNode(self, appName):
-        applist = self._xmlfile.getElementsByTagName('dir')
-        for appnode in applist:
-            if appName==appnode.getAttribute('name'):
-                return appnode
-    
-    def addAppNode(self, appNode):
-        apps_node = self._xmlfile.getElementsByTagName('dirs')[0]
-        apps_node.appendChild(appNode)
-    
-    def removeAppNode(self, appNode):
-        apps_node = self._xmlfile.getElementsByTagName('dirs')[0]
-        apps_node.removeChild(appNode)
-
-    def replaceAppNode(self, new_node, old_node):
-        apps_node = self._xmlfile.getElementsByTagName('dirs')[0]
-        apps_node.replaceChild(new_node, old_node)
-
-    def close(self, commitChanges):
-        if commitChanges:
-            configfile = file('conf/pubdir.xml', 'w')
-            configfile.write(self._xmlfile.toxml('utf-8'))
-            configfile.close()
-        self._xmlfile.unlink()
-
-class ConfigFile(object):
-    def __init__(self, configfile):
-        self._fn = configfile
-        self._xmlfile = minidom.parse(configfile)
-        
-    def getPackageNode(self, pkgname):
-        packagelist = self._xmlfile.getElementsByTagName('package')
-        for pkgnode in packagelist:
-            if pkgname==pkgnode.getAttribute('name'):
-                return pkgnode
-    
-    def addPackageNode(self, package_node):
-        packages_node = self._xmlfile.getElementsByTagName('packages')[0]
-        packages_node.appendChild(package_node)
-        
-    def removePackageNode(self, package_node):
-        packages_node = self._xmlfile.getElementsByTagName('packages')[0]
-        packages_node.removeChild(package_node)
-        
-    def replacePackageNode(self, new_node, old_node):
-        packages_node = self._xmlfile.getElementsByTagName('packages')[0]
-        packages_node.replaceChild(new_node, old_node)
-        
-    def close(self):
-        configfile = file(self._fn, 'w')
-        configfile.write(self._xmlfile.toxml('utf-8'))
-        configfile.close()
-        self._xmlfile.unlink()
 
 def usage():
     print __usage__

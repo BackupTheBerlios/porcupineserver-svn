@@ -1,4 +1,27 @@
 -------------
+Version 0.0.5
+-------------
+NEW: QuiX timers
+NEW: QuiX radio buttons
+NEW: Task bar context menu
+NEW: Clock displayed on the right of the task bar
+NEW: User is able to choose the task bar position (settings dialog)
+NEW: User object now has a "settings" attribute for storing user preferences
+NEW: Added Python version to porcupineserver.py output
+NEW: "instanceof" OQL function
+NEW: "Dictionary" data type
+NEW: New module named "configfiles" in the administration package.
+	 It is used for the managing the Porcupine configuration files at runtime.
+	 It also contains a function for merging configuration files.
+
+OPT: Did some code cleanup on the "pakager" and added some minor optimizations
+OPT: No caching to user and group property dialogs
+
+FIX: Fixed QuiX bug on IE that causes one of the two interfaces loading
+     simultaneously not to load (the "onload" event of the images
+     was not fired)
+
+-------------
 Version 0.0.4
 -------------
 OPT: Removed the limitation that requires the data type class name and the Porcupine

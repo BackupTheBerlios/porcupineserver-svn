@@ -21,6 +21,7 @@ OQL Core Interpreter
 import time
 
 from porcupine.utils.date import Date
+from porcupine.utils import misc
 from porcupine import datatypes
 from porcupine.core import objectSet
 from porcupine.db import dbEnv
@@ -35,6 +36,7 @@ IN          = 62
 HASATTR     = 63
 SLICE       = 64
 IF          = 65
+INSTANCEOF  = 66
 
 CMD_ASSIGN  = 100
 OQL_SELECT  = 200
@@ -265,6 +267,13 @@ def h_65(params, variables, forObject):
         return evaluateStack(params[1][:], variables, forObject)
     else:
         return evaluateStack(params[2][:], variables, forObject)
+        
+#================================================================================
+# INSTANCEOF command handler
+#================================================================================
+def h_66(params, variables, forObject):
+    className = evaluateStack(params[0][:], variables, forObject)
+    return isinstance(forObject, misc.getClassByName(className))
 
 #================================================================================
 # assignment command handler

@@ -31,7 +31,7 @@ from porcupine import serverExceptions
 from porcupine.config import serverLogging
 
 warnings.filterwarnings('ignore', '', exceptions.Warning, 'logging')
-__version__ = '0.0.4 build(20050919)'
+__version__ = '0.0.5 build(20051117)'
 PID_FILE = 'conf/.pid'
 
 class PorcupineServer(asyncBaseServer.BaseServer):
@@ -124,6 +124,9 @@ class PorcupineServer(asyncBaseServer.BaseServer):
         
         logger.info('Porcupine Server started succesfully')
         print 'Porcupine Server v%s' % __version__
+        sPythonVersion = 'Python %s' % sys.version
+        logger.info(sPythonVersion)
+        print sPythonVersion
         print '''Porcupine comes with ABSOLUTELY NO WARRANTY.
 This is free software, and you are welcome to redistribute it under
 certain conditions; See COPYING for more details.'''

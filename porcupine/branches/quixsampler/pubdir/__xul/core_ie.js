@@ -30,7 +30,7 @@ function Clipboard() {
 }
 
 var QuiX = function() {}
-QuiX.version = '0.2 build 20050917';
+QuiX.version = '0.3 build 20051117';
 QuiX.namespace = 'http://www.innoscript.org/quix';
 QuiX.browser = 'ie';
 QuiX.startX = 0;
@@ -59,7 +59,8 @@ QuiX.modules = [
 	new Module('Common Widgets', '__xul/common.js', [3]),
 	new Module('Datagrid', '__xul/datagrid.js', [5,8]),
 	new Module('File Control', '__xul/file.js', [3,8]),
-	new Module('Date Picker', '__xul/datepicker.js', [9])
+	new Module('Date Picker', '__xul/datepicker.js', [9]),
+	new Module('Timers', '__xul/timers.js', []),
 ];
 QuiX.tags = {
 	'desktop':-1,'xhtml':-1,'script':-1,'prop':-1,'rect':-1,'progressbar':-1,
@@ -75,7 +76,8 @@ QuiX.tags = {
 	'hr':9,'combo':9,'spinbutton':9,
 	'datagrid':10,
 	'file':11,'multifile':11,
-	'datepicker':12
+	'datepicker':12,
+	'timer':13
 };
 QuiX.Exception = function(name, msg) {
 	this.name = name;
@@ -212,13 +214,13 @@ XULParser.prototype.detectModules = function(oNode) {
 }
 
 XULParser.prototype.loadModules= function(w) {
-	var oModule;
+	var oModule, imgurl, img;
 	if (w) {
 		this.progressWidget = w;
 		w.getWidgetById('pb').maxvalue = this.__modulesToLoad.length + this.__imagesToLoad.length;
 	}
 	if (this.__modulesToLoad.length > 0) {
-		var oModule = this.__modulesToLoad.pop();
+		oModule = this.__modulesToLoad.pop();
 		if (this.progressWidget) {
 			this.progressWidget.getWidgetById('pb').increase(1);
 			this.progressWidget.div.getElementsByTagName('SPAN')[0].innerHTML = oModule.name;
@@ -489,6 +491,9 @@ XULParser.prototype.parseXul = function(oNode, parentW, prm) {
 			case 'rect':
 				oWidget = new Widget(params);
 				break;
+			case 'timer':
+				oWidget = new Timer(params);
+				break;
 			case 'prop':
 				var attr_value = params['value'] || '';
 				checkForChilds = false;
@@ -571,12 +576,14 @@ QImage.prototype.load = function(parser) {
 	var img = new Image();
 	QuiX.images.push(this.url);
 	img.resource = this;
-	img.onreadystatechange = Resource_onstatechange;
+	img.onload = Resource_onstatechange;
 	img.src = this.url;
+	if (document.desktop) document.body.appendChild(img);
 }
 
 Resource_onstatechange = function() {
 	if (this.readyState=='loaded' || this.readyState=='complete') {
+		if (this.tagName=='IMG') this.removeNode();
 		this.resource.isLoaded = true;
 		this.resource.parser.loadModules();
 	}
@@ -695,11 +702,12 @@ Widget.prototype._attachEvents = function() {
 	}
 }
 
-Widget.prototype._detachEvents = function() {
-	for (var evt_type in this._registry) {
-		this.detachEvent(
+Widget.prototype._detachEvents = function(w) {
+	var w = w || this;
+	for (var evt_type in w._registry) {
+		w.detachEvent(
 			evt_type,
-			this._registry[evt_type]
+			w._registry[evt_type]
 		);
 	}
 }

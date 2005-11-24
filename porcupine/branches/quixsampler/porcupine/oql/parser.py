@@ -52,6 +52,10 @@ reserved = (
 # range functions
 #===============================================================================
     'SLICE',
+#===============================================================================
+# class functions
+#===============================================================================
+    'INSTANCEOF',
 )
 
 functions = (
@@ -432,6 +436,10 @@ class OqlParser:
     def p_expression_in(self, p):
         'expression : expression IN expression'
         p[0] = [ [ core.IN, [p[1], p[3]] ] ]
+    
+    def p_expression_instanceof(self, p):
+        'expression : INSTANCEOF LPAREN expression RPAREN'
+        p[0] = [ [ core.INSTANCEOF, [p[3]] ] ]
         
 #===============================================================================
 # logical expression grammar
