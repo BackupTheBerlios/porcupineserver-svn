@@ -1,0 +1,231 @@
+<config>
+	<!--_______________________________PACKAGES_SECTION________________________________-->
+	
+	<packages>
+	<!-- insert here your own registrations. Leave SYSTEM_REGISTRATIONS as is -->
+	</packages>
+	
+	<!--_____________________________SYSTEM_REGISTRATIONS______________________________-->
+	<!--_________________________________HTTP_SERVLETS_________________________________-->
+	<reg cc="schemas.org.innoscript.common.Application"
+			method="GET"
+			param="run"
+			client="(MSIE 6)|(Mozilla/5.0.+rv:1.[7-9])"
+			lang=".*"
+			action="resources.servlets.ui.Run_App"/>
+
+	<reg cc="schemas.org.innoscript.common.Application"
+			method="GET"
+			param="getscript"
+			client="(MSIE 6)|(Mozilla/5.0.+rv:1.[7-9])"
+			lang=".*"
+			action="resources.servlets.ui.GetAppScript"/>
+
+	<reg cc="schemas.org.innoscript.common.Document"
+			method="GET"
+			param="getfile"
+			client=".*"
+			lang=".*"
+			action="resources/PSP/document/getdocument.psp"/>
+	
+	<!--________________________________QUIX_INTERFACES________________________________-->
+	<reg cc="schemas.org.innoscript.common.RootFolder"
+			method="GET"
+			param=""
+			client="(MSIE 6)|(Mozilla/5.0.+rv:1.[7-9])"
+			lang=".*"
+			action="resources.servlets.ui.Desktop"/>
+
+	<reg cc="schemas.org.innoscript.common.RootFolder"
+			method="GET"
+			param="login"
+			client="(MSIE 6)|(Mozilla/5.0.+rv:1.[7-9])"
+			lang=".*"
+			action="resources.servlets.ui.LoginPage"/>
+
+	<reg cc="schemas.org.innoscript.common.RootFolder"
+			method="GET"
+			param="about"
+			client="(MSIE 6)|(Mozilla/5.0.+rv:1.[7-9])"
+			lang=".*"
+			action="resources.servlets.ui.AboutDialog"/>
+
+	<reg cc="schemas.org.innoscript.common.RootFolder"
+			method="GET"
+			param="user_settings"
+			client="(MSIE 6)|(Mozilla/5.0.+rv:1.[7-9])"
+			lang=".*"
+			action="resources.servlets.ui.Dlg_UserSettings"/>
+			
+	<reg cc="schemas.org.innoscript.common.(Root)?Folder"
+			method="GET"
+			param="list"
+			client="(MSIE 6)|(Mozilla/5.0.+rv:1.[7-9])"
+			lang=".*"
+			action="resources.servlets.ui.ContainerList"/>
+			
+	<reg cc="schemas.org.innoscript.common.RecycleBin"
+			method="GET"
+			param="list"
+			client="(MSIE 6)|(Mozilla/5.0.+rv:1.[7-9])"
+			lang=".*"
+			action="resources.servlets.ui.RecycleList"/>
+			
+	<reg cc="schemas.org.innoscript.security.UsersFolder"
+			method="GET"
+			param="new"
+			client="(MSIE 6)|(Mozilla/5.0.+rv:1.[7-9])"
+			lang=".*"
+			action="resources.servlets.ui.Frm_UserGroupNew"/>
+
+	<reg cc="schemas.org.innoscript.common.AppsFolder"
+			method="GET"
+			param="new"
+			client="(MSIE 6)|(Mozilla/5.0.+rv:1.[7-9])"
+			lang=".*"
+			action="resources.servlets.ui.Frm_AppNew"/>
+			
+
+	<reg cc="schemas.org.innoscript.\w+.(\w*Folder|Category)|schemas.org.innoscript.common.AdminTools"
+			method="GET"
+			param="selectobjects"
+			client="(MSIE 6)|(Mozilla/5.0.+rv:1.[7-9])"
+			lang=".*"
+			action="resources.servlets.ui.Dlg_SelectObjects"/>
+			
+	<reg cc="schemas.org.innoscript.\w+.(\w*Folder|Category)"
+			method="GET"
+			param="new"
+			client="(MSIE 6)|(Mozilla/5.0.+rv:1.[7-9])"
+			lang=".*"
+			action="resources.servlets.ui.Frm_AutoNew"/>
+			
+	<reg cc="schemas.org.innoscript.common.Application"
+			method="GET"
+			param="properties"
+			client="(MSIE 6)|(Mozilla/5.0.+rv:1.[7-9])"
+			lang=".*"
+			action="resources.servlets.ui.Frm_AppProperties"/>
+
+	<reg cc="schemas.org.innoscript.security.User$"
+			method="GET"
+			param="resetpsw"
+			client="(MSIE 6)|(Mozilla/5.0.+rv:1.[7-9])"
+			lang=".*"
+			action="resources.servlets.ui.Frm_UserResetPassword"/>
+			
+	<reg cc="schemas.org.innoscript.security.User$"
+			method="GET"
+			param="properties"
+			client="(MSIE 6)|(Mozilla/5.0.+rv:1.[7-9])"
+			lang=".*"
+			action="resources.servlets.ui.Frm_UserProperties"/>
+			
+	<reg cc="schemas.org.innoscript.security.Group"
+			method="GET"
+			param="properties"
+			client="(MSIE 6)|(Mozilla/5.0.+rv:1.[7-9])"
+			lang=".*"
+			action="resources.servlets.ui.Frm_GroupProperties"/>
+			
+	<reg cc="porcupine.systemObjects.DeletedItem"
+			method="GET"
+			param="properties"
+			client="(MSIE 6)|(Mozilla/5.0.+rv:1.[7-9])"
+			lang=".*"
+			action="resources.servlets.ui.Frm_DeletedItem"/>
+
+	<reg cc=".*"
+			method="GET"
+			param="rename"
+			client="(MSIE 6)|(Mozilla/5.0.+rv:1.[7-9])"
+			lang=".*"
+			action="resources.servlets.ui.Dlg_Rename"/>
+
+	<reg cc=".*"
+			method="GET"
+			param="selectcontainer"
+			client="(MSIE 6)|(Mozilla/5.0.+rv:1.[7-9])"
+			lang=".*"
+			action="resources.servlets.ui.Dlg_SelectContainer"/>
+
+	<reg cc=".*"
+			method="GET"
+			param="properties"
+			client="(MSIE 6)|(Mozilla/5.0.+rv:1.[7-9])"
+			lang=".*"
+			action="resources.servlets.ui.Frm_AutoProperties"/>
+
+	<!--_________________________________XML_RPC_________________________________-->
+	<reg cc="schemas.org.innoscript.common.RootFolder"
+			method="POST"
+			param=""
+			client="vcXMLRPC"
+			lang=".*"
+			action="resources.servlets.XMLRPC.RootFolder"/>
+
+	<reg cc="schemas.org.innoscript.common.RootFolder"
+			method="POST"
+			param="login"
+			client="vcXMLRPC"
+			lang=".*"
+			action="resources.servlets.XMLRPC.Login"/>
+
+	<reg cc="schemas.org.innoscript.common.RootFolder"
+			method="POST"
+			param="applySettings"
+			client="vcXMLRPC"
+			lang=".*"
+			action="resources.servlets.XMLRPC.ApplyUserSettings"/>
+			
+	<reg cc="schemas.org.innoscript.common.Category"
+			method="POST"
+			param=""
+			client="vcXMLRPC"
+			lang=".*"
+			action="resources.servlets.XMLRPC.Category"/>
+	
+	<reg cc="schemas.org.innoscript.\w+.\w*Folder|schemas.org.innoscript.common.AdminTools"
+			method="POST"
+			param=""
+			client="vcXMLRPC"
+			lang=".*"
+			action="resources.servlets.XMLRPC.ContainerGeneric"/>
+
+	<reg cc="schemas.org.innoscript.common.RecycleBin"
+			method="POST"
+			param=""
+			client="vcXMLRPC"
+			lang=".*"
+			action="resources.servlets.XMLRPC.RecycleBin"/>
+	
+	<reg cc="schemas.org.innoscript.security.User"
+			method="POST"
+			param=""
+			client="vcXMLRPC"
+			lang=".*"
+			action="resources.servlets.XMLRPC.User"/>
+
+	<reg cc="porcupine.systemObjects.DeletedItem"
+			method="POST"
+			param=""
+			client="vcXMLRPC"
+			lang=".*"
+			action="resources.servlets.XMLRPC.DeletedItem"/>
+
+	<reg cc=".*"
+			method="POST"
+			param=""
+			client="vcXMLRPC"
+			lang=".*"
+			action="resources.servlets.XMLRPC.ItemGeneric"/>
+
+	<!--__________________________BROWSER_NOT_SUPPORTED__________________________-->
+	<reg cc="schemas.org.innoscript.common.RootFolder"
+		method="GET"
+		param="login"
+		client=".*"
+		lang=".*"
+		action="resources/PSP/browsernotsuppoted.psp"/>
+			
+</config>
