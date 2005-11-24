@@ -51,6 +51,7 @@ function Window(params) {
 		icon.align = 'absmiddle';
 		icon.style.marginRight = '2px';
 		this.title.div.insertBefore(icon, this.title.div.firstChild);
+		this.icon = params.img;
 	}
 
 	this.status = (params.status=="true")?true:false;

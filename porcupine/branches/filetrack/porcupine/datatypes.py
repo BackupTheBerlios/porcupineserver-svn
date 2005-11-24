@@ -105,6 +105,16 @@ class Boolean(DataType):
     def __init__(self):
         self.value = False
 
+class Dictionary(DataType):
+    """Dictionary data type
+    
+    @ivar value: The datatype's value
+    @type value: dict
+    """
+    __slots__ = ('value', )
+    def __init__(self):
+        self.value = {}
+
 class Date(DataType, date.Date):
     "Date data type"
     __slots__ = ()

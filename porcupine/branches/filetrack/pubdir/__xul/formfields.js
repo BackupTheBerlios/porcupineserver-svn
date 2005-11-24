@@ -43,10 +43,18 @@ Form.prototype.submit = function(f_callback) {
 function Field(params) {
 	params = params || {};
 	this.base = Widget;
-	params.height = params.height || 22;
 	params.border = params.border || 1;
 	params.overflow = 'hidden';
 	this.type = params.type || 'text';
+	if (this.type == 'radio') {
+		this._value = params.value || '';
+		params.onclick = QuiX.getEventWrapper(Radio_onclick, params.onclick);
+		params.overflow = '';
+		params.border = 1;
+		params.width = 14;
+		params.height = 14;
+	}
+	params.height = params.height || 22;
 	this.base(params);
 	this.name = params.name;
 	this.readonly = (params.readonly=='true')?true:false;
@@ -60,6 +68,36 @@ function Field(params) {
 			if (this.readonly) e.disabled = true;
 			this.getValue = function() { return e.checked; }
 			this.setValue = function(value) { e.checked = value; }
+			break;
+		case 'radio':
+			var sChecked = (params.checked==true || params.checked == 'true')?'checked':'';
+			this.div.innerHTML = '<input type="radio" ' + sChecked + '>';
+			e = this.div.firstChild;
+			if (this.readonly) e.disabled = true;
+			this.getValue = function() {
+				var radio;
+				if (this.id) {
+					var radio_group = this.parent.getWidgetById(this.id);
+					for (var i=0; i<radio_group.length; i++) {
+						radio = radio_group[i].div.firstChild;
+						if (radio.checked)
+							return (radio_group[i]._value);
+					}
+				}
+			}
+			this.setValue = function(value) {
+				var radio;
+				if (this.id) {
+					var radio_group = this.parent.getWidgetById(this.id);
+					for (var i=0; i<radio_group.length; i++) {
+						radio = radio_group[i].div.firstChild;
+						if (radio_group[i]._value == value)
+							radio.checked = true;
+						else
+							radio.checked = false;
+					}
+				}
+			}
 			break;
 		case 'file':
 			throw new QuiX.Exception("Invalid field type.\nUse the file control instead.")
@@ -95,7 +133,7 @@ function Field(params) {
 Field.prototype = new Widget;
 
 Field.prototype._adjustFieldSize = function() {
-	if (this.type!='checkbox' && this.div.firstChild) {
+	if (this.type!='checkbox' && this.type!='radio' && this.div.firstChild) {
 		var nw = this.getWidth();
 		var nh = this.getHeight();
 		if (this.type=='textarea' && QuiX.browser=='ie') {
@@ -130,6 +168,18 @@ Field.prototype.disable = function() {
 Field.prototype._setCommonProps = function() {
 	this.base.prototype._setCommonProps(this);
 	this._adjustFieldSize();
+}
+
+function Radio_onclick(evt, w) {
+	if (w.id) {
+		var radio_group = w.parent.getWidgetById(w.id);
+		for (var i=0; i<radio_group.length; i++) {
+			radio = radio_group[i].div.firstChild;
+			radio.checked = false;
+			//alert(radio.outerHTML)
+		}
+		w.div.firstChild.checked = true;
+	}
 }
 
 // Select list

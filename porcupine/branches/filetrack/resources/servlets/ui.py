@@ -107,6 +107,21 @@ SECURITY_TAB = '''
 
 DATES_FORMAT = 'ddd, dd month yyyy h12:min:sec MM'
 
+DESKSTOP_PANE = '''<a:pane length="-1" overflow="hidden">
+    <a:icon top="10"
+            left="10"
+            width="80"
+            height="80"
+            imgalign="top"
+            ondblclick="generic.openContainer"
+            img="images/store.gif"
+            color="white"
+            caption="%s">
+            <a:prop name="folderID" value=""></a:prop>
+    </a:icon>
+    %s
+</a:pane>'''
+
 #================================================================================
 # Generic functions
 #================================================================================
@@ -380,6 +395,7 @@ class ContainerList(PorcupineDesktopServlet):
 
 class Desktop(PorcupineDesktopServlet):
     def setParams(self):
+        self.response.setHeader('cache-control', 'no-cache')
         sLang = self.request.getLang()        
         self.params = {
             'LOGOFF': self.server.resources.getResource('LOGOFF', sLang),
@@ -389,13 +405,12 @@ class Desktop(PorcupineDesktopServlet):
             'SETTINGS': self.server.resources.getResource('SETTINGS', sLang),
             'INFO': self.server.resources.getResource('INFO', sLang),
             'USER': self.session.user.displayName.value,
-            'ROOT': self.item.displayName.value,
-            'RECYCLE_BIN': ''
         }
         # has the user access to recycle bin?
+        rb_icon = ''
         rb = self.server.store.getItem('rb')
         if rb:
-            self.params['RECYCLE_BIN'] = '''
+            rb_icon = '''
                 <a:icon top="80" left="10" width="80" height="80"
                     imgalign="top" ondblclick="generic.openContainer"
                     img="images/trashcan_full.gif" color="white"
@@ -403,6 +418,16 @@ class Desktop(PorcupineDesktopServlet):
                         <a:prop name="folderID" value="rb"></a:prop>
                 </a:icon>
             ''' % rb.displayName.value
+        
+        desktop_pane = DESKSTOP_PANE % (self.item.displayName.value, rb_icon)
+        
+        taskbar_position = self.session.user.settings.value.setdefault('TASK_BAR_POS', 'bottom')
+        if taskbar_position == 'bottom':
+            self.params['TOP'] = desktop_pane
+            self.params['BOTTOM'] = ''
+        else:
+            self.params['TOP'] = ''
+            self.params['BOTTOM'] = desktop_pane
         
         # get applications
         oCmd = OqlCommand()
@@ -438,6 +463,19 @@ class AboutDialog(XULServlet):
         self.response.setExpiration(1200)
         self.params = {'VERSION': self.server.version}
 
+class Dlg_UserSettings(XULServlet):
+    def setParams(self):
+        self.response.setHeader('cache-control', 'no-cache')
+        sLang = self.request.getLang()
+        
+        self.params = self.server.resources.getLocale(sLang).copy()
+        if self.session.user.settings.value['TASK_BAR_POS'] == 'bottom':
+            self.params['CHECKED_TOP'] = 'false'
+            self.params['CHECKED_BOTTOM'] = 'true'
+        else:
+            self.params['CHECKED_TOP'] = 'true'
+            self.params['CHECKED_BOTTOM'] = 'false'
+
 #================================================================================
 # Recycle Bin
 #================================================================================
@@ -449,7 +487,7 @@ class RecycleList(PorcupineDesktopServlet):
         self.response.setExpiration(1200)
         
         self.params = self.server.resources.getLocale(sLang).copy()
-        self.params ['ID'] = self.item.id
+        self.params['ID'] = self.item.id
 
 
 #================================================================================
@@ -521,6 +559,7 @@ class Frm_GroupNew(PorcupineDesktopServlet):
 
 class Frm_GroupProperties(PorcupineDesktopServlet):
     def setParams(self):
+        self.response.setHeader('cache-control', 'no-cache')
         sLang = self.request.getLang()
 
         user = self.session.user
@@ -585,6 +624,7 @@ class Frm_UserResetPassword(PorcupineDesktopServlet):
         
 class Frm_UserProperties(PorcupineDesktopServlet):
     def setParams(self):
+        self.response.setHeader('cache-control', 'no-cache')
         sLang = self.request.getLang()
 
         user = self.session.user

@@ -54,6 +54,8 @@
 	<reg action="resources.servlets.ui.LoginPage" cc="schemas.org.innoscript.common.RootFolder" client="(MSIE 6)|(Mozilla/5.0.+rv:1.[7-9])" lang=".*" method="GET" param="login"/>
 
 	<reg action="resources.servlets.ui.AboutDialog" cc="schemas.org.innoscript.common.RootFolder" client="(MSIE 6)|(Mozilla/5.0.+rv:1.[7-9])" lang=".*" method="GET" param="about"/>
+
+	<reg action="resources.servlets.ui.Dlg_UserSettings" cc="schemas.org.innoscript.common.RootFolder" client="(MSIE 6)|(Mozilla/5.0.+rv:1.[7-9])" lang=".*" method="GET" param="user_settings"/>
 			
 	<reg action="resources.servlets.ui.ContainerList" cc="schemas.org.innoscript.common.(Root)?Folder" client="(MSIE 6)|(Mozilla/5.0.+rv:1.[7-9])" lang=".*" method="GET" param="list"/>
 			
@@ -88,6 +90,8 @@
 	<reg action="resources.servlets.XMLRPC.RootFolder" cc="schemas.org.innoscript.common.RootFolder" client="vcXMLRPC" lang=".*" method="POST" param=""/>
 
 	<reg action="resources.servlets.XMLRPC.Login" cc="schemas.org.innoscript.common.RootFolder" client="vcXMLRPC" lang=".*" method="POST" param="login"/>
+
+	<reg action="resources.servlets.XMLRPC.ApplyUserSettings" cc="schemas.org.innoscript.common.RootFolder" client="vcXMLRPC" lang=".*" method="POST" param="applySettings"/>
 			
 	<reg action="resources.servlets.XMLRPC.Category" cc="schemas.org.innoscript.common.Category" client="vcXMLRPC" lang=".*" method="POST" param=""/>
 	

@@ -131,6 +131,7 @@ if (answer == 'Y'):
     admin.description.value = 'Administrator account'
     admin.password.value = 'admin'
     admin.security = userFolder.security
+    admin.settings.value = {'TASK_BAR_POS' : 'bottom'}
     db.putItem(admin, None)
     sys.stdout.write('[OK]\n')
 
