@@ -31,7 +31,7 @@ function Clipboard() {
 }
 
 var QuiX = function() {}
-QuiX.version = '0.3 build 20051117';
+QuiX.version = '0.3 build 20051202';
 QuiX.namespace = 'http://www.innoscript.org/quix';
 QuiX.browser = 'moz';
 QuiX.startX = 0;
@@ -586,11 +586,14 @@ QImage.prototype.load = function(parser) {
 	img.resource = this;
 	img.onload = Resource_onstatechange;
 	img.src = this.url;
+	img.style.display = 'hidden';
+	if (document.desktop) document.body.appendChild(img);
 }
 
 Resource_onstatechange = function() {
 	this.resource.isLoaded = true;
 	this.resource.parser.loadModules();
+	if (this.tagName=='IMG') this.parentNode.removeChild(this);
 }
 
 //Widget class
