@@ -23,13 +23,13 @@
 					<a:icon left="center" top="center" width="48" height="48" img="images/kgpg.gif"></a:icon>
 				</a:pane>
 				<a:pane length="-1">
-					<a:label align="right" top="14" width="25%%" height="20" caption="User:"></a:label>
+					<a:label align="right" top="14" width="60" height="20" caption="User:"></a:label>
 					<a:field id="user" left="60" top="12" width="68%%"></a:field>
-					<a:label align="right" top="41" width="25%%" height="20" caption="Password:"></a:label>
+					<a:label align="right" top="41" width="60" height="20" caption="Password:"></a:label>
 					<a:field id="password" type="password" top="39" left="60" width="68%%"></a:field>
 				</a:pane>
 			</a:splitter>
 		</a:wbody>
-		<a:dlgbutton width="80" height="22" onclick="login.login" caption="%(LOGIN)s" default="true"></a:dlgbutton>
+		<a:dlgbutton width="80" height="24" onclick="login.login" caption="%(LOGIN)s" default="true"></a:dlgbutton>
 	</a:dialog>
 </a:desktop>
