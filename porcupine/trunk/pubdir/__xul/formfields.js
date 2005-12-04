@@ -259,7 +259,7 @@ SelectList.prototype.getValue = function() {
 	}
 }
 
-SelectOption__onclick = function(evt, option) {
+function SelectOption__onclick(evt, option) {
 	var oSelectList = option.parent;
 	function selectOption(option) {
 		option.div.className = 'optionselected';

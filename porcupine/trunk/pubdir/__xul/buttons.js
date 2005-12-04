@@ -11,7 +11,7 @@ function Label(params) {
 
 	this.div.className = 'label';	
 	this.div.style.textAlign = params.align || 'left';
-	this.div.style.color = params.color;
+	this.div.style.color = params.color || '';
 
 	this.canSelect = (params.canselect=="true" || params.canselect==true)?true:false;
 	if (this.canSelect) {

@@ -581,19 +581,21 @@ function QImage(url) {
 
 QImage.prototype.load = function(parser) {
 	this.parser = parser;
-	var img = new Image();
+	var img = new Image;
 	QuiX.images.push(this.url);
 	img.resource = this;
 	img.onload = Resource_onstatechange;
 	img.src = this.url;
-	img.style.display = 'hidden';
-	if (document.desktop) document.body.appendChild(img);
+	img.style.display = 'none';
+	img.height = 0;
+	img.width = 0;
+	document.body.appendChild(img);
 }
 
 Resource_onstatechange = function() {
+	if (this.tagName=='IMG') document.body.removeChild(this);
 	this.resource.isLoaded = true;
 	this.resource.parser.loadModules();
-	if (this.tagName=='IMG') this.parentNode.removeChild(this);
 }
 
 //Widget class
@@ -732,7 +734,6 @@ Widget.prototype.enable = function(w) {
 Widget.prototype.parse = function(dom, callback) {
 	var parser = new XULParser();
 	parser.oncomplete = callback;
-	//alert(callback);
 	parser.parse(dom, this);
 }
 
@@ -799,12 +800,14 @@ Widget.prototype._setCommonProps = function (w) {
 			w.parent.div.style.overflow=w.parent.overflow;
 		}
 	}
+	
 	if (w.height!=null) w.div.style.height = w._calcHeight() + 'px';
 	if (w.width!=null) w.div.style.width = w._calcWidth() + 'px';
-	w.div.style.backgroundColor = this.bgColor;
+	
+	w.div.style.backgroundColor = this.bgColor || '';
 }
 
-Widget.prototype.setDisplay = function (sDispl, sPos) {
+Widget.prototype.setDisplay = function (sDispl) {
 	this.display = sDispl;
 	this.div.style.display = sDispl || '';
 }
@@ -866,19 +869,19 @@ Widget.prototype._calcHeight = function(b) {
 	var offset = 0;
 	if (!b)	offset = this.padding[2]+this.padding[3]+2*this.borderWidth;
 	if (!isNaN(this.height)) {
-		return(parseInt(this.height)-offset);
+		return (parseInt(this.height)-offset);
 	}
 	else if (typeof(this.height)=='function') {
-		var w = this.height(this)-offset;
+		var w = (this.height(this)-offset) || 0;
 		return(w>0?w:0)
 	}
 	else if (this.height.slice(this.height.length-1)=='%') {
 		var perc = parseInt(this.height)/100;
-		var nh = parseInt(this.parent.getHeight()*perc)-offset;
+		var nh = (parseInt(this.parent.getHeight()*perc)-offset) || 0;
 		return(nh>0?nh:0);
 	}
 	else {
-		var w = eval(this.height) - offset;
+		var w = (eval(this.height) - offset) || 0;
 		return(w>0?w:0);
 	}
 }
@@ -887,19 +890,19 @@ Widget.prototype._calcWidth = function(b) {
 	var offset = 0;
 	if (!b) offset = this.padding[0]+this.padding[1]+2*this.borderWidth;
 	if (!isNaN(this.width)) {
-		return(parseInt(this.width)-offset);
+		return (parseInt(this.width)-offset);
 	}
 	else if (typeof(this.width)=='function') {
-		var w = this.width(this)-offset;
+		var w = (this.width(this)-offset) || 0;
 		return(w>0?w:0)
 	}
 	else if (this.width.slice(this.width.length-1)=='%') {
 		var perc = parseInt(this.width)/100;
-		var nw = parseInt(this.parent.getWidth()*perc) - offset;
+		var nw = (parseInt(this.parent.getWidth()*perc) - offset) || 0;
 		return(nw>0?nw:0);
 	}
 	else {
-		var w = eval(this.width)-offset;
+		var w = (eval(this.width)-offset) || 0;
 		return(w>0?w:0);
 	}
 }
@@ -911,18 +914,18 @@ Widget.prototype._calcLeft = function() {
 		return(l);
 	}
 	else if (typeof(this.left)=='function') {
-		var w = this.left(this);
+		var w = this.left(this) || 0;
 		return(w>0?w:0)
 	}
 	else if (this.left.slice(this.left.length-1)=='%') {
 		var perc = parseInt(this.left)/100;
-		return(this.parent.getWidth() * perc);
+		return (this.parent.getWidth() * perc) || 0;
 	}
 	else {
 		if (this.left!='center')
-			return(eval(this.left));
+			return(eval(this.left) || 0);
 		else 
-			return parseInt((this.parent.getWidth()/2) - (this.getWidth(true)/2));
+			return parseInt((this.parent.getWidth()/2) - (this.getWidth(true)/2)) || 0;
 	}
 }
 
@@ -933,18 +936,18 @@ Widget.prototype._calcTop = function() {
 		return(t);
 	}
 	else if (typeof(this.top)=='function') {
-		var w = this.top(this);
+		var w = this.top(this) || 0;
 		return(w>0?w:0)
 	}
 	else if (this.top.slice(this.top.length-1)=='%') {
 		var perc = parseInt(this.top)/100;
-		return(this.parent.getHeight() * perc);
+		return (this.parent.getHeight() * perc) || 0;
 	}
 	else {
 		if (this.top!='center')
-			return(eval(this.top));
+			return(eval(this.top) || 0);
 		else
-			return parseInt((this.parent.getHeight()/2) - (this.getHeight(true)/2));
+			return parseInt((this.parent.getHeight()/2) - (this.getHeight(true)/2)) || 0;
 	}
 }
 
@@ -1174,7 +1177,6 @@ function Desktop(params, root) {
 	params.onmousedown = QuiX.getEventWrapper(Desktop__onmousedown, params.onmousedown);
 	params.oncontextmenu = function(evt){QuiX.cancelDefault( evt )}
 	this.base(params);
-	this.setPos();
 	this._setCommonProps();
 	this.div.innerHTML = '<p align="right" style="color:#666666;margin:0px;">QuiX v' + QuiX.version + '</p>';
 	root.appendChild(this.div);
