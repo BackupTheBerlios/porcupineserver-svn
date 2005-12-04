@@ -20,7 +20,7 @@ function Label(params) {
 	}
 	
 	this.caption = params.caption || '';
-	if (this.caption) this.div.innerHTML += '<span>' + this.caption + '</span>';
+	if (this.caption) this.div.innerHTML += '<span style="vertical-align:middle">' + this.caption + '</span>';
 }
 
 Label.prototype = new Widget;
