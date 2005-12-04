@@ -77,8 +77,7 @@ SECURITY_TAB = '''
 <a:tab caption="%s" onactivate="generic.getSecurity">
     <a:splitter orientation="h" spacing="0" width="100%%" height="100%%">
         <a:pane length="24">
-            <a:field id="__rolesinherited" name="__rolesinherited" type="checkbox" value="%s" onclick="generic.rolesInherited_onclick"></a:field>
-            <a:label left="24" caption="%s"></a:label>
+            <a:field id="__rolesinherited" name="__rolesinherited" type="checkbox" value="%s" onclick="generic.rolesInherited_onclick" caption="%s"></a:field>
         </a:pane>
         <a:pane length="-1" disabled="%s">
             <a:splitter orientation="v" spacing="0" width="100%%" height="100%%">

@@ -31,7 +31,7 @@ function Clipboard() {
 }
 
 var QuiX = function() {}
-QuiX.version = '0.3 build 20051202';
+QuiX.version = '0.3 build 20051204';
 QuiX.namespace = 'http://www.innoscript.org/quix';
 QuiX.browser = 'moz';
 QuiX.startX = 0;
@@ -60,8 +60,9 @@ QuiX.modules = [
 	new Module('Common Widgets', '__xul/common.js', [3]),
 	new Module('Datagrid', '__xul/datagrid.js', [5,8]),
 	new Module('File Control', '__xul/file.js', [3,8]),
-	new Module('Date Picker', '__xul/datepicker.js', [9]),
+	new Module('Date Picker', '__xul/datepicker.js', [14]),
 	new Module('Timers', '__xul/timers.js', []),
+	new Module('Forms & Fields 2', '__xul/formfields2.js', [3]),
 ];
 QuiX.tags = {
 	'desktop':-1,'xhtml':-1,'script':-1,'prop':-1,'rect':-1,'progressbar':-1,
@@ -73,12 +74,13 @@ QuiX.tags = {
 	'listview':5,
 	'tree':6,'treenode':6,'foldertree':6,
 	'toolbar':7,'tbbutton':7,'outlookbar':7,'tool':7,
-	'field':8,'selectlist':8,'form':8,
-	'hr':9,'combo':9,'spinbutton':9,
+	'field':8,'form':8,'spinbutton':8,
+	'hr':9,
 	'datagrid':10,
 	'file':11,'multifile':11,
 	'datepicker':12,
-	'timer':13
+	'timer':13,
+	'combo':14,'selectlist':14
 };
 QuiX.Exception = function(name, msg) {
 	this.name = name;
@@ -111,15 +113,14 @@ QuiX.removeWidget = function(w) {
 	w = null;
 }
 QuiX.createOutline = function(w) {
-	var oW = new Widget(
-		{
-			left:w._calcLeft(),
-			top:w._calcTop(),
-			width:w.getWidth(true),
-			height:w.getHeight(true),
-			border:2,
-			overflow:'hidden'
-		});
+	var oW = new Widget({
+		left:w._calcLeft(),
+		top:w._calcTop(),
+		width:w.getWidth(true),
+		height:w.getHeight(true),
+		border:2,
+		overflow:'hidden'
+	});
 	w.parent.appendChild(oW, true);
 	oW.minw = w.minw;
 	oW.minh = w.minh;
