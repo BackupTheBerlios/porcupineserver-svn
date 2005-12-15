@@ -42,7 +42,7 @@ class PorcupineThread(BaseServerThread):
         sBrowser = self.request.serverVariables['HTTP_USER_AGENT']
         sLang = self.request.getLang()
         sPath = self.request.serverVariables.setdefault('PATH_INFO', '/')
-        
+
         self.response = response.BaseResponse()
 
         servlet = None
@@ -58,8 +58,14 @@ class PorcupineThread(BaseServerThread):
                     sPath = sPath.replace(oSessionMatch.group(), '', 1) or '/'
                     if oSession:
                         self.session = oSession
-                        self.request.serverVariables["SCRIPT_NAME"] += '/{%s}' % oSession.sessionid
-                        self.request.serverVariables["AUTH_USER"] = oSession.user.displayName
+                        
+                        if not oSession.sessionid in self.request.serverVariables["SCRIPT_NAME"]:
+                            self.request.serverVariables["SCRIPT_NAME"] += '/{%s}' % oSession.sessionid
+                        else:
+                            lstScript = self.request.serverVariables["SCRIPT_NAME"].split('/')
+                            self.request.serverVariables["SCRIPT_NAME"] = "/%s/{%s}" %(lstScript[1], oSession.sessionid)
+                        
+                        self.request.serverVariables["AUTH_USER"] = oSession.user.displayName.value
                         oUser = oSession.user
                     else:
                         # invalid sesionid
