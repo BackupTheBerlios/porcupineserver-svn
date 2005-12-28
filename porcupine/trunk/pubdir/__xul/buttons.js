@@ -29,6 +29,10 @@ Label.prototype.setCaption = function(s) {
 	this.div.getElementsByTagName('SPAN')[0].innerHTML = s;
 }
 
+Label.prototype.getCaption = function(s) {
+	return(this.div.getElementsByTagName('SPAN')[0].innerHTML);
+}
+
 function Label__onmousedown(evt, w) {
 	if (w.canSelect) QuiX.stopPropag(evt);
 }
