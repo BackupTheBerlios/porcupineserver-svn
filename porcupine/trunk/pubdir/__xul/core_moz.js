@@ -114,8 +114,8 @@ QuiX.removeWidget = function(w) {
 }
 QuiX.createOutline = function(w) {
 	var oW = new Widget({
-		left:w._calcLeft(),
-		top:w._calcTop(),
+		left:w.left,
+		top:w.top,
 		width:w.getWidth(true),
 		height:w.getHeight(true),
 		border:2,
@@ -844,25 +844,19 @@ Widget.prototype.getWidth = function(b) {
 	return wd;
 }
 
-Widget.prototype.getLeft = function(b) {
+Widget.prototype.getLeft = function() {
 	var ofs, lf;
-	b = b || false;
 	lf = parseInt(this.div.style.left);
-	if (b) {
-		ofs = this.padding[0]+this.borderWidth;
-		lf -= ofs
-	}
+	ofs = this.parent.padding[0];
+	lf -= ofs
 	return lf;
 }
 
-Widget.prototype.getTop = function(b) {
+Widget.prototype.getTop = function() {
 	var ofs, rg;
-	b = b || false;
 	rg = parseInt(this.div.style.top);
-	if (b) {
-		ofs = this.padding[2]+this.borderWidth;
-		rg -= ofs
-	}
+	ofs = this.parent.padding[2];
+	rg -= ofs
 	return rg;
 }
 
@@ -916,7 +910,7 @@ Widget.prototype._calcLeft = function() {
 	}
 	else if (typeof(this.left)=='function') {
 		var w = this.left(this) || 0;
-		return(w>0?w:0)
+		return(w);
 	}
 	else if (this.left.slice(this.left.length-1)=='%') {
 		var perc = parseInt(this.left)/100;
@@ -938,7 +932,7 @@ Widget.prototype._calcTop = function() {
 	}
 	else if (typeof(this.top)=='function') {
 		var w = this.top(this) || 0;
-		return(w>0?w:0)
+		return(w);
 	}
 	else if (this.top.slice(this.top.length-1)=='%') {
 		var perc = parseInt(this.top)/100;
@@ -987,8 +981,8 @@ Widget.prototype.click = function(w) {
 }
 
 Widget.prototype.moveTo = function(x,y) {
-	this.left = x>0?x:0;
-	this.top = y>0?y:0;
+	this.left = x;
+	this.top = y;
 	this.redraw();
 }
 
@@ -1066,8 +1060,8 @@ Widget.prototype._startMove = function(evt) {
 Widget.prototype._moving = function(evt) {
 	offsetX = evt.clientX - QuiX.startX;
 	offsetY = evt.clientY - QuiX.startY;
-	QuiX.tmpWidget.moveTo(this._calcLeft() + offsetX,
-				this._calcTop() + offsetY);	
+	QuiX.tmpWidget.moveTo(this.getLeft() + offsetX,
+				this.getTop() + offsetY);	
 }
 
 Widget.prototype._endMove = function(evt) {
@@ -1076,8 +1070,8 @@ Widget.prototype._endMove = function(evt) {
 	QuiX.tmpWidget.destroy();
 	offsetX = evt.clientX - QuiX.startX;
 	offsetY = evt.clientY - QuiX.startY;
-	this.moveTo(this.div.offsetLeft + offsetX,
-				this.div.offsetTop + offsetY);
+	this.moveTo(this.getLeft() + offsetX,
+				this.getTop() + offsetY);
 	this.bringToFront();
 	this.parent.div.style.cursor = '';
 }
