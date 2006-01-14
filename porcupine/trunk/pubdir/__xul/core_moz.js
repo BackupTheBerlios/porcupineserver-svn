@@ -1088,13 +1088,18 @@ Widget.prototype._detach = function() {
 	return(this.div);
 }
 
-Widget.prototype.redraw = function(bForceAll) {
-	var container = this.div.parentNode;
+Widget.prototype.redraw = function(bForceAll, w) {
+	var w = w || this;
+	var container = w.div.parentNode;
 	var frag = document.createDocumentFragment();
-	var root = this._detach();
+	var root = w._detach();
 	frag.appendChild(root);
-	this._redraw(bForceAll);
-	container.appendChild(frag);
+	try {
+		w._redraw(bForceAll);
+	}
+	finally {
+		container.appendChild(frag);
+	}
 }
 
 Widget.prototype._redraw = function(bForceAll) {

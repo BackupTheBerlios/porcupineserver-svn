@@ -1087,17 +1087,18 @@ Widget.prototype._endMove = function(evt)
 	this.parent.div.style.cursor = '';
 }
 
-Widget.prototype.redraw = function(bForceAll) {
-	if (!this.isHidden) {
-		if (this.overflow != 'hidden') this.div.style.overflow = 'hidden';
+Widget.prototype.redraw = function(bForceAll, w) {
+	var w = w || this;
+	if (!w.isHidden) {
+		if (w.overflow != 'hidden') w.div.style.overflow = 'hidden';
 
-		this._setCommonProps();
-		if (this.isAbs) this._setAbsProps();
-		for (var i=0; i<this.widgets.length; i++) {
-			if (this.widgets[i]._mustRedraw() || bForceAll) this.widgets[i].redraw(bForceAll);
+		w._setCommonProps();
+		if (w.isAbs) w._setAbsProps();
+		for (var i=0; i<w.widgets.length; i++) {
+			if (w.widgets[i]._mustRedraw() || bForceAll) w.widgets[i].redraw(bForceAll);
 		}
 		
-		if (this.overflow!='hidden') this.div.style.overflow = this.overflow;
+		if (w.overflow!='hidden') w.div.style.overflow = w.overflow;
 	}
 }
 
