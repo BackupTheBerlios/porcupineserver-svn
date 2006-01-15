@@ -174,22 +174,6 @@ class Package(object):
             _dom.unlink()
             conf_file.close()
 
-        # string resources
-        if '_resources.xml' in contents:
-            print 'INFO: installing package resources...'
-            resfile = self.package_file.extractfile('_resources.xml')
-            _dom = minidom.parse(resfile)
-            package_node = _dom.getElementsByTagName('package')[0]
-            package_node = package_node.cloneNode(True)
-            conf_file = configfiles.ConfigFileManager('conf/stringresources.xml')
-            old_node = conf_file.getPackageNode(self.name)
-            if old_node:
-                conf_file.replacePackageNode(package_node, old_node)
-            else:
-                conf_file.addPackageNode(package_node)
-            _dom.unlink()
-            conf_file.close()
-            
         # published directories
         if '_pubdir.xml' in contents:
             print 'INFO: installing published directories...'
@@ -262,14 +246,6 @@ class Package(object):
             conf_file.removePackageNode(pkgnode)
             conf_file.close()
         
-        # string resources
-        conf_file = configfiles.ConfigFileManager('conf/stringresources.xml')
-        pkgnode = conf_file.getPackageNode(self.name)
-        if pkgnode:
-            print 'INFO: removing package resources'
-            conf_file.removePackageNode(pkgnode)
-            conf_file.close()
-            
         # database items
         items = self.config_file.options('items')
         itemids = [self.config_file.get('items', x) for x in items]
@@ -366,26 +342,6 @@ class Package(object):
             )
         else:
             print 'WARNING: Package "' + self.name + '" has no registrations'
-        
-        # resources
-        conf_file = configfiles.ConfigFileManager('conf/stringresources.xml')
-        pkgnode = conf_file.getPackageNode(self.name)
-        if pkgnode:
-            print 'INFO: extracting package resources'
-            resFile = file(serverSettings.temp_folder + '/_resources.xml', 'w')
-            resFile.write('<?xml version="1.0" encoding="utf-8"?>' + \
-                '<resources>\n' + pkgnode.toxml('utf-8') + '\n</resources>')
-            resFile.close()
-            self.package_files.append(
-                (
-                    self.package_file.gettarinfo(
-                        resFile.name, os.path.basename(resFile.name)
-                    ),
-                    resFile.name
-                )
-            )
-        else:
-            print 'WARNING: Package "' + self.name + '" has no resources'
         
         # files
         files = self.config_file.options('files')

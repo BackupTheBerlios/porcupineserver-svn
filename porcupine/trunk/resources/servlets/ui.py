@@ -20,6 +20,7 @@ from porcupine.core.servlet import XULServlet, HTTPServlet
 from porcupine.oql.command import OqlCommand
 from porcupine.security import objectAccess
 from schemas.org.innoscript import common, security
+from resources.systemstrings import resources
 from porcupine.utils import date, xmlUtils, misc
 from porcupine import datatypes
 
@@ -137,18 +138,18 @@ class PorcupineDesktopServlet(XULServlet):
             else:
                 sChecked = 'false'
             return SECURITY_TAB % (
-                self.server.resources.getResource('SECURITY', sLang),
+                resources.getResource('SECURITY', sLang),
                 sChecked,
-                self.server.resources.getResource('ROLES_INHERITED', sLang),
+                resources.getResource('ROLES_INHERITED', sLang),
                 sChecked,
-                self.server.resources.getResource('NAME', sLang),
-                self.server.resources.getResource('ROLE', sLang),
-                self.server.resources.getResource('ROLE_1', sLang),
-                self.server.resources.getResource('ROLE_2', sLang),
-                self.server.resources.getResource('ROLE_4', sLang),
-                self.server.resources.getResource('ROLE_8', sLang),
-                self.server.resources.getResource('ADD', sLang),
-                self.server.resources.getResource('REMOVE', sLang)
+                resources.getResource('NAME', sLang),
+                resources.getResource('ROLE', sLang),
+                resources.getResource('ROLE_1', sLang),
+                resources.getResource('ROLE_2', sLang),
+                resources.getResource('ROLE_4', sLang),
+                resources.getResource('ROLE_8', sLang),
+                resources.getResource('ADD', sLang),
+                resources.getResource('REMOVE', sLang)
             )
         else:
             return ''
@@ -166,7 +167,7 @@ class Frm_Auto(PorcupineDesktopServlet):
         
     def getControlFromAttribute(self, attrname, attr, readonly, isNew=False):
         sLang = self.request.getLang()
-        attrlabel = self.server.resources.getResource(attrname, sLang)
+        attrlabel = resources.getResource(attrname, sLang)
         sControl = ''
         sTab = ''
         if isinstance(attr, datatypes.String):
@@ -224,8 +225,8 @@ class Frm_Auto(PorcupineDesktopServlet):
                 attrlabel, attrname,
                 self.request.serverVariables['SCRIPT_NAME'] + '/',
                 '|'.join(attr.relCc), options, self.getStringFromBoolean(readonly),
-                self.server.resources.getResource('ADD', sLang),
-                self.server.resources.getResource('REMOVE', sLang)
+                resources.getResource('ADD', sLang),
+                resources.getResource('REMOVE', sLang)
             )
         
         return (sControl, sTab)
@@ -243,13 +244,13 @@ class Frm_AutoProperties(Frm_Auto):
         iUserRole = objectAccess.getAccess(self.item, user)
         readonly = (iUserRole==1)
         self.params = {
-            'UPDATE': self.server.resources.getResource('UPDATE', sLang),
-            'CLOSE': self.server.resources.getResource('CLOSE', sLang),
-            'INFO': self.server.resources.getResource('INFO', sLang),
-            'DATEMOD': self.server.resources.getResource('DATEMOD', sLang),
-            'OBJID': self.server.resources.getResource('ID', sLang),
-            'CLASS': self.server.resources.getResource('CLASS', sLang),
-            'MODIFIEDBY': self.server.resources.getResource('MODIFIEDBY', sLang),
+            'UPDATE': resources.getResource('UPDATE', sLang),
+            'CLOSE': resources.getResource('CLOSE', sLang),
+            'INFO': resources.getResource('INFO', sLang),
+            'DATEMOD': resources.getResource('DATEMOD', sLang),
+            'OBJID': resources.getResource('ID', sLang),
+            'CLASS': resources.getResource('CLASS', sLang),
+            'MODIFIEDBY': resources.getResource('MODIFIEDBY', sLang),
             
             'ID': self.item.id,
             'URI': self.request.serverVariables['SCRIPT_NAME'] + '/' + self.item.id,
@@ -272,7 +273,7 @@ class Frm_AutoProperties(Frm_Auto):
                 sProperties += control
                 self.params['EXTRA_TABS'] += tab
         
-        self.params['PROPERTIES_TAB'] = '<a:tab caption="%s">%s</a:tab>' % (self.server.resources.getResource('PROPERTIES', sLang), sProperties)
+        self.params['PROPERTIES_TAB'] = '<a:tab caption="%s">%s</a:tab>' % (resources.getResource('PROPERTIES', sLang), sProperties)
 
 class Dlg_SelectContainer(PorcupineDesktopServlet):
     def setParams(self):
@@ -283,12 +284,12 @@ class Dlg_SelectContainer(PorcupineDesktopServlet):
             'ROOT_IMG': rootFolder.__image__,
             'ROOT_DN': rootFolder.displayName.value,
             'ID': self.item.id,
-            'SELECT_FOLDER': self.server.resources.getResource('SELECT_FOLDER', sLang),
-            'CANCEL': self.server.resources.getResource('CANCEL', sLang),
-            'OK': self.server.resources.getResource('OK', sLang)
+            'SELECT_FOLDER': resources.getResource('SELECT_FOLDER', sLang),
+            'CANCEL': resources.getResource('CANCEL', sLang),
+            'OK': resources.getResource('OK', sLang)
         }
         sAction = self.request.queryString['action'][0]
-        sTitle = self.server.resources.getResource(sAction.upper(), sLang)
+        sTitle = resources.getResource(sAction.upper(), sLang)
         self.params['TITLE'] = sTitle + ' &quot;' + self.item.displayName.value + '&quot;'
         if sAction=='move':
             self.params['METHOD'] = 'moveTo'
@@ -301,14 +302,14 @@ class Dlg_SelectContainer(PorcupineDesktopServlet):
 class Dlg_Rename(PorcupineDesktopServlet):
     def setParams(self):
         sLang = self.request.getLang()
-        sRename = self.server.resources.getResource('RENAME', sLang)
+        sRename = resources.getResource('RENAME', sLang)
         self.params = {
             'TITLE': sRename + ' &quot;' + self.item.displayName.value + '&quot;',
-            'ENTER_NEW_NAME': self.server.resources.getResource('ENTER_NEW_NAME', sLang),
+            'ENTER_NEW_NAME': resources.getResource('ENTER_NEW_NAME', sLang),
             'ID': self.item.id,
             'DN': self.item.displayName.value,
             'RENAME': sRename,
-            'CANCEL': self.server.resources.getResource('CANCEL', sLang)
+            'CANCEL': resources.getResource('CANCEL', sLang)
         }
 
 #================================================================================
@@ -325,10 +326,10 @@ class Frm_AutoNew(Frm_Auto):
         oNewItem = misc.getClassByName(sCC)()
         
         self.params = {
-            'TITLE': '%s &quot;%s&quot;' % (self.server.resources.getResource('CREATE', sLang),
-                    self.server.resources.getResource(oNewItem.contentclass, sLang)),
-            'CREATE': self.server.resources.getResource('CREATE', sLang),
-            'CANCEL': self.server.resources.getResource('CANCEL', sLang),
+            'TITLE': '%s &quot;%s&quot;' % (resources.getResource('CREATE', sLang),
+                    resources.getResource(oNewItem.contentclass, sLang)),
+            'CREATE': resources.getResource('CREATE', sLang),
+            'CANCEL': resources.getResource('CANCEL', sLang),
         
             'CC': sCC,
             'URI': self.request.serverVariables['SCRIPT_NAME'] + '/' + self.item.id,
@@ -347,7 +348,7 @@ class Frm_AutoNew(Frm_Auto):
                 sProperties += control
                 self.params['EXTRA_TABS'] += tab
         
-        self.params['PROPERTIES_TAB'] = '<a:tab caption="%s">%s</a:tab>' % (self.server.resources.getResource('PROPERTIES', sLang), sProperties)
+        self.params['PROPERTIES_TAB'] = '<a:tab caption="%s">%s</a:tab>' % (resources.getResource('PROPERTIES', sLang), sProperties)
 
 class Dlg_SelectObjects(PorcupineDesktopServlet):
     def setParams(self):
@@ -383,7 +384,7 @@ class ContainerList(PorcupineDesktopServlet):
         self.response.setHeader('cache-control', 'no-cache')
         self.response.setExpiration(1200)
         
-        self.params = self.server.resources.getLocale(sLang).copy()
+        self.params = resources.getLocale(sLang).copy()
         
         self.params['ID'] = self.item.id
         self.params['PARENT_ID'] = self.item.parentid
@@ -397,12 +398,12 @@ class Desktop(PorcupineDesktopServlet):
         self.response.setHeader('cache-control', 'no-cache')
         sLang = self.request.getLang()        
         self.params = {
-            'LOGOFF': self.server.resources.getResource('LOGOFF', sLang),
-            'LOGOFF?': self.server.resources.getResource('LOGOFF?', sLang),
-            'START': self.server.resources.getResource('START', sLang),
-            'APPLICATIONS': self.server.resources.getResource('APPLICATIONS', sLang),
-            'SETTINGS': self.server.resources.getResource('SETTINGS', sLang),
-            'INFO': self.server.resources.getResource('INFO', sLang),
+            'LOGOFF': resources.getResource('LOGOFF', sLang),
+            'LOGOFF?': resources.getResource('LOGOFF?', sLang),
+            'START': resources.getResource('START', sLang),
+            'APPLICATIONS': resources.getResource('APPLICATIONS', sLang),
+            'SETTINGS': resources.getResource('SETTINGS', sLang),
+            'INFO': resources.getResource('INFO', sLang),
             'USER': self.session.user.displayName.value,
         }
         # has the user access to recycle bin?
@@ -438,7 +439,7 @@ class Desktop(PorcupineDesktopServlet):
                 sApps += '<a:menuoption img="%s" caption="%s" onclick="generic.runApp"><a:prop name="ID" value="%s"></a:prop></a:menuoption>' % (app['icon'], app['displayName'], app['id'])
             self.params['APPS'] = sApps
         else:
-            self.params['APPS'] = '<a:menuoption caption="%s" disabled="true"></a:menuoption>' % self.server.resources.getResource('EMPTY', sLang)
+            self.params['APPS'] = '<a:menuoption caption="%s" disabled="true"></a:menuoption>' % resources.getResource('EMPTY', sLang)
 
 class LoginPage(PorcupineDesktopServlet):
     def setParams(self):
@@ -447,13 +448,13 @@ class LoginPage(PorcupineDesktopServlet):
         sLang = self.request.getLang()
         self.params = {
             'URI': self.request.serverVariables['SCRIPT_NAME'] + '?cmd=login',
-            'LOGIN_FAILED': self.server.resources.getResource('LOGIN_FAILED', sLang),
-            'LOGIN': self.server.resources.getResource('LOGIN', sLang),
+            'LOGIN_FAILED': resources.getResource('LOGIN_FAILED', sLang),
+            'LOGIN': resources.getResource('LOGIN', sLang),
     
-            'CLOSE': self.server.resources.getResource('CLOSE', sLang),
-            'CANCEL': self.server.resources.getResource('CANCEL', sLang),
-            'YES': self.server.resources.getResource('YES', sLang),
-            'NO': self.server.resources.getResource('NO', sLang)
+            'CLOSE': resources.getResource('CLOSE', sLang),
+            'CANCEL': resources.getResource('CANCEL', sLang),
+            'YES': resources.getResource('YES', sLang),
+            'NO': resources.getResource('NO', sLang)
         }
 
 class AboutDialog(XULServlet):
@@ -467,7 +468,7 @@ class Dlg_UserSettings(XULServlet):
         self.response.setHeader('cache-control', 'no-cache')
         sLang = self.request.getLang()
         
-        self.params = self.server.resources.getLocale(sLang).copy()
+        self.params = resources.getLocale(sLang).copy()
         if self.session.user.settings.value['TASK_BAR_POS'] == 'bottom':
             self.params['CHECKED_TOP'] = 'false'
             self.params['CHECKED_BOTTOM'] = 'true'
@@ -485,7 +486,7 @@ class RecycleList(PorcupineDesktopServlet):
         self.response.setHeader('cache-control', 'no-cache')
         self.response.setExpiration(1200)
         
-        self.params = self.server.resources.getLocale(sLang).copy()
+        self.params = resources.getLocale(sLang).copy()
         self.params['ID'] = self.item.id
 
 
@@ -617,8 +618,8 @@ class Frm_UserResetPassword(PorcupineDesktopServlet):
         self.params = {
             'URI': self.request.serverVariables['SCRIPT_NAME'] + '/' + self.item.id,
             'TITLE': 'Reset password for user \'%s\'' % self.item.displayName.value,
-            'OK': self.server.resources.getResource('OK', sLang),
-            'CANCEL': self.server.resources.getResource('CANCEL', sLang)
+            'OK': resources.getResource('OK', sLang),
+            'CANCEL': resources.getResource('CANCEL', sLang)
         }
         
 class Frm_UserProperties(PorcupineDesktopServlet):
@@ -701,13 +702,13 @@ class Run_App(HTTPServlet):
 
         sInterface = self.item.getInterface(rootUri)
         sLang = self.request.getLang()
-        dctLocale = self.server.resources.getLocale(sLang)
+        dctLocale = resources.getLocale(sLang)
         self.response.write(sInterface % dctLocale)
         
 class GetAppScript(HTTPServlet):
     def execute(self):
         self.response.setExpiration(1200)
         sLang = self.request.getLang()
-        dctLocale = self.server.resources.getLocale(sLang)
+        dctLocale = resources.getLocale(sLang)
         self.response.content_type = 'text/javascript'
         self.response.write(self.item.script.value % dctLocale)
