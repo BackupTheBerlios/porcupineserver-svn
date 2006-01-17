@@ -687,6 +687,7 @@ class Frm_AppProperties(PorcupineDesktopServlet):
             'TOP': self.item.top.value,
             'WIDTH': self.item.width.value,
             'HEIGHT': self.item.height.value,
+            'RESOURCES_PATH': self.item.resourcesImportPath.value,
             'MODIFIED': date.Date(self.item.modified).format(DATES_FORMAT, sLang),
             'MODIFIED_BY': self.item.modifiedBy,
             'CONTENTCLASS': self.item.contentclass,
@@ -702,8 +703,14 @@ class Run_App(HTTPServlet):
 
         sInterface = self.item.getInterface(rootUri)
         sLang = self.request.getLang()
-        dctLocale = resources.getLocale(sLang)
-        self.response.write(sInterface % dctLocale)
+        
+        if (self.item.resourcesImportPath.value):
+            stringResources = misc.getClassByName(self.item.resourcesImportPath.value)
+            dctLocStrings = stringResources.getLocale(sLang)
+        else:
+            dctLocStrings = {}
+        
+        self.response.write(sInterface % dctLocStrings)
         
 class GetAppScript(HTTPServlet):
     def execute(self):

@@ -18,6 +18,7 @@
 
 from porcupine import systemObjects as system
 from schemas.org.innoscript import properties
+from porcupine import datatypes
 
 class File(system.Item):
     """Simple file object
@@ -104,6 +105,10 @@ class Application(system.Item):
     @ivar left: The application's left coordinate
     @type left: L{top<schemas.org.innoscript.properties.top>}
 
+    @ivar resourcesImportPath: This is the full import path to a module variable
+        of type "L{ResourceStrings<porcupine.config.resources.ResourceStrings>}"
+    @type resourcesImportPath: L{String<porcupine.datatypes.String>}
+
     @ivar isResizable: Indicates if the application's window is resizable
     @type isResizable: L{isResizable<schemas.org.innoscript.properties.isResizable>}
 
@@ -123,7 +128,7 @@ class Application(system.Item):
     __slots__ = (
         'icon','width','height','top','left',
         'isResizable','canMaximize','canMinimize',
-        'interface','script'
+        'interface','script','resourcesImportPath'
     )
     __props__ = system.Item.__props__ + __slots__
     
@@ -139,6 +144,7 @@ class Application(system.Item):
         self.left = properties.left()
         self.interface = properties.interface()
         self.script = properties.script()
+        self.resourcesImportPath = datatypes.String()
         
     def getInterface(self, rootURI):
         """
