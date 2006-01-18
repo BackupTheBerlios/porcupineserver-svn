@@ -716,6 +716,12 @@ class GetAppScript(HTTPServlet):
     def execute(self):
         self.response.setExpiration(1200)
         sLang = self.request.getLang()
-        dctLocale = resources.getLocale(sLang)
+
+        if (self.item.resourcesImportPath.value):
+            stringResources = misc.getClassByName(self.item.resourcesImportPath.value)
+            dctLocStrings = stringResources.getLocale(sLang)
+        else:
+            dctLocStrings = {}
+
         self.response.content_type = 'text/javascript'
-        self.response.write(self.item.script.value % dctLocale)
+        self.response.write(self.item.script.value % dctLocStrings)
