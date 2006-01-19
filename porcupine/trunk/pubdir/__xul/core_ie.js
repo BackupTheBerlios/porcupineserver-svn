@@ -591,57 +591,52 @@ Resource_onstatechange = function() {
 }
 
 //Widget class
-
 function Widget(params) {
 	params = params || {};
 	this.left = params.left || 0;
 	this.top = params.top || 0;
 	this.width = params.width || null;
 	this.height = params.height || null;
-	this.borderWidth = params.border || 0;
-	this.style = params.style || '';
-	this.bgColor = params.bgcolor || '';
-	this.overflow = params.overflow || '';
-	if (params.padding) {
-		this.padding = params.padding.split(',');
-		for (var i=0; i<this.padding.length; i++) this.padding[i]=parseInt(this.padding[i]);
-	}
-	else
-		this.padding = [0,0,0,0];
 	this.minw = 0;
 	this.minh = 0;
 	this.isHidden = false;
 	this.widgets = [];
 	this._id_widgets = {};
 	this.attributes = params.attributes || {};
-	this.isAbs = true;
 	this.maxz = 0;
-	this.display = '';
 	this._isDisabled = false;
 
-	if (this.style != '') {
+	if (params.style) {
 		var tmp = document.createDocumentFragment();
 		tmp.appendChild(ce('DIV'));
-		tmp.firstChild.innerHTML = '<div style="' + this.style + '"></div>';
+		tmp.firstChild.innerHTML = '<div style="' + params.style + '"></div>';
 		this.div = tmp.firstChild.firstChild.cloneNode();
 	}
 	else
 		this.div = ce('DIV');
 
 	this.div.widget = this;
-	
+
 	if (params.id) {
 		this.id = params.id;
 		this.div.id = this.id;
 	}
-
+	if (params.bgcolor)
+		this.setBgColor(params.bgcolor);
+	this.setBorderWidth(parseInt(params.border) || 0);
+	if (params.padding) {
+		var padding = params.padding.split(',');
+		this.setPadding(padding);
+	}
+	else
+		this.setPadding([0,0,0,0]);
 	if (params.display) this.setDisplay(params.display);
-	this.div.style.position = 'absolute';
-	this.div.style.overflow = this.overflow;
-	this.div.style.backgroundColor = this.bgColor;
+	if (params.overflow) this.setOverflow(params.overflow);
+	this.setPosition('absolute');
 
 	this._buildEventRegistry(params)
 	this._attachEvents();
+	
 	if (params.onload) this.onload = getEventListener(params.onload);
 	if (params.disabled=='true' || params.disabled==true) this.disable();
 }
@@ -659,20 +654,10 @@ Widget.prototype.appendChild = function(w) {
 	this.div.appendChild(w.div);
 
 	if (w.height=='100%' && w.width=='100%') {
-		this.overflow = 'hidden';
-		this.div.style.overflow='hidden';
+		this.setOverflow('hidden');
 	}
-	w.repad();
 	w.redraw();
 	w.bringToFront();
-}
-
-Widget.prototype.repad = function () {
-	this.div.style.paddingLeft = this.padding[0] + 'px';
-	this.div.style.paddingRight = this.padding[1] + 'px';
-	this.div.style.paddingTop = this.padding[2] + 'px';
-	this.div.style.paddingBottom = this.padding[3] + 'px';
-	this.div.style.borderWidth = this.borderWidth + 'px';
 }
 
 Widget.prototype.supportedEvents = [
@@ -696,10 +681,12 @@ Widget.prototype._buildEventRegistry = function(params) {
 
 Widget.prototype._attachEvents = function() {
 	for (var evt_type in this._registry) {
-		this.attachEvent(
-			evt_type,
-			this._registry[evt_type]
-		);
+		if (evt_type!='toXMLRPC') {
+			this.attachEvent(
+				evt_type,
+				this._registry[evt_type]
+			);
+		}
 	}
 }
 
@@ -799,17 +786,69 @@ Widget.prototype._setCommonProps = function (w) {
 	var w = w || this;
 	if (w.height!=null) w.div.style.height = w._calcHeight() + 'px';
 	if (w.width!=null) w.div.style.width = w._calcWidth() + 'px';
-	w.div.style.backgroundColor = this.bgColor;
 }
 
-Widget.prototype.setDisplay = function (sDispl) {
-	this.display = sDispl || '';
+// bgColor attribute
+Widget.prototype.setBgColor = function(color) {
+	this.div.style.backgroundColor = color;
+}
+Widget.prototype.getBgColor = function() {
+	return this.div.style.backgroundColor;
+}
+
+//borderWidth attribute
+Widget.prototype.setBorderWidth = function(iWidth) {
+	this.div.style.borderWidth = iWidth + 'px';
+}
+Widget.prototype.getBorderWidth = function() {
+	return parseInt(this.div.style.borderWidth);
+}
+
+//display attribute
+Widget.prototype.setDisplay = function(sDispl) {
 	this.div.style.display = sDispl || '';
 }
+Widget.prototype.getDisplay = function(){
+	return this.div.style.display;
+}
 
-Widget.prototype.setPos = function (sPos) {
-	this.isAbs = (sPos=='absolute')? true:false;
+//overflow attribute
+Widget.prototype.setOverflow = function(sOverflow) {
+	this.div.style.overflow = sOverflow;
+}
+Widget.prototype.getOverflow = function() {
+	return this.div.style.overflow;
+}
+
+//position attribute
+Widget.prototype.setPosition = function(sPos) {
 	this.div.style.position = sPos || '';
+}
+Widget.prototype.getPosition = function() {
+	return this.div.style.position;
+}
+
+//padding attribute
+Widget.prototype.setPadding = function(arrPadding) {
+	this.div.style.paddingLeft = arrPadding[0] + 'px';
+	this.div.style.paddingRight = arrPadding[1] + 'px';
+	this.div.style.paddingTop = arrPadding[2] + 'px';
+	this.div.style.paddingBottom = arrPadding[3] + 'px';
+}
+Widget.prototype.getPadding = function() {
+	var padding = [
+		parseInt(this.div.style.paddingLeft),
+		parseInt(this.div.style.paddingRight),
+		parseInt(this.div.style.paddingTop),
+		parseInt(this.div.style.paddingBottom)
+	];
+	return padding;
+}
+
+Widget.prototype.addPaddingOffset = function(where, iOffset) {
+	var old_offset = eval('parseInt(this.div.style.padding' + where + ')');
+	var new_offset = old_offset + iOffset;
+	eval('this.div.style.padding' + where + '="' + new_offset + 'px"');
 }
 
 Widget.prototype._mustRedraw = function () {
@@ -822,7 +861,7 @@ Widget.prototype.getHeight = function(b) {
 	hg = parseInt(this.div.style.height);
 	if (isNaN(hg)) return 0;
 	if (b) {
-		ofs = this.padding[2] + this.padding[3] + 2*this.borderWidth;
+		ofs = parseInt(this.div.style.paddingTop) + parseInt(this.div.style.paddingBottom) + 2 * this.getBorderWidth();
 		hg += ofs;
 	}
 	return hg;
@@ -834,7 +873,7 @@ Widget.prototype.getWidth = function(b) {
 	wd = parseInt(this.div.style.width);
 	if (isNaN(wd)) return 0;
 	if (b) {
-		ofs = this.padding[0]+this.padding[1]+2*this.borderWidth;
+		ofs = parseInt(this.div.style.paddingLeft) + parseInt(this.div.style.paddingRight) + 2*this.getBorderWidth();
 		wd += ofs;
 	}
 	return wd;
@@ -845,7 +884,7 @@ Widget.prototype.getLeft = function()
 	var ofs, lf;
 	lf = parseInt(this.div.style.left);
 	if (isNaN(lf)) return 0;
-	ofs = this.padding[0];
+	ofs = this.parent.getPadding()[0];
 	lf -= ofs
 	return lf;
 }
@@ -855,7 +894,7 @@ Widget.prototype.getTop = function()
 	var ofs, rg;
 	rg = parseInt(this.div.style.top);
 	if (isNaN(rg)) return 0;
-	ofs = this.padding[2];
+	ofs = this.parent.getPadding()[2];
 	rg -= ofs
 	return rg;
 }
@@ -863,7 +902,7 @@ Widget.prototype.getTop = function()
 Widget.prototype._calcHeight = function(b)
 {
 	var offset = 0;
-	if (!b)	offset = this.padding[2]+this.padding[3]+2*this.borderWidth;
+	if (!b)	offset = parseInt(this.div.style.paddingTop) + parseInt(this.div.style.paddingBottom) + 2*this.getBorderWidth();
 	if (!isNaN(this.height)) {
 		return(parseInt(this.height)-offset);
 	}
@@ -885,7 +924,7 @@ Widget.prototype._calcHeight = function(b)
 Widget.prototype._calcWidth = function(b)
 {
 	var offset = 0;
-	if (!b) offset = this.padding[0]+this.padding[1]+2*this.borderWidth;
+	if (!b) offset = parseInt(this.div.style.paddingLeft) + parseInt(this.div.style.paddingRight) + 2*this.getBorderWidth();
 	if (!isNaN(this.width)) {
 		return(parseInt(this.width)-offset);
 	}
@@ -908,7 +947,7 @@ Widget.prototype._calcLeft = function()
 {
 	if (!isNaN(this.left)) {
 		var l = parseInt(this.left);
-		if (this.parent) l+= this.parent.padding[0];
+		if (this.parent) l+= this.parent.getPadding()[0];
 		return(l);
 	}
 	else if (typeof(this.left)=='function') {
@@ -931,7 +970,7 @@ Widget.prototype._calcTop = function()
 {
 	if (!isNaN(this.top)) {
 		var t = parseInt(this.top);
-		if (this.parent) t+= this.parent.padding[2];
+		if (this.parent) t+= this.parent.getPadding()[2];
 		return(t);
 	}
 	else if (typeof(this.top)=='function') {
@@ -1089,16 +1128,16 @@ Widget.prototype._endMove = function(evt)
 
 Widget.prototype.redraw = function(bForceAll, w) {
 	var w = w || this;
+	var sOverflow;
 	if (!w.isHidden) {
-		if (w.overflow != 'hidden') w.div.style.overflow = 'hidden';
-
+		sOverflow = w.getOverflow();
+		if (sOverflow != 'hidden') w.setOverflow('hidden');
 		w._setCommonProps();
-		if (w.isAbs) w._setAbsProps();
+		if (w.getPosition()=='absolute') w._setAbsProps();
 		for (var i=0; i<w.widgets.length; i++) {
 			if (w.widgets[i]._mustRedraw() || bForceAll) w.widgets[i].redraw(bForceAll);
 		}
-		
-		if (w.overflow!='hidden') w.div.style.overflow = w.overflow;
+		if (sOverflow != 'hidden') w.setOverflow(sOverflow);
 	}
 }
 
@@ -1161,7 +1200,7 @@ function Desktop(params, root) {
 	params.onmousedown = QuiX.getEventWrapper(Desktop__onmousedown, params.onmousedown);
 	params.oncontextmenu = function() {return false}
 	this.base(params);
-	this.setPos();
+	this.setPosition();
 	this.div.onselectstart = function(){return(false)};
 	this._setCommonProps();
 	this.div.innerHTML = '<p align="right" style="color:#666666;margin:0px;">QuiX v' + QuiX.version + '</p>';

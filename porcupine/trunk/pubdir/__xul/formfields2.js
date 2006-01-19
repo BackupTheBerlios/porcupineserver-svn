@@ -99,13 +99,13 @@ Combo.prototype.disable = function() {
 
 Combo.prototype.selectOption = function(option) {
 	if (!this.editable) {
-		var value = (option.value!=undefined)?option.value:option.caption;
+		var value = (option.value!=undefined)?option.value:option.getCaption();
 		if (this.selection!=value) {
 			this.selection = value;
 			if (this.onchange) this.onchange(this);
 		}
 	}
-	this.div.firstChild.value = option.caption;
+	this.div.firstChild.value = option.caption || option.getCaption();
 }
 
 Combo.prototype.showDropdown = function(w) {
@@ -124,7 +124,7 @@ Combo.prototype.showDropdown = function(w) {
 			top : iTop,
 			left : iLeft,
 			width : oCombo.getWidth(),
-			bgcolor : oCombo.bgColor,
+			bgcolor : oCombo.getBgColor(),
 			border : 1,
 			overflow : 'hidden',
 			height : oCombo.menuHeight,
@@ -163,7 +163,7 @@ Combo.prototype.showDropdown = function(w) {
 		opt.attachEvent('onclick', function(evt, w){
 			oCombo.selectOption(w);
 		});
-		opt.setPos();
+		opt.setPosition();
 	}
 	var resizer = new Widget(
 		{
@@ -248,7 +248,7 @@ SelectList.prototype.addOption = function(params) {
 	this.appendChild(w);
 	w.isSelected = false;
 	w.value = params.value;
-	w.setPos();
+	w.setPosition();
 	w.div.style.whiteSpace = 'nowrap';
 	this.options.push(w);
 	return(w);

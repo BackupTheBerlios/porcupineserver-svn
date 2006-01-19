@@ -37,7 +37,7 @@ MenuOption.prototype.show = function(contextMenu) {
 	});
 	contextMenu.appendChild(this);
 	this.setDisplay('inline');
-	this.setPos();
+	this.setPosition();
 	this.div.appendChild( document.createTextNode(this.caption));
 	this.div.style.whiteSpace = 'nowrap';
 	if (this.options.length>0) {
@@ -65,14 +65,13 @@ MenuOption.prototype.show = function(contextMenu) {
 		img.style.marginRight='4px';
 		img.width=16;
 		img.height=16;
-		this.padding[0] -= 20;
-		this.repad();
+		this.addPaddingOffset('Left', -20);
 		this.div.insertBefore(img, this.div.firstChild);
 	}
 }
 
 MenuOption.prototype._addIndicator = function() {
-	var img;
+	var img, padding;
 	switch (this.type) {
 		case 'radio':
 			img = QuiX.getImage('images/menu_radio.gif');
@@ -86,8 +85,7 @@ MenuOption.prototype._addIndicator = function() {
 	img.align='absmiddle';
 	img.style.marginRight='4px';
 
-	this.padding[0] -= 20;
-	this.repad();
+	this.addPaddingOffset('Left', -20);
 	this.div.insertBefore(img, this.div.firstChild);
 }
 
@@ -125,7 +123,7 @@ function MenuOption__onmouseover(evt, w) {
 	w.div.className = 'option over';
 	if (w.subMenu) {
 		w.parent.activeSub = w.subMenu;
-		w.subMenu.show(w.parent, w.getWidth(true), w.getTop(true)-w.parent.padding[2]);
+		w.subMenu.show(w.parent, w.getWidth(true), w.getTop(true)-w.parent.getPadding()[2]);
 		
 		if (w.subMenu.getScreenTop() + w.subMenu.height > document.desktop.getHeight(true)) {
 			w.subMenu.top -= w.subMenu.getScreenTop() + w.subMenu.height - document.desktop.getHeight(true);
@@ -196,10 +194,10 @@ ContextMenu.prototype.show = function(w,x,y) {
 				oOption.show(this);
 				optionWidth = oOption.div.offsetWidth;
 				if (QuiX.browser == 'ie' && !oOption.img)
-					optionWidth += oOption.padding[0];
+					optionWidth += oOption.getPadding()[0];
 				if (optionWidth > max_width) max_width = optionWidth;
 				oOption.setDisplay();
-				oOption.setPos('absolute');
+				oOption.setPosition('absolute');
 			}
 			else {
 				oOption = new Widget({
@@ -274,7 +272,7 @@ MBar.prototype.addRootMenu = function(params) {
 		});
 	this.appendChild(oMenu);
 	oMenu.setDisplay('inline');
-	oMenu.setPos();
+	oMenu.setPosition();
 	oMenu.div.className = 'menu';
 	oMenu.div.style.marginRight = this.spacing + 'px';
 	
@@ -285,17 +283,15 @@ MBar.prototype.addRootMenu = function(params) {
 }
 
 MBar.prototype._menuover = function(oMenu) {
-	oMenu.borderWidth = 1;
-	oMenu.padding = [3,3,2,2];
+	oMenu.setBorderWidth(1);
+	oMenu.setPadding([3,3,2,2]);
 	oMenu.div.className = 'menu over';
-	oMenu.repad();
 }
 
 MBar.prototype._menuout = function(oMenu) {
-	oMenu.borderWidth = 0;
-	oMenu.padding = [4,4,3,3];
+	oMenu.setBorderWidth(0);
+	oMenu.setPadding([4,4,3,3]);
 	oMenu.div.className = 'menu';
-	oMenu.repad();
 }
 
 MBar.prototype._menuclick = function(evt, oMenu, ind) {

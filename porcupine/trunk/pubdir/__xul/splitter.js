@@ -51,30 +51,32 @@ Splitter.prototype.addPane = function(params) {
 	}
 	
 	function onoff(evt ,w) {
-		var dir;
+		var dir, padding;
 		var p = w.parent;
 		var prop = (oSplitter.orientation=='v')?'width':'height';
 		var prop2 = (oSplitter.orientation=='v')?'left':'top';
 		var padding_offset = (oSplitter.orientation=='v')?0:2;
 		if (p[prop]!=8) {
+			padding = p.getPadding();
 			w.attributes.length = p[prop];
-			w.attributes.padding = p.padding[padding_offset + 1];
+			w.attributes.padding = padding[padding_offset + 1];
 			dir = (oSplitter.orientation=='v')?'right':'down';
-			w.changeImage('images/on_off_' + dir + '.gif');
+			w.setImageURL('images/on_off_' + dir + '.gif');
 			p[prop] = 8;
-			p.padding[padding_offset + 1] = 0;
-			p.padding[padding_offset] += 8;
-			p.repad();
-			w[prop2] = -p.padding[padding_offset];
+			padding[padding_offset + 1] = 0;
+			padding[padding_offset] += 8;
+			p.setPadding(padding);
+			w[prop2] = -padding[padding_offset];
 			oSplitter.redraw();
 		} else {
 			p[prop] = w.attributes.length;
 			w[prop2] = (oSplitter.orientation=='v')?'this.parent.getWidth(true)-8':'this.parent.getHeight(true)-8';
 			dir = (oSplitter.orientation=='v')?'left':'up';
-			w.changeImage('images/on_off_' + dir + '.gif');
-			p.padding[padding_offset + 1] = w.attributes.padding;
-			p.padding[padding_offset] -= 8;
-			p.repad();
+			w.setImageURL('images/on_off_' + dir + '.gif');
+			padding = p.getPadding();
+			padding[padding_offset + 1] = w.attributes.padding;
+			padding[padding_offset] -= 8;
+			p.setPadding(padding);
 			oSplitter.redraw();
 		}
 	}
@@ -90,12 +92,13 @@ Splitter.prototype.addPane = function(params) {
 			});
 		this.appendChild(ow2);
 		if (on_off && !this.interactive) {
-			ow2.padding[1] += 8;
-			ow2.repad();
+			padding = ow2.getPadding();
+			padding[1] += 8;
+			ow2.setPadding(padding);
 			onoff_w = new FlatButton (
 				{
 					width:8, height:'this.parent.getHeight(true)', padding:'2,2,2,2',
-					top:-ow2.padding[2], left:'this.parent.getWidth(true)-8',
+					top:-ow2.getPadding()[2], left:'this.parent.getWidth(true)-8',
 					img:'images/on_off_left.gif', onclick: onoff
 				});
 			ow2.appendChild(onoff_w);
@@ -111,12 +114,13 @@ Splitter.prototype.addPane = function(params) {
 			});
 		this.appendChild(ow2);
 		if (on_off && !this.interactive) {
-			ow2.padding[3] += 8;
-			ow2.repad();
+			padding = ow2.getPadding();
+			padding[3] += 8;
+			ow2.setPadding(padding);
 			onoff_w = new FlatButton (
 				{
 					width:'this.parent.getWidth(true)', height:8, padding:'2,2,2,2',
-					top:'this.parent.getHeight(true)-8', left:-ow2.padding[0],
+					top:'this.parent.getHeight(true)-8', left:-ow2.getPadding()[0],
 					img:'images/on_off_up.gif', imgalign:'top', onclick: onoff
 				});
 			ow2.appendChild(onoff_w);

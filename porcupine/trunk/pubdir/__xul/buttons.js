@@ -19,8 +19,8 @@ function Label(params) {
 		this.div.style.cursor = 'text';
 	}
 	
-	this.caption = params.caption || '';
-	if (this.caption) this.div.innerHTML += '<span>' + this.caption + '</span>';
+	var sCaption = params.caption || '';
+	this.div.innerHTML += '<span>' + sCaption + '</span>';
 }
 
 Label.prototype = new Widget;
@@ -47,14 +47,31 @@ function Icon(params) {
 	this.base(params);
 	this.div.style.textAlign = params.align || 'center';
 	this.img = params.img || null;
-	if (this.img)	{
-		var img = QuiX.getImage(params.img);
-		img.style.verticalAlign = 'middle';
-		var oIcon = this;
+	this.imgAlign = params.imgalign || 'left';
+	if (this.img) {
+		this.redraw(true);
+	}
+}
 
-		if (this.caption) {
-			imgalign = params.imgalign || 'left';
-			switch(imgalign) {
+Icon.prototype = new Label;
+
+Icon.prototype.setImageURL = function(s) {
+	this.div.firstChild.src = s;
+}
+
+Icon.prototype.redraw = function(bForceAll) {
+	if (bForceAll) {
+		var img = this.div.getElementsByTagName('IMG')[0];
+		if (img) QuiX.removeNode(img);
+		
+		var br = this.div.getElementsByTagName('BR')[0];
+		if (br) QuiX.removeNode(br);
+		
+		img = QuiX.getImage(this.img);
+		img.style.verticalAlign = 'middle';
+		
+		if (this.getCaption()!='') {
+			switch(this.imgAlign) {
 				case "left":
 					img.style.marginRight = '2px';
 					this.div.insertBefore(img, this.div.firstChild);
@@ -71,17 +88,13 @@ function Icon(params) {
 					this.div.appendChild(ce('BR'));
 					this.div.appendChild(img);
 			}
-		 } else {
-			img.style.verticalAlign = params.imgalign || 'middle';
+		}
+		else {
 			this.div.appendChild(img);
 		}
 	}
-}
-
-Icon.prototype = new Label;
-
-Icon.prototype.changeImage = function(s) {
-	this.div.firstChild.src = s;
+	if (this.parent)
+		Widget.prototype.redraw(bForceAll, this);
 }
 
 //XButton class
@@ -132,29 +145,40 @@ function XButton(params) {
 
 XButton.prototype = new Widget;
 
+XButton.prototype.setCaption = function(s) {
+	this.icon.setCaption(s);
+}
+
+XButton.prototype.getCaption = function(s) {
+	return( this.icon.getCaption() );
+}
+
 function XButton__onmouseover(evt, w) {
 	w.div.className = 'btnover';
 }
 
 function XButton__onmouseout(evt, w) {
 	w.div.className = 'btn';
-	w.icon.padding[0] = 0;
-	w.icon.padding[2] = 0;
-	w.icon.repad();
+	var padding = w.icon.getPadding();
+	padding[0] = 0;
+	padding[2] = 0;
+	w.icon.setPadding(padding);
 }
 
 function XButton__onmousedown(evt, w) {
 	w.div.className = 'btndown';
-	w.icon.padding[0] = 2;
-	w.icon.padding[2] = 1;
-	w.icon.repad();
+	var padding = w.icon.getPadding();
+	padding[0] = 2;
+	padding[2] = 1;
+	w.icon.setPadding(padding);
 }
 
 function XButton__onmouseup(evt, w) {
 	w.div.className = 'btn';
-	w.icon.padding[0] = 0;
-	w.icon.padding[2] = 0;
-	w.icon.repad();
+	var padding = w.icon.getPadding();
+	padding[0] = 0;
+	padding[2] = 0;
+	w.icon.setPadding(padding);
 }
 
 //FlatButton class
@@ -194,18 +218,20 @@ function FlatButton(params) {
 FlatButton.prototype = new Icon;
 
 FlatButton.prototype._addBorder = function() {
-	if (this.borderWidth==0) {
-		this.borderWidth = 1;
-		for (var i=0; i<4; i++) this.padding[i] -= 1;
-		this.repad();
+	if (this.getBorderWidth()==0) {
+		this.setBorderWidth(1);
+		var padding = this.getPadding();
+		for (var i=0; i<4; i++) padding[i] -= 1;
+		this.setPadding(padding);
 	}
 }
 
 FlatButton.prototype._removeBorder = function() {
-	if (this.borderWidth==1) {
-		this.borderWidth = 0;
-		for (var i=0; i<4; i++) this.padding[i] += 1;
-		this.repad();
+	if (this.getBorderWidth()==1) {
+		this.setBorderWidth(0);
+		var padding = this.getPadding();
+		for (var i=0; i<4; i++) padding[i] += 1;
+		this.setPadding(padding);
 	}
 }
 
@@ -240,8 +266,7 @@ function FlatButton__onmouseout(evt, w) {
 		w.div.className = 'flat';
 		w._removeBorder();
 		if (w.type!='toggle' && w._ispressed) {
-			w.padding[0] -= 1;
-			w.repad();
+			w.addPaddingOffset('Left', -1);
 			w._ispressed = false;
 		}
 	}
@@ -251,18 +276,16 @@ function FlatButton__onmousedown(evt, w) {
 	w.div.className='flaton';
 	w._addBorder();
 	if (w.type!='toggle') {
-		w.padding[0] += 1;
+		w.addPaddingOffset('Left', 1);
 		w._ispressed = true;
 	}
-	w.repad();
 }
 
 function FlatButton__onmouseup(evt, w) {
 	w.div.className='flat';
 	w._removeBorder();
 	if (w.type!='toggle' && w._ispressed) {
-		w.padding[0] -= 1;
-		w.repad();
+		w.addPaddingOffset('Left', -1);
 		w._ispressed = false;
 	}
 }

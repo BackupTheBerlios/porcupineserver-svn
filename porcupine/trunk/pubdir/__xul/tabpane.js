@@ -30,7 +30,7 @@ TabPane.prototype.addTab = function(params) {
 	this.appendChild(oTab);
 	oTab.onactivate = getEventListener(params.onactivate);
 	oTab.setDisplay('inline');
-	oTab.setPos('relative');
+	oTab.setPosition('relative');
 	oTab.div.className = 'tab';
 	oTab.div.innerHTML = params.caption;
 	this.tabs.push(oTab);

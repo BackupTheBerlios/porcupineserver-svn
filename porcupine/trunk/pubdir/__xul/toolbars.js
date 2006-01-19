@@ -68,7 +68,7 @@ OutlookBar.prototype.addPane = function(params) {
 			border:1,padding:'2,2,2,2',overflow:'hidden'
 		});
 	this.appendChild(w);
-	w.setPos('relative');
+	w.setPosition('relative');
 	w.div.className = 'tool';
 	w.div.innerHTML = params.caption;
 	var oBar = this;
@@ -84,7 +84,7 @@ OutlookBar.prototype.addPane = function(params) {
 		});
 	this.appendChild(w1);
 	if (this.panes.length!=0) w1.setDisplay('none');
-	w1.setPos('relative');
+	w1.setPosition('relative');
 	this.panes.push(w1);
 	return(w1);
 }

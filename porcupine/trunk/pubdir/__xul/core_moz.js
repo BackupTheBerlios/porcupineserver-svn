@@ -606,41 +606,35 @@ function Widget(params) {
 	this.top = params.top || 0;
 	this.width = params.width || null;
 	this.height = params.height || null;
-	this.borderWidth = params.border || 0;
-	this.style = params.style || '';
-	this.bgColor = params.bgcolor || '';
-	this.overflow = params.overflow || '';
-	if (params.padding) {
-		this.padding = params.padding.split(',');
-		for (var i=0; i<this.padding.length; i++)
-			this.padding[i]=parseInt(this.padding[i]);
-	}
-	else
-		this.padding = [0,0,0,0];
 	this.minw = 0;
 	this.minh = 0;
 	this.isHidden = false;
 	this.widgets = [];
 	this._id_widgets = {};
 	this.attributes = params.attributes || {};
-	this.isAbs = true;
 	this.maxz = 0;
-	this.display = '';
 	this._isDisabled = false;
 
 	this.div = ce('DIV');
-	this.div.setAttribute('style', this.style);
+	if (params.style) this.div.setAttribute('style', params.style);
 	this.div.widget = this;
 
 	if (params.id) {
 		this.id = params.id;
 		this.div.id = this.id;
 	}
-	
+	if (params.bgcolor)
+		this.setBgColor(params.bgcolor);
+	this.setBorderWidth(parseInt(params.border) || 0);
+	if (params.padding) {
+		var padding = params.padding.split(',');
+		this.setPadding(padding);
+	}
+	else
+		this.setPadding([0,0,0,0]);
 	if (params.display) this.setDisplay(params.display);
-	this.div.style.position = 'absolute';
-	this.div.style.overflow = this.overflow;
-	this.div.style.backgroundColor = this.bgColor;
+	if (params.overflow) this.setOverflow(params.overflow);
+	this.setPosition('absolute');
 	
 	this._buildEventRegistry(params);
 	this._attachEvents();
@@ -658,17 +652,8 @@ Widget.prototype.appendChild = function(w) {
 	}
 	w.parent = this;
 	this.div.appendChild(w.div);
-	w.repad();
 	w.redraw();
 	w.bringToFront();
-}
-
-Widget.prototype.repad = function() {
-	this.div.style.paddingLeft = this.padding[0] + 'px';
-	this.div.style.paddingRight = this.padding[1] + 'px';
-	this.div.style.paddingTop = this.padding[2] + 'px';
-	this.div.style.paddingBottom = this.padding[3] + 'px';
-	this.div.style.borderWidth = this.borderWidth + 'px';
 }
 
 Widget.prototype.supportedEvents = [
@@ -691,10 +676,12 @@ Widget.prototype._buildEventRegistry = function(params) {
 
 Widget.prototype._attachEvents = function() {
 	for (var evt_type in this._registry) {
-		this.attachEvent(
-			evt_type,
-			this._registry[evt_type]
-		);
+		if (evt_type!='toXMLRPC') {
+			this.attachEvent(
+				evt_type,
+				this._registry[evt_type]
+			);
+		}
 	}
 }
 
@@ -723,7 +710,7 @@ Widget.prototype.disable = function(w) {
 
 Widget.prototype.enable = function(w) {
 	w = w || this;
-	w.div.style.color = w.statecolor;
+	w.div.style.color = w.statecolor || '';
 	w.div.style.cursor = w.statecursor || '';
 	if (w._isDisabled) w._attachEvents();
 	w._isDisabled = false;
@@ -748,7 +735,6 @@ Widget.prototype.parseFromUrl = function(url, oncomplete) {
 	var oWidget = this;
 	xmlhttp.onreadystatechange = function() {
 		if (xmlhttp != null && xmlhttp.readyState==4) {
-			//uidom = xmlhttp.responseText;
 			oWidget.parse(xmlhttp.responseXML, oncomplete);
 			xmlhttp = null;
 		}
@@ -794,28 +780,82 @@ Widget.prototype._setAbsProps = function () {
 Widget.prototype._setCommonProps = function (w) {
 	var w = w || this;
 	if (w.parent) {
-		if (w.height=='100%' && w.width=='100%' && w.parent.overflow!='hidden') {
-			w.parent.div.style.overflow='hidden';
+		var parentOverflow = w.parent.getOverflow();
+		if (w.height=='100%' && w.width=='100%' && parentOverflow!='hidden') {
+			w.parent.setOverflow('hidden');
+			w.parent.attributes.__old_overflow = parentOverflow;
 		}
-		else if (w.parent.overflow!='hidden' && w.parent.div.style.overflow != w.parent.overflow) {
-			w.parent.div.style.overflow=w.parent.overflow;
+		else if (w.parent.attributes.__old_overflow) {
+			w.parent.setOverflow(w.parent.attributes.__old_overflow);
+			w.parent.attributes.__old_overflow = null;
 		}
 	}
 	
 	if (w.height!=null) w.div.style.height = w._calcHeight() + 'px';
 	if (w.width!=null) w.div.style.width = w._calcWidth() + 'px';
-	
-	w.div.style.backgroundColor = this.bgColor || '';
 }
 
+// bgColor attribute
+Widget.prototype.setBgColor = function(color) {
+	this.div.style.backgroundColor = color;
+}
+Widget.prototype.getBgColor = function() {
+	return this.div.style.backgroundColor;
+}
+
+//borderWidth attribute
+Widget.prototype.setBorderWidth = function(iWidth) {
+	this.div.style.borderWidth = iWidth + 'px';
+}
+Widget.prototype.getBorderWidth = function() {
+	return parseInt(this.div.style.borderWidth);
+}
+
+//display attribute
 Widget.prototype.setDisplay = function (sDispl) {
-	this.display = sDispl;
 	this.div.style.display = sDispl || '';
 }
+Widget.prototype.getDisplay = function () {
+	return this.div.style.display;
+}
 
-Widget.prototype.setPos = function (sPos) {
-	this.isAbs = (sPos=='absolute')? true:false;
+//overflow attribute
+Widget.prototype.setOverflow = function(sOverflow) {
+	this.div.style.overflow = sOverflow;
+}
+Widget.prototype.getOverflow = function() {
+	return this.div.style.overflow;
+}
+
+//position attribute
+Widget.prototype.setPosition = function(sPos) {
 	this.div.style.position = sPos || '';
+}
+Widget.prototype.getPosition = function() {
+	return this.div.style.position;
+}
+
+//padding attribute
+Widget.prototype.setPadding = function(arrPadding) {
+	this.div.style.paddingLeft = arrPadding[0] + 'px';
+	this.div.style.paddingRight = arrPadding[1] + 'px';
+	this.div.style.paddingTop = arrPadding[2] + 'px';
+	this.div.style.paddingBottom = arrPadding[3] + 'px';
+}
+Widget.prototype.getPadding = function() {
+	var padding = [
+		parseInt(this.div.style.paddingLeft),
+		parseInt(this.div.style.paddingRight),
+		parseInt(this.div.style.paddingTop),
+		parseInt(this.div.style.paddingBottom)
+	];
+	return padding;
+}
+
+Widget.prototype.addPaddingOffset = function(where, iOffset) {
+	var old_offset = eval('parseInt(this.div.style.padding' + where + ')');
+	var new_offset = old_offset + iOffset;
+	eval('this.div.style.padding' + where + '="' + new_offset + 'px"');
 }
 
 Widget.prototype._mustRedraw = function () {
@@ -827,7 +867,7 @@ Widget.prototype.getHeight = function(b) {
 	b = b || false;
 	hg = parseInt(this.div.style.height);
 	if (b) {
-		ofs = this.padding[2] + this.padding[3] + 2*this.borderWidth;
+		ofs = parseInt(this.div.style.paddingTop) + parseInt(this.div.style.paddingBottom) + 2*this.getBorderWidth();
 		hg += ofs;
 	}
 	return hg;
@@ -838,7 +878,7 @@ Widget.prototype.getWidth = function(b) {
 	b = b || false;
 	wd = parseInt(this.div.style.width);
 	if (b) {
-		ofs = this.padding[0]+this.padding[1]+2*this.borderWidth;
+		ofs = parseInt(this.div.style.paddingLeft) + parseInt(this.div.style.paddingRight) + 2*this.getBorderWidth();
 		wd += ofs;
 	}
 	return wd;
@@ -847,7 +887,7 @@ Widget.prototype.getWidth = function(b) {
 Widget.prototype.getLeft = function() {
 	var ofs, lf;
 	lf = parseInt(this.div.style.left);
-	ofs = this.parent.padding[0];
+	ofs = this.parent.getPadding()[0];
 	lf -= ofs
 	return lf;
 }
@@ -855,14 +895,14 @@ Widget.prototype.getLeft = function() {
 Widget.prototype.getTop = function() {
 	var ofs, rg;
 	rg = parseInt(this.div.style.top);
-	ofs = this.parent.padding[2];
+	ofs = this.parent.getPadding()[2];
 	rg -= ofs
 	return rg;
 }
 
 Widget.prototype._calcHeight = function(b) {
 	var offset = 0;
-	if (!b)	offset = this.padding[2]+this.padding[3]+2*this.borderWidth;
+	if (!b)	offset = parseInt(this.div.style.paddingTop) + parseInt(this.div.style.paddingBottom) + 2*this.getBorderWidth();
 	if (!isNaN(this.height)) {
 		return (parseInt(this.height)-offset);
 	}
@@ -883,7 +923,9 @@ Widget.prototype._calcHeight = function(b) {
 
 Widget.prototype._calcWidth = function(b) {
 	var offset = 0;
-	if (!b) offset = this.padding[0]+this.padding[1]+2*this.borderWidth;
+	if (!b) {
+		offset = parseInt(this.div.style.paddingLeft) + parseInt(this.div.style.paddingRight) + 2*this.getBorderWidth();
+	}
 	if (!isNaN(this.width)) {
 		return (parseInt(this.width)-offset);
 	}
@@ -905,7 +947,7 @@ Widget.prototype._calcWidth = function(b) {
 Widget.prototype._calcLeft = function() {
 	if (!isNaN(this.left)) {
 		var l = parseInt(this.left);
-		if (this.parent) l+= this.parent.padding[0];
+		if (this.parent) l+= this.parent.getPadding()[0];
 		return(l);
 	}
 	else if (typeof(this.left)=='function') {
@@ -927,7 +969,7 @@ Widget.prototype._calcLeft = function() {
 Widget.prototype._calcTop = function() {
 	if (!isNaN(this.top)) {
 		var t = parseInt(this.top);
-		if (this.parent) t+= this.parent.padding[2];
+		if (this.parent) t+= this.parent.getPadding()[2];
 		return(t);
 	}
 	else if (typeof(this.top)=='function') {
@@ -1105,8 +1147,7 @@ Widget.prototype.redraw = function(bForceAll, w) {
 Widget.prototype._redraw = function(bForceAll) {
 	if (!this.isHidden) {
 		this._setCommonProps();
-		if (this.isAbs) this._setAbsProps();
-
+		if (this.getPosition()=='absolute') this._setAbsProps();
 		for (var i=0; i<this.widgets.length; i++) {
 			if (this.widgets[i]._mustRedraw() || bForceAll) this.widgets[i].redraw(bForceAll);
 		}
@@ -1147,20 +1188,13 @@ Widget.prototype.attachEvent = function(eventType, f) {
 	}
 	if (typeof f=='string')
 		f = getEventListener(f);
-	if (eventType!='__onscroll') {
-		if (f) {
-			var handler = function(e){return f(e, oWidget)};
-			this._registry[eventType] = handler;
-		}
-		else
-			handler = this._registry[eventType];
-		this.div.addEventListener(eventType.slice(2,eventType.length), handler, false);
+	if (f) {
+		var handler = function(e){return f(e, oWidget)};
+		this._registry[eventType] = handler;
 	}
-	else {
-		var intid = window.setInterval( function() {
-			oWidget.__onscroll(null, oWidget);
-		}, 200);	
-	}
+	else
+		handler = this._registry[eventType];
+	this.div.addEventListener(eventType.slice(2,eventType.length), handler, false);
 }
 
 Widget.prototype.detachEvent = function(eventType) {

@@ -77,7 +77,7 @@ recycleBin.empty = function(evt, w) {
 		xmlrpc.callmethod('empty');
 	}
 
-	desktop.msgbox(w.caption, 
+	desktop.msgbox(w.getCaption(), 
 		"Are you sure you want to empty the recycle bin?",
 		[
 			[desktop.attributes['YES'], 60, _empty],
