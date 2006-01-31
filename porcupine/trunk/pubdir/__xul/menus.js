@@ -45,8 +45,10 @@ MenuOption.prototype.show = function(contextMenu) {
 			left: 'this.parent.getWidth(true) - 12',
 			top: 'center',
 			padding: '0,0,0,0',
-			width: 8,
-			height: 8,
+			overflow: 'hidden',
+			//border: 1,
+			width: 12,
+			height: 12,
 			img: 'images/submenu.gif'
 		});
 		this.appendChild(w);
