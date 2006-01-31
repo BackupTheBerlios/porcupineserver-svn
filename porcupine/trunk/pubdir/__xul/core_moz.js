@@ -878,7 +878,8 @@ Widget.prototype.getWidth = function(b) {
 	b = b || false;
 	wd = parseInt(this.div.style.width);
 	if (b) {
-		ofs = parseInt(this.div.style.paddingLeft) + parseInt(this.div.style.paddingRight) + 2*this.getBorderWidth();
+		var padding = this.getPadding();
+		ofs = padding[0] + padding[1] + 2*this.getBorderWidth();
 		wd += ofs;
 	}
 	return wd;
