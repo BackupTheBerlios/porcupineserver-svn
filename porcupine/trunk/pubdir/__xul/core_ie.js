@@ -579,12 +579,12 @@ QImage.prototype.load = function(parser) {
 	img.resource = this;
 	img.onload = Resource_onstatechange;
 	img.src = this.url;
+	img.style.display = 'none';
 	if (document.desktop) document.body.appendChild(img);
 }
 
 Resource_onstatechange = function() {
 	if (this.readyState=='loaded' || this.readyState=='complete') {
-		if (this.tagName=='IMG') this.removeNode();
 		this.resource.isLoaded = true;
 		this.resource.parser.loadModules();
 	}
@@ -873,7 +873,8 @@ Widget.prototype.getWidth = function(b) {
 	wd = parseInt(this.div.style.width);
 	if (isNaN(wd)) return 0;
 	if (b) {
-		ofs = parseInt(this.div.style.paddingLeft) + parseInt(this.div.style.paddingRight) + 2*this.getBorderWidth();
+		var padding = this.getPadding();
+		ofs = padding[0] + padding[1] + 2*this.getBorderWidth();
 		wd += ofs;
 	}
 	return wd;
