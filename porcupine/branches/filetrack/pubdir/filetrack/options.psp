@@ -1,3 +1,15 @@
+<%
+from resources.servlets.filetrack.strings import resources
+
+sLang = request.getLang()
+sError = resources.getResource('ERROR', sLang)
+sInvalidPageSize = resources.getResource('INVALID_PAGE_SIZE', sLang)
+sInvalidMaxResults = resources.getResource('INVALID_MAX_RESULTS', sLang)
+sWarnSelectDestSet = resources.getResource('WARN_SELECT_DEST_SET', sLang)
+sInfo = resources.getResource('INFO', sLang)
+sEntriesArchived = resources.getResource('ENTRIES_ARCHIVED', sLang)
+sClose = resources.getResource('CLOSE', sLang)
+%>
 filetrack.applyPreferences = function(evt, w) {
 	var options_dlg = w.getParentByType(Dialog);
 	var app_win = options_dlg.attributes.win;
@@ -7,14 +19,14 @@ filetrack.applyPreferences = function(evt, w) {
 	var maxresults = parseInt(options_dlg.getWidgetById('max_results').getValue());
 	
 	if (isNaN(new_page_size) || new_page_size < 1) {
-		document.desktop.msgbox("%(ERROR)s", "%(INVALID_PAGE_SIZE)s",
-			[['%(CLOSE)s', 60]], '/images/error32.gif', 'center', 'center', 260, 112);
+		document.desktop.msgbox("<%response.write(sError)%>", "<%response.write(sInvalidPageSize)%>",
+			[['<%response.write(sClose)%>', 60]], 'images/error32.gif', 'center', 'center', 260, 112);
 		return;
 	}
 	
 	if (isNaN(maxresults)) {
-		document.desktop.msgbox("%(ERROR)s", "%(INVALID_MAX_RESULTS)s",
-			[['%(CLOSE)s', 60]], '/images/error32.gif', 'center', 'center', 260, 112);
+		document.desktop.msgbox("<%response.write(sError)%>", "<%response.write(sInvalidMaxResults)%>",
+			[['<%response.write(sClose)%>', 60]], 'images/error32.gif', 'center', 'center', 260, 112);
 		return;
 	}
 
@@ -43,15 +55,15 @@ filetrack.archiveEntries = function(evt, w) {
 	var date_range = [dlg.getWidgetById('entryDate_from').getValue(),
 		dlg.getWidgetById('entryDate_to').getValue()];
 	if (!destination) {
-		document.desktop.msgbox("%(ERROR)s", "%(WARN_SELECT_DEST_SET)s",
-			[['%(CLOSE)s', 60]], '/images/messagebox_warning.gif', 'center', 'center', 260, 112);
+		document.desktop.msgbox("<%response.write(sError)%>", "<%response.write(sWarnSelectDestSet)%>",
+			[['<%response.write(sClose)%>', 60]], 'images/messagebox_warning.gif', 'center', 'center', 260, 112);
 		return;
 	}
 	var xmlrpc = new XMLRPCRequest(QuiX.root + dlg.attributes.PID);
     xmlrpc.oncomplete = function(req) {
     	dlg.close();
-		document.desktop.msgbox("%(INFO)s", req.response + " %(ENTRIES_ARCHIVED)s",
-			[['%(CLOSE)s', 60]], '/images/messagebox_info.gif', 'center', 'center', 260, 112);
+		document.desktop.msgbox("<%response.write(sInfo)%>", req.response + " <%response.write(sEntriesArchived)%>",
+			[['<%response.write(sClose)%>', 60]], 'images/messagebox_info.gif', 'center', 'center', 260, 112);
     }
     xmlrpc.callmethod('archive', destination, date_range);
 }

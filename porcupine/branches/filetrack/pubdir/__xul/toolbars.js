@@ -21,16 +21,16 @@ function Toolbar(params) {
 
 Toolbar.prototype = new Widget;
 
-Toolbar.prototype._getOffset = function() {
+Toolbar.prototype._getOffset = function(idx) {
 	var offset = 0;
-	for (var i=0; i<this.buttons.length; i++) {
+	for (var i=0; i<idx; i++) {
 		offset += this.buttons[i]._calcWidth(true) + this.spacing;
 	}
 	return(offset + this.handle._calcWidth(true) + 4);
 }
 
 Toolbar.prototype.addButton = function(params) {
-	params.left = this._getOffset();
+	params.left = "this.parent._getOffset(" + this.buttons.length + ")";
 	params.height = "100%";
 	var oButton = new FlatButton(params);
 	this.appendChild(oButton);
@@ -39,11 +39,12 @@ Toolbar.prototype.addButton = function(params) {
 }
 
 Toolbar.prototype.addSeparator = function() {
-	var l = this._getOffset();
+	var l = "this.parent._getOffset(" + this.buttons.length + ")";
 	var oSep = new Widget({left:l,width:2,height:"100%",border:1,overflow:'hidden'});
 	this.appendChild(oSep);
 	oSep.div.className = 'separator';
 	this.buttons.push(oSep);
+	return(oSep);
 }
 
 function OutlookBar(params) {
@@ -67,7 +68,7 @@ OutlookBar.prototype.addPane = function(params) {
 			border:1,padding:'2,2,2,2',overflow:'hidden'
 		});
 	this.appendChild(w);
-	w.setPos('relative');
+	w.setPosition('relative');
 	w.div.className = 'tool';
 	w.div.innerHTML = params.caption;
 	var oBar = this;
@@ -83,7 +84,7 @@ OutlookBar.prototype.addPane = function(params) {
 		});
 	this.appendChild(w1);
 	if (this.panes.length!=0) w1.setDisplay('none');
-	w1.setPos('relative');
+	w1.setPosition('relative');
 	this.panes.push(w1);
 	return(w1);
 }

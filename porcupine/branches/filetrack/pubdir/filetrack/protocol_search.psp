@@ -1,9 +1,11 @@
 <%
+from resources.servlets.filetrack.strings import resources
+
 sLang = request.getLang()
-sWarning_Select_Scope = server.resources.getResource('WARN_SELECT_SCOPE', sLang)
-sClose = server.resources.getResource('CLOSE', sLang)
-sFiletrack_Warning = server.resources.getResource('FILETRACK_WARNING', sLang)
-sFiletrack_Displaying = server.resources.getResource('FILETRACK_DISPLAYING', sLang)
+sWarning_Select_Scope = resources.getResource('WARN_SELECT_SCOPE', sLang)
+sClose = resources.getResource('CLOSE', sLang)
+sFiletrack_Warning = resources.getResource('FILETRACK_WARNING', sLang)
+sFiletrack_Displaying = resources.getResource('FILETRACK_DISPLAYING', sLang)
 %>
 filetrack.getLogs = function(w) {
 	var search_scopes = w.getWidgetById('search_scopes');

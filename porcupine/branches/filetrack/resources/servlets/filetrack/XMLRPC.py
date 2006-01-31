@@ -36,13 +36,17 @@ class LogEntryUpdater(object):
             [self.server.store.getItem(sid) for sid in log_entry.cc.value]
         # we need to get only users and not contacts
         # in order to set the ACL
-        oUsers = [person for person in oPersonsInvolved if isinstance(person, security.User)]
+        oUsers = [person for person in oPersonsInvolved
+            if isinstance(person, security.User)]
 
         if log_entry.security.has_key('everyone'):
             del log_entry.security['everyone']
         # assign the users the reader role
         for oUser in oUsers:
-            log_entry.security[oUser.id] = objectAccess.READER 
+            # assign the reader role only if the user
+            # has not been assigned another role
+            if not(log_entry.security.has_key(oUser.id)):
+                log_entry.security[oUser.id] = objectAccess.READER 
 
         # create files uploaded
         filesuploaded = data['logEntryDocuments']
@@ -115,7 +119,8 @@ class LogEntries(ContainerGeneric, LogEntryUpdater):
         
     def archive(self, destination, dateRange):
         oCmd = OqlCommand()
-        sOql = "select id from '" + self.item.id + "' where entryDate between " + \
+        sOql = "select id from '" + self.item.id + \
+            "' where entryDate between " + \
             "date('" + dateRange[0].toIso8601() + "') and " + \
             "date('" + dateRange[1].toIso8601() + "')"
         oRes = oCmd.execute(sOql)

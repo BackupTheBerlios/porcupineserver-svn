@@ -209,7 +209,8 @@ class DbInterface(GenericDBInterface):
             try:
                 aborted = self._env.lock_detect(db.DB_LOCK_RANDOM, db.DB_LOCK_CONFLICT)
                 if aborted:
-                    self._activeTxns -= aborted
+                    from porcupine.db import db as dbhandle
+                    dbhandle._activeTxns -= aborted
                     logger.critical("Deadlock: Aborted %d deadlocked transaction(s)" % aborted)
             except db.DBError:
                 pass

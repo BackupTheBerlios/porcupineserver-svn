@@ -3,7 +3,7 @@
 	<context path="contacts.js" method=".*" client=".*" lang=".*" action="contacts.js"/>
 	<context path="issues_search.js" method=".*" client=".*" lang=".*" action="issues_search.js"/>
 	<context path="issues.js" method=".*" client=".*" lang=".*" action="issues.js"/>
-	<context path="options.js" method=".*" client=".*" lang=".*" action="options.js"/>
+	<context path="options.js" method=".*" client=".*" lang=".*" action="options.psp"/>
 	<context path="pagenav.js" method=".*" client=".*" lang=".*" action="pagenav.js"/>
 	<context path="protocol_search.js" method=".*" client=".*" lang=".*" action="protocol_search.psp"/>
 	<context path="protocol.js" method=".*" client=".*" lang=".*" action="protocol.js"/>

@@ -7,7 +7,7 @@ filetrack.getIssues = function(w) {
     var query = "select id, __image__ as image, displayName, " +
         "(if issueClosed then 'filetrack/images/issue_closed.gif' " +
         "else 'filetrack/images/issue_open.gif') as issueStatus, " +
-        "modified from '" + filetrack.ISSUES_FOLDER + "'";
+        "modified from deep('" + filetrack.ISSUES_FOLDER + "')";
     
     if (w.attributes.filter != '')
         query += " where issueClosed=" + w.attributes.filter;

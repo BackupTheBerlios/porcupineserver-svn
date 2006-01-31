@@ -12,7 +12,7 @@ filetrack.getContacts = function(w) {
 	var letters = clist.attributes.letters;
 
     var query = "select id, __image__ as image, displayName, company, email " +
-        "from '" + filetrack.CONTACT_FOLDER + "' " +
+        "from deep('" + filetrack.CONTACT_FOLDER + "') " +
         "where slice(displayName,0,1) in '" + letters + "' " +
         "order by displayName asc";
 

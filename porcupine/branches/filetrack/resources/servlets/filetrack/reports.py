@@ -3,6 +3,7 @@ from threading import currentThread
 
 from porcupine.core.servlet import HTTPServlet, XULServlet
 from resources.servlets.ui import PorcupineDesktopServlet
+from resources.servlets.filetrack.strings import resources
 from porcupine.oql.command import OqlCommand
 from porcupine.utils import xmlUtils, date
 
@@ -33,8 +34,8 @@ class FileTrackReport(PorcupineDesktopServlet):
     
     def getCriteria(self, locale):
         criteria = ''
-        res_contains = self.server.resources.getResource('CONTAINS', locale)
-        res_scopes = self.server.resources.getResource('SEARCH_SCOPE', locale)
+        res_contains = resources.getResource('CONTAINS', locale)
+        res_scopes = resources.getResource('SEARCH_SCOPE', locale)
         qs = self.request.queryString
         scopes = [
                 self.server.store.getItem(scopeid).displayName.value
@@ -44,13 +45,13 @@ class FileTrackReport(PorcupineDesktopServlet):
             ( res_scopes, ', '.join(scopes) )
         for field in SEARCH_FIELDS:
             if qs.has_key(field):
-                res_field = self.server.resources.getResource(field, locale)
+                res_field = resources.getResource(field, locale)
                 if field!='entryDate':
                     criteria += '<tr><td style="white-space:nowrap">%s %s:</td><td>%s</td></tr>' % \
                         (res_field, res_contains, qs[field][0])
                 else:
-                    res_from = self.server.resources.getResource('FROM', locale)
-                    res_to = self.server.resources.getResource('TO', locale)
+                    res_from = resources.getResource('FROM', locale)
+                    res_to = resources.getResource('TO', locale)
                     date_from = date.Date.fromIso8601(qs[field][0])
                     date_from = date_from.format('dd/mm/yyyy')
                     date_to = date.Date.fromIso8601(qs[field][1])
@@ -62,7 +63,7 @@ class FileTrackReport(PorcupineDesktopServlet):
 class Report1(FileTrackReport):
     def setParams(self):
         sLang = self.request.getLang()
-        self.params = self.server.resources.getLocale(sLang).copy()
+        self.params = resources.getLocale(sLang).copy()
         self.params['NOW'] = date.Date().format('ddd, dd mmm yyyy h12:min:sec MM', sLang)
         self.params['CRITERIA'] = self.getCriteria(sLang)
 

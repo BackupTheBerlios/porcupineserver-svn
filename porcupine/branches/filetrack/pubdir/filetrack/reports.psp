@@ -1,7 +1,9 @@
 <%
+from resources.servlets.filetrack.strings import resources
+
 sLang = request.getLang()
-sWarning_Select_Scope = server.resources.getResource('WARN_SELECT_SCOPE', sLang)
-sClose = server.resources.getResource('CLOSE', sLang)
+sWarning_Select_Scope = resources.getResource('WARN_SELECT_SCOPE', sLang)
+sClose = resources.getResource('CLOSE', sLang)
 %>
 filetrack.generateReport = function(evt, w) {
 	var win = w.getParentByType(Window);

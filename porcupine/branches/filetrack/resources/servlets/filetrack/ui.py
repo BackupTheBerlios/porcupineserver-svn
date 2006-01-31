@@ -1,7 +1,9 @@
 "FileTrack interfaces"
 
+from porcupine.config.resources import Locale
 from porcupine.core.servlet import XULServlet
 from resources.servlets.ui import PorcupineDesktopServlet
+from resources.servlets.filetrack.strings import resources
 from schemas.org.innoscript import filetrack
 from porcupine.security import objectAccess
 from porcupine.oql.command import OqlCommand
@@ -10,37 +12,36 @@ from porcupine.utils import xmlUtils, date
 PROTOCOL_ROOT_ID = 'JHwXTIaq'
 CATEGORIES_ID = 'categories'
 ISSUES_ID = '84L6aTcf'
-CONTACTS_ID = 'j0Cft3a6'
 
 class Frm_LogEntryNew(XULServlet):
     def setParams(self):
         sLang = self.request.getLang()
         oEntry = filetrack.LogEntry()
         self.params = {
-            'entryDate': self.server.resources.getResource('entryDate', sLang),
-            'entryType': self.server.resources.getResource('entryType', sLang),
-            'description': self.server.resources.getResource('description', sLang),
-            'sender': self.server.resources.getResource('sender', sLang),
-            'receiver': self.server.resources.getResource('receiver', sLang),
-            'cc': self.server.resources.getResource('cc', sLang),
-            'aa': self.server.resources.getResource('aa', sLang),
-            'senderDate': self.server.resources.getResource('senderDate', sLang),
-            'senderCode': self.server.resources.getResource('senderCode', sLang),
-            'currentOwner': self.server.resources.getResource('currentOwner', sLang),
-            'logEntryDocuments': self.server.resources.getResource('logEntryDocuments', sLang),
-            'issues': self.server.resources.getResource('issues', sLang),
-            'categories': self.server.resources.getResource('categories', sLang),
-            'comments': self.server.resources.getResource('comments', sLang),
+            'entryDate': resources.getResource('entryDate', sLang),
+            'entryType': resources.getResource('entryType', sLang),
+            'description': resources.getResource('description', sLang),
+            'sender': resources.getResource('sender', sLang),
+            'receiver': resources.getResource('receiver', sLang),
+            'cc': resources.getResource('cc', sLang),
+            'aa': resources.getResource('aa', sLang),
+            'senderDate': resources.getResource('senderDate', sLang),
+            'senderCode': resources.getResource('senderCode', sLang),
+            'currentOwner': resources.getResource('currentOwner', sLang),
+            'logEntryDocuments': resources.getResource('logEntryDocuments', sLang),
+            'issues': resources.getResource('issues', sLang),
+            'categories': resources.getResource('categories', sLang),
+            'comments': resources.getResource('comments', sLang),
 
-            'CREATE': self.server.resources.getResource('CREATE', sLang),
-            'CLOSE': self.server.resources.getResource('CLOSE', sLang),
+            'CREATE': resources.getResource('CREATE', sLang),
+            'CLOSE': resources.getResource('CLOSE', sLang),
 
-            'TITLE': self.item.displayName.value + ' - ' + self.server.resources.getResource('NEW_PROTOCOL_ENTRY', sLang),
-            'ADD': self.server.resources.getResource('ADD', sLang),
-            'REMOVE': self.server.resources.getResource('REMOVE', sLang),
+            'TITLE': self.item.displayName.value + ' - ' + resources.getResource('NEW_PROTOCOL_ENTRY', sLang),
+            'ADD': resources.getResource('ADD', sLang),
+            'REMOVE': resources.getResource('REMOVE', sLang),
 
-            'INBOUND': self.server.resources.getResource('INBOUND', sLang),
-            'OUTBOUND': self.server.resources.getResource('OUTBOUND', sLang),
+            'INBOUND': resources.getResource('INBOUND', sLang),
+            'OUTBOUND': resources.getResource('OUTBOUND', sLang),
 
             'SENDER_RELCC': '|'.join(oEntry.sender.relCc),
             'RECEIVER_RELCC': '|'.join(oEntry.receiver.relCc),
@@ -65,31 +66,31 @@ class Frm_LogEntryReply(PorcupineDesktopServlet):
         sender = self.item.sender.getItem()
         receiver = self.item.receiver.getItem()
         self.params = {
-            'entryDate': self.server.resources.getResource('entryDate', sLang),
-            'entryType': self.server.resources.getResource('entryType', sLang),
-            'description': self.server.resources.getResource('description', sLang),
-            'sender': self.server.resources.getResource('sender', sLang),
-            'receiver': self.server.resources.getResource('receiver', sLang),
-            'cc': self.server.resources.getResource('cc', sLang),
-            'aa': self.server.resources.getResource('aa', sLang),
-            'senderDate': self.server.resources.getResource('senderDate', sLang),
-            'senderCode': self.server.resources.getResource('senderCode', sLang),
-            'currentOwner': self.server.resources.getResource('currentOwner', sLang),
-            'logEntryDocuments': self.server.resources.getResource('logEntryDocuments', sLang),
-            'issues': self.server.resources.getResource('issues', sLang),
-            'categories': self.server.resources.getResource('categories', sLang),
-            'comments': self.server.resources.getResource('comments', sLang),
+            'entryDate': resources.getResource('entryDate', sLang),
+            'entryType': resources.getResource('entryType', sLang),
+            'description': resources.getResource('description', sLang),
+            'sender': resources.getResource('sender', sLang),
+            'receiver': resources.getResource('receiver', sLang),
+            'cc': resources.getResource('cc', sLang),
+            'aa': resources.getResource('aa', sLang),
+            'senderDate': resources.getResource('senderDate', sLang),
+            'senderCode': resources.getResource('senderCode', sLang),
+            'currentOwner': resources.getResource('currentOwner', sLang),
+            'logEntryDocuments': resources.getResource('logEntryDocuments', sLang),
+            'issues': resources.getResource('issues', sLang),
+            'categories': resources.getResource('categories', sLang),
+            'comments': resources.getResource('comments', sLang),
 
-            'REPLY': self.server.resources.getResource('REPLY', sLang),
-            'CLOSE': self.server.resources.getResource('CLOSE', sLang),
+            'REPLY': resources.getResource('REPLY', sLang),
+            'CLOSE': resources.getResource('CLOSE', sLang),
 
-            'TITLE': self.server.resources.getResource('REPLY_TO', sLang) + ' ' + \
+            'TITLE': resources.getResource('REPLY_TO', sLang) + ' ' + \
                         self.item.displayName.value,
-            'ADD': self.server.resources.getResource('ADD', sLang),
-            'REMOVE': self.server.resources.getResource('REMOVE', sLang),
+            'ADD': resources.getResource('ADD', sLang),
+            'REMOVE': resources.getResource('REMOVE', sLang),
 
-            'INBOUND': self.server.resources.getResource('INBOUND', sLang),
-            'OUTBOUND': self.server.resources.getResource('OUTBOUND', sLang),
+            'INBOUND': resources.getResource('INBOUND', sLang),
+            'OUTBOUND': resources.getResource('OUTBOUND', sLang),
 
             'SENDER_RELCC': '|'.join(self.item.sender.relCc),
             'RECEIVER_RELCC': '|'.join(self.item.receiver.relCc),
@@ -135,36 +136,37 @@ class Frm_LogEntryProperties(PorcupineDesktopServlet):
         else:
             current_owner_dn = self.item.currentOwner.value
             
-        readonly = (self.item.isArchived or objectAccess.getAccess(self.item, self.session.user) < objectAccess.AUTHOR)
+        readonly = (self.item.isArchived or \
+            objectAccess.getAccess(self.item, self.session.user) < objectAccess.AUTHOR)
         
         self.params = {
-            'entryDate': self.server.resources.getResource('entryDate', sLang),
-            'entryType': self.server.resources.getResource('entryType', sLang),
-            'description': self.server.resources.getResource('description', sLang),
-            'sender': self.server.resources.getResource('sender', sLang),
-            'receiver': self.server.resources.getResource('receiver', sLang),
-            'cc': self.server.resources.getResource('cc', sLang),
-            'aa': self.server.resources.getResource('aa', sLang),
-            'senderDate': self.server.resources.getResource('senderDate', sLang),
-            'senderCode': self.server.resources.getResource('senderCode', sLang),
-            'currentOwner': self.server.resources.getResource('currentOwner', sLang),
-            'logEntryDocuments': self.server.resources.getResource('logEntryDocuments', sLang),
-            'issues': self.server.resources.getResource('issues', sLang),
-            'categories': self.server.resources.getResource('categories', sLang),
-            'comments': self.server.resources.getResource('comments', sLang),
+            'entryDate': resources.getResource('entryDate', sLang),
+            'entryType': resources.getResource('entryType', sLang),
+            'description': resources.getResource('description', sLang),
+            'sender': resources.getResource('sender', sLang),
+            'receiver': resources.getResource('receiver', sLang),
+            'cc': resources.getResource('cc', sLang),
+            'aa': resources.getResource('aa', sLang),
+            'senderDate': resources.getResource('senderDate', sLang),
+            'senderCode': resources.getResource('senderCode', sLang),
+            'currentOwner': resources.getResource('currentOwner', sLang),
+            'logEntryDocuments': resources.getResource('logEntryDocuments', sLang),
+            'issues': resources.getResource('issues', sLang),
+            'categories': resources.getResource('categories', sLang),
+            'comments': resources.getResource('comments', sLang),
 
             'READONLY': self.getStringFromBoolean(readonly),
 
-            'UPDATE': self.server.resources.getResource('UPDATE', sLang),
-            'CLOSE': self.server.resources.getResource('CLOSE', sLang),
+            'UPDATE': resources.getResource('UPDATE', sLang),
+            'CLOSE': resources.getResource('CLOSE', sLang),
 
             'TITLE': self.item.displayName.value,
             'IMAGE': self.item.__image__,
-            'ADD': self.server.resources.getResource('ADD', sLang),
-            'REMOVE': self.server.resources.getResource('REMOVE', sLang),
+            'ADD': resources.getResource('ADD', sLang),
+            'REMOVE': resources.getResource('REMOVE', sLang),
 
-            'INBOUND': self.server.resources.getResource('INBOUND', sLang),
-            'OUTBOUND': self.server.resources.getResource('OUTBOUND', sLang),
+            'INBOUND': resources.getResource('INBOUND', sLang),
+            'OUTBOUND': resources.getResource('OUTBOUND', sLang),
             
             'URI': self.request.serverVariables['SCRIPT_NAME'] + '/' + self.item.id,
             'PROTOCOL_ROOT_URI': self.request.serverVariables['SCRIPT_NAME'] + '/' + PROTOCOL_ROOT_ID,
@@ -232,13 +234,13 @@ class Frm_LogEntryProperties(PorcupineDesktopServlet):
 class Dlg_SelectPersons(PorcupineDesktopServlet):
     def setParams(self):
         sLang = self.request.getLang()
-        self.params = self.server.resources.getLocale(sLang).copy()
+        self.params = Locale(resources.getLocale(sLang).copy())
         self.params['ROOTURI'] = self.request.serverVariables['SCRIPT_NAME']
 
 class Frg_LogEntries(XULServlet):
     def setParams(self):
         sLang = self.request.getLang()
-        params = self.server.resources.getLocale(sLang).copy()
+        params = Locale(resources.getLocale(sLang).copy())
         params['TITLE'] = self.item.displayName.value
         params['PID'] = self.item.id
         params['ROOTURI'] = self.request.serverVariables['SCRIPT_NAME']
@@ -247,30 +249,30 @@ class Frg_LogEntries(XULServlet):
 class Frg_Issues(XULServlet):
     def setParams(self):
         sLang = self.request.getLang()
-        self.params = self.server.resources.getLocale(sLang).copy()
+        self.params = Locale(resources.getLocale(sLang).copy())
         self.params['ROOTURI'] = self.request.serverVariables['SCRIPT_NAME']
         
 class Frg_Search(XULServlet):
     def setParams(self):
         sLang = self.request.getLang()
-        self.params = self.server.resources.getLocale(sLang).copy()
+        self.params = Locale(resources.getLocale(sLang).copy())
         self.params['ROOTURI'] = self.request.serverVariables['SCRIPT_NAME']
 
 class Frg_Contacts(XULServlet):
     def setParams(self):
         sLang = self.request.getLang()
-        self.params = self.server.resources.getLocale(sLang).copy()
+        self.params = Locale(resources.getLocale(sLang).copy())
         self.params['ROOTURI'] = self.request.serverVariables['SCRIPT_NAME']
         
 class Frg_Reports(XULServlet):
     def setParams(self):
         sLang = self.request.getLang()
-        self.params = self.server.resources.getLocale(sLang).copy()
+        self.params = Locale(resources.getLocale(sLang).copy())
         self.params['ROOTURI'] = self.request.serverVariables['SCRIPT_NAME']
         
 class Dlg_Report(XULServlet):
     def setParams(self):
         sLang = self.request.getLang()
-        self.params = self.server.resources.getLocale(sLang).copy()
+        self.params = Locale(resources.getLocale(sLang).copy())
         self.params['ROOTURI'] = self.request.serverVariables['SCRIPT_NAME']
     

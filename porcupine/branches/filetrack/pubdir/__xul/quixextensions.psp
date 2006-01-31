@@ -16,15 +16,16 @@
 //===============================================================================
 
 <%
-
+	from resources.systemstrings import resources
+	
 	sLang = request.getLang()
-	lstMonths = server.resources.getResource("MONTHS", sLang)
-	lstDays = server.resources.getResource("DAYS", sLang)
+	lstMonths = resources.getResource("MONTHS", sLang)
+	lstDays = resources.getResource("DAYS", sLang)
 	sMonths = ','.join(['"' + x + '"' for x in lstMonths])
 	sDays = ','.join(['"' + x + '"' for x in lstDays])
 	
-	sAM = server.resources.getResource("AM", sLang)
-	sPM = server.resources.getResource("PM", sLang)
+	sAM = resources.getResource("AM", sLang)
+	sPM = resources.getResource("PM", sLang)
 	
 	response.content_type = 'text/javascript'
 %>

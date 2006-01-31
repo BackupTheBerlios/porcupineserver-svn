@@ -14,9 +14,7 @@
 #    along with Porcupine; if not, write to the Free Software
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #===============================================================================
-"Server configuration classes"
-
-from xml.dom import minidom
+"Server Localization classes"
 
 class Locale(dict):
     def __getitem__(self, key):
@@ -33,21 +31,3 @@ class ResourceStrings(object):
     def getLocale(self, sLocale):
         return self.__resources.setdefault(sLocale, self.__resources['*'])
 
-dctResources = {}
-resDom = minidom.parse('conf/stringresources.xml') 
-for local in resDom.getElementsByTagName('locale'):
-    sLang = local.getAttribute('lang')
-    if not(dctResources.has_key(sLang)):
-        dctResources[sLang] = Locale()
-    localeResources = local.getElementsByTagName('res')
-    for resource in localeResources:
-        sType = ''
-        if resource.hasAttribute('type'):
-            sType = resource.getAttribute('type')
-        if not sType:
-            dctResources[sLang][resource.getAttribute('id')] = resource.childNodes[0].data.encode('utf-8')
-        elif sType == 'array':
-            dctResources[sLang][resource.getAttribute('id')] = resource.childNodes[0].data.encode('utf-8').split(';')
-        
-resDom.unlink()
-stringResources = ResourceStrings(dctResources)
