@@ -121,7 +121,8 @@ Splitter.prototype.addPane = function(params) {
 				{
 					width:'this.parent.getWidth(true)', height:8, padding:'2,2,2,2',
 					top:'this.parent.getHeight(true)-8', left:-ow2.getPadding()[0],
-					img:'images/on_off_up.gif', imgalign:'top', onclick: onoff
+					img:'images/on_off_up.gif', imgalign:'top', onclick: onoff, 
+					style:'font-size:0px'
 				});
 			ow2.appendChild(onoff_w);
 		}
