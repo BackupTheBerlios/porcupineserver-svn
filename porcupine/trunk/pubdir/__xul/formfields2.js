@@ -163,6 +163,7 @@ Combo.prototype.showDropdown = function(w) {
 		opt.attachEvent('onclick', function(evt, w){
 			oCombo.selectOption(w);
 		});
+		opt.setDisplay();
 		opt.setPosition();
 	}
 	var resizer = new Widget(
@@ -180,7 +181,7 @@ Combo.prototype.showDropdown = function(w) {
 		oCombo.dropdown._startResize(evt);
 	});
 	
-	document.desktop.appendChild(this.dropdown, true);
+	document.desktop.appendChild(this.dropdown);
 	document.desktop.overlays.push(this.dropdown);
 }
 
@@ -191,6 +192,7 @@ Combo.prototype.destroy = function() {
 
 Combo.prototype.addOption = function(params) {
 	params.align = params.align || 'left';
+	params.width = params.width || '100%';
 	if ((params.selected=='true' || params.selected == true) && !this.editable) {
 		this.selectOption(params);
 	}
@@ -243,11 +245,13 @@ SelectList.prototype.addOption = function(params) {
 	var oSelectList = this;
 	params.imgalign = 'left';
 	params.align = 'left';
+	params.width = '100%';
 	params.onclick = QuiX.getEventWrapper(SelectOption__onclick, params.onclick);
 	var w = new Icon(params);
 	this.appendChild(w);
 	w.isSelected = false;
 	w.value = params.value;
+	w.setDisplay();
 	w.setPosition();
 	w.div.style.whiteSpace = 'nowrap';
 	this.options.push(w);
