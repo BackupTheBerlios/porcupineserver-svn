@@ -724,6 +724,14 @@ Widget.prototype.enable = function(w) {
 	}
 }
 
+Widget.prototype.detach = function() {
+	this.parent.widgets.removeItem(this);
+	if (this.id)
+		delete(w.parent._id_widgets[this.id]);
+	this.parent = null;
+	this.div = this.div.removeNode(true);
+}
+
 Widget.prototype.parse = function(dom, callback) {
 	var parser = new XULParser();
 	parser.oncomplete = callback;
@@ -848,6 +856,8 @@ Widget.prototype.getPadding = function() {
 Widget.prototype.addPaddingOffset = function(where, iOffset) {
 	var old_offset = eval('parseInt(this.div.style.padding' + where + ')');
 	var new_offset = old_offset + iOffset;
+	if (new_offset < 0)
+		new_offset = 0;
 	eval('this.div.style.padding' + where + '="' + new_offset + 'px"');
 }
 
@@ -1130,15 +1140,17 @@ Widget.prototype._endMove = function(evt)
 Widget.prototype.redraw = function(bForceAll, w) {
 	var w = w || this;
 	var sOverflow;
-	if (!w.isHidden) {
-		sOverflow = w.getOverflow();
-		if (sOverflow != 'hidden') w.setOverflow('hidden');
-		w._setCommonProps();
-		if (w.getPosition()=='absolute') w._setAbsProps();
-		for (var i=0; i<w.widgets.length; i++) {
-			if (w.widgets[i]._mustRedraw() || bForceAll) w.widgets[i].redraw(bForceAll);
+	if (w.div.parentElement) {
+		if (!w.isHidden) {
+			sOverflow = w.getOverflow();
+			if (sOverflow != 'hidden') w.setOverflow('hidden');
+			w._setCommonProps();
+			if (w.getPosition()=='absolute') w._setAbsProps();
+			for (var i=0; i<w.widgets.length; i++) {
+				if (w.widgets[i]._mustRedraw() || bForceAll) w.widgets[i].redraw(bForceAll);
+			}
+			if (sOverflow != 'hidden') w.setOverflow(sOverflow);
 		}
-		if (sOverflow != 'hidden') w.setOverflow(sOverflow);
 	}
 }
 

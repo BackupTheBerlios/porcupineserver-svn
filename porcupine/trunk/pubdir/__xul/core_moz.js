@@ -106,7 +106,8 @@ QuiX.removeWidget = function(w) {
 	w._detachEvents();
 	
 	parentElement = w.div.parentNode;
-	parentElement.removeChild(w.div);
+	if (parentElement)
+		parentElement.removeChild(w.div);
 
 	w._registry = null;
 	w.div = null;
@@ -719,6 +720,14 @@ Widget.prototype.enable = function(w) {
 	}
 }
 
+Widget.prototype.detach = function() {
+	this.parent.widgets.removeItem(this);
+	if (this.id)
+		delete(w.parent._id_widgets[this.id]);
+	this.parent = null;
+	this.div = this._detach();
+}
+
 Widget.prototype.parse = function(dom, callback) {
 	var parser = new XULParser();
 	parser.oncomplete = callback;
@@ -855,6 +864,8 @@ Widget.prototype.getPadding = function() {
 Widget.prototype.addPaddingOffset = function(where, iOffset) {
 	var old_offset = eval('parseInt(this.div.style.padding' + where + ')');
 	var new_offset = old_offset + iOffset;
+	if (new_offset < 0)
+		new_offset = 0;
 	eval('this.div.style.padding' + where + '="' + new_offset + 'px"');
 }
 
@@ -992,7 +1003,7 @@ Widget.prototype._calcTop = function() {
 Widget.prototype.getScreenLeft = function() {
 	var oElement = this.div;
 	iX = 0
-	while(oElement.tagName!='HTML')
+	while(oElement && oElement.tagName!='HTML')
 	{
 		if (oElement.tagName!='TR') iX += oElement.offsetLeft - oElement.scrollLeft;
 		oElement = oElement.parentNode;
@@ -1003,7 +1014,7 @@ Widget.prototype.getScreenLeft = function() {
 Widget.prototype.getScreenTop = function() {
 	var oElement = this.div;
 	iY = 0
-	while(oElement.tagName!='HTML') {
+	while(oElement && oElement.tagName!='HTML') {
 		if (oElement.tagName!='TR') iY += oElement.offsetTop - oElement.scrollTop;
 		oElement = oElement.parentNode;
 	}
@@ -1134,14 +1145,16 @@ Widget.prototype._detach = function() {
 Widget.prototype.redraw = function(bForceAll, w) {
 	var w = w || this;
 	var container = w.div.parentNode;
-	var frag = document.createDocumentFragment();
-	var root = w._detach();
-	frag.appendChild(root);
-	try {
-		w._redraw(bForceAll);
-	}
-	finally {
-		container.appendChild(frag);
+	if (container) {
+		var frag = document.createDocumentFragment();
+		var root = w._detach();
+		frag.appendChild(root);
+		try {
+			w._redraw(bForceAll);
+		}
+		finally {
+			container.appendChild(frag);
+		}
 	}
 }
 
