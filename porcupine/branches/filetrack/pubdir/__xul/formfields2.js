@@ -19,7 +19,6 @@ function Combo(params) {
 	this.readonly = (params.readonly=='true' || params.readonly==true)?true:false;
 	this.menuHeight = parseInt(params.menuheight) || 100;
 	this.div.className = 'field';
-	this.options = [];
 	this.selection = null;
 	this.isExpanded = false;
 	this.attachEvent('onmousedown', QuiX.stopPropag);
@@ -27,19 +26,61 @@ function Combo(params) {
 
 	var e = ce('INPUT');
 	e.style.borderWidth = '1px';
-	e.style.position='absolute';
+	e.style.position = 'absolute';
 	this.div.appendChild(e);
 	e.onselectstart = QuiX.stopPropag;
+	
 	var oCombo = this;
 
-	this.button = new XButton(
+	this.dropdown = new Widget({
+		border : 1,
+		onclick : function(evt, w) {
+			w.close();
+		},
+		onmousedown : QuiX.stopPropag
+	});
+	this.dropdown.combo = this;
+	this.dropdown.minw = 60;
+	this.dropdown.minh = 50;
+	this.dropdown.div.className = 'combodropdown';
+	this.dropdown.close = function() {
+		document.desktop.overlays.removeItem(this);
+		oCombo.isExpanded = false;
+		this.detach();
+	};
+
+	var cont = new Widget(
 		{
-			left : "this.parent.getWidth()-20",
-			height : '100%', width : 20, bgcolor : 'silver',
-			img : params.img || 'images/desc8.gif'
-		});
+			width : '100%',
+			height: '100%',
+			overflow: 'auto',
+			onmousedown : QuiX.cancelDefault
+		});	
+	this.dropdown.appendChild(cont);
+	this.options = cont.widgets;
+
+	var resizer = new Widget({
+		left : 'this.parent.getWidth()-15',
+		top : 'this.parent.getHeight()-15',
+		width : 16,
+		height : 16,
+		border : 0,
+		overflow : 'hidden'
+	});
+	this.dropdown.appendChild(resizer);
+	resizer.div.className = 'resize';
+	resizer.attachEvent('onmousedown', function(evt){
+		oCombo.dropdown._startResize(evt);
+	});
+
+	this.button = new XButton({
+		left : 'this.parent.getWidth()-20',
+		height : '100%', width : 20, bgcolor : 'silver',
+		img : params.img || 'images/desc8.gif'
+	});
 	this.appendChild(this.button);
-	if (!this.readonly) this.button.attachEvent('onclick', ComboBtn__onclick);
+	if (!this.readonly)
+		this.button.attachEvent('onclick', ComboBtn__onclick);
 	
 	if (this.editable) {
 		e.value = (params.value)?params.value:'';
@@ -47,22 +88,11 @@ function Combo(params) {
 			if (this.onchange) e.onchange = this.onchange(this);
 		else
 			e.readonly = true
-		this.getValue = function() { return e.value; }
-		this.setValue = function(value) { e.value=value; }
 	}
 	else {
 		e.readOnly = true;
 		e.style.cursor = 'default';
 		if (!this.readonly) e.onclick = ComboBtn__onclick;
-		this.getValue = function() { return oCombo.selection; }
-		this.setValue = function(value) {
-			for (var i=0; i<oCombo.options.length; i++) {
-				if (oCombo.options[i].value == value && oCombo.getValue()!=value) {
-					this.selection = value;
-					this.div.firstChild.value = oCombo.options[i].caption;
-				}
-			}
-		}
 	}
 }
 
@@ -79,6 +109,44 @@ Combo.prototype._adjustFieldSize = function() {
 Combo.prototype._setCommonProps = function() {
 	Widget.prototype._setCommonProps(this);
 	this._adjustFieldSize();
+}
+
+Combo.prototype.getValue = function() {
+	if (this.editable)
+		return this.div.firstChild.value;
+	else {
+		if (this.selection)
+			return this.selection.value;
+		else
+			return null;
+	}
+}
+
+Combo.prototype.setValue = function(value) {
+	if (this.editable)
+		this.div.firstChild.value = value;
+	else {
+		var opt, opt_value;
+		var old_value = this.getValue();
+		this.selection = null;
+		this.div.firstChild.value = '';
+		for (var i=0; i<this.options.length; i++) {
+			this.options[i].selected = false;
+		}
+		for (i=0; i<this.options.length; i++) {
+			opt = this.options[i];
+			opt_value = (opt.value!=undefined)?opt.value:opt.getCaption();
+			if (opt_value == value) {
+				this.selection = opt;
+				opt.selected = true;
+				this.div.firstChild.value = opt.getCaption();
+				if (value != old_value)
+					if (this.onchange)
+						this.onchange(this);
+				return;
+			}
+		}
+	}
 }
 
 Combo.prototype.enable = function() {
@@ -98,20 +166,24 @@ Combo.prototype.disable = function() {
 }
 
 Combo.prototype.selectOption = function(option) {
-	if (!this.editable) {
-		var value = (option.value!=undefined)?option.value:option.getCaption();
-		if (this.selection!=value) {
-			this.selection = value;
-			if (this.onchange) this.onchange(this);
+	var value = (option.value!=undefined)?option.value:option.getCaption();
+	this.setValue(value);
+}
+
+Combo.prototype.reset = function() {
+	if (this.editable)
+		this.div.firstChild.value = '';
+	else {
+		for (var i=0; i<this.options.length; i++) {
+			this.options[i].selected = false;
 		}
-	}
-	this.div.firstChild.value = option.caption || option.getCaption();
+		this.selection = null;
+		this.div.firstChild.value = '';
+	}	
 }
 
 Combo.prototype.showDropdown = function(w) {
 	var oCombo = w || this;
-
-	oCombo.isExpanded = true;
 
 	var iLeft = oCombo.getScreenLeft() + 2;
 	var iTop = oCombo.getScreenTop() + oCombo.getHeight(true) + 2;
@@ -119,70 +191,15 @@ Combo.prototype.showDropdown = function(w) {
 	if (iTop + oCombo.menuHeight > document.desktop.getHeight(true))
 		iTop = oCombo.getScreenTop() - oCombo.menuHeight;
 
-	this.dropdown = new Widget(
-		{
-			top : iTop,
-			left : iLeft,
-			width : oCombo.getWidth(),
-			bgcolor : oCombo.getBgColor(),
-			border : 1,
-			overflow : 'hidden',
-			height : oCombo.menuHeight,
-			onclick : function(evt, w) {
-				w.close();
-			},
-			onmousedown : QuiX.stopPropag
-		});
-	
-	this.dropdown.combo = this;
-	this.dropdown.minw = 60;
-	this.dropdown.minh = 50;
-	this.dropdown.div.className = 'combodropdown';
-	this.dropdown.close = function() {
-		document.desktop.overlays.removeItem(this);
-		oCombo.isExpanded = false;
-		this.destroy();
-	};
-	
-	var cont = new Widget(
-		{
-			width : '100%',
-			height: '100%',
-			overflow: 'auto',
-			onmousedown : QuiX.cancelDefault
-		});	
-	this.dropdown.appendChild(cont);
+	oCombo.dropdown.top = iTop;
+	oCombo.dropdown.left = iLeft;
+	oCombo.dropdown.width = oCombo.getWidth(true);
+	oCombo.dropdown.height = oCombo.menuHeight;
+	oCombo.dropdown.setBgColor(oCombo.getBgColor());
 
-	var opt;
-	for (var i=0; i<oCombo.options.length; i++) {
-		opt = new Icon(oCombo.options[i]);
-		cont.appendChild(opt);
-		opt.value = oCombo.options[i].value;
-		opt.attachEvent('onmouseover', ComboOption__mouseover);
-		opt.attachEvent('onmouseout', ComboOption__mouseout);
-		opt.attachEvent('onclick', function(evt, w){
-			oCombo.selectOption(w);
-		});
-		opt.setDisplay();
-		opt.setPosition();
-	}
-	var resizer = new Widget(
-		{
-			left:"this.parent.getWidth()-15",
-			top:"this.parent.getHeight()-15",
-			width:16,
-			height:16,
-			border:0,
-			overflow:'hidden'
-		});
-	this.dropdown.appendChild(resizer);
-	resizer.div.className = 'resize';
-	resizer.attachEvent('onmousedown', function(evt){
-		oCombo.dropdown._startResize(evt);
-	});
-	
-	document.desktop.appendChild(this.dropdown);
-	document.desktop.overlays.push(this.dropdown);
+	document.desktop.appendChild(oCombo.dropdown);
+	document.desktop.overlays.push(oCombo.dropdown);
+	oCombo.isExpanded = true;
 }
 
 Combo.prototype.destroy = function() {
@@ -190,13 +207,28 @@ Combo.prototype.destroy = function() {
 	Widget.prototype.destroy(this);
 }
 
+Combo.prototype.setBgColor = function(color) {
+	this.div.style.backgroundColor = color;
+	if (this.div.firstChild)
+		this.div.firstChild.style.backgroundColor = color;
+}
+
 Combo.prototype.addOption = function(params) {
 	params.align = params.align || 'left';
 	params.width = params.width || '100%';
+	var opt = new Icon(params);
+	opt.selected = false;
+	opt.value = params.value || '';
+	this.dropdown.widgets[0].appendChild(opt);
 	if ((params.selected=='true' || params.selected == true) && !this.editable) {
-		this.selectOption(params);
+		this.selectOption(opt);
 	}
-	this.options.push(params);
+	opt.attachEvent('onmouseover', ComboOption__mouseover);
+	opt.attachEvent('onmouseout', ComboOption__mouseout);
+	opt.attachEvent('onclick', ComboOption__onclick);
+	opt.setDisplay();
+	opt.setPosition();
+	return opt;
 }
 
 function ComboOption__mouseover(evt, w) {
@@ -204,6 +236,11 @@ function ComboOption__mouseover(evt, w) {
 }
 
 function ComboOption__mouseout(evt, w) {
+	w.div.className = 'option';
+}
+
+function ComboOption__onclick(evt, w) {
+	w.parent.parent.combo.selectOption(w);
 	w.div.className = 'option';
 }
 
@@ -249,7 +286,7 @@ SelectList.prototype.addOption = function(params) {
 	params.onclick = QuiX.getEventWrapper(SelectOption__onclick, params.onclick);
 	var w = new Icon(params);
 	this.appendChild(w);
-	w.isSelected = false;
+	w.selected = false;
 	w.value = params.value;
 	w.setDisplay();
 	w.setPosition();
@@ -278,9 +315,28 @@ SelectList.prototype.clearSelection = function() {
 	for (var i=0; i<this.selection.length; i++) {
 		var w = this.selection[i];
 		w.div.className = 'label';
-		w.isSelected = false;
+		w.selected = false;
 	}
 	this.selection = [];
+}
+
+SelectList.prototype.selectOption = function(option) {
+	if (!option.selected) {
+		if (!this.multiple)
+			this.clearSelection();
+		option.div.className = 'optionselected';
+		option.selected = true;
+		this.selection.push(option);
+	}
+}
+
+SelectList.prototype.deSelectOption = function(option) {
+	var oSelectList = this;
+	if (option.selected) {
+		option.div.className = 'label';
+		option.selected = false;
+		this.selection.removeItem(option);
+	}
 }
 
 SelectList.prototype.getValue = function() {
@@ -304,30 +360,15 @@ SelectList.prototype.getValue = function() {
 
 function SelectOption__onclick(evt, option) {
 	var oSelectList = option.parent;
-	function selectOption(option) {
-		option.div.className = 'optionselected';
-		option.isSelected = true;
-		oSelectList.selection.push(option);
-	}
-	function deselectOption(option) {
-		option.div.className = 'label';
-		option.isSelected = false;
-		oSelectList.selection.removeItem(option);
-	}
-	if (!oSelectList.multiple) {
-		oSelectList.clearSelection();
-		selectOption(option);
-	}
+	if (!oSelectList.multiple)
+		oSelectList.selectOption(option);
 	else {
-		if (!evt.shiftKey) {
-			oSelectList.clearSelection();
-			selectOption(option);
-		}
-		else if (evt.shiftKey && !option.isSelected) {
-			selectOption(option);
-		}
-		else {
-			deselectOption(option);
-		}
+		if (!evt.shiftKey)
+			oSelectList.selectOption(option);
+		else
+			if (option.selected)
+				oSelectList.deSelectOption(option);
+			else
+				oSelectList.selectOption(option);
 	}
 }
