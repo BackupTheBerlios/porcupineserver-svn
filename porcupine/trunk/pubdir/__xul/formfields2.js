@@ -313,11 +313,9 @@ SelectList.prototype.removeSelected = function() {
 
 SelectList.prototype.clearSelection = function() {
 	for (var i=0; i<this.selection.length; i++) {
-		var w = this.selection[i];
-		w.div.className = 'label';
-		w.selected = false;
+		this.deSelectOption(this.selection[i]);
 	}
-	this.selection = [];
+	//this.selection = [];
 }
 
 SelectList.prototype.selectOption = function(option) {
@@ -331,7 +329,7 @@ SelectList.prototype.selectOption = function(option) {
 }
 
 SelectList.prototype.deSelectOption = function(option) {
-	var oSelectList = this;
+	//var oSelectList = this;
 	if (option.selected) {
 		option.div.className = 'label';
 		option.selected = false;
@@ -363,8 +361,10 @@ function SelectOption__onclick(evt, option) {
 	if (!oSelectList.multiple)
 		oSelectList.selectOption(option);
 	else {
-		if (!evt.shiftKey)
+		if (!evt.shiftKey) {
+			oSelectList.clearSelection();
 			oSelectList.selectOption(option);
+		}
 		else
 			if (option.selected)
 				oSelectList.deSelectOption(option);
