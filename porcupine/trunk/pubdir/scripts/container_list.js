@@ -52,23 +52,28 @@ containerList.getContainerInfo = function(w, bAddPath) {
 		newOption1.options = [];
 		newOption2.options = [];
 		if (req.response.user_role > 1 && containment.length>0) {
-			var mo;
-			newOption1.disabled=false;
-			newOption2.disabled=false;
+			var params, mo1, mo2;
+			newOption1.enable();
+			newOption2.enable();
+			if (newOption1.subMenu)
+				newOption1.subMenu.clear();
+			if (newOption2.subMenu)
+				newOption2.subMenu.clear();
 			for (var i=0; i<containment.length; i++) {
-				mo = new MenuOption ({
+				params = {
 					caption: containment[i][0],
 					img: containment[i][2],
 					onclick: containerList.createItem
-				});
-				mo.attributes.cc = containment[i][1];
-				newOption1.options.push(mo);
-				newOption2.options.push(mo);
+				}
+				mo1 = newOption1.addOption(params);
+				mo1.attributes.cc = containment[i][1];
+				mo2 = newOption2.addOption(params);
+				mo2.attributes.cc = containment[i][1];
 			}
 		}
 		else {
-			newOption1.disabled=true;
-			newOption2.disabled=true;
+			newOption1.disable();
+			newOption2.disable();
 		}
 		w.attributes.history.push(w.attributes.FolderID);
 	}

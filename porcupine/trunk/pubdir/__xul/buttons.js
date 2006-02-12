@@ -54,6 +54,7 @@ function Icon(params) {
 	this.base = Label;
 	this.base(params);
 	this.img = params.img || null;
+	this.imageElement = null;
 	this.imgAlign = params.imgalign || 'left';
 	this.redraw(true);
 }
@@ -61,7 +62,7 @@ function Icon(params) {
 Icon.prototype = new Label;
 
 Icon.prototype.setImageURL = function(s) {
-	this.div.firstChild.src = s;
+	this.imageElement.src = s;
 }
 
 Icon.prototype._addDummyImage = function() {
@@ -77,46 +78,50 @@ Icon.prototype._addDummyImage = function() {
 	}
 }
 
-Icon.prototype.redraw = function(bForceAll) {
+Icon.prototype.redraw = function(bForceAll, w) {
+	var w = w || this;
 	if (bForceAll) {
-		var imgs = this.div.getElementsByTagName('IMG');
+		var imgs = w.div.getElementsByTagName('IMG');
 		while (imgs.length > 0) {
 			QuiX.removeNode(imgs[0]);
 		}
-		var br = this.div.getElementsByTagName('BR')[0];
+		var br = w.div.getElementsByTagName('BR')[0];
 		if (br) QuiX.removeNode(br);
 
-		this._addDummyImage();
+		w._addDummyImage();
 
-		if (this.img) {
-			img = QuiX.getImage(this.img);
+		if (w.img) {
+			img = QuiX.getImage(w.img);
 			img.style.verticalAlign = 'middle';
 			
-			if (this.getCaption()!='') {
-				switch(this.imgAlign) {
+			if (w.getCaption()!='') {
+				switch(w.imgAlign) {
 					case "left":
 						img.style.marginRight = '3px';
-						this.div.insertBefore(img, this.div.firstChild);
+						w.div.insertBefore(img, w.div.firstChild);
 						break;
 					case "right":
 						img.style.marginLeft = '3px';
-						this.div.appendChild(img);
+						w.div.appendChild(img);
 						break;
 					case "top":
-						this.div.insertBefore(ce('BR'), this.div.firstChild);
-						this.div.insertBefore(img, this.div.firstChild);
+						w.div.insertBefore(ce('BR'), w.div.firstChild);
+						w.div.insertBefore(img, w.div.firstChild);
 						break;
 					case "bottom":
-						this.div.appendChild(ce('BR'));
-						this.div.appendChild(img);
+						w.div.appendChild(ce('BR'));
+						w.div.appendChild(img);
 				}
 			}
 			else {
-				this.div.insertBefore(img, this.div.firstChild);
+				w.div.insertBefore(img, w.div.firstChild);
 			}
+			w.imageElement = img;
 		}
+		else
+			w.imageElement = null;
 	}
-	Label.prototype.redraw(bForceAll, this);
+	Label.prototype.redraw(bForceAll, w);
 }
 
 //XButton class
@@ -306,6 +311,8 @@ function FlatButton__onmouseout(evt, w) {
 function FlatButton__onmousedown(evt, w) {
 	w.div.className='flaton';
 	w._addBorder();
+	if (w.type == 'menu')
+		QuiX.stopPropag(evt);
 	if (w.type!='toggle') {
 		w.addPaddingOffset('Left', 1);
 		w._ispressed = true;
@@ -331,7 +338,7 @@ function FlatButton__onclick(evt, w) {
 		}
 		else {
 			w.div.className = 'btn';
-			document.desktop.closeMenu(evt);
+			w.contextmenu.close();
 		}
 	}
 	QuiX.stopPropag(evt);

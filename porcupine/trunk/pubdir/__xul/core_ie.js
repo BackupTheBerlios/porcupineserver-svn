@@ -50,7 +50,7 @@ QuiX.modules = [
 	new Module('Windows and Dialogs', '__xul/windows.js', [3]),
 	new Module('Menus', '__xul/menus.js', [3]),
 	new Module('Splitter', '__xul/splitter.js', [3]),
-	new Module('Labels & Buttons', '__xul/buttons.js', [1]),
+	new Module('Labels & Buttons', '__xul/buttons.js', []),
 	new Module('Tab Pane', '__xul/tabpane.js', []),
 	new Module('List View', '__xul/listview.js', []),
 	new Module('Tree', '__xul/tree.js', []),
@@ -467,22 +467,12 @@ XULParser.prototype.parseXul = function(oNode, parentW, prm) {
 				appendIt = false;
 				break;
 			case 'menuoption':
-				if (prm.option) {
-					fparams.option = new MenuOption(params);
-					prm.option.options.push(fparams.option);
-				}
-				else {
-					fparams.option = parentW.addOption(params);
-				}
+				oWidget = parentW.addOption(params);
 				appendIt = false;
-				oWidget = fparams.option;
 				break;
 			case 'sep':
 				checkForChilds = false;
-				if (prm.option)
-					prm.option.options.push(-1);
-				else
-					parentW.options.push(-1);
+				oWidget = parentW.addOption(-1);
 				appendIt = false;
 				break;
 			case 'hr':
@@ -727,7 +717,7 @@ Widget.prototype.enable = function(w) {
 Widget.prototype.detach = function() {
 	this.parent.widgets.removeItem(this);
 	if (this.id)
-		delete(w.parent._id_widgets[this.id]);
+		delete(this.parent._id_widgets[this.id]);
 	this.parent = null;
 	this.div = this.div.removeNode(true);
 }
@@ -1145,7 +1135,7 @@ Widget.prototype.redraw = function(bForceAll, w) {
 			sOverflow = w.getOverflow();
 			if (sOverflow != 'hidden') w.setOverflow('hidden');
 			w._setCommonProps();
-			if (w.getPosition()=='absolute') w._setAbsProps();
+			if (w.getPosition()!='') w._setAbsProps();
 			for (var i=0; i<w.widgets.length; i++) {
 				if (w.widgets[i]._mustRedraw() || bForceAll) w.widgets[i].redraw(bForceAll);
 			}

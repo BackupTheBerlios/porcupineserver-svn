@@ -3,112 +3,89 @@ Menus
 ************************/
 //menu option
 function MenuOption(params) {
-	this.caption = params.caption;
-	this.id = params.id;
-	this.height = params.height || 21;
-	this.img = params.img;
-	this.onclick = getEventListener(params.onclick);
+	params.height = params.height || 21;
+	params.align = 'left';
+	params.imgalign = 'left';
+	params.width = '100%';
+	params.padding = '4,0,3,2';
+	params.onmouseover = MenuOption__onmouseover;
+	params.onmouseout = MenuOption__onmouseout;
+	params.onclick = QuiX.getEventWrapper(MenuOption__onclick, params.onclick);
+
+	this.base = Icon;
+	this.base(params);
+
+	this.div.style.whiteSpace = 'nowrap';
+	if (QuiX.browser == 'moz')
+		this.setDisplay('table');
+	this.setPosition('relative');
+
+	this.subMenu = null;
 	this.type = params.type;
-	this.disabled = (params.disabled=='true' || params.disabled==true)?true:false;
-	delete params.disabled;
-	this.options = [];
-	this.isSelected = (params.selected=='true')?true:false;
-	this.attributes = params.attributes || {};
-	this.base = Widget;
+	this.selected = (params.selected=='true' || params.selected==true)?true:false;
 }
 
-MenuOption.prototype = new Widget;
+MenuOption.prototype = new Icon;
 
-MenuOption.prototype.show = function(contextMenu) {
-	var lpadding, rpadding, oOption = this;
-	lpadding = 24;
-	rpadding = (this.options.length==0)?8:24;
-	this.base({
-		id : this.id,
-		height : this.height,
-		top : contextMenu._top,
-		padding : lpadding + ',' + rpadding + ',3,2',
-		width : '100%',
-		disabled: this.disabled,
-		onmouseover: MenuOption__onmouseover,
-		onmouseout: MenuOption__onmouseout,
-		onclick: MenuOption__onclick,
-		attributes : this.attributes
-	});
-	contextMenu.appendChild(this);
-	this.setDisplay('inline');
-	this.setPosition();
-	this.div.appendChild( document.createTextNode(this.caption));
-	this.div.style.whiteSpace = 'nowrap';
-	if (this.options.length>0) {
+MenuOption.prototype.addOption = function(params) {
+	if (!this.subMenu)
+		this.subMenu = new ContextMenu({}, this);
+	return this.subMenu.addOption(params);
+}
+
+MenuOption.prototype.redraw = function(bForceAll) {
+	if (this.subMenu) {
+		this.addPaddingOffset('Right', 16)
 		var w = new Icon({
 			left: 'this.parent.getWidth(true) - 12',
 			top: 'center',
 			padding: '0,0,0,0',
 			overflow: 'hidden',
-			//border: 1,
 			width: 12,
 			height: 12,
 			img: 'images/submenu.gif'
 		});
 		this.appendChild(w);
-		var oSubOptions = this.options;
-		var oSubMenu = new ContextMenu({}, this);
-		oSubMenu.options = oSubOptions;
-		this.subMenu = oSubMenu;
 	}
-	
-	if (this.type && this.isSelected) {
-		this._addIndicator();
-	} else if (this.img) {
-		var img = QuiX.getImage(this.img);
-		img.border=0;
-		img.align='absmiddle';
-		img.style.marginRight='4px';
-		img.width=16;
-		img.height=16;
-		this.addPaddingOffset('Left', -20);
-		this.div.insertBefore(img, this.div.firstChild);
+	if (this.type) {
+		if (this.selected) {
+			switch (this.type) {
+				case 'radio':
+					this.img = 'images/menu_radio.gif';
+					break;
+				case 'check':
+					this.img = 'images/menu_check.gif';
+			}
+		}
+		else
+			this.img = null;
+		bForceAll = true;
 	}
+	if (!this.img)
+		this.setPadding([22,8,3,2]);
+	else
+		this.setPadding([4,8,3,2]);
+	Icon.prototype.redraw(bForceAll, this);
 }
 
-MenuOption.prototype._addIndicator = function() {
-	var img, padding;
+MenuOption.prototype.select = function() {
 	switch (this.type) {
 		case 'radio':
-			img = QuiX.getImage('images/menu_radio.gif');
-			break;
-		case 'check':
-			img = QuiX.getImage('images/menu_check.gif');
-	}
-	img.width=16;
-	img.height=16;
-	img.border=0;
-	img.align='absmiddle';
-	img.style.marginRight='4px';
-
-	this.addPaddingOffset('Left', -20);
-	this.div.insertBefore(img, this.div.firstChild);
-}
-
-MenuOption.prototype.select = function () {
-	switch (this.type) {
-		case 'radio':
-			if (!this.isSelected) {
+			if (!this.selected) {
 				if (this.id) {
 					var oOptions = this.parent.getWidgetById(this.id);
 					if (oOptions.length) {
 						for(var i=0; i<oOptions.length; i++)
-							oOptions[i].isSelected = false;
+							oOptions[i].selected = false;
 					}
 					else
-						oOptions.isSelected = false;
+						oOptions.selected = false;
 				}
-				this.isSelected = true;
+				this.selected = true;
 			}
 			break;
 		case 'check':
-			this.isSelected = !this.isSelected;
+			this.selected = !this.selected;
 	}
 }
 
@@ -141,93 +118,76 @@ function MenuOption__onmouseover(evt, w) {
 
 function MenuOption__onclick(evt, w) {
 	if (w.type) w.select();
+	w.div.className = 'option';
 	QuiX.cleanupOverlays();
-	if (w.onclick) {
-		w.onclick(evt, w);
-	}
 }
 
 //context menu
 function ContextMenu(params, owner) {
-	this.options = [];
-	this.owner = owner;
 	this.id = params.id;
 	this.base = Widget;
 	this.onshow = getEventListener(params.onshow);
 	this.isOpen = false;
+	
 	if (this.id) {
 		if (owner._id_widgets[this.id])
 			owner._id_widgets[this.id].push(this);
 		else
 			owner._id_widgets[this.id] = [this];
 	}
+
+	this.base({
+		width: 80,
+		border:1,
+		onmousedown: QuiX.stopPropag
+	});
+	var rect = new Widget({
+		width: '22',
+		height: '100%',
+		bgcolor: 'silver',
+		overflow: 'hidden'
+	});
+	this.appendChild(rect);
+	this.div.className = 'contextmenu';
+
+	this.options = [];
+	this.owner = owner;
+	this.activeSub = null;
 }
 
 ContextMenu.prototype = new Widget;
 
-ContextMenu.prototype.show = function(w,x,y) {
-	var oOption, optionWidth, max_width=0;
+ContextMenu.prototype.show = function(w, x, y) {
+	var oOption, optionWidth;
+	var iHeight = 0;
+	
 	if (!this.isOpen) {
-		this._top = 0;
 		if (this.onshow) this.onshow(this);
-		this.base({
-			left:x,
-			top:y,
-			width: 60,
-			border:1,
-			padding:'1,1,1,1',
-			onmousedown: QuiX.stopPropag
-		});
+		this.left = x;
+		this.top = y;
 		w.appendChild(this);
-		
-		var rect = new Widget({
-			width: '22',
-			height: '100%',
-			bgcolor: 'silver',
-			overflow: 'hidden'
-		});
-		
-		this.appendChild(rect);
-		
-		this.div.className = 'contextmenu';
+
 		for (var i=0; i<this.options.length; i++) {
 			oOption = this.options[i];
-			if (oOption!=-1) {
-				oOption.show(this);
-				optionWidth = oOption.div.offsetWidth;
-				if (QuiX.browser == 'ie' && !oOption.img)
-					optionWidth += oOption.getPadding()[0];
-				if (optionWidth > max_width) max_width = optionWidth;
-				oOption.setDisplay();
-				oOption.setPosition('absolute');
-			}
-			else {
-				oOption = new Widget({
-					width:'this.parent.getWidth()-24',
-					height:2, top:this._top, left:24,
-					border:1, overflow:'hidden'
-				});
-				this.appendChild(oOption);
-				oOption.div.className = 'separator';
-			}
-			this._top += oOption.height;
-	
+			optionWidth = oOption.div.clientWidth;
+			iHeight += oOption.div.offsetHeight;
+			if (optionWidth > this.width)
+				this.width = optionWidth + 16;
 		}
-		this.activeSub = null;
-	
-		if (!this.fixedheight) this.height = this._top + 4;
-	
+		
+		this.height = iHeight + 2;
+		
 		if (this.top + this.height > document.desktop.getHeight(true))
 			this.top = y - this.height;
 		if (this.left + this.width > document.desktop.getWidth(true))
 			this.left = x - this.width;
 		
-		this.width=max_width + 8;
-		
 		this.redraw();
 		this.bringToFront();
 		
-		if (w==document.desktop) document.desktop.overlays.push(this);
+		if (w==document.desktop)
+			document.desktop.overlays.push(this);
+		
 		this.isOpen = true;
 	}
 }
@@ -235,18 +195,32 @@ ContextMenu.prototype.show = function(w,x,y) {
 ContextMenu.prototype.close = function() {
 	if (this.parent == document.desktop)
 		document.desktop.overlays.removeItem(this);
-	this.destroy();
+	this.detach();
 	this.isOpen = false;
 }
 
 ContextMenu.prototype.addOption = function(params) {
-	var oOpt = new MenuOption(params);
-	this.options.push(oOpt);
-	return(oOpt);
+	var oOption;
+	if (params != -1) { //not a separator
+		oOption = new MenuOption(params);
+	}
+	else {
+		oOption = new Widget({
+			width : 'this.parent.getWidth()-22',
+			height : 2,
+			left : 22,
+			border : 1,
+			overflow : 'hidden'
+		});
+		oOption.div.className = 'separator';
+		oOption.setPosition('relative');
+	}
+	this.appendChild(oOption);
+	this.options.push(oOption);
+	return oOption;
 }
 
 // Menu Bar
-
 function MBar(params) {
 	params = params || {};
 	params.border=1;
@@ -265,13 +239,12 @@ MBar.prototype = new Widget;
 MBar.prototype.addRootMenu = function(params) {
 	var oMenubar = this;
 	var ind = this.contextmenus.length;
-	var oMenu = new Widget(
-		{
-			border: 0,padding: '4,4,3,3',
-			onclick: function(evt){oMenubar._menuclick(evt, oMenu, ind)},
-			onmouseover: function(){oMenubar._menuover(oMenu)},
-			onmouseout: function(){oMenubar._menuout(oMenu)}
-		});
+	var oMenu = new Widget({
+		border: 0,padding: '4,4,3,3',
+		onclick: function(evt){oMenubar._menuclick(evt, oMenu, ind)},
+		onmouseover: function(){oMenubar._menuover(oMenu)},
+		onmouseout: function(){oMenubar._menuout(oMenu)}
+	});
 	this.appendChild(oMenu);
 	oMenu.setDisplay('inline');
 	oMenu.setPosition();
@@ -308,6 +281,7 @@ function showWidgetContextMenu(w, menu) {
 	var ny = w.getScreenTop() + w.div.offsetHeight;
 
 	menu.show(document.desktop, nx, ny);
+	
 
 	if (ny + menu.height > document.desktop.getHeight(true)) {
 		menu.top = menu.owner.getScreenTop() - menu.getHeight(true);
