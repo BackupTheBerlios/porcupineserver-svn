@@ -5,17 +5,17 @@ Toolbars
 function Toolbar(params) {
 	params = params || {};
 	this.base = Widget;
-	params.padding = '2,4,1,1';
+	params.padding = '2,4,0,0';
 	params.border = params.border || 1;
 	params.overflow = 'hidden';
 	this.base(params);
 	this.div.className = 'toolbar';
-	var iSpacing = params.spacing || 6;
-	this.spacing = parseInt(iSpacing);
-
 	this.handle = new Widget({width:4,height:"100%",border:0,overflow:'hidden'});
 	this.appendChild(this.handle);
 	this.handle.div.className = 'handle';
+
+	var iSpacing = params.spacing || 4;
+	this.spacing = parseInt(iSpacing);
 	this.buttons = [];
 }
 
