@@ -185,8 +185,8 @@ Combo.prototype.reset = function() {
 Combo.prototype.showDropdown = function(w) {
 	var oCombo = w || this;
 
-	var iLeft = oCombo.getScreenLeft() + 2;
-	var iTop = oCombo.getScreenTop() + oCombo.getHeight(true) + 2;
+	var iLeft = oCombo.getScreenLeft();
+	var iTop = oCombo.getScreenTop() + oCombo.getHeight(true);
 
 	if (iTop + oCombo.menuHeight > document.desktop.getHeight(true))
 		iTop = oCombo.getScreenTop() - oCombo.menuHeight;
