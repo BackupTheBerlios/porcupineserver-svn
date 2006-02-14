@@ -46,19 +46,17 @@ containerList.getContainerInfo = function(w, bAddPath) {
 			}
 			if (!pathExists) cmb_path.addOption({ caption: sFullPath, value: sFullPath });
 		}
-		var newOption1 = w.getWidgetById('menubar').contextmenus[0].options[0];
+		var newOption1 = w.getWidgetById('menubar').menus[0].contextMenu.options[0];
 		var newOption2 = w.getWidgetById('contextmenu').options[0];
 		var containment = req.response.containment;
 		newOption1.options = [];
+		newOption1.subMenu = null;
 		newOption2.options = [];
+		newOption2.subMenu = null;
 		if (req.response.user_role > 1 && containment.length>0) {
 			var params, mo1, mo2;
 			newOption1.enable();
 			newOption2.enable();
-			if (newOption1.subMenu)
-				newOption1.subMenu.clear();
-			if (newOption2.subMenu)
-				newOption2.subMenu.clear();
 			for (var i=0; i<containment.length; i++) {
 				params = {
 					caption: containment[i][0],
