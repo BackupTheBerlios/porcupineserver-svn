@@ -210,9 +210,10 @@ BODY {
 	cursor : default;
 }
 
-.contextmenu .disabled {
-	color: grayText;
-	cursor : default;
+.contextmenu .submenu {
+	background-image : url(../images/submenu.gif);
+	background-position : right;
+	background-repeat : no-repeat;
 }
 
 .contextmenu .over {
