@@ -992,10 +992,14 @@ Widget.prototype._calcTop = function() {
 
 Widget.prototype.getScreenLeft = function() {
 	var oElement = this.div;
-	iX = 0
-	while(oElement && oElement.tagName!='HTML')
+	var iX = 0, b;
+	while(oElement && oElement.tagName && oElement.tagName!='HTML')
 	{
-		if (oElement.tagName!='TR') iX += oElement.offsetLeft - oElement.scrollLeft;
+		if (oElement.tagName!='TR')
+			iX += oElement.offsetLeft - oElement.scrollLeft;
+		b = parseInt(oElement.style.borderWidth);
+		if (b)
+			iX += b;
 		oElement = oElement.parentNode;
 	}
 	return(iX);
@@ -1003,9 +1007,13 @@ Widget.prototype.getScreenLeft = function() {
 
 Widget.prototype.getScreenTop = function() {
 	var oElement = this.div;
-	iY = 0
-	while(oElement && oElement.tagName!='HTML') {
-		if (oElement.tagName!='TR') iY += oElement.offsetTop - oElement.scrollTop;
+	var iY = 0, b;
+	while(oElement && oElement.tagName && oElement.tagName!='HTML') {
+		if (oElement.tagName!='TR')
+			iY += oElement.offsetTop - oElement.scrollTop;
+		b = parseInt(oElement.style.borderWidth);
+		if (b)
+			iY += b;
 		oElement = oElement.parentNode;
 	}
 	return(iY);

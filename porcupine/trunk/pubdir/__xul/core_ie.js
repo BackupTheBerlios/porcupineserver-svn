@@ -994,23 +994,33 @@ Widget.prototype._calcTop = function()
 Widget.prototype.getScreenLeft = function()
 {
 	var oElement = this.div;
-	iX = 0
+	var iX = 0, b;
 	while(oElement) {
-		if (oElement.tagName!='TR') iX += oElement.offsetLeft - oElement.scrollLeft;
+		if (oElement.tagName!='TR') {
+			iX += oElement.offsetLeft - oElement.scrollLeft;
+			b = parseInt(oElement.style.borderWidth);
+			if (b)
+				iX += b;
+		}
 		oElement = oElement.parentElement;
 	}
-	return(iX);
+	return(iX - 1);
 }
 
 Widget.prototype.getScreenTop = function()
 {
 	var oElement = this.div;
-	iY = 0
+	var iY = 0, b=0;
 	while(oElement) {
-		if (oElement.tagName!='TR') iY += oElement.offsetTop - oElement.scrollTop;
+		if (oElement.tagName!='TR') {
+			iY += oElement.offsetTop - oElement.scrollTop;
+			b = parseInt(oElement.style.borderWidth);
+			if (b)
+				iY += b;
+		}
 		oElement = oElement.parentElement;
 	}
-	return(iY);
+	return(iY - 1);
 }
 
 Widget.prototype.bringToFront = function(w)
