@@ -374,7 +374,7 @@ usermgmnt.newUser = function(evt, w) {
 
 usermgmnt.deleteItem = function(evt, w) {
     var win = w.parent.owner.getParentByType(Window);
-    var sCaption = w.caption;
+    var sCaption = w.getCaption();
     var desktop = document.desktop;
 
     _deleteItem = function(evt, w) {
@@ -405,7 +405,7 @@ usermgmnt.deleteItem = function(evt, w) {
         var dlg = generic.getProcessDialog(sCaption, items.length, _startDeleting);
     }
 
-    desktop.msgbox(w.caption, 
+    desktop.msgbox(sCaption, 
         "Are you sure you want to delete the selected users/groups?",
         [
             ['Yes', 60, _deleteItem],
@@ -486,7 +486,7 @@ usermgmnt.resetPassword = function(evt, w) {
 
 usermgmnt.about = function(evt, w) {
     document.desktop.msgbox(
-        w.caption,
+        w.getCaption(),
         "User and Groups Management v0.1<br/>(c)2005 Innoscript",
         [['OK', 60]],
         'images/messagebox_info.gif', 'center', 'center', 260, 112
@@ -631,7 +631,7 @@ queryPerformer.executeQuery_oncomplete = function(req) {
 
 queryPerformer.about = function(evt, w) {
     document.desktop.msgbox(
-        w.caption,
+        w.getCaption(),
         "OQL Query Performer v0.1<br/>(c)2005 Innoscript",
         [['OK', 60]],
         'images/messagebox_info.gif', 'center', 'center', 260, 112
@@ -729,7 +729,7 @@ queryPerformer.showSettings = function(evt, w) {
     var ca = win.getWidgetById("clientArea");
     win.showWindowFromString(
         '<a:dialog xmlns:a="http://www.innoscript.org/quix" width="300" height="160" ' +
-            'title="' + w.caption + '" img="images/configure.gif" left="center" top="center">' +
+            'title="' + w.getCaption() + '" img="images/configure.gif" left="center" top="center">' +
             '<a:wbody>' +
                 '<a:label top="7" left="5" caption="Attribute for tree captions:" width="140"></a:label>' +
                 '<a:field id="tree_caption" width="120" height="22" top="5" left="140" value="' + ca.attributes.tree_caption + '"></a:field>' +
