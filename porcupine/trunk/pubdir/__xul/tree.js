@@ -154,7 +154,6 @@ function FolderTree(params) {
 	this.base(params);
 
 	this.method = params.method;
-
 	this._onexpand = this.onexpand;
 	this.onexpand = this.loadSubfolders;
 }
@@ -162,7 +161,7 @@ function FolderTree(params) {
 FolderTree.prototype = new Tree;
 
 FolderTree.prototype.loadSubfolders = function(treeNode) {
-	var sID = treeNode.id || '';
+	var sID = treeNode.getId() || '';
 	var xmlrpc = new XMLRPCRequest(QuiX.root + sID);
 	xmlrpc.oncomplete = this.load_oncomplete;
 	xmlrpc.callback_info = treeNode;

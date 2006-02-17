@@ -100,7 +100,8 @@ QuiX.removeWidget = function(w) {
 		QuiX.removeWidget(w.widgets[0]);
 	if (w.parent) {
 		w.parent.widgets.removeItem(w);
-		if (w.id) delete(w.parent._id_widgets[w.id]);
+		if (w._id)
+			w._removeIdRef();
 	}
 
 	w._detachEvents();
@@ -472,9 +473,8 @@ XULParser.prototype.parseXul = function(oNode, parentW, prm) {
 				break;
 			case 'contextmenu':
 				oWidget = new ContextMenu(params, parentW);
-				parentW.attachEvent('oncontextmenu', function(event, target) {
-					oWidget.show(document.desktop, event.clientX, event.clientY);
-				});
+				parentW.contextMenu = oWidget;
+				parentW.attachEvent('oncontextmenu', Widget__contextmenu);
 				appendIt = false;
 				break;
 			case 'menuoption':
@@ -605,15 +605,17 @@ function Widget(params) {
 	this.attributes = params.attributes || {};
 	this.maxz = 0;
 	this._isDisabled = false;
+	this.contextMenu = null;
 
 	this.div = ce('DIV');
 	if (params.style) this.div.setAttribute('style', params.style);
 	this.div.widget = this;
 
+	this._id = undefined;
 	if (params.id) {
-		this.id = params.id;
-		this.div.id = this.id;
+		this.setId(params.id)
 	}
+	
 	if (params.bgcolor)
 		this.setBgColor(params.bgcolor);
 	this.setBorderWidth(parseInt(params.border) || 0);
@@ -635,13 +637,9 @@ function Widget(params) {
 
 Widget.prototype.appendChild = function(w) {
 	this.widgets.push(w);
-	if (w.id) {
-		if (this._id_widgets[w.id])
-			this._id_widgets[w.id].push(w);
-		else
-			this._id_widgets[w.id] = [w];
-	}
 	w.parent = this;
+	if (w._id)
+		w._addIdRef();
 	this.div.appendChild(w.div);
 	w.redraw();
 	w.bringToFront();
@@ -712,8 +710,8 @@ Widget.prototype.enable = function(w) {
 
 Widget.prototype.detach = function() {
 	this.parent.widgets.removeItem(this);
-	if (this.id)
-		delete(this.parent._id_widgets[this.id]);
+	if (this._id)
+		this._removeIdRef();
 	this.parent = null;
 	this.div = this._detach();
 }
@@ -792,6 +790,34 @@ Widget.prototype._setCommonProps = function (w) {
 	
 	if (w.height!=null) w.div.style.height = w._calcHeight() + 'px';
 	if (w.width!=null) w.div.style.width = w._calcWidth() + 'px';
+}
+
+Widget.prototype._removeIdRef = function()
+{
+	this.parent._id_widgets[this._id].removeItem(this);
+	if (this.parent._id_widgets[this._id].length == 0)
+		delete this.parent._id_widgets[this._id];
+}
+
+Widget.prototype._addIdRef = function()
+{
+	if (this.parent._id_widgets[this._id])
+		this.parent._id_widgets[this._id].push(this);
+	else
+		this.parent._id_widgets[this._id] = [this];
+}
+
+// id attribute
+Widget.prototype.setId = function(id) {
+	if (this.parent && this._id)
+		this._removeIdRef();
+	this._id = id;
+	this.div.id = id;
+	if (this.parent)
+		this._addIdRef();
+}
+Widget.prototype.getId = function() {
+	return this._id;
 }
 
 // bgColor attribute
@@ -1211,6 +1237,10 @@ Widget.prototype.attachEvent = function(eventType, f) {
 
 Widget.prototype.detachEvent = function(eventType) {
 	this.div.removeEventListener(eventType.slice(2,eventType.length), this._registry[eventType], false);
+}
+
+function Widget__contextmenu(evt, w) {
+	w.contextMenu.show(document.desktop, evt.clientX, evt.clientY);
 }
 
 //Desktop class

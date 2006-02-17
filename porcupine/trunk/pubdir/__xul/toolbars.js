@@ -21,30 +21,44 @@ function Toolbar(params) {
 
 Toolbar.prototype = new Widget;
 
-Toolbar.prototype._getOffset = function(idx) {
+Toolbar.prototype._getOffset = function(oButton) {
 	var offset = 0;
-	for (var i=0; i<idx; i++) {
+	for (var i=0; i<this.buttons.length; i++) {
+		if (this.buttons[i]==oButton)
+			break;
 		offset += this.buttons[i]._calcWidth(true) + this.spacing;
 	}
 	return(offset + this.handle._calcWidth(true) + 4);
 }
 
 Toolbar.prototype.addButton = function(params) {
-	params.left = "this.parent._getOffset(" + this.buttons.length + ")";
+	params.left = "this.parent._getOffset(this)";
 	params.height = "100%";
 	var oButton = new FlatButton(params);
+	oButton.destroy = ToolbarButton__destroy;
 	this.appendChild(oButton);
 	this.buttons.push(oButton);
 	return(oButton);
 }
 
 Toolbar.prototype.addSeparator = function() {
-	var l = "this.parent._getOffset(" + this.buttons.length + ")";
+	var l = "this.parent._getOffset(this)";
 	var oSep = new Widget({left:l,width:2,height:"100%",border:1,overflow:'hidden'});
+	oSep.destroy = ToolbarButton__destroy;
 	this.appendChild(oSep);
 	oSep.div.className = 'separator';
 	this.buttons.push(oSep);
 	return(oSep);
+}
+
+ToolbarButton__destroy = function() {
+	var parent = this.parent;
+	parent.buttons.removeItem(this);
+	if (this.base)
+		this.base.prototype.destroy(this);
+	else
+		Widget.prototype.destroy(this);
+	parent.redraw();
 }
 
 function OutlookBar(params) {

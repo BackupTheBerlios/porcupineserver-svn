@@ -52,6 +52,7 @@ function Field(params) {
 		params.overflow = '';
 	}
 	params.height = params.height || 22;
+	params.padding = '0,0,0,0';
 	this.base(params);
 	this.name = params.name;
 	this.readonly = (params.readonly=='true')?true:false;
@@ -60,14 +61,16 @@ function Field(params) {
 	switch (this.type) {
 		case 'checkbox':
 			var sChecked = (params.value==true || params.value == 'true')?'checked':'';
-			this.div.innerHTML = '<input type=checkbox ' + sChecked + ' style="vertical-align:middle">';
+			this.div.innerHTML = '<input type=checkbox ' + sChecked +
+				' style="vertical-align:middle">';
 			e = this.div.firstChild;
 			if (this.readonly) e.disabled = true;
 			if (params.caption) this.setCaption(params.caption);
 			break;
 		case 'radio':
 			var sChecked = (params.checked==true || params.checked == 'true')?'checked':'';
-			this.div.innerHTML = '<input type="radio" ' + sChecked + ' style="vertical-align:middle">';
+			this.div.innerHTML = '<input type="radio" ' + sChecked +
+				' style="vertical-align:middle">';
 			e = this.div.firstChild;
 			if (this.readonly) e.disabled = true;
 			if (params.caption) this.setCaption(params.caption);
@@ -86,8 +89,10 @@ function Field(params) {
 			//e.style.height = '100%';
 			if (this.type!='textarea') e.type = this.type;
 			e.value = (params.value)?params.value:'';
+			this.textPadding = params.textPadding || 0;
 			if (this.type=='hidden') this.hide();
 			this.div.appendChild(e);
+			//this.setPadding( params.padding.split(',') );
 	}
 
 	e.onmousedown = QuiX.stopPropag;
@@ -109,8 +114,9 @@ Field.prototype.getValue = function() {
 		return this.div.firstChild.checked;
 	case 'radio':
 		var radio;
-		if (this.id) {
-			var radio_group = this.parent.getWidgetById(this.id);
+		var id = this.getId();
+		if (id) {
+			var radio_group = this.parent.getWidgetById(id);
 			for (var i=0; i<radio_group.length; i++) {
 				radio = radio_group[i].div.firstChild;
 				if (radio.checked)
@@ -130,8 +136,9 @@ Field.prototype.setValue = function(value) {
 		break;
 	case 'radio':
 		var radio;
-		if (this.id) {
-			var radio_group = this.parent.getWidgetById(this.id);
+		var id = this.getId();
+		if (id) {
+			var radio_group = this.parent.getWidgetById(id);
 			for (var i=0; i<radio_group.length; i++) {
 				radio = radio_group[i].div.firstChild;
 				if (radio_group[i]._value == value)
@@ -146,20 +153,57 @@ Field.prototype.setValue = function(value) {
 	}
 }
 
+Field.prototype.getCaption = function() {
+	if (this.type=='radio' || this.type=='checkbox') {
+		var oSpan = this.div.getElementsByTagName('SPAN')[0];
+		if (oSpan)
+			return oSpan.innerHTML;
+		else
+			return '';
+	}
+}
+
 Field.prototype.setCaption = function(caption) {
 	if (this.type=='radio' || this.type=='checkbox') {
-		var textnode;
-		if (this.div.childNodes.length==1) {
+		var textnode = this.div.getElementsByTagName('SPAN')[0];
+		if (!textnode) {
 			textnode =ce('SPAN');
 			textnode.innerHTML = caption;
 			textnode.style.verticalAlign = 'middle';
 			this.div.appendChild(textnode);
 		}
 		else {
-			textnode = this.div.lastChild;
 			textnode.innerHTML = caption;
 		}
 	}
+}
+
+Field.prototype.enable = function() {
+	if (this.div.firstChild) {
+		this.div.firstChild.disabled = false;
+		//this.div.firstChild.style.backgroundColor = this.getBgColor();
+	}
+	Widget.prototype.enable(this);
+}
+
+Field.prototype.disable = function() {
+	if (this.div.firstChild) {
+		this.div.firstChild.disabled = true;
+		//this.div.firstChild.style.backgroundColor = 'menu';
+	}
+	Widget.prototype.disable(this);
+}
+
+Field.prototype.setBgColor = function(color) {
+	this.div.style.backgroundColor = color;
+	if (this.type == 'text' || this.type == 'textarea' || this.type == 'password')
+		this.div.firstChild.style.backgroundColor = color;
+}
+
+Field.prototype.redraw = function(bForceAll) {
+	if (this.type == 'text' || this.type == 'textarea' || this.type == 'password')
+		this.div.firstChild.style.padding = this.textPadding + 'px' + ' ' + this.textPadding + 'px'+ ' ' + this.textPadding + 'px'+ ' ' + this.textPadding + 'px';
+	Widget.prototype.redraw(bForceAll, this);
 }
 
 Field.prototype._adjustFieldSize = function() {
@@ -171,6 +215,8 @@ Field.prototype._adjustFieldSize = function() {
 			nh -= 3;
 		} else if (this.type=='textarea' && QuiX.browser=='moz') {
 			this.div.firstChild.style.top = '-1px';
+			nw -= 1;
+			nh -= 1;
 		}
 		if (nw < 0) nw = 0;
 		if (nh < 0) nh = 0;
@@ -179,30 +225,15 @@ Field.prototype._adjustFieldSize = function() {
 	}
 }
 
-Field.prototype.enable = function() {
-	if (this.div.firstChild) {
-		this.div.firstChild.disabled = false;
-		this.div.firstChild.style.backgroundColor = '';
-	}
-	Widget.prototype.enable(this);
-}
-
-Field.prototype.disable = function() {
-	if (this.div.firstChild) {
-		this.div.firstChild.disabled = true;
-		this.div.firstChild.style.backgroundColor = 'menu';
-	}
-	Widget.prototype.disable(this);
-}
-
 Field.prototype._setCommonProps = function() {
 	this.base.prototype._setCommonProps(this);
 	this._adjustFieldSize();
 }
 
 function Radio_onclick(evt, w) {
-	if (w.id) {
-		var radio_group = w.parent.getWidgetById(w.id);
+	var id = w.getId();
+	if (id) {
+		var radio_group = w.parent.getWidgetById(id);
 		for (var i=0; i<radio_group.length; i++) {
 			radio = radio_group[i].div.firstChild;
 			radio.checked = false;

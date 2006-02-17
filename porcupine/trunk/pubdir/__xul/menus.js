@@ -63,12 +63,32 @@ MenuOption.prototype.redraw = function(bForceAll) {
 	Icon.prototype.redraw(bForceAll, this);
 }
 
+MenuOption.prototype.destroy = function() {
+	var parent = this.parent;
+	parent.options.removeItem(this);
+
+	if (this.base)
+		this.base.prototype.destroy(this);
+	else
+		Widget.prototype.destroy(this);
+
+	if (parent.options.length==0 && parent.owner instanceof MenuOption) {
+		parent.owner.subMenu = null;
+		parent.close();
+		parent.destroy();
+		parent = null;
+	}
+	
+	if (parent) parent.redraw();
+}
+
 MenuOption.prototype.select = function() {
 	switch (this.type) {
 		case 'radio':
 			if (!this.selected) {
-				if (this.id) {
-					var oOptions = this.parent.getWidgetById(this.id);
+				var id = this.getId();
+				if (id) {
+					var oOptions = this.parent.getWidgetById(id);
 					if (oOptions.length) {
 						for(var i=0; i<oOptions.length; i++)
 							oOptions[i].selected = false;
@@ -87,7 +107,6 @@ MenuOption.prototype.select = function() {
 MenuOption.prototype.expand = function() {
 	if (this.parent.activeSub) {
 		this.parent.activeSub.close();
-		this.parent.activeSub = null;
 	}
 	if (this.subMenu) {
 		this.parent.activeSub = this.subMenu;
@@ -128,22 +147,12 @@ function MenuOption__onclick(evt, w) {
 
 //context menu
 function ContextMenu(params, owner) {
-	this.id = params.id;
 	this.base = Widget;
-	this.onshow = getEventListener(params.onshow);
-	this.isOpen = false;
-	
-	if (this.id) {
-		if (owner._id_widgets[this.id])
-			owner._id_widgets[this.id].push(this);
-		else
-			owner._id_widgets[this.id] = [this];
-	}
-
 	this.base({
-		width: 80,
-		border:1,
-		onmousedown: QuiX.stopPropag
+		id : params.id,
+		width : 80,
+		border : 1,
+		onmousedown : QuiX.stopPropag
 	});
 	var rect = new Widget({
 		width: '22',
@@ -157,6 +166,8 @@ function ContextMenu(params, owner) {
 	this.options = [];
 	this.owner = owner;
 	this.activeSub = null;
+	this.onshow = getEventListener(params.onshow);
+	this.isOpen = false;
 }
 
 ContextMenu.prototype = new Widget;
@@ -201,8 +212,9 @@ ContextMenu.prototype.show = function(w, x, y) {
 ContextMenu.prototype.close = function() {
 	if (this.activeSub) {
 		this.activeSub.close();
-		this.activeSub = null;
 	}
+	if (this.owner.parent.activeSub)
+		this.owner.parent.activeSub = null;
 	if (this.parent == document.desktop)
 		document.desktop.overlays.removeItem(this);
 	this.detach();
@@ -222,6 +234,7 @@ ContextMenu.prototype.addOption = function(params) {
 			border : 1,
 			overflow : 'hidden'
 		});
+		oOption.destroy = MenuOption.prototype.destroy;
 		oOption.div.className = 'separator';
 		oOption.setPosition('relative');
 	}
@@ -233,7 +246,7 @@ ContextMenu.prototype.addOption = function(params) {
 // Menu Bar
 function MBar(params) {
 	params = params || {};
-	params.border=1;
+	params.border = params.border || 1;
 	params.padding = '2,4,0,1';
 	params.overflow = 'hidden';
 	this.base = Widget;
@@ -248,7 +261,7 @@ function MBar(params) {
 MBar.prototype = new Widget;
 
 MBar.prototype.addRootMenu = function(params) {
-	var iLeft = (this.menus.length==0)?0:this.spacing;
+	var iLeft = (this.menus.length==0)?0:'this.parent.spacing';
 	var oMenu = new Label({
 		height : '100%',
 		left : iLeft,
