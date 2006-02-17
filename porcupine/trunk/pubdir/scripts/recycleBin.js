@@ -64,11 +64,11 @@ recycleBin.restoreTo = function(evt, w) {
 recycleBin.empty = function(evt, w) {
 	var desktop = document.desktop;
 	var win;
-	if (w.parent.owner) w = w.parent.owner;
-	win = w.getParentByType(Window);
+	var win_elem = (w.parent.owner)?w.parent.owner:w;
+	win = win_elem.getParentByType(Window);
 	var rbid = win.attributes.FolderID;
 	
-	_empty = function(evt, w) {
+	var _empty = function(evt, w) {
 		w.getParentByType(Dialog).close();
 		var xmlrpc = new XMLRPCRequest(QuiX.root + rbid);
 		xmlrpc.oncomplete = function(req) {
@@ -76,7 +76,7 @@ recycleBin.empty = function(evt, w) {
 		}
 		xmlrpc.callmethod('empty');
 	}
-
+	
 	desktop.msgbox(w.getCaption(), 
 		"Are you sure you want to empty the recycle bin?",
 		[
@@ -108,39 +108,43 @@ recycleBin.restoreItem = function(evt, w) {
 			recycleBin.getContainerInfo(win);
 		}
 	}
-	var dlg = generic.getProcessDialog(w.caption, items.length, _startRestoring);
+	var dlg = generic.getProcessDialog(w.getCaption(), items.length, _startRestoring);
 }
 
 recycleBin.deleteItem = function(evt, w) {
 	var win = w.parent.owner.getParentByType(Window);
-	var sCaption = w.caption;
+	var sCaption = w.getCaption();
 	var desktop = document.desktop;
 
-	_deleteItem = function(evt, w) {
+	var _deleteItem = function(evt, w) {
 		w.getParentByType(Dialog).close();
 		var items = win.getWidgetById("itemslist").getSelection();
 		if (!(items instanceof Array)) items = [items];
 		items.reverse();
-		var dlg = generic.getProcessDialog(sCaption, items.length);
-		_startDeleting = function(req) {
+		var _startDeleting = function(w) {
+			w = w.callback_info || w;
 			if (items.length > 0) {
 				var item = items.pop();
-				var pb = dlg.getWidgetById("pb");
+				var pb = w.getWidgetById("pb");
 				pb.increase(1);
 				pb.widgets[1].setCaption(item.displayName);
 				var xmlrpc = new XMLRPCRequest(QuiX.root + item.id);
 				xmlrpc.oncomplete = _startDeleting;
+				xmlrpc.callback_info = w;
+				xmlrpc.onerror = function(req) {
+					w.close();
+				}
 				xmlrpc.callmethod('delete');
 			}
 			else {
-				dlg.close();
+				w.close();
 				recycleBin.getContainerInfo(win);
 			}
 		}
-		_startDeleting();
+		generic.getProcessDialog(sCaption, items.length, _startDeleting);
 	}
 	
-	desktop.msgbox(w.caption, 
+	desktop.msgbox(w.getCaption(), 
 		"Are you sure you want to PERMANENTLY delete the selected items?",
 		[
 			[desktop.attributes['YES'], 60, _deleteItem],
