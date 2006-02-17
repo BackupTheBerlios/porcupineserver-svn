@@ -14,11 +14,20 @@ recycleBin.loadItem = function(evt, w, o) {
 
 recycleBin.listMenu_show = function(menu) {
 	var oItemList = menu.owner.getWidgetsByType(ListView)[0];
-	menu.options[0].disabled = (oItemList.selection.length == 0);//restore
-	menu.options[1].disabled = !(oItemList.selection.length == 1);//restore to
-	menu.options[2].disabled = (oItemList.selection.length == 0);//delete
-	menu.options[4].disabled = (oItemList.dataSet.length == 0);//empty
-	menu.options[6].disabled = !(oItemList.selection.length == 1);//properties
+	if (oItemList.selection.length == 0) {
+		menu.options[0].disable();//restore
+		menu.options[1].disable();//restore to
+		menu.options[2].disable();//delete
+		menu.options[4].disable();//empty
+		menu.options[6].disable();//properties
+	}
+	else {
+		menu.options[0].enable();//restore
+		menu.options[1].enable();//restore to
+		menu.options[2].enable();//delete
+		menu.options[4].enable();//empty
+		menu.options[6].enable();//properties
+	}
 }
 
 recycleBin.getContainerInfo = function(w) {

@@ -36,11 +36,11 @@ generic.selectObjects = function(win, target, select_func, startFrom, contentcla
 generic.addSelectionToList = function(evt, w, source, target) {
 	for (var i=0; i<source.options.length; i++) {
 		var oOption = source.options[i];
-		if (oOption.isSelected) {
+		if (oOption.selected) {
 			target.addOption(
 				{
 					img : oOption.img, 
-					caption : oOption.caption, 
+					caption : oOption.getCaption(), 
 					value : oOption.value
 				}
 			);
@@ -51,9 +51,9 @@ generic.addSelectionToList = function(evt, w, source, target) {
 generic.addSelectionToField = function(evt, w, source, target) {
 	for (var i=0; i<source.options.length; i++) {
 		var oOption = source.options[i];
-		if (oOption.isSelected) {
+		if (oOption.selected) {
 			target.getWidgetsByType(Field)[0].setValue(oOption.value);
-			target.getWidgetsByType(Field)[1].setValue(oOption.caption);
+			target.getWidgetsByType(Field)[1].setValue(oOption.getCaption());
 			return;
 		}
 	}
@@ -93,11 +93,11 @@ generic.runApp = function(evt,w) {
 generic.addSelectionToAclDataGrid = function(evt, w, source, target) {
 	for (var i=0; i<source.options.length; i++) {
 		var oOption = source.options[i];
-		if (oOption.isSelected) {
+		if (oOption.selected) {
 			target.dataSet.push(
 				{
 					id : oOption.value, 
-					displayName : oOption.caption, 
+					displayName : oOption.getCaption(), 
 					role: '1'
 				}
 			);

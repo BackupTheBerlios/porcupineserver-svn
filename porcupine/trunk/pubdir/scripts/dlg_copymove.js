@@ -3,7 +3,7 @@ function copyMove() {}
 copyMove.copyMove = function(evt, w) {
 	var dlg = w.getParentByType(Dialog);
 	var method = dlg.attributes.method;
-	var targetid = dlg.getWidgetById('tree').getSelection().id;
+	var targetid = dlg.getWidgetById('tree').getSelection().getId();
 	
 	var xmlrpc = new XMLRPCRequest(QuiX.root + dlg.attributes.ID);
 	xmlrpc.oncomplete = function(req) {
