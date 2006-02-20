@@ -67,8 +67,8 @@ function OutlookBar(params) {
 	params.overflow = 'hidden';
 	this.base(params);
 	this.div.className = 'outlookbar';
-	this.toolheight = params.toolheight || 20;
-	this.tools = [];
+	
+	this.headerHeight = params.headerheight || 20;
 	this.panes = [];
 	this.activePane = 0;
 }
@@ -76,30 +76,39 @@ function OutlookBar(params) {
 OutlookBar.prototype = new Widget;
 
 OutlookBar.prototype.addPane = function(params) {
-	var w = new Widget(
-		{
-			width:"100%",height:this.toolheight,
-			border:1,padding:'2,2,2,2',overflow:'hidden'
-		});
-	this.appendChild(w);
-	w.setPosition('relative');
-	w.div.className = 'tool';
-	w.div.innerHTML = params.caption;
-	var oBar = this;
-	var iPane = this.tools.length;
-	w.attachEvent('onclick', function(){oBar.activatePane(iPane)});
-	this.tools.push(w);
+	var header = new Label({
+		width : "100%",
+		height : this.headerHeight,
+		border : 1,
+		padding : '2,2,2,2',
+		overflow : 'hidden',
+		caption : params.caption,
+		align : params.align || 'center'
+	});
+	this.appendChild(header);
+	header.setPosition('relative');
+	header.div.className = 'tool';
+	header.attachEvent('onclick', OutlookBarHeader__onclick);
+
+	var w1 = new Widget({
+		width : '100%',
+		id : params.id,
+		height : 'this.parent.getHeight(true)-this.parent.panes.length*this.parent.headerHeight',
+		overflow : 'auto'
+	});
 	
-	var w1 = new Widget(
-		{
-			width:"100%",id:params.id,
-			height:"this.parent.getHeight(true)-this.parent.tools.length*this.parent.toolheight",
-			overflow:'auto'
-		});
 	this.appendChild(w1);
-	if (this.panes.length!=0) w1.setDisplay('none');
+
+	if (this.panes.length!=0)
+		w1.setDisplay('none');
 	w1.setPosition('relative');
+
 	this.panes.push(w1);
+
+	w1.header = header;
+	w1.setCaption = OutlookBarPane__setCaption;
+	w1.getCaption = OutlookBarPane__getCaption;
+	w1.destroy = OutlookBarPane__destroy;
 	return(w1);
 }
 
@@ -107,4 +116,26 @@ OutlookBar.prototype.activatePane = function(iPane) {
 	this.panes[this.activePane].setDisplay('none');
 	this.panes[iPane].setDisplay();
 	this.activePane = iPane;
+}
+
+function OutlookBarHeader__onclick(evt, w) {
+	var oBar = w.parent;
+	for (var i=0; i<oBar.panes.length; i++) {
+		if (oBar.panes[i].header == w) {
+			oBar.activatePane(i);
+			return;
+		}
+	}
+}
+function OutlookBarPane__setCaption(sCaption) {
+	this.header.setCaption(sCaption);
+}
+
+function OutlookBarPane__getCaption() {
+	return this.header.getCaption();
+}
+
+function OutlookBarPane__destroy() {
+	this.header.destroy();
+	Widget.prototype.destroy(this);
 }
