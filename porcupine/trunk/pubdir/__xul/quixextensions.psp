@@ -16,7 +16,7 @@
 //===============================================================================
 
 <%
-	from resources.systemstrings import resources
+	from resources.system.strings import resources
 	
 	sLang = request.getLang()
 	lstMonths = resources.getResource("MONTHS", sLang)

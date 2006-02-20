@@ -20,7 +20,7 @@ from porcupine.core.servlet import XULServlet, HTTPServlet
 from porcupine.oql.command import OqlCommand
 from porcupine.security import objectAccess
 from schemas.org.innoscript import common, security
-from resources.systemstrings import resources
+from resources.system.strings import resources
 from porcupine.utils import date, xmlUtils, misc
 from porcupine import datatypes
 

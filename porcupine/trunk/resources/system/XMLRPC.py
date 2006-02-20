@@ -21,7 +21,7 @@ import os, os.path, base64
 from porcupine.core.servlet import XMLRPCServlet
 from porcupine.oql.command import OqlCommand
 from porcupine.security import objectAccess
-from resources.systemstrings import resources
+from resources.system.strings import resources
 from porcupine.security.policy import policymethod
 from porcupine import datatypes
 from porcupine.utils import misc, date

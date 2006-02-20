@@ -18,7 +18,7 @@
 
 import time
 
-from resources.systemstrings import resources
+from resources.system.strings import resources
 
 class Date(object):
     """
