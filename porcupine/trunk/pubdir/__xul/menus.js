@@ -252,19 +252,24 @@ function MBar(params) {
 	this.base = Widget;
 	this.base(params);
 	this.div.className = 'menubar';
-	var iSpacing = params.spacing || 4;
+	var iSpacing = params.spacing || 2;
 
 	this.spacing = parseInt(iSpacing);
-	this.menus = this.widgets;
+	this.menus = [];
 }
 
 MBar.prototype = new Widget;
 
+MBar.prototype.redraw = function(bForceAll) {
+	for (var i=0; i<this.menus.length; i++) {
+		 this.menus[i].div.style.marginRight = this.spacing + 'px';
+	}
+	Widget.prototype.redraw(bForceAll, this);
+}
+
 MBar.prototype.addRootMenu = function(params) {
-	var iLeft = (this.menus.length==0)?0:'this.parent.spacing';
 	var oMenu = new Label({
-		height : '100%',
-		left : iLeft,
+		top : 'center',
 		border : 0,
 		padding : '8,8,3,4',
 		caption : params.caption,
@@ -273,9 +278,11 @@ MBar.prototype.addRootMenu = function(params) {
 		onmouseout : Menu__mouseout
 	});
 	this.appendChild(oMenu);
-	oMenu.setPosition('relative');
 	oMenu.div.className = 'menu';
-
+	oMenu.setPosition();
+	oMenu.div.style.marginRight = this.spacing + 'px';
+	this.menus.push(oMenu);
+	
 	var oCMenu = new ContextMenu(params, oMenu);
 	oMenu.contextMenu = oCMenu;
 	return(oCMenu);
