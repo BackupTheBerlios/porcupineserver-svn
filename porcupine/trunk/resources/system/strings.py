@@ -39,6 +39,8 @@ resources = ResourceStrings({
         'contact_categories' : 'Categories',
         'company' : 'Company',
         'email' : 'e-mail',
+        'policies' : 'Policies',
+        'policyGranted' : 'Granted to',
 
         # strings
         'FILE' : 'File',
@@ -150,6 +152,8 @@ resources = ResourceStrings({
         'contact_categories' : 'Κατηγορίες',
         'company' : 'Εταιρεία',
         'email' : 'e-mail',
+        'policies' : 'Πολιτικές ασφαλείας',
+        'policyGranted' : 'Αποδόθηκε στους',
         
         # strings
         'FILE' : 'Αρχείο',
