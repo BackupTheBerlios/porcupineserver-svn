@@ -159,5 +159,5 @@ recycleBin.deleteItem = function(evt, w) {
 			[desktop.attributes['YES'], 60, _deleteItem],
 			[desktop.attributes['NO'], 60]
 		],
-		'images/messagebox_warning.gif', 'center', 'center', 260, 112);
+		'images/messagebox_warning.gif', 'center', 'center', 280, 112);
 }
