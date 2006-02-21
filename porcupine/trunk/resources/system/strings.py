@@ -24,6 +24,8 @@ resources = ResourceStrings({
         'schemas.org.innoscript.common.Category' : 'Category',
         'schemas.org.innoscript.security.User' : 'User',
         'schemas.org.innoscript.security.Group' : 'Group',
+        'schemas.org.innoscript.security.Policy' : 'Policy',
+        'schemas.org.innoscript.common.Application' : 'Application',
 
         # schema attributes
         'displayName' : 'Name',
@@ -137,6 +139,8 @@ resources = ResourceStrings({
         'schemas.org.innoscript.common.Category' : 'Κατηγορία',
         'schemas.org.innoscript.security.User' : 'Χρήστης',
         'schemas.org.innoscript.security.Group' : 'Ομάδα',
+        'schemas.org.innoscript.security.Policy' : 'Πολιτική Ασφάλειας',
+        'schemas.org.innoscript.common.Application' : 'Εφαρμογή',
         
         #schema attributes
         'displayName' : 'Όνομα',
