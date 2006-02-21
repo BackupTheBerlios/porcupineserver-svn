@@ -150,7 +150,7 @@ function ContextMenu(params, owner) {
 	this.base = Widget;
 	this.base({
 		id : params.id,
-		width : 80,
+		width : 100,
 		border : 1,
 		onmousedown : QuiX.stopPropag
 	});
