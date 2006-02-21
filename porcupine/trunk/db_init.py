@@ -1,11 +1,20 @@
 #!/usr/bin/env python
 "Utility for initializing the server database"
-import sys, time
+import sys, time, imp
+
+def main_is_frozen():
+   return (hasattr(sys, "frozen") or # new py2exe
+           hasattr(sys, "importers") # old py2exe
+           or imp.is_frozen("__main__")) # tools/freeze
+
+if main_is_frozen():
+    sys.path.insert(0, '')
 
 from porcupine.db import db
 from porcupine import serverExceptions
 
-answer = raw_input('''WARNING: all objects will be erased!
+answer = raw_input('''WARNING: Please ensure that Porcupine Server is stopped!
+All objects will be erased!
 Are you sure you want to initialize the database(Y/N)?''')
 
 if (answer == 'Y'):

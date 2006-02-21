@@ -20,6 +20,14 @@
 import getopt, sys, os, cPickle, tarfile, ConfigParser, imp
 from xml.dom import minidom
 
+def main_is_frozen():
+   return (hasattr(sys, "frozen") or # new py2exe
+           hasattr(sys, "importers") # old py2exe
+           or imp.is_frozen("__main__")) # tools/freeze
+
+if main_is_frozen():
+    sys.path.insert(0, '')
+
 from porcupine import datatypes
 from porcupine import serverExceptions
 from porcupine.administration import offlinedb, configfiles
@@ -458,11 +466,6 @@ def usage():
     print __usage__
     sys.exit(2)
 
-def main_is_frozen():
-   return (hasattr(sys, "frozen") or # new py2exe
-           hasattr(sys, "importers") # old py2exe
-           or imp.is_frozen("__main__")) # tools/freeze
-
 if __name__=='__main__':
     # get arguments
     argv = sys.argv[1:]
@@ -476,9 +479,6 @@ if __name__=='__main__':
     command = None
     package = None
     definition = None
-
-    if main_is_frozen():
-        sys.path.insert(0, '')
 
     if opts:
         for opt, arg in opts:                

@@ -23,6 +23,14 @@ from threading import Thread, currentThread, Event
 from cPickle import loads
 from socket import error as socketError
 
+def main_is_frozen():
+   return (hasattr(sys, "frozen") or # new py2exe
+           hasattr(sys, "importers") # old py2exe
+           or imp.is_frozen("__main__")) # tools/freeze
+
+if main_is_frozen():
+    sys.path.insert(0, '')
+
 from porcupine.core import request, asyncBaseServer
 from porcupine.core.management import Mgt
 from porcupine.db import db
@@ -187,11 +195,6 @@ class requestHandler(asyncBaseServer.BaseRequestHandler):
                 # re-process the request
                 self.handleRequest()
 
-def main_is_frozen():
-   return (hasattr(sys, "frozen") or # new py2exe
-           hasattr(sys, "importers") # old py2exe
-           or imp.is_frozen("__main__")) # tools/freeze
-
 def main(args):
     for arg in args:
         if arg == 'daemon':
@@ -213,9 +216,6 @@ def main(args):
             else:
                 print 'Your operating system does not support this command.'
             sys.exit()
-
-    if main_is_frozen():
-        sys.path.insert(0, '')
 
     try:
         server = PorcupineServer()
