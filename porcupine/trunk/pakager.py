@@ -318,7 +318,7 @@ class Package(object):
             for dir_node in dir_nodes:
                 #app_node = app_node.cloneNode(True)
                 dir_name = dir_node.getAttribute('name')
-                print 'INFO: uninstalling published directory "%s"' % app_name
+                print 'INFO: uninstalling published directory "%s"' % dir_name
                 old_node = dirsConfig.getDirNode(dir_name)
                 if old_node:
                     dirsConfig.removeDirNode(old_node)
@@ -375,7 +375,7 @@ class Package(object):
             dir_nodes = []
             for dir in pubdirs:
                 dirname = self.config_file.get('pubdir', dir)
-                print 'INFO: adding published directory "%s"' % appname
+                print 'INFO: adding published directory "%s"' % dirname
                 dir_node = dirsConfig.getDirNode(dirname)
                 if dir_node:
                         dir_nodes.append(dir_node)
