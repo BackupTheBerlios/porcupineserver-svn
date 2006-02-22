@@ -58,6 +58,7 @@ OPT: QuiX icons' "changeImage" method is renamed to "setImageURL"
 OPT: Added "setCaption" and "getCaption" methods to QuiX buttons
 OPT: QuiX checkboxes and radio buttons support captions.
 
+FIX: Fixed the pakager installation and removal of published directories.
 FIX: Fixed bug inside the Berkeley db maintenance thread. The deadlock detector
      could not subtract the number aborted transactions from the total number
      of ongoing transactions.
