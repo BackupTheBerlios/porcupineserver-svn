@@ -163,11 +163,21 @@ class PorcupineDesktopServlet(XULServlet):
 class Frm_Auto(PorcupineDesktopServlet):
     def __init__(self, server, session, request):
         self.yoffset = 0
+        self.secondaryResources = None
         PorcupineDesktopServlet.__init__(self, server, session, request)
+        
+    def getResource(self, name, lang):
+        res = resources.getResource(name, lang)
+        # if label lookup fails on the system resources
+        # try the secondary resources, if set
+        if res == name and self.secondaryResources:
+            res = self.secondaryResources.getResource(name, lang)
+        return res
         
     def getControlFromAttribute(self, attrname, attr, readonly, isNew=False):
         sLang = self.request.getLang()
-        attrlabel = resources.getResource(attrname, sLang)
+        attrlabel = self.getResource(attrname, sLang)
+
         sControl = ''
         sTab = ''
         if isinstance(attr, datatypes.String):
@@ -244,13 +254,13 @@ class Frm_AutoProperties(Frm_Auto):
         iUserRole = objectAccess.getAccess(self.item, user)
         readonly = (iUserRole==1)
         self.params = {
-            'UPDATE': resources.getResource('UPDATE', sLang),
-            'CLOSE': resources.getResource('CLOSE', sLang),
-            'INFO': resources.getResource('INFO', sLang),
-            'DATEMOD': resources.getResource('DATEMOD', sLang),
-            'OBJID': resources.getResource('ID', sLang),
-            'CLASS': resources.getResource('CLASS', sLang),
-            'MODIFIEDBY': resources.getResource('MODIFIEDBY', sLang),
+            'UPDATE': self.getResource('UPDATE', sLang),
+            'CLOSE': self.getResource('CLOSE', sLang),
+            'INFO': self.getResource('INFO', sLang),
+            'DATEMOD': self.getResource('DATEMOD', sLang),
+            'OBJID': self.getResource('ID', sLang),
+            'CLASS': self.getResource('CLASS', sLang),
+            'MODIFIEDBY': self.getResource('MODIFIEDBY', sLang),
             
             'ID': self.item.id,
             'URI': self.request.serverVariables['SCRIPT_NAME'] + '/' + self.item.id,
@@ -326,10 +336,10 @@ class Frm_AutoNew(Frm_Auto):
         oNewItem = misc.getClassByName(sCC)()
         
         self.params = {
-            'TITLE': '%s &quot;%s&quot;' % (resources.getResource('CREATE', sLang),
-                    resources.getResource(oNewItem.contentclass, sLang)),
-            'CREATE': resources.getResource('CREATE', sLang),
-            'CANCEL': resources.getResource('CANCEL', sLang),
+            'TITLE': '%s &quot;%s&quot;' % (self.getResource('CREATE', sLang),
+                    self.getResource(oNewItem.contentclass, sLang)),
+            'CREATE': self.getResource('CREATE', sLang),
+            'CANCEL': self.getResource('CANCEL', sLang),
         
             'CC': sCC,
             'URI': self.request.serverVariables['SCRIPT_NAME'] + '/' + self.item.id,
