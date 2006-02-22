@@ -376,10 +376,10 @@ class GenericItem(object):
     @type inheritRoles: bool
     
     @ivar displayName: The display name of the object.
-    @type displayName: L{porcupine.systemObjects.displayName}
+    @type displayName: L{displayName<porcupine.systemObjects.displayName>}
     
     @ivar description: A short description.
-    @type description: L{porcupine.datatypes.String}
+    @type description: L{String<porcupine.datatypes.String>}
     
     @type contentclass: str
     @type created: float
