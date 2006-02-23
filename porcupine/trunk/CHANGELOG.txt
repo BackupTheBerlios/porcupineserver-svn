@@ -1,7 +1,7 @@
 -------------
 Version 0.0.6
 -------------
-NEW: Added the "db_init" utility, which initializes a blank Porcupine
+NEW: New "db_init" utility, which initializes a blank Porcupine
      database.
 
 OPT: The "stringresources.xml" resource file is discarded.
@@ -57,10 +57,15 @@ OPT: QuiX labels no longer have a "caption" attribute.
 OPT: QuiX icons' "changeImage" method is renamed to "setImageURL"
 OPT: Added "setCaption" and "getCaption" methods to QuiX buttons
 OPT: QuiX checkboxes and radio buttons support captions.
+OPT: The Datepicker control is faster (it is using fragments).
 
-FIX: Fixed the pakager installation and removal of published directories.
+
+FIX: Fixed the seconds formatting ('ss') inside the "format" method of the
+     JavaScript Date object.
+FIX: The published directories are removed when removing a package with
+     the pakager.
 FIX: Fixed bug inside the Berkeley db maintenance thread. The deadlock detector
-     could not subtract the number aborted transactions from the total number
+     could not subtract the number of aborted transactions from the total number
      of ongoing transactions.
 FIX: Fixed duplicate session in the URL, when hitting "porcupine.py", on Apache 1.3.
 FIX: Eliminated errors reported by invalid CSS attribute assignments on Mozilla 1.8.
