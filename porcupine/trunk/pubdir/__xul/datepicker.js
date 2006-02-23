@@ -91,8 +91,8 @@ Datepicker.prototype.setValue = function(val) {
 Datepicker.prototype.render = function(container) {
 	var oT1, oTR1, oTD1, oTH1;
 	var oT2, oTR2, oTD2;
-	
-	container.appendChild(oT1 = document.createElement('table'));
+	var frg = document.createDocumentFragment();
+	frg.appendChild(oT1 = document.createElement('table'));
 	oT1.width='100%';
 	oT1.height='100%';
 	oT1.cellSpacing = 0;
@@ -115,6 +115,7 @@ Datepicker.prototype.render = function(container) {
 			this.aCells[j][i].onclick = DatepickerCell__click;
 	    }
 	}
+	container.appendChild(frg.firstChild);
 }
 
 Datepicker.prototype.fill = function() {
