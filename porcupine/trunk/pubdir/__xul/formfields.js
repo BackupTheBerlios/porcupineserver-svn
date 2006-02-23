@@ -210,14 +210,10 @@ Field.prototype._adjustFieldSize = function() {
 	if (this.type!='checkbox' && this.type!='radio' && this.div.firstChild) {
 		var nw = this.getWidth() || 0;
 		var nh = this.getHeight() || 0;
-		if (this.type=='textarea' && QuiX.browser=='ie') {
-			nw -= 3;
-			nh -= 3;
-		} else if (this.type=='textarea' && QuiX.browser=='moz') {
+		nw -= 1;
+		nh -= 1;
+		if (this.type=='textarea' && QuiX.browser=='moz')
 			this.div.firstChild.style.top = '-1px';
-			nw -= 1;
-			nh -= 1;
-		}
 		if (nw < 0) nw = 0;
 		if (nh < 0) nh = 0;
 		this.div.firstChild.style.width = nw + 'px';
