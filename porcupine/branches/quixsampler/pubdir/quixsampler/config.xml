@@ -8,6 +8,7 @@
 	<context path="trees.xml" method="GET" client=".*" lang=".*" action="trees.xml"/>
 	<context path="tab.xml" method="GET" client=".*" lang=".*" action="tab.xml"/>
 	<context path="files.xml" method="GET" client=".*" lang=".*" action="files.xml"/>
+	<context path="timers.xml" method="GET" client=".*" lang=".*" action="timers.xml"/>
 	<context path="misc.xml" method="GET" client=".*" lang=".*" action="misc.xml"/>
 
 	<!-- QuiX sampler images -->
@@ -20,6 +21,7 @@
 	<context path="images/trees.gif" method="GET" client=".*" lang=".*" action="images/trees.gif"/>
 	<context path="images/tab.gif" method="GET" client=".*" lang=".*" action="images/tab.gif"/>
 	<context path="images/files.gif" method="GET" client=".*" lang=".*" action="images/files.gif"/>
+	<context path="images/clock.gif" method="GET" client=".*" lang=".*" action="images/clock.gif"/>
 	<context path="images/misc.gif" method="GET" client=".*" lang=".*" action="images/misc.gif"/>
 
 </config>

@@ -14,40 +14,54 @@
 #    along with Porcupine; if not, write to the Free Software
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #===============================================================================
-"Server configuration classes"
-
-from xml.dom import minidom
+"Server string localization classes"
 
 class Locale(dict):
+    """This is a special dict type.
+    When a non existing key is requested instead
+    of raising a I{KeyError} exception, the key itself
+    is returned.
+    """
     def __getitem__(self, key):
         return self.get(key, key)
 
 class ResourceStrings(object):
+    "This type is used for keeping localized string bundles."
     def __init__(self, dctResources):
+        """@param dctResources: A Python dictionary. The keys of this
+        dictionary must be the locale strings as these are defined in the
+        "Accept-Language" HTTP header (de, fr, us etc.). This dictionary
+        MUST also have a "*" key. This is the default locale, used when
+        the locale provided is not included.
+        The values must be instances of the L{Locale} type.
+        @type dctResources: dict
+        """
         self.__resources = dctResources
 
     def getResource(self, sName, sLocale):
+        """Returns the string with the specified name in the
+        given locale.
+        
+        @param sName: The name of the string resource.
+        @type sName: str
+        
+        @param sLocale: The name of the locale.
+        @type sLocale: str
+        
+        @return: str
+        """
         dctLocale = self.__resources.setdefault(sLocale, self.__resources['*'])
         return dctLocale[sName]
         
     def getLocale(self, sLocale):
+        """Returns the requested locale object. If the
+        locale does not exist then the "*" locale is
+        returned.
+        
+        @param sLocale: The name of the locale.
+        @type sLocale: str
+
+        @return: L{Locale}
+        """
         return self.__resources.setdefault(sLocale, self.__resources['*'])
 
-dctResources = {}
-resDom = minidom.parse('conf/stringresources.xml') 
-for local in resDom.getElementsByTagName('locale'):
-    sLang = local.getAttribute('lang')
-    if not(dctResources.has_key(sLang)):
-        dctResources[sLang] = Locale()
-    localeResources = local.getElementsByTagName('res')
-    for resource in localeResources:
-        sType = ''
-        if resource.hasAttribute('type'):
-            sType = resource.getAttribute('type')
-        if not sType:
-            dctResources[sLang][resource.getAttribute('id')] = resource.childNodes[0].data.encode('utf-8')
-        elif sType == 'array':
-            dctResources[sLang][resource.getAttribute('id')] = resource.childNodes[0].data.encode('utf-8').split(';')
-        
-resDom.unlink()
-stringResources = ResourceStrings(dctResources)

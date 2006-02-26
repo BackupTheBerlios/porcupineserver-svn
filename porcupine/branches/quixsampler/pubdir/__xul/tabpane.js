@@ -18,18 +18,19 @@ TabPane.prototype = new Widget;
 TabPane.prototype.addTab = function(params) {
 	var oTabPane = this;
 	var iTabIndex = this.tabs.length;
-	var oTab = new Widget(
-		{
-			border:1,
-			padding:'6,6,4,6',
-			onclick:function(evt){oTabPane.activateTab(iTabIndex)},
-			onmouseover:Tab__mouseover,
-			onmouseout:Tab__mouseout
-		});
+	var oTab = new Widget({
+		border:1,
+		padding:'6,6,4,6',
+		overflow:'hidden',
+		height:26,
+		onclick:function(evt){oTabPane.activateTab(iTabIndex)},
+		onmouseover:Tab__mouseover,
+		onmouseout:Tab__mouseout
+	});
 	this.appendChild(oTab);
 	oTab.onactivate = getEventListener(params.onactivate);
 	oTab.setDisplay('inline');
-	oTab.setPos('relative');
+	oTab.setPosition('relative');
 	oTab.div.className = 'tab';
 	oTab.div.innerHTML = params.caption;
 	this.tabs.push(oTab);

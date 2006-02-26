@@ -46,7 +46,7 @@ selectObjectsDialog.search = function(evt, w) {
 	var sName = oRect.getWidgetById('displayName').getValue();
 	var sDesc = oRect.getWidgetById('description').getValue();
 	var isDeep = oRect.getWidgetById('deep').getValue();
-	var sID = oTree.getSelection().id;
+	var sID = oTree.getSelection().getId();
 	var sFrom;
 	
 	if (isDeep)
@@ -82,7 +82,7 @@ selectObjectsDialog.refreshList = function(treeNodeSelected) {
 	var xmlrpc = new XMLRPCRequest(QuiX.root);
 	var cc = oDialog.attributes.CC;
 	var sOql = "select id as value, __image__ as img, displayName as caption " +
-		"from '" + treeNodeSelected.id + "'";
+		"from '" + treeNodeSelected.getId() + "'";
 	if (cc != '*') sOql += " where " + selectObjectsDialog.getConditions(cc);
 	xmlrpc.oncomplete = selectObjectsDialog.refreshList_oncomplete;
 	xmlrpc.callback_info = treeNodeSelected.tree;

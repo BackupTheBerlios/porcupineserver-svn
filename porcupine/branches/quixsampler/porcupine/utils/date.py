@@ -18,7 +18,7 @@
 
 import time
 
-from porcupine.config.resources import stringResources
+from resources.system.strings import resources
 
 class Date(object):
     """
@@ -61,8 +61,7 @@ class Date(object):
                 -sec   seconds
                 -MM    locale's AM or PM
         @type format: str
-        @param locale: The locale string inside the C{stringResources.xml}
-            configuration file. If ommited the '*' is used.
+        @param locale: The locale string. If ommited the '*' is used.
         @type locale: str
         
         @return: The formatted string
@@ -75,16 +74,16 @@ class Date(object):
         iHours = tupTime[3]
         if iHours>12:
             iHours12 = iHours - 12
-            ampm = stringResources.getResource('PM', locale)
+            ampm = resources.getResource('PM', locale)
         else:
             iHours12 = iHours
-            ampm = stringResources.getResource('AM', locale)
+            ampm = resources.getResource('AM', locale)
         iMins = tupTime[4]
         iSecs = tupTime[5]
         iWeekday = tupTime[6]
 
-        months = stringResources.getResource('MONTHS', locale)
-        days = stringResources.getResource('DAYS', locale)
+        months = resources.getResource('MONTHS', locale)
+        days = resources.getResource('DAYS', locale)
         
         format = format.replace('yyyy', sYear)
         format = format.replace('yy', sYear[1:3])

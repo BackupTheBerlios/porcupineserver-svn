@@ -31,7 +31,7 @@ function Clipboard() {
 }
 
 var QuiX = function() {}
-QuiX.version = '0.3 build 20051117';
+QuiX.version = '0.4 build 20060221';
 QuiX.namespace = 'http://www.innoscript.org/quix';
 QuiX.browser = 'moz';
 QuiX.startX = 0;
@@ -51,7 +51,7 @@ QuiX.modules = [
 	new Module('Windows and Dialogs', '__xul/windows.js', [3]),
 	new Module('Menus', '__xul/menus.js', [3]),
 	new Module('Splitter', '__xul/splitter.js', [3]),
-	new Module('Labels & Buttons', '__xul/buttons.js', [1]),
+	new Module('Labels & Buttons', '__xul/buttons.js', []),
 	new Module('Tab Pane', '__xul/tabpane.js', []),
 	new Module('List View', '__xul/listview.js', []),
 	new Module('Tree', '__xul/tree.js', []),
@@ -60,8 +60,9 @@ QuiX.modules = [
 	new Module('Common Widgets', '__xul/common.js', [3]),
 	new Module('Datagrid', '__xul/datagrid.js', [5,8]),
 	new Module('File Control', '__xul/file.js', [3,8]),
-	new Module('Date Picker', '__xul/datepicker.js', [9]),
+	new Module('Date Picker', '__xul/datepicker.js', [14]),
 	new Module('Timers', '__xul/timers.js', []),
+	new Module('Forms & Fields 2', '__xul/formfields2.js', [3]),
 ];
 QuiX.tags = {
 	'desktop':-1,'xhtml':-1,'script':-1,'prop':-1,'rect':-1,'progressbar':-1,
@@ -73,12 +74,13 @@ QuiX.tags = {
 	'listview':5,
 	'tree':6,'treenode':6,'foldertree':6,
 	'toolbar':7,'tbbutton':7,'outlookbar':7,'tool':7,
-	'field':8,'selectlist':8,'form':8,
-	'hr':9,'combo':9,'spinbutton':9,
+	'field':8,'form':8,'spinbutton':8,
+	'hr':9,
 	'datagrid':10,
 	'file':11,'multifile':11,
 	'datepicker':12,
-	'timer':13
+	'timer':13,
+	'combo':14,'selectlist':14
 };
 QuiX.Exception = function(name, msg) {
 	this.name = name;
@@ -98,28 +100,29 @@ QuiX.removeWidget = function(w) {
 		QuiX.removeWidget(w.widgets[0]);
 	if (w.parent) {
 		w.parent.widgets.removeItem(w);
-		if (w.id) delete(w.parent._id_widgets[w.id]);
+		if (w._id)
+			w._removeIdRef();
 	}
 
 	w._detachEvents();
 	
 	parentElement = w.div.parentNode;
-	parentElement.removeChild(w.div);
+	if (parentElement)
+		parentElement.removeChild(w.div);
 
 	w._registry = null;
 	w.div = null;
 	w = null;
 }
 QuiX.createOutline = function(w) {
-	var oW = new Widget(
-		{
-			left:w._calcLeft(),
-			top:w._calcTop(),
-			width:w.getWidth(true),
-			height:w.getHeight(true),
-			border:2,
-			overflow:'hidden'
-		});
+	var oW = new Widget({
+		left:w.left,
+		top:w.top,
+		width:w.getWidth(true),
+		height:w.getHeight(true),
+		border:2,
+		overflow:'hidden'
+	});
 	w.parent.appendChild(oW, true);
 	oW.minw = w.minw;
 	oW.minh = w.minh;
@@ -470,28 +473,17 @@ XULParser.prototype.parseXul = function(oNode, parentW, prm) {
 				break;
 			case 'contextmenu':
 				oWidget = new ContextMenu(params, parentW);
-				parentW.attachEvent('oncontextmenu', function(event, target) {
-					oWidget.show(document.desktop, event.clientX, event.clientY);
-				});
+				parentW.contextMenu = oWidget;
+				parentW.attachEvent('oncontextmenu', Widget__contextmenu);
 				appendIt = false;
 				break;
 			case 'menuoption':
-				if (prm.option) {
-					fparams.option = new MenuOption(params);
-					prm.option.options.push(fparams.option);
-				}
-				else {
-					fparams.option = parentW.addOption(params);
-				}
+				oWidget = parentW.addOption(params);
 				appendIt = false;
-				oWidget = fparams.option;
 				break;
 			case 'sep':
 				checkForChilds = false;
-				if (prm.option)
-					prm.option.options.push(-1);
-				else
-					parentW.options.push(-1);
+				oWidget = parentW.addOption(-1);
 				appendIt = false;
 				break;
 			case 'hr':
@@ -581,14 +573,19 @@ function QImage(url) {
 
 QImage.prototype.load = function(parser) {
 	this.parser = parser;
-	var img = new Image();
+	var img = new Image;
 	QuiX.images.push(this.url);
 	img.resource = this;
 	img.onload = Resource_onstatechange;
 	img.src = this.url;
+	img.style.display = 'none';
+	img.height = 0;
+	img.width = 0;
+	document.body.appendChild(img);
 }
 
 Resource_onstatechange = function() {
+	if (this.tagName=='IMG') document.body.removeChild(this);
 	this.resource.isLoaded = true;
 	this.resource.parser.loadModules();
 }
@@ -600,41 +597,37 @@ function Widget(params) {
 	this.top = params.top || 0;
 	this.width = params.width || null;
 	this.height = params.height || null;
-	this.borderWidth = params.border || 0;
-	this.style = params.style || '';
-	this.bgColor = params.bgcolor || '';
-	this.overflow = params.overflow || '';
-	if (params.padding) {
-		this.padding = params.padding.split(',');
-		for (var i=0; i<this.padding.length; i++)
-			this.padding[i]=parseInt(this.padding[i]);
-	}
-	else
-		this.padding = [0,0,0,0];
 	this.minw = 0;
 	this.minh = 0;
 	this.isHidden = false;
 	this.widgets = [];
 	this._id_widgets = {};
 	this.attributes = params.attributes || {};
-	this.isAbs = true;
 	this.maxz = 0;
-	this.display = '';
 	this._isDisabled = false;
+	this.contextMenu = null;
 
 	this.div = ce('DIV');
-	this.div.setAttribute('style', this.style);
+	if (params.style) this.div.setAttribute('style', params.style);
 	this.div.widget = this;
 
+	this._id = undefined;
 	if (params.id) {
-		this.id = params.id;
-		this.div.id = this.id;
+		this.setId(params.id)
 	}
 	
+	if (params.bgcolor)
+		this.setBgColor(params.bgcolor);
+	this.setBorderWidth(parseInt(params.border) || 0);
+	if (params.padding) {
+		var padding = params.padding.split(',');
+		this.setPadding(padding);
+	}
+	else
+		this.setPadding([0,0,0,0]);
 	if (params.display) this.setDisplay(params.display);
-	this.div.style.position = 'absolute';
-	this.div.style.overflow = this.overflow;
-	this.div.style.backgroundColor = this.bgColor;
+	if (params.overflow) this.setOverflow(params.overflow);
+	this.setPosition('absolute');
 	
 	this._buildEventRegistry(params);
 	this._attachEvents();
@@ -644,25 +637,12 @@ function Widget(params) {
 
 Widget.prototype.appendChild = function(w) {
 	this.widgets.push(w);
-	if (w.id) {
-		if (this._id_widgets[w.id])
-			this._id_widgets[w.id].push(w);
-		else
-			this._id_widgets[w.id] = [w];
-	}
 	w.parent = this;
+	if (w._id)
+		w._addIdRef();
 	this.div.appendChild(w.div);
-	w.repad();
 	w.redraw();
 	w.bringToFront();
-}
-
-Widget.prototype.repad = function() {
-	this.div.style.paddingLeft = this.padding[0] + 'px';
-	this.div.style.paddingRight = this.padding[1] + 'px';
-	this.div.style.paddingTop = this.padding[2] + 'px';
-	this.div.style.paddingBottom = this.padding[3] + 'px';
-	this.div.style.borderWidth = this.borderWidth + 'px';
 }
 
 Widget.prototype.supportedEvents = [
@@ -685,10 +665,12 @@ Widget.prototype._buildEventRegistry = function(params) {
 
 Widget.prototype._attachEvents = function() {
 	for (var evt_type in this._registry) {
-		this.attachEvent(
-			evt_type,
-			this._registry[evt_type]
-		);
+		if (evt_type!='toXMLRPC') {
+			this.attachEvent(
+				evt_type,
+				this._registry[evt_type]
+			);
+		}
 	}
 }
 
@@ -717,7 +699,7 @@ Widget.prototype.disable = function(w) {
 
 Widget.prototype.enable = function(w) {
 	w = w || this;
-	w.div.style.color = w.statecolor;
+	w.div.style.color = w.statecolor || '';
 	w.div.style.cursor = w.statecursor || '';
 	if (w._isDisabled) w._attachEvents();
 	w._isDisabled = false;
@@ -726,10 +708,17 @@ Widget.prototype.enable = function(w) {
 	}
 }
 
+Widget.prototype.detach = function() {
+	this.parent.widgets.removeItem(this);
+	if (this._id)
+		this._removeIdRef();
+	this.parent = null;
+	this.div = this._detach();
+}
+
 Widget.prototype.parse = function(dom, callback) {
 	var parser = new XULParser();
 	parser.oncomplete = callback;
-	//alert(callback);
 	parser.parse(dom, this);
 }
 
@@ -743,7 +732,6 @@ Widget.prototype.parseFromUrl = function(url, oncomplete) {
 	var oWidget = this;
 	xmlhttp.onreadystatechange = function() {
 		if (xmlhttp != null && xmlhttp.readyState==4) {
-			//uidom = xmlhttp.responseText;
 			oWidget.parse(xmlhttp.responseXML, oncomplete);
 			xmlhttp = null;
 		}
@@ -789,26 +777,112 @@ Widget.prototype._setAbsProps = function () {
 Widget.prototype._setCommonProps = function (w) {
 	var w = w || this;
 	if (w.parent) {
-		if (w.height=='100%' && w.width=='100%' && w.parent.overflow!='hidden') {
-			w.parent.div.style.overflow='hidden';
+		var parentOverflow = w.parent.getOverflow();
+		if (w.height=='100%' && w.width=='100%' && parentOverflow!='hidden') {
+			w.parent.setOverflow('hidden');
+			w.parent.attributes.__old_overflow = parentOverflow;
 		}
-		else if (w.parent.overflow!='hidden' && w.parent.div.style.overflow != w.parent.overflow) {
-			w.parent.div.style.overflow=w.parent.overflow;
+		else if (w.parent.attributes.__old_overflow) {
+			w.parent.setOverflow(w.parent.attributes.__old_overflow);
+			w.parent.attributes.__old_overflow = null;
 		}
 	}
+	
 	if (w.height!=null) w.div.style.height = w._calcHeight() + 'px';
 	if (w.width!=null) w.div.style.width = w._calcWidth() + 'px';
-	w.div.style.backgroundColor = this.bgColor;
 }
 
-Widget.prototype.setDisplay = function (sDispl, sPos) {
-	this.display = sDispl;
+Widget.prototype._removeIdRef = function()
+{
+	this.parent._id_widgets[this._id].removeItem(this);
+	if (this.parent._id_widgets[this._id].length == 0)
+		delete this.parent._id_widgets[this._id];
+}
+
+Widget.prototype._addIdRef = function()
+{
+	if (this.parent._id_widgets[this._id])
+		this.parent._id_widgets[this._id].push(this);
+	else
+		this.parent._id_widgets[this._id] = [this];
+}
+
+// id attribute
+Widget.prototype.setId = function(id) {
+	if (this.parent && this._id)
+		this._removeIdRef();
+	this._id = id;
+	this.div.id = id;
+	if (this.parent)
+		this._addIdRef();
+}
+Widget.prototype.getId = function() {
+	return this._id;
+}
+
+// bgColor attribute
+Widget.prototype.setBgColor = function(color) {
+	this.div.style.backgroundColor = color;
+}
+Widget.prototype.getBgColor = function() {
+	return this.div.style.backgroundColor;
+}
+
+//borderWidth attribute
+Widget.prototype.setBorderWidth = function(iWidth) {
+	this.div.style.borderWidth = iWidth + 'px';
+}
+Widget.prototype.getBorderWidth = function() {
+	return parseInt(this.div.style.borderWidth);
+}
+
+//display attribute
+Widget.prototype.setDisplay = function (sDispl) {
 	this.div.style.display = sDispl || '';
 }
+Widget.prototype.getDisplay = function () {
+	return this.div.style.display;
+}
 
-Widget.prototype.setPos = function (sPos) {
-	this.isAbs = (sPos=='absolute')? true:false;
+//overflow attribute
+Widget.prototype.setOverflow = function(sOverflow) {
+	this.div.style.overflow = sOverflow;
+}
+Widget.prototype.getOverflow = function() {
+	return this.div.style.overflow;
+}
+
+//position attribute
+Widget.prototype.setPosition = function(sPos) {
 	this.div.style.position = sPos || '';
+}
+Widget.prototype.getPosition = function() {
+	return this.div.style.position;
+}
+
+//padding attribute
+Widget.prototype.setPadding = function(arrPadding) {
+	this.div.style.paddingLeft = arrPadding[0] + 'px';
+	this.div.style.paddingRight = arrPadding[1] + 'px';
+	this.div.style.paddingTop = arrPadding[2] + 'px';
+	this.div.style.paddingBottom = arrPadding[3] + 'px';
+}
+Widget.prototype.getPadding = function() {
+	var padding = [
+		parseInt(this.div.style.paddingLeft),
+		parseInt(this.div.style.paddingRight),
+		parseInt(this.div.style.paddingTop),
+		parseInt(this.div.style.paddingBottom)
+	];
+	return padding;
+}
+
+Widget.prototype.addPaddingOffset = function(where, iOffset) {
+	var old_offset = eval('parseInt(this.div.style.padding' + where + ')');
+	var new_offset = old_offset + iOffset;
+	if (new_offset < 0)
+		new_offset = 0;
+	eval('this.div.style.padding' + where + '="' + new_offset + 'px"');
 }
 
 Widget.prototype._mustRedraw = function () {
@@ -820,7 +894,7 @@ Widget.prototype.getHeight = function(b) {
 	b = b || false;
 	hg = parseInt(this.div.style.height);
 	if (b) {
-		ofs = this.padding[2] + this.padding[3] + 2*this.borderWidth;
+		ofs = parseInt(this.div.style.paddingTop) + parseInt(this.div.style.paddingBottom) + 2*this.getBorderWidth();
 		hg += ofs;
 	}
 	return hg;
@@ -831,72 +905,69 @@ Widget.prototype.getWidth = function(b) {
 	b = b || false;
 	wd = parseInt(this.div.style.width);
 	if (b) {
-		ofs = this.padding[0]+this.padding[1]+2*this.borderWidth;
+		var padding = this.getPadding();
+		ofs = padding[0] + padding[1] + 2*this.getBorderWidth();
 		wd += ofs;
 	}
 	return wd;
 }
 
-Widget.prototype.getLeft = function(b) {
+Widget.prototype.getLeft = function() {
 	var ofs, lf;
-	b = b || false;
 	lf = parseInt(this.div.style.left);
-	if (b) {
-		ofs = this.padding[0]+this.borderWidth;
-		lf -= ofs
-	}
+	ofs = this.parent.getPadding()[0];
+	lf -= ofs
 	return lf;
 }
 
-Widget.prototype.getTop = function(b) {
+Widget.prototype.getTop = function() {
 	var ofs, rg;
-	b = b || false;
 	rg = parseInt(this.div.style.top);
-	if (b) {
-		ofs = this.padding[2]+this.borderWidth;
-		rg -= ofs
-	}
+	ofs = this.parent.getPadding()[2];
+	rg -= ofs
 	return rg;
 }
 
 Widget.prototype._calcHeight = function(b) {
 	var offset = 0;
-	if (!b)	offset = this.padding[2]+this.padding[3]+2*this.borderWidth;
+	if (!b)	offset = parseInt(this.div.style.paddingTop) + parseInt(this.div.style.paddingBottom) + 2*this.getBorderWidth();
 	if (!isNaN(this.height)) {
-		return(parseInt(this.height)-offset);
+		return (parseInt(this.height)-offset);
 	}
 	else if (typeof(this.height)=='function') {
-		var w = this.height(this)-offset;
+		var w = (this.height(this)-offset) || 0;
 		return(w>0?w:0)
 	}
 	else if (this.height.slice(this.height.length-1)=='%') {
 		var perc = parseInt(this.height)/100;
-		var nh = parseInt(this.parent.getHeight()*perc)-offset;
+		var nh = (parseInt(this.parent.getHeight()*perc)-offset) || 0;
 		return(nh>0?nh:0);
 	}
 	else {
-		var w = eval(this.height) - offset;
+		var w = (eval(this.height) - offset) || 0;
 		return(w>0?w:0);
 	}
 }
 
 Widget.prototype._calcWidth = function(b) {
 	var offset = 0;
-	if (!b) offset = this.padding[0]+this.padding[1]+2*this.borderWidth;
+	if (!b) {
+		offset = parseInt(this.div.style.paddingLeft) + parseInt(this.div.style.paddingRight) + 2*this.getBorderWidth();
+	}
 	if (!isNaN(this.width)) {
-		return(parseInt(this.width)-offset);
+		return (parseInt(this.width)-offset);
 	}
 	else if (typeof(this.width)=='function') {
-		var w = this.width(this)-offset;
+		var w = (this.width(this)-offset) || 0;
 		return(w>0?w:0)
 	}
 	else if (this.width.slice(this.width.length-1)=='%') {
 		var perc = parseInt(this.width)/100;
-		var nw = parseInt(this.parent.getWidth()*perc) - offset;
+		var nw = (parseInt(this.parent.getWidth()*perc) - offset) || 0;
 		return(nw>0?nw:0);
 	}
 	else {
-		var w = eval(this.width)-offset;
+		var w = (eval(this.width)-offset) || 0;
 		return(w>0?w:0);
 	}
 }
@@ -904,53 +975,57 @@ Widget.prototype._calcWidth = function(b) {
 Widget.prototype._calcLeft = function() {
 	if (!isNaN(this.left)) {
 		var l = parseInt(this.left);
-		if (this.parent) l+= this.parent.padding[0];
+		if (this.parent) l+= this.parent.getPadding()[0];
 		return(l);
 	}
 	else if (typeof(this.left)=='function') {
-		var w = this.left(this);
-		return(w>0?w:0)
+		var w = this.left(this) || 0;
+		return(w);
 	}
 	else if (this.left.slice(this.left.length-1)=='%') {
 		var perc = parseInt(this.left)/100;
-		return(this.parent.getWidth() * perc);
+		return (this.parent.getWidth() * perc) || 0;
 	}
 	else {
 		if (this.left!='center')
-			return(eval(this.left));
+			return(eval(this.left) || 0);
 		else 
-			return parseInt((this.parent.getWidth()/2) - (this.getWidth(true)/2));
+			return parseInt((this.parent.getWidth()/2) - (this.getWidth(true)/2)) || 0;
 	}
 }
 
 Widget.prototype._calcTop = function() {
 	if (!isNaN(this.top)) {
 		var t = parseInt(this.top);
-		if (this.parent) t+= this.parent.padding[2];
+		if (this.parent) t+= this.parent.getPadding()[2];
 		return(t);
 	}
 	else if (typeof(this.top)=='function') {
-		var w = this.top(this);
-		return(w>0?w:0)
+		var w = this.top(this) || 0;
+		return(w);
 	}
 	else if (this.top.slice(this.top.length-1)=='%') {
 		var perc = parseInt(this.top)/100;
-		return(this.parent.getHeight() * perc);
+		return (this.parent.getHeight() * perc) || 0;
 	}
 	else {
 		if (this.top!='center')
-			return(eval(this.top));
+			return(eval(this.top) || 0);
 		else
-			return parseInt((this.parent.getHeight()/2) - (this.getHeight(true)/2));
+			return parseInt((this.parent.getHeight()/2) - (this.getHeight(true)/2)) || 0;
 	}
 }
 
 Widget.prototype.getScreenLeft = function() {
 	var oElement = this.div;
-	iX = 0
-	while(oElement.tagName!='HTML')
+	var iX = 0, b;
+	while(oElement && oElement.tagName && oElement.tagName!='HTML')
 	{
-		if (oElement.tagName!='TR') iX += oElement.offsetLeft - oElement.scrollLeft;
+		if (oElement.tagName!='TR')
+			iX += oElement.offsetLeft - oElement.scrollLeft;
+		b = parseInt(oElement.style.borderWidth);
+		if (b)
+			iX += b;
 		oElement = oElement.parentNode;
 	}
 	return(iX);
@@ -958,9 +1033,13 @@ Widget.prototype.getScreenLeft = function() {
 
 Widget.prototype.getScreenTop = function() {
 	var oElement = this.div;
-	iY = 0
-	while(oElement.tagName!='HTML') {
-		if (oElement.tagName!='TR') iY += oElement.offsetTop - oElement.scrollTop;
+	var iY = 0, b;
+	while(oElement && oElement.tagName && oElement.tagName!='HTML') {
+		if (oElement.tagName!='TR')
+			iY += oElement.offsetTop - oElement.scrollTop;
+		b = parseInt(oElement.style.borderWidth);
+		if (b)
+			iY += b;
 		oElement = oElement.parentNode;
 	}
 	return(iY);
@@ -980,8 +1059,8 @@ Widget.prototype.click = function(w) {
 }
 
 Widget.prototype.moveTo = function(x,y) {
-	this.left = x>0?x:0;
-	this.top = y>0?y:0;
+	this.left = x;
+	this.top = y;
 	this.redraw();
 }
 
@@ -1059,8 +1138,8 @@ Widget.prototype._startMove = function(evt) {
 Widget.prototype._moving = function(evt) {
 	offsetX = evt.clientX - QuiX.startX;
 	offsetY = evt.clientY - QuiX.startY;
-	QuiX.tmpWidget.moveTo(this._calcLeft() + offsetX,
-				this._calcTop() + offsetY);	
+	QuiX.tmpWidget.moveTo(this.getLeft() + offsetX,
+				this.getTop() + offsetY);	
 }
 
 Widget.prototype._endMove = function(evt) {
@@ -1069,8 +1148,8 @@ Widget.prototype._endMove = function(evt) {
 	QuiX.tmpWidget.destroy();
 	offsetX = evt.clientX - QuiX.startX;
 	offsetY = evt.clientY - QuiX.startY;
-	this.moveTo(this.div.offsetLeft + offsetX,
-				this.div.offsetTop + offsetY);
+	this.moveTo(this.getLeft() + offsetX,
+				this.getTop() + offsetY);
 	this.bringToFront();
 	this.parent.div.style.cursor = '';
 }
@@ -1087,20 +1166,26 @@ Widget.prototype._detach = function() {
 	return(this.div);
 }
 
-Widget.prototype.redraw = function(bForceAll) {
-	var container = this.div.parentNode;
-	var frag = document.createDocumentFragment();
-	var root = this._detach();
-	frag.appendChild(root);
-	this._redraw(bForceAll);
-	container.appendChild(frag);
+Widget.prototype.redraw = function(bForceAll, w) {
+	var w = w || this;
+	var container = w.div.parentNode;
+	if (container) {
+		var frag = document.createDocumentFragment();
+		var root = w._detach();
+		frag.appendChild(root);
+		try {
+			w._redraw(bForceAll);
+		}
+		finally {
+			container.appendChild(frag);
+		}
+	}
 }
 
 Widget.prototype._redraw = function(bForceAll) {
 	if (!this.isHidden) {
 		this._setCommonProps();
-		if (this.isAbs) this._setAbsProps();
-
+		if (this.getPosition()!='') this._setAbsProps();
 		for (var i=0; i<this.widgets.length; i++) {
 			if (this.widgets[i]._mustRedraw() || bForceAll) this.widgets[i].redraw(bForceAll);
 		}
@@ -1141,24 +1226,21 @@ Widget.prototype.attachEvent = function(eventType, f) {
 	}
 	if (typeof f=='string')
 		f = getEventListener(f);
-	if (eventType!='__onscroll') {
-		if (f) {
-			var handler = function(e){return f(e, oWidget)};
-			this._registry[eventType] = handler;
-		}
-		else
-			handler = this._registry[eventType];
-		this.div.addEventListener(eventType.slice(2,eventType.length), handler, false);
+	if (f) {
+		var handler = function(e){return f(e, oWidget)};
+		this._registry[eventType] = handler;
 	}
-	else {
-		var intid = window.setInterval( function() {
-			oWidget.__onscroll(null, oWidget);
-		}, 200);	
-	}
+	else
+		handler = this._registry[eventType];
+	this.div.addEventListener(eventType.slice(2,eventType.length), handler, false);
 }
 
 Widget.prototype.detachEvent = function(eventType) {
 	this.div.removeEventListener(eventType.slice(2,eventType.length), this._registry[eventType], false);
+}
+
+function Widget__contextmenu(evt, w) {
+	w.contextMenu.show(document.desktop, evt.clientX, evt.clientY);
 }
 
 //Desktop class
@@ -1171,7 +1253,6 @@ function Desktop(params, root) {
 	params.onmousedown = QuiX.getEventWrapper(Desktop__onmousedown, params.onmousedown);
 	params.oncontextmenu = function(evt){QuiX.cancelDefault( evt )}
 	this.base(params);
-	this.setPos();
 	this._setCommonProps();
 	this.div.innerHTML = '<p align="right" style="color:#666666;margin:0px;">QuiX v' + QuiX.version + '</p>';
 	root.appendChild(this.div);

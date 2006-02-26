@@ -25,4 +25,5 @@
 	<context path="tree.js" method="GET" client=".*" lang=".*" action="tree.js"/>
 	<context path="windows.js" method="GET" client=".*" lang=".*" action="windows.js"/>
 	<context path="timers.js" method="GET" client=".*" lang=".*" action="timers.js"/>
+	<context path="formfields2.js" method="GET" client=".*" lang=".*" action="formfields2.js"/>
 </config>

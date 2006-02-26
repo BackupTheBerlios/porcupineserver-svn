@@ -14,11 +14,20 @@ recycleBin.loadItem = function(evt, w, o) {
 
 recycleBin.listMenu_show = function(menu) {
 	var oItemList = menu.owner.getWidgetsByType(ListView)[0];
-	menu.options[0].disabled = (oItemList.selection.length == 0);//restore
-	menu.options[1].disabled = !(oItemList.selection.length == 1);//restore to
-	menu.options[2].disabled = (oItemList.selection.length == 0);//delete
-	menu.options[4].disabled = (oItemList.dataSet.length == 0);//empty
-	menu.options[6].disabled = !(oItemList.selection.length == 1);//properties
+	if (oItemList.selection.length == 0) {
+		menu.options[0].disable();//restore
+		menu.options[1].disable();//restore to
+		menu.options[2].disable();//delete
+		menu.options[4].disable();//empty
+		menu.options[6].disable();//properties
+	}
+	else {
+		menu.options[0].enable();//restore
+		menu.options[1].enable();//restore to
+		menu.options[2].enable();//delete
+		menu.options[4].enable();//empty
+		menu.options[6].enable();//properties
+	}
 }
 
 recycleBin.getContainerInfo = function(w) {
@@ -64,11 +73,11 @@ recycleBin.restoreTo = function(evt, w) {
 recycleBin.empty = function(evt, w) {
 	var desktop = document.desktop;
 	var win;
-	if (w.parent.owner) w = w.parent.owner;
-	win = w.getParentByType(Window);
+	var win_elem = (w.parent.owner)?w.parent.owner:w;
+	win = win_elem.getParentByType(Window);
 	var rbid = win.attributes.FolderID;
 	
-	_empty = function(evt, w) {
+	var _empty = function(evt, w) {
 		w.getParentByType(Dialog).close();
 		var xmlrpc = new XMLRPCRequest(QuiX.root + rbid);
 		xmlrpc.oncomplete = function(req) {
@@ -76,8 +85,8 @@ recycleBin.empty = function(evt, w) {
 		}
 		xmlrpc.callmethod('empty');
 	}
-
-	desktop.msgbox(w.caption, 
+	
+	desktop.msgbox(w.getCaption(), 
 		"Are you sure you want to empty the recycle bin?",
 		[
 			[desktop.attributes['YES'], 60, _empty],
@@ -108,43 +117,47 @@ recycleBin.restoreItem = function(evt, w) {
 			recycleBin.getContainerInfo(win);
 		}
 	}
-	var dlg = generic.getProcessDialog(w.caption, items.length, _startRestoring);
+	var dlg = generic.getProcessDialog(w.getCaption(), items.length, _startRestoring);
 }
 
 recycleBin.deleteItem = function(evt, w) {
 	var win = w.parent.owner.getParentByType(Window);
-	var sCaption = w.caption;
+	var sCaption = w.getCaption();
 	var desktop = document.desktop;
 
-	_deleteItem = function(evt, w) {
+	var _deleteItem = function(evt, w) {
 		w.getParentByType(Dialog).close();
 		var items = win.getWidgetById("itemslist").getSelection();
 		if (!(items instanceof Array)) items = [items];
 		items.reverse();
-		var dlg = generic.getProcessDialog(sCaption, items.length);
-		_startDeleting = function(req) {
+		var _startDeleting = function(w) {
+			w = w.callback_info || w;
 			if (items.length > 0) {
 				var item = items.pop();
-				var pb = dlg.getWidgetById("pb");
+				var pb = w.getWidgetById("pb");
 				pb.increase(1);
 				pb.widgets[1].setCaption(item.displayName);
 				var xmlrpc = new XMLRPCRequest(QuiX.root + item.id);
 				xmlrpc.oncomplete = _startDeleting;
+				xmlrpc.callback_info = w;
+				xmlrpc.onerror = function(req) {
+					w.close();
+				}
 				xmlrpc.callmethod('delete');
 			}
 			else {
-				dlg.close();
+				w.close();
 				recycleBin.getContainerInfo(win);
 			}
 		}
-		_startDeleting();
+		generic.getProcessDialog(sCaption, items.length, _startDeleting);
 	}
 	
-	desktop.msgbox(w.caption, 
+	desktop.msgbox(w.getCaption(), 
 		"Are you sure you want to PERMANENTLY delete the selected items?",
 		[
 			[desktop.attributes['YES'], 60, _deleteItem],
 			[desktop.attributes['NO'], 60]
 		],
-		'/images/messagebox_warning.gif', 'center', 'center', 260, 112);
+		'images/messagebox_warning.gif', 'center', 'center', 280, 112);
 }

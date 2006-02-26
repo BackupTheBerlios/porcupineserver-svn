@@ -20,6 +20,14 @@
 import getopt, sys, os, cPickle, tarfile, ConfigParser, imp
 from xml.dom import minidom
 
+def main_is_frozen():
+   return (hasattr(sys, "frozen") or # new py2exe
+           hasattr(sys, "importers") # old py2exe
+           or imp.is_frozen("__main__")) # tools/freeze
+
+if main_is_frozen():
+    sys.path.insert(0, '')
+
 from porcupine import datatypes
 from porcupine import serverExceptions
 from porcupine.administration import offlinedb, configfiles
@@ -174,22 +182,6 @@ class Package(object):
             _dom.unlink()
             conf_file.close()
 
-        # string resources
-        if '_resources.xml' in contents:
-            print 'INFO: installing package resources...'
-            resfile = self.package_file.extractfile('_resources.xml')
-            _dom = minidom.parse(resfile)
-            package_node = _dom.getElementsByTagName('package')[0]
-            package_node = package_node.cloneNode(True)
-            conf_file = configfiles.ConfigFileManager('conf/stringresources.xml')
-            old_node = conf_file.getPackageNode(self.name)
-            if old_node:
-                conf_file.replacePackageNode(package_node, old_node)
-            else:
-                conf_file.addPackageNode(package_node)
-            _dom.unlink()
-            conf_file.close()
-            
         # published directories
         if '_pubdir.xml' in contents:
             print 'INFO: installing published directories...'
@@ -262,14 +254,6 @@ class Package(object):
             conf_file.removePackageNode(pkgnode)
             conf_file.close()
         
-        # string resources
-        conf_file = configfiles.ConfigFileManager('conf/stringresources.xml')
-        pkgnode = conf_file.getPackageNode(self.name)
-        if pkgnode:
-            print 'INFO: removing package resources'
-            conf_file.removePackageNode(pkgnode)
-            conf_file.close()
-            
         # database items
         items = self.config_file.options('items')
         itemids = [self.config_file.get('items', x) for x in items]
@@ -334,7 +318,7 @@ class Package(object):
             for dir_node in dir_nodes:
                 #app_node = app_node.cloneNode(True)
                 dir_name = dir_node.getAttribute('name')
-                print 'INFO: uninstalling published directory "%s"' % app_name
+                print 'INFO: uninstalling published directory "%s"' % dir_name
                 old_node = dirsConfig.getDirNode(dir_name)
                 if old_node:
                     dirsConfig.removeDirNode(old_node)
@@ -367,26 +351,6 @@ class Package(object):
         else:
             print 'WARNING: Package "' + self.name + '" has no registrations'
         
-        # resources
-        conf_file = configfiles.ConfigFileManager('conf/stringresources.xml')
-        pkgnode = conf_file.getPackageNode(self.name)
-        if pkgnode:
-            print 'INFO: extracting package resources'
-            resFile = file(serverSettings.temp_folder + '/_resources.xml', 'w')
-            resFile.write('<?xml version="1.0" encoding="utf-8"?>' + \
-                '<resources>\n' + pkgnode.toxml('utf-8') + '\n</resources>')
-            resFile.close()
-            self.package_files.append(
-                (
-                    self.package_file.gettarinfo(
-                        resFile.name, os.path.basename(resFile.name)
-                    ),
-                    resFile.name
-                )
-            )
-        else:
-            print 'WARNING: Package "' + self.name + '" has no resources'
-        
         # files
         files = self.config_file.options('files')
         for fl in files:
@@ -411,7 +375,7 @@ class Package(object):
             dir_nodes = []
             for dir in pubdirs:
                 dirname = self.config_file.get('pubdir', dir)
-                print 'INFO: adding published directory "%s"' % appname
+                print 'INFO: adding published directory "%s"' % dirname
                 dir_node = dirsConfig.getDirNode(dirname)
                 if dir_node:
                         dir_nodes.append(dir_node)
@@ -502,11 +466,6 @@ def usage():
     print __usage__
     sys.exit(2)
 
-def main_is_frozen():
-   return (hasattr(sys, "frozen") or # new py2exe
-           hasattr(sys, "importers") # old py2exe
-           or imp.is_frozen("__main__")) # tools/freeze
-
 if __name__=='__main__':
     # get arguments
     argv = sys.argv[1:]
@@ -520,9 +479,6 @@ if __name__=='__main__':
     command = None
     package = None
     definition = None
-
-    if main_is_frozen():
-        sys.path.insert(0, '')
 
     if opts:
         for opt, arg in opts:                

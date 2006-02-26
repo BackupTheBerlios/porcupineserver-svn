@@ -9,9 +9,9 @@ function Label(params) {
 	this.base = Widget;
 	this.base(params);
 
-	this.div.className = 'label';	
-	this.div.style.textAlign = params.align || 'left';
-	this.div.style.color = params.color;
+	this.div.className = 'label';
+	this.align = params.align || 'left';
+	this.div.style.color = params.color || '';
 
 	this.canSelect = (params.canselect=="true" || params.canselect==true)?true:false;
 	if (this.canSelect) {
@@ -19,14 +19,25 @@ function Label(params) {
 		this.div.style.cursor = 'text';
 	}
 	
-	this.caption = params.caption || '';
-	if (this.caption) this.div.innerHTML += '<span>' + this.caption + '</span>';
+	var sCaption = params.caption || '';
+	this.div.innerHTML += '<span>' + sCaption + '</span>';
 }
 
 Label.prototype = new Widget;
 
 Label.prototype.setCaption = function(s) {
 	this.div.getElementsByTagName('SPAN')[0].innerHTML = s;
+}
+
+Label.prototype.getCaption = function(s) {
+	return(this.div.getElementsByTagName('SPAN')[0].innerHTML);
+}
+
+Label.prototype.redraw = function(bForceAll, w) {
+	var w = w || this;
+	w.div.style.textAlign = w.align;
+	if (w.parent)
+		Widget.prototype.redraw(bForceAll, w);
 }
 
 function Label__onmousedown(evt, w) {
@@ -38,53 +49,86 @@ function Icon(params) {
 	params = params || {};
 	params.border = params.border || 0;
 	params.canSelect = false;
+	params.align = params.align || 'center';
 	
 	this.base = Label;
 	this.base(params);
-	this.div.style.textAlign = params.align || 'center';
 	this.img = params.img || null;
-	if (this.img)	{
-		var img = QuiX.getImage(params.img);
-		img.style.verticalAlign = 'middle';
-		var oIcon = this;
-
-		if (this.caption) {
-			imgalign = params.imgalign || 'left';
-			switch(imgalign) {
-				case "left":
-					img.style.marginRight = '2px';
-					this.div.insertBefore(img, this.div.firstChild);
-					break;
-				case "right":
-					img.style.marginLeft = '2px';
-					this.div.appendChild(img);
-					break;
-				case "top":
-					this.div.insertBefore(ce('BR'), this.div.firstChild);
-					this.div.insertBefore(img, this.div.firstChild);
-					break;
-				case "bottom":
-					this.div.appendChild(ce('BR'));
-					this.div.appendChild(img);
-			}
-		 } else {
-			img.style.verticalAlign = params.imgalign || 'middle';
-			this.div.appendChild(img);
-		}
-	}
+	this.imageElement = null;
+	this.imgAlign = params.imgalign || 'left';
+	this.redraw(true);
 }
 
 Icon.prototype = new Label;
 
-Icon.prototype.changeImage = function(s) {
-	this.div.firstChild.src = s;
+Icon.prototype.setImageURL = function(s) {
+	this.imageElement.src = s;
+}
+
+Icon.prototype._addDummyImage = function() {
+	var img = QuiX.getImage('images/transp.gif');
+	img.style.verticalAlign = 'middle';
+	img.style.height = '100%';
+	img.style.width = '1px';
+	if (this.imgAlign=='right') {
+		this.div.appendChild(img);
+	}
+	else if (this.imgAlign=='left') {
+		this.div.insertBefore(img, this.div.firstChild);
+	}
+}
+
+Icon.prototype.redraw = function(bForceAll, w) {
+	var w = w || this;
+	if (bForceAll) {
+		var imgs = w.div.getElementsByTagName('IMG');
+		while (imgs.length > 0) {
+			QuiX.removeNode(imgs[0]);
+		}
+		var br = w.div.getElementsByTagName('BR')[0];
+		if (br) QuiX.removeNode(br);
+
+		w._addDummyImage();
+
+		if (w.img) {
+			img = QuiX.getImage(w.img);
+			img.style.verticalAlign = 'middle';
+			
+			if (w.getCaption()!='') {
+				switch(w.imgAlign) {
+					case "left":
+						img.style.marginRight = '3px';
+						w.div.insertBefore(img, w.div.firstChild);
+						break;
+					case "right":
+						img.style.marginLeft = '3px';
+						w.div.appendChild(img);
+						break;
+					case "top":
+						w.div.insertBefore(ce('BR'), w.div.firstChild);
+						w.div.insertBefore(img, w.div.firstChild);
+						break;
+					case "bottom":
+						w.div.appendChild(ce('BR'));
+						w.div.appendChild(img);
+				}
+			}
+			else {
+				w.div.insertBefore(img, w.div.firstChild);
+			}
+			w.imageElement = img;
+		}
+		else
+			w.imageElement = null;
+	}
+	Label.prototype.redraw(bForceAll, w);
 }
 
 //XButton class
 
 function XButton(params) {
 	params = params || {};
-
+	this.icon = null;
 	this.base = Widget;
 	this.base({
 		border: 1,
@@ -93,6 +137,7 @@ function XButton(params) {
 		top: params.top,
 		left: params.left,
 		bgcolor: params.bgcolor || 'buttonface',
+		padding: '0,0,0,0',
 		overflow: 'hidden',
 		onmouseover: QuiX.getEventWrapper(XButton__onmouseover, params.onmouseover),
 		onmouseout: QuiX.getEventWrapper(XButton__onmouseout, params.onmouseout),
@@ -100,33 +145,55 @@ function XButton(params) {
 		onmousedown: QuiX.getEventWrapper(XButton__onmousedown, params.onmousedown),
 		onclick: params.onclick
 	});
+	this.div.className = 'btn';
+	this.div.style.cursor = 'pointer';
 	
 	delete params.onclick;
 	delete params.onmouseover;
 	delete params.onmousedown;
 	delete params.onmouseup;
 	delete params.onmousedown;
-	
-	this.div.className = 'btn';
-	
-	w2 = new Widget({border:1,width:'100%',height:'100%'});
-	this.appendChild(w2);
-	
-	w2.div.className = 'l2';
-	
-	params.border = 0;
-	params.width = '100%';
-	params.height = (params.img)?16:14;
 	delete params.bgcolor;
-	params.padding = '0,0,0,0';
-	params.top = 'center';
-	params.left = 0;
+	
+	params.width = '100%';
+	params.height = '100%';
+	params.border = 1;
+	this.iconPadding = params.iconPadding || '0,0,0,0';
+	params.padding = this.iconPadding;
+	params.align = params.align || 'center';
+
+	this.align = params.align;
+	this.imgAlign = params.imgAlign || 'left';
+	this.img = params.img || null;
+	
 	this.icon = new Icon(params);
-	w2.appendChild(this.icon);
-	this.div.style.cursor = 'pointer';
+	this.icon.div.className = 'l2';
+	this.icon.setPosition();
+	this.appendChild(this.icon);
 }
 
 XButton.prototype = new Widget;
+
+XButton.prototype.setCaption = function(s) {
+	this.icon.setCaption(s);
+}
+
+XButton.prototype.getCaption = function() {
+	return this.icon.getCaption();
+}
+
+XButton.prototype.redraw = function(bForceAll) {
+	if (bForceAll) {
+		this.icon.align = this.align;
+		this.icon.img = this.img;
+		this.icon.imgAlign = this.imgAlign;
+		this.icon.setPadding(this.iconPadding.split(','));
+		this.icon.redraw(true);
+	}
+	if (this.parent) {
+		Widget.prototype.redraw(bForceAll, this);
+	}
+}
 
 function XButton__onmouseover(evt, w) {
 	w.div.className = 'btnover';
@@ -134,32 +201,29 @@ function XButton__onmouseover(evt, w) {
 
 function XButton__onmouseout(evt, w) {
 	w.div.className = 'btn';
-	w.icon.padding[0] = 0;
-	w.icon.padding[2] = 0;
-	w.icon.repad();
+	w.icon.addPaddingOffset('Left', -2);
+	w.icon.addPaddingOffset('Top', -1);
 }
 
 function XButton__onmousedown(evt, w) {
 	w.div.className = 'btndown';
-	w.icon.padding[0] = 2;
-	w.icon.padding[2] = 1;
-	w.icon.repad();
+	w.icon.addPaddingOffset('Left', 2);
+	w.icon.addPaddingOffset('Top', 1);
 }
 
 function XButton__onmouseup(evt, w) {
 	w.div.className = 'btn';
-	w.icon.padding[0] = 0;
-	w.icon.padding[2] = 0;
-	w.icon.repad();
+	w.icon.addPaddingOffset('Left', -2);
+	w.icon.addPaddingOffset('Top', -1);
 }
 
 //FlatButton class
-
 function FlatButton(params) {
 	params = params || {};
 	params.border = 0;
 	params.padding = params.padding || '4,4,4,4';
 	params.overflow = 'hidden';
+	params.align = params.align || 'center';
 	params.onmouseover = QuiX.getEventWrapper(FlatButton__onmouseover, params.onmouseover);
 	params.onmouseout = QuiX.getEventWrapper(FlatButton__onmouseout, params.onmouseout);
 	params.onmousedown = QuiX.getEventWrapper(FlatButton__onmousedown, params.onmousedown);
@@ -190,18 +254,20 @@ function FlatButton(params) {
 FlatButton.prototype = new Icon;
 
 FlatButton.prototype._addBorder = function() {
-	if (this.borderWidth==0) {
-		this.borderWidth = 1;
-		for (var i=0; i<4; i++) this.padding[i] -= 1;
-		this.repad();
+	if (this.getBorderWidth()==0) {
+		this.setBorderWidth(1);
+		var padding = this.getPadding();
+		for (var i=0; i<4; i++) padding[i] -= 1;
+		this.setPadding(padding);
 	}
 }
 
 FlatButton.prototype._removeBorder = function() {
-	if (this.borderWidth==1) {
-		this.borderWidth = 0;
-		for (var i=0; i<4; i++) this.padding[i] += 1;
-		this.repad();
+	if (this.getBorderWidth()==1) {
+		this.setBorderWidth(0);
+		var padding = this.getPadding();
+		for (var i=0; i<4; i++) padding[i] += 1;
+		this.setPadding(padding);
 	}
 }
 
@@ -236,8 +302,7 @@ function FlatButton__onmouseout(evt, w) {
 		w.div.className = 'flat';
 		w._removeBorder();
 		if (w.type!='toggle' && w._ispressed) {
-			w.padding[0] -= 1;
-			w.repad();
+			w.addPaddingOffset('Left', -1);
 			w._ispressed = false;
 		}
 	}
@@ -246,19 +311,19 @@ function FlatButton__onmouseout(evt, w) {
 function FlatButton__onmousedown(evt, w) {
 	w.div.className='flaton';
 	w._addBorder();
+	if (w.type == 'menu')
+		QuiX.stopPropag(evt);
 	if (w.type!='toggle') {
-		w.padding[0] += 1;
+		w.addPaddingOffset('Left', 1);
 		w._ispressed = true;
 	}
-	w.repad();
 }
 
 function FlatButton__onmouseup(evt, w) {
 	w.div.className='flat';
 	w._removeBorder();
 	if (w.type!='toggle' && w._ispressed) {
-		w.padding[0] -= 1;
-		w.repad();
+		w.addPaddingOffset('Left', -1);
 		w._ispressed = false;
 	}
 }
@@ -273,7 +338,7 @@ function FlatButton__onclick(evt, w) {
 		}
 		else {
 			w.div.className = 'btn';
-			document.desktop.closeMenu(evt);
+			w.contextmenu.close();
 		}
 	}
 	QuiX.stopPropag(evt);

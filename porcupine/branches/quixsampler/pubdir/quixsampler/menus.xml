@@ -8,7 +8,7 @@
 		</a:menu>
 		<a:menu caption="Menu 2">
 			<a:menuoption caption="Option 1"></a:menuoption>
-			<a:menuoption img="images/check16.gif" caption="Option 2"></a:menuoption>
+			<a:menuoption type="check" caption="Check Option 1"></a:menuoption>
 			<a:sep></a:sep>
 			<a:menuoption id="mr" type="radio" caption="Radio 1" onclick="quixsampler.menuoption"></a:menuoption>
 			<a:menuoption id="mr" type="radio" caption="Radio 2" onclick="quixsampler.menuoption"></a:menuoption>

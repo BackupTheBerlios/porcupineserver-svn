@@ -97,7 +97,6 @@ BODY {
 	border-color:	ThreeDDarkShadow ThreedLightShadow
 			ThreedLightShadow ThreeDDarkShadow;
 	text-align : center;
-	margin-right: 6px;
 	cursor:pointer;
 }
 
@@ -210,9 +209,10 @@ BODY {
 	cursor : default;
 }
 
-.contextmenu .disabled {
-	color: grayText;
-	cursor : default;
+.contextmenu .submenu {
+	background-image : url(../images/submenu.gif);
+	background-position : right;
+	background-repeat : no-repeat;
 }
 
 .contextmenu .over {

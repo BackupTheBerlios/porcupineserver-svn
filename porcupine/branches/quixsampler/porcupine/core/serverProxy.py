@@ -17,12 +17,13 @@
 """
 Server proxy class module
 
-@var proxy: This is assigned to the L{server<porcupine.core.servlet.BaseServlet.server>}
+@var proxy: This is assigned to the
+    L{server<porcupine.core.servlet.BaseServlet.server>}
     attribute of each servlet.
 @type proxy: L{Server}
 """
 from porcupineserver import __version__
-from porcupine.config import resources, serverSettings
+from porcupine.config import serverSettings
 from porcupine.db import dbEnv
 
 class Server(object):
@@ -32,13 +33,11 @@ class Server(object):
     A single instance of this type is available during servlet execution.
     
     @type store: L{dbEnv<porcupine.db.dbEnv>}
-    @type resources: L{ResourceStrings<porcupine.config.resources.ResourceStrings>}
     @type temp_folder: str
     @type version: str
     """
     def __init__(self):
         self.__dbenv = dbEnv
-        self.__stringResources = resources.stringResources
         self.__tmpfldr = serverSettings.temp_folder
 
     def getTempFolder(self):
@@ -57,14 +56,6 @@ class Server(object):
         """
         return self.__dbenv
     store = property(getStore, None, None, 'Porcupine database handle')
-
-    def getResources(self):
-        """Getter of the L{resources} property.
-        
-        @rtype: L{ResourceStrings<porcupine.config.resources.ResourceStrings>}
-        """
-        return self.__stringResources
-    resources = property(getResources, None, None, 'Localization resources')
     
     def getVersion(self):
         """Getter of the L{version} property.

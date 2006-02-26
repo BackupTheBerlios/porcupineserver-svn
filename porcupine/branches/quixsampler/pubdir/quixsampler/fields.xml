@@ -37,9 +37,10 @@
 	<a:hr top="294" width="100%"></a:hr>
 
 	<a:label top="302" caption="On/Off" style="font-weight:bolder;font-size:10pt"></a:label>
-	<a:field top="326" id="check1" type="checkbox"></a:field>
-	<a:label top="326" left="24" caption="Check box"></a:label>
-	<a:label top="344" caption="Radio buttons still to be implemented..."></a:label>
+	<a:field top="326" id="check1" type="checkbox" caption="Checkbox"></a:field>
+	
+	<a:field top="326" left="120" id="radiogroup1" type="radio" caption="Radio 1"></a:field>
+	<a:field top="346" left="120" id="radiogroup1" type="radio" caption="Radio 2"></a:field>
 	
 	<a:hr top="368" width="100%"></a:hr>
 

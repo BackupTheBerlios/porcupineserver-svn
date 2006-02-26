@@ -16,15 +16,16 @@
 //===============================================================================
 
 <%
-
+	from resources.system.strings import resources
+	
 	sLang = request.getLang()
-	lstMonths = server.resources.getResource("MONTHS", sLang)
-	lstDays = server.resources.getResource("DAYS", sLang)
+	lstMonths = resources.getResource("MONTHS", sLang)
+	lstDays = resources.getResource("DAYS", sLang)
 	sMonths = ','.join(['"' + x + '"' for x in lstMonths])
 	sDays = ','.join(['"' + x + '"' for x in lstDays])
 	
-	sAM = server.resources.getResource("AM", sLang)
-	sPM = server.resources.getResource("PM", sLang)
+	sAM = resources.getResource("AM", sLang)
+	sPM = resources.getResource("PM", sLang)
 	
 	response.content_type = 'text/javascript'
 %>
@@ -92,7 +93,7 @@ function dateFormat(format) {
    dateString = dateString.replace( new RegExp("mm", "gi"), mm );
 
    var ss = new String( this.getSeconds() );
-   if (ss.length == 1) ss = "0" + mm;
+   if (ss.length == 1) ss = "0" + ss;
 
    dateString = dateString.replace( new RegExp("ss", "gi"), ss ); 
    dateString = dateString.replace( new RegExp("ddd", "gi"), new String( this.Days[this.getDay()] ).substring(0,3) );

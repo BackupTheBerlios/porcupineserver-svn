@@ -21,6 +21,7 @@ import os, os.path, base64
 from porcupine.core.servlet import XMLRPCServlet
 from porcupine.oql.command import OqlCommand
 from porcupine.security import objectAccess
+from resources.system.strings import resources
 from porcupine.security.policy import policymethod
 from porcupine import datatypes
 from porcupine.utils import misc, date
@@ -173,7 +174,7 @@ class ContainerGeneric(ItemGeneric):
             image = misc.getClassByName(contained).__image__
             if not type(image)==str:
                 image = ''
-            localestring = self.server.resources.getResource(contained, sLang)
+            localestring = resources.getResource(contained, sLang)
             containment.append( [localestring, contained, image] )
             
         return {

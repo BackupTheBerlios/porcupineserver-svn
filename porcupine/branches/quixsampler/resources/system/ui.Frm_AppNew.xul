@@ -43,6 +43,9 @@
 
 					<a:label top="167" left="5" width="60" height="20" caption="Left:"></a:label>
 					<a:field name="left" top="165" left="75" width="140" value="center"></a:field>
+
+					<a:label top="192" left="5" width="60" height="20" caption="Resources:"></a:label>
+					<a:field name="resourcesImportPath" top="190" left="75" width="140" value=""></a:field>
 					
 					<a:field name="isResizable" type="checkbox" top="67" left="240" value="true"></a:field>
 					<a:label left="260" top="67" width="60" height="20" caption="Resizable"></a:label>

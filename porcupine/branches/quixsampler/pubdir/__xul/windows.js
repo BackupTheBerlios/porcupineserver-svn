@@ -200,11 +200,12 @@ Window.prototype._mouseoutControl = function(iWhich) {
 Window.prototype.minimize = function(w) {
 	w = w || this;
 	if (!w.isMinimized) {
+		var padding = w.getPadding();
 		w.body.hide();
 		if (w.status) w.stat.hide();
 		if (w.isResizable) w.resz.hide();
 		w.stateh = w.getHeight(true);
-		w.height = w.title.getHeight(true) + 2*w.borderWidth + w.padding[2]+ w.padding[3];
+		w.height = w.title.getHeight(true) + 2*w.getBorderWidth() + padding[2] + padding[3];
 		if (w.canMaxi) w.maxi.disable();
 		w.isMinimized = true;
 	}
