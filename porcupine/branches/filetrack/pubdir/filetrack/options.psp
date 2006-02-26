@@ -1,5 +1,5 @@
 <%
-from resources.servlets.filetrack.strings import resources
+from resources.filetrack.strings import resources
 
 sLang = request.getLang()
 sError = resources.getResource('ERROR', sLang)

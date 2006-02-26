@@ -52,6 +52,9 @@ filetrack.searchIssues = function(evt, w) {
 }
 
 filetrack.issuescontext_show = function(menu) {
-	var oEntryList = menu.owner.getWidgetsByType(ListView)[0];
-	menu.options[2].disabled = !(oEntryList.selection.length == 1);
+	var oList = menu.owner.getWidgetsByType(ListView)[0];
+	if (oList.selection.length == 0)
+		menu.options[2].disable();//delete
+	else
+		menu.options[2].enable();//delete
 }

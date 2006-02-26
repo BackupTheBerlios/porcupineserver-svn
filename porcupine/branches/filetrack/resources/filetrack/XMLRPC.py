@@ -2,11 +2,13 @@
 
 import os
 
+from porcupine import serverExceptions
 from porcupine.security import objectAccess
 from porcupine.security.policy import policymethod
-from porcupine import serverExceptions
-from resources.servlets.XMLRPC import ContainerGeneric, ItemGeneric
 from porcupine.oql.command import OqlCommand
+
+from resources.system.XMLRPC import ContainerGeneric, ItemGeneric
+
 from schemas.org.innoscript import filetrack
 from schemas.org.innoscript import security
 

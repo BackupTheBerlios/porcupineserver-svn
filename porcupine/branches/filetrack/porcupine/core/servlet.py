@@ -29,7 +29,7 @@ import porcupine.core.xmlrpc
 class BaseServlet(object):
     """Base Servlet class
     
-    @ivar server: Gives access to the server database and string resources
+    @ivar server: Gives access to the server database
     @type server: L{Server<porcupine.core.serverProxy.Server>}
     
     @ivar session: The current session object
@@ -145,6 +145,10 @@ class XULServlet(HTTPServlet):
     @ivar params: Parameter values. The QuiX XUL interface is written to the
         response using the '%' formatting operator.
     @type params: dict
+
+    @ivar xul_file: The path to the QuiX XUL file. This is automatically set to
+        C{[module_name].[class_name].xul}, but this can be overriden.
+    @type xul_file: str
     """
     def __init__(self, server, session, request):
         HTTPServlet.__init__(self, server, session, request)
@@ -156,6 +160,11 @@ class XULServlet(HTTPServlet):
         self.xul_file = '%s%s%s.%s.xul' % (class_dir, os.path.sep, self.__module__.split('.')[-1], self.__class__.__name__)
         
     def execute(self):
+        """This method opens the QuiX XUL definition and writes it to
+        the response buffer using the parameters provided.
+        
+        @warning: do not override
+        """
         self.setParams()
         # open XUL file
         try:
@@ -191,4 +200,8 @@ class XULServlet(HTTPServlet):
 ''')
         
     def setParams(self):
+        """This is where you should set the parameters found
+        inside the QuiX interface definition file. Use the
+        C{self.params} dictionary.
+        """
         pass

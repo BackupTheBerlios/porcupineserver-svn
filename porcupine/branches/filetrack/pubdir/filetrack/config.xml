@@ -10,6 +10,8 @@
 	<context path="reports.js" method=".*" client=".*" lang=".*" action="reports.psp"/>
 	<context path="search.js" method=".*" client=".*" lang=".*" action="search.js"/>
 	<context path="selectpersons.js" method=".*" client=".*" lang=".*" action="selectpersons.js"/>
+	<context path="dlg_archive.psp" method=".*" client=".*" lang=".*" action="dlg_archive.psp"/>
+	<context path="dlg_options.psp" method=".*" client=".*" lang=".*" action="dlg_options.psp"/>
 	
 	<!-- IMAGES -->
 	<context path="images/archive16.gif" method=".*" client=".*" lang=".*" action="images/archive16.gif"/>

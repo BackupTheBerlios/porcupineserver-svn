@@ -1,0 +1,43 @@
+<%
+from resources.filetrack.strings import resources
+
+sLang = request.getLang()
+sSelectSet = resources.getResource('SELECT_SET', sLang)
+sCreate = resources.getResource('CREATE', sLang)
+sRename = resources.getResource('RENAME', sLang)
+sFrom = resources.getResource('FROM', sLang)
+sTo = resources.getResource('TO', sLang)
+sEntryDate = resources.getResource('entryDate', sLang)
+sWarning = resources.getResource('ARCHIVE_WARNING', sLang)
+sArchive = resources.getResource('DO_ARCHIVE', sLang)
+sCancel = resources.getResource('CANCEL', sLang)
+
+response.content_type = 'text/xml'
+%>
+<a:dialog xmlns:a="http://www.innoscript.org/quix"
+	width="420"
+	height="270"
+	img="filetrack/images/archive16.gif"
+	left="center"
+	top="center">
+	<a:script name="FileTrack Options script" src="filetrack/options.js" />
+	<a:script name="FileTrack Search script" src="filetrack/search.js" />
+	<a:wbody>
+		<a:rect width="100%%" height="100%%" padding="4,4,4,4" onload="filetrack.getArchiveSets">
+			<a:label caption="<%response.write(sSelectSet)%>"></a:label>
+			<a:selectlist id="archive_sets" top="20" width="180" height="120"></a:selectlist>
+			<a:flatbutton top="142" width="85" height="22" caption="<%response.write(sCreate)%>" onclick="filetrack.newArchive"></a:flatbutton>
+			<a:flatbutton top="142" left="95" width="85" height="22" caption="<%response.write(sCreate)%>" onclick="filetrack.renameArchive"></a:flatbutton>
+
+			<a:label caption="<%response.write(sEntryDate + ' ' + sFrom)%>:" top="20" left="200" width="200"></a:label>
+			<a:datepicker id="entryDate_from" left="200" top="40" width="120"></a:datepicker>
+			<a:label caption="<%response.write(sEntryDate + ' ' + sTo)%>:" left="200" top="65" width="200"></a:label>
+			<a:datepicker id="entryDate_to" left="200" top="85" width="120"></a:datepicker>
+			<a:rect top="170">
+				<a:xhtml style="color:red"><%response.write(sWarning)%></a:xhtml>
+			</a:rect>
+		</a:rect>
+	</a:wbody>
+	<a:dlgbutton width="80" height="22" caption="<%response.write(sArchive)%>" onclick="filetrack.archiveEntries" />
+	<a:dlgbutton width="80" height="22" onclick="__closeDialog__" caption="<%response.write(sCancel)%>" />
+</a:dialog>

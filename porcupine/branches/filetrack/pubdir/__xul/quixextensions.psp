@@ -16,7 +16,7 @@
 //===============================================================================
 
 <%
-	from resources.systemstrings import resources
+	from resources.system.strings import resources
 	
 	sLang = request.getLang()
 	lstMonths = resources.getResource("MONTHS", sLang)
@@ -93,7 +93,7 @@ function dateFormat(format) {
    dateString = dateString.replace( new RegExp("mm", "gi"), mm );
 
    var ss = new String( this.getSeconds() );
-   if (ss.length == 1) ss = "0" + mm;
+   if (ss.length == 1) ss = "0" + ss;
 
    dateString = dateString.replace( new RegExp("ss", "gi"), ss ); 
    dateString = dateString.replace( new RegExp("ddd", "gi"), new String( this.Days[this.getDay()] ).substring(0,3) );

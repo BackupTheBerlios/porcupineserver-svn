@@ -65,7 +65,7 @@
 								</a:combo>
 							</a:pane>
 							<a:pane length="40">
-								<a:flatbutton top="center" width="22" height="22" caption="Go" onclick="containerList.navigateTo"></a:flatbutton>
+								<a:flatbutton top="center" width="28" height="22" caption="Go" onclick="containerList.navigateTo"></a:flatbutton>
 							</a:pane>
 						</a:splitter>
 				</a:rect>

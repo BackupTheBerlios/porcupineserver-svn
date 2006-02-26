@@ -48,8 +48,8 @@ class ObjectSet(object):
         return len(self._list)
         
     def __add__(self, objectset):
-        """Implmements the '+' operator.
-        In order to add two object sets successfully one the following
+        """Implements the '+' operator.
+        In order to add two object sets successfully one of the following
         conditions must be met:
             1. Both of the object sets must contain objects
             2. Object sets must have identical schema

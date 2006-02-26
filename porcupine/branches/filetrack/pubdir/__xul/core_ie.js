@@ -30,7 +30,7 @@ function Clipboard() {
 }
 
 var QuiX = function() {}
-QuiX.version = '0.3 build 20051204';
+QuiX.version = '0.4 build 20060221';
 QuiX.namespace = 'http://www.innoscript.org/quix';
 QuiX.browser = 'ie';
 QuiX.startX = 0;
@@ -50,7 +50,7 @@ QuiX.modules = [
 	new Module('Windows and Dialogs', '__xul/windows.js', [3]),
 	new Module('Menus', '__xul/menus.js', [3]),
 	new Module('Splitter', '__xul/splitter.js', [3]),
-	new Module('Labels & Buttons', '__xul/buttons.js', [1]),
+	new Module('Labels & Buttons', '__xul/buttons.js', []),
 	new Module('Tab Pane', '__xul/tabpane.js', []),
 	new Module('List View', '__xul/listview.js', []),
 	new Module('Tree', '__xul/tree.js', []),
@@ -99,7 +99,8 @@ QuiX.removeWidget = function(w) {
 	
 	if (w.parent) {
 		w.parent.widgets.removeItem(w);
-		if (w.id) delete(w.parent._id_widgets[w.id]);
+		if (w._id)
+			w._removeIdRef();
 	}
 	
 	w._detachEvents();
@@ -461,28 +462,17 @@ XULParser.prototype.parseXul = function(oNode, parentW, prm) {
 				break;
 			case 'contextmenu':
 				oWidget = new ContextMenu(params, parentW);
-				parentW.attachEvent('oncontextmenu', function(){
-					oWidget.show(document.desktop, event.clientX, event.clientY);
-				});
+				parentW.contextMenu = oWidget;
+				parentW.attachEvent('oncontextmenu', Widget__contextmenu);
 				appendIt = false;
 				break;
 			case 'menuoption':
-				if (prm.option) {
-					fparams.option = new MenuOption(params);
-					prm.option.options.push(fparams.option);
-				}
-				else {
-					fparams.option = parentW.addOption(params);
-				}
+				oWidget = parentW.addOption(params);
 				appendIt = false;
-				oWidget = fparams.option;
 				break;
 			case 'sep':
 				checkForChilds = false;
-				if (prm.option)
-					prm.option.options.push(-1);
-				else
-					parentW.options.push(-1);
+				oWidget = parentW.addOption(-1);
 				appendIt = false;
 				break;
 			case 'hr':
@@ -605,7 +595,8 @@ function Widget(params) {
 	this.attributes = params.attributes || {};
 	this.maxz = 0;
 	this._isDisabled = false;
-
+	this.contextMenu = null;
+	
 	if (params.style) {
 		var tmp = document.createDocumentFragment();
 		tmp.appendChild(ce('DIV'));
@@ -617,10 +608,11 @@ function Widget(params) {
 
 	this.div.widget = this;
 
+	this._id = undefined;
 	if (params.id) {
-		this.id = params.id;
-		this.div.id = this.id;
+		this.setId(params.id)
 	}
+	
 	if (params.bgcolor)
 		this.setBgColor(params.bgcolor);
 	this.setBorderWidth(parseInt(params.border) || 0);
@@ -643,19 +635,12 @@ function Widget(params) {
 
 Widget.prototype.appendChild = function(w) {
 	this.widgets.push(w);
-	if (w.id) {
-		if (this._id_widgets[w.id])
-			this._id_widgets[w.id].push(w);
-		else
-			this._id_widgets[w.id] = [w];
-	}
 	w.parent = this;
-	
+	if (w._id)
+		w._addIdRef();	
 	this.div.appendChild(w.div);
-
-	if (w.height=='100%' && w.width=='100%') {
+	if (w.height=='100%' && w.width=='100%')
 		this.setOverflow('hidden');
-	}
 	w.redraw();
 	w.bringToFront();
 }
@@ -726,8 +711,8 @@ Widget.prototype.enable = function(w) {
 
 Widget.prototype.detach = function() {
 	this.parent.widgets.removeItem(this);
-	if (this.id)
-		delete(w.parent._id_widgets[this.id]);
+	if (this._id)
+		this._removeIdRef();
 	this.parent = null;
 	this.div = this.div.removeNode(true);
 }
@@ -794,6 +779,34 @@ Widget.prototype._setCommonProps = function (w) {
 	var w = w || this;
 	if (w.height!=null) w.div.style.height = w._calcHeight() + 'px';
 	if (w.width!=null) w.div.style.width = w._calcWidth() + 'px';
+}
+
+Widget.prototype._removeIdRef = function()
+{
+	this.parent._id_widgets[this._id].removeItem(this);
+	if (this.parent._id_widgets[this._id].length == 0)
+		delete this.parent._id_widgets[this._id];
+}
+
+Widget.prototype._addIdRef = function()
+{
+	if (this.parent._id_widgets[this._id])
+		this.parent._id_widgets[this._id].push(this);
+	else
+		this.parent._id_widgets[this._id] = [this];
+}
+
+// id attribute
+Widget.prototype.setId = function(id) {
+	if (this.parent && this._id)
+		this._removeIdRef();
+	this._id = id;
+	this.div.id = id;
+	if (this.parent)
+		this._addIdRef();
+}
+Widget.prototype.getId = function() {
+	return this._id;
 }
 
 // bgColor attribute
@@ -1004,23 +1017,33 @@ Widget.prototype._calcTop = function()
 Widget.prototype.getScreenLeft = function()
 {
 	var oElement = this.div;
-	iX = 0
+	var iX = 0, b;
 	while(oElement) {
-		if (oElement.tagName!='TR') iX += oElement.offsetLeft - oElement.scrollLeft;
+		if (oElement.tagName!='TR') {
+			iX += oElement.offsetLeft - oElement.scrollLeft;
+			b = parseInt(oElement.style.borderWidth);
+			if (b)
+				iX += b;
+		}
 		oElement = oElement.parentElement;
 	}
-	return(iX);
+	return(iX - 1);
 }
 
 Widget.prototype.getScreenTop = function()
 {
 	var oElement = this.div;
-	iY = 0
+	var iY = 0, b=0;
 	while(oElement) {
-		if (oElement.tagName!='TR') iY += oElement.offsetTop - oElement.scrollTop;
+		if (oElement.tagName!='TR') {
+			iY += oElement.offsetTop - oElement.scrollTop;
+			b = parseInt(oElement.style.borderWidth);
+			if (b)
+				iY += b;
+		}
 		oElement = oElement.parentElement;
 	}
-	return(iY);
+	return(iY - 1);
 }
 
 Widget.prototype.bringToFront = function(w)
@@ -1145,7 +1168,7 @@ Widget.prototype.redraw = function(bForceAll, w) {
 			sOverflow = w.getOverflow();
 			if (sOverflow != 'hidden') w.setOverflow('hidden');
 			w._setCommonProps();
-			if (w.getPosition()=='absolute') w._setAbsProps();
+			if (w.getPosition()!='') w._setAbsProps();
 			for (var i=0; i<w.widgets.length; i++) {
 				if (w.widgets[i]._mustRedraw() || bForceAll) w.widgets[i].redraw(bForceAll);
 			}
@@ -1202,6 +1225,10 @@ Widget.prototype.attachEvent = function(eventType, f) {
 
 Widget.prototype.detachEvent = function(eventType) {
 	this.div.detachEvent(eventType, this._registry[eventType]);
+}
+
+function Widget__contextmenu(evt, w) {
+	w.contextMenu.show(document.desktop, evt.clientX, evt.clientY);
 }
 
 //Desktop class

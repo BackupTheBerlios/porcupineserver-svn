@@ -49,13 +49,12 @@ function Combo(params) {
 		this.detach();
 	};
 
-	var cont = new Widget(
-		{
-			width : '100%',
-			height: '100%',
-			overflow: 'auto',
-			onmousedown : QuiX.cancelDefault
-		});	
+	var cont = new Widget({
+		width : '100%',
+		height: '100%',
+		overflow: 'auto',
+		onmousedown : QuiX.cancelDefault
+	});	
 	this.dropdown.appendChild(cont);
 	this.options = cont.widgets;
 
@@ -185,15 +184,16 @@ Combo.prototype.reset = function() {
 Combo.prototype.showDropdown = function(w) {
 	var oCombo = w || this;
 
-	var iLeft = oCombo.getScreenLeft() + 2;
-	var iTop = oCombo.getScreenTop() + oCombo.getHeight(true) + 2;
+	var iLeft = oCombo.getScreenLeft();
+	var iTop = oCombo.getScreenTop() + oCombo.getHeight(true);
 
 	if (iTop + oCombo.menuHeight > document.desktop.getHeight(true))
 		iTop = oCombo.getScreenTop() - oCombo.menuHeight;
 
 	oCombo.dropdown.top = iTop;
 	oCombo.dropdown.left = iLeft;
-	oCombo.dropdown.width = oCombo.getWidth(true);
+	if (!oCombo.dropdown.width)
+		oCombo.dropdown.width = oCombo.getWidth(true);
 	oCombo.dropdown.height = oCombo.menuHeight;
 	oCombo.dropdown.setBgColor(oCombo.getBgColor());
 
@@ -218,7 +218,7 @@ Combo.prototype.addOption = function(params) {
 	params.width = params.width || '100%';
 	var opt = new Icon(params);
 	opt.selected = false;
-	opt.value = params.value || '';
+	opt.value = params.value;
 	this.dropdown.widgets[0].appendChild(opt);
 	if ((params.selected=='true' || params.selected == true) && !this.editable) {
 		this.selectOption(opt);

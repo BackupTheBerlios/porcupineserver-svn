@@ -29,16 +29,22 @@ filetrack.getLogEntries = function(w) {
 
 filetrack.pcontext_show = function(menu) {
 	var oEntryList = menu.owner.getWidgetsByType(ListView)[0];
-	menu.options[2].disabled = (!(oEntryList.selection.length == 1 && oEntryList.getSelection().entryType==1));
-	menu.options[3].disabled = !(oEntryList.selection.length == 1);
+	if (!(oEntryList.selection.length == 1 && oEntryList.getSelection().entryType==1))
+		menu.options[2].disable();
+	else
+		menu.options[2].enable();
+	if (!(oEntryList.selection.length == 1))
+		menu.options[3].disable();
+	else
+		menu.options[3].enable();
 }
 
 filetrack.reply = function(evt, w) {
 	var plist = w.parent.owner.getWidgetById('log_list');
 	var pid = plist.getSelection().id;
 	document.desktop.parseFromUrl(QuiX.root + pid + '?cmd=reply',
-		function(req) {
-			req.widget.attributes.refreshlist = function() {
+		function(w) {
+			w.attributes.refreshlist = function() {
 				filetrack.getLogEntries(plist);
 			}
 		}

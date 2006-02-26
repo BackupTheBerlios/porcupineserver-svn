@@ -9,40 +9,18 @@ function Datepicker(params) {
 	params.img = params.img || 'images/date16.gif';
 	this.base = Combo;
 	this.base(params);
-	if (params.value)
-		this.value = new Date().parseIso8601(params.value);
-	else {
-		this.value = new Date();
-		this.value.setHours(0);
-		this.value.setMinutes(0);
-		this.value.setSeconds(0);
-	}
-	this.dt = this.value;
-	this.div.firstChild.value = this.dt.format('ddd dd/mmm/yyyy');
+	this.setValue(params.value || '');
+	
 	var oDatepicker = this;
-	this.getValue = function() { return(oDatepicker.value); }
-	this.setValue = function(val) {
-		oDatepicker.value=new Date(val);
-		oDatepicker.dt = this.value;
-		oDatepicker.div.firstChild.value = oDatepicker.dt.format('ddd dd/mmm/yyyy');
-	}
-}
-
-Datepicker.prototype = new Combo;
-
-Datepicker.prototype.showDropdown = function() {
-	var oDatepicker = this;
-	Combo.prototype.showDropdown(this);
-	var oDropdown = oDatepicker.dropdown;
-
+	var oDropdown = this.dropdown;
 	oDropdown.parseFromString(
 		'<a:splitter orientation="h" xmlns:a="http://www.innoscript.org/quix" width="100%" height="100%" spacing="0">' +
 			'<a:pane length="28" bgcolor="menu">' +
-				'<a:rect left="center" top="center" width="190" height="22">' + 
-					'<a:flatbutton width="20" height="100%" caption="&lt;&lt;"></a:flatbutton>' +
-					'<a:combo id="month" left="21" width="100" height="100%" editable="false"></a:combo>' +
-					'<a:spinbutton id="year" maxlength="4" left="121" width="50" height="100%" editable="true"></a:spinbutton>' +
-					'<a:flatbutton left="171" width="20" height="100%" caption="&gt;&gt;"></a:flatbutton>' +
+				'<a:rect left="center" top="center" width="195" height="22">' + 
+					'<a:flatbutton width="22" height="100%" caption="&lt;&lt;"></a:flatbutton>' +
+					'<a:combo id="month" left="24" width="100" height="100%" editable="false"></a:combo>' +
+					'<a:spinbutton id="year" maxlength="4" left="123" width="50" height="100%" editable="true"></a:spinbutton>' +
+					'<a:flatbutton left="173" width="22" height="100%" caption="&gt;&gt;"></a:flatbutton>' +
 				'</a:rect>' +
 			'</a:pane>' +
 			'<a:pane length="-1"></a:pane>' +
@@ -52,13 +30,13 @@ Datepicker.prototype.showDropdown = function() {
 			oDropdown.minw = oDropdown.width = 200;
 			oDropdown.minh = oDropdown.height = 160;
 			oDropdown.widgets[1].bringToFront();
-			oDropdown.redraw();
 			
 			oDropdown.close = function() {
 				document.desktop.overlays.removeItem(this);
-				if (oDatepicker.month.isExpanded) oDatepicker.month.dropdown.close();
+				if (oDatepicker.month.isExpanded)
+					oDatepicker.month.dropdown.close();
 				oDatepicker.isExpanded = false;
-				this.destroy();
+				this.detach();
 			}
 			
 			spl.panes[0].attachEvent('onclick', QuiX.stopPropag);
@@ -70,43 +48,62 @@ Datepicker.prototype.showDropdown = function() {
 			oDatepicker.month = spl.getWidgetById('month');
 			for (var i=0; i<oDatepicker.dt.Months.length; i++)
 				oDatepicker.month.addOption({caption:oDatepicker.dt.Months[i], value:i});
-			oDatepicker.month.onchange = function() { oDatepicker.onMonth(); }
+			oDatepicker.month.onchange = DatepickerMonth__change;
 			
-			_monthclick = function(evt, w) {
-				if (!oDatepicker.month.isExpanded) {
-					oDatepicker.month.showDropdown();
-				}
-				else
-					oDatepicker.month.dropdown.close();
-				QuiX.stopPropag(evt);
-			}
-			oDatepicker.month.div.firstChild.onclick = _monthclick;
-			oDatepicker.month.button.attachEvent('onclick', _monthclick);
-				
-			spl.getWidgetsByType(FlatButton)[0].attachEvent('onclick', function() { oDatepicker.onPrev(); })
-			spl.getWidgetsByType(FlatButton)[1].attachEvent('onclick', function() { oDatepicker.onNext(); })
-		
+			oDatepicker.month.div.firstChild.onclick = DatepickerMonth__click;
+			oDatepicker.month.button.attachEvent('onclick', DatepickerMonth__click);
+			
+			spl.getWidgetsByType(FlatButton)[0].attachEvent('onclick', DatepickerPrev__click);
+			spl.getWidgetsByType(FlatButton)[1].attachEvent('onclick', DatepickerNext__click);
+			
 			oDatepicker.render(spl.panes[1].div);
 			oDatepicker.fill();
 		}
 	);
 }
 
+Datepicker.prototype = new Combo;
+
+Datepicker.prototype.getValue = function() {
+	return this.dt;
+}
+
+Datepicker.prototype.setValue = function(val) {
+	this.isNow = false;
+	if (!(val instanceof Date)) {
+		if (val == '') {
+			this.dt = new Date();
+			this.dt.setHours(0);
+			this.dt.setMinutes(0);
+			this.dt.setSeconds(0);
+			this.isNow = true;
+		}
+		else {
+			this.dt = new Date().parseIso8601(val);
+		}
+	}
+	else {
+		this.dt=new Date(val);
+	}
+	this.div.firstChild.value = this.dt.format('ddd dd/mmm/yyyy');
+}
+
 Datepicker.prototype.render = function(container) {
 	var oT1, oTR1, oTD1, oTH1;
 	var oT2, oTR2, oTD2;
-	
-	container.appendChild(oT1 = document.createElement("table"));
+	var frg = document.createDocumentFragment();
+	frg.appendChild(oT1 = document.createElement('table'));
 	oT1.width='100%';
 	oT1.height='100%';
 	oT1.cellSpacing = 0;
 	oT1.border = 0;
+	oT1.datepicker = this;
 	
 	oTR1 = oT1.insertRow(oT1.rows.length);
 	for ( i = 0; i < 7; i++ ) {
 		oTH1 = document.createElement("th");
 	    oTR1.appendChild(oTH1);
-	    oTH1.innerHTML = this.dt.Days[i].slice(0,1);//this.texts.days[i];
+	    oTH1.innerHTML = this.dt.Days[i].slice(0,1);
 	    oTH1.className = 'DatePicker';
 	}
 	this.aCells = new Array;
@@ -115,24 +112,22 @@ Datepicker.prototype.render = function(container) {
 	    oTR1 = oT1.insertRow(oT1.rows.length);
 	    for ( i = 0; i < 7; i++ ) {
 			this.aCells[j][i] = oTR1.insertCell(oTR1.cells.length);
-			this.aCells[j][i].oDatePicker = this;
-			this.aCells[j][i].onclick = function() {
-				this.oDatePicker.onDay(this);
-			}
+			this.aCells[j][i].onclick = DatepickerCell__click;
 	    }
 	}
+	container.appendChild(frg.firstChild);
 }
 
 Datepicker.prototype.fill = function() {
 	this.clear();
 	var nRow = 0;
-	var d = new Date(this.dt.getTime());
+	var d = new Date( this.dt.getTime() );
 	var now = new Date();
 	var m = d.getMonth();
 	for ( d.setDate(1); d.getMonth() == m; d.setTime(d.getTime() + 86400000) ) {
 		var nCol = d.getDay();
 		this.aCells[nRow][nCol].innerHTML = d.getDate();
-		if ( d.getDate() == this.dt.getDate() && d.getMonth() == now.getMonth() && d.getYear() == now.getYear() ) {
+		if ( d.getDate() == now.getDate() && d.getMonth() == now.getMonth() && d.getYear() == now.getYear() ) {
 		   this.aCells[nRow][nCol].className = 'DatePickerBtnSelect';
 		}
 		if ( nCol == 6 ) nRow++;
@@ -166,7 +161,7 @@ Datepicker.prototype.onDay = function(oCell) {
 	var d = parseInt(oCell.innerHTML);
 	if ( d > 0 ) {
 		this.dt.setDate(d);
-		this.div.firstChild.value = this.dt.format('ddd dd/mmm/yyyy');
+		this.setValue(this.dt);
 	}
 }
 
@@ -189,4 +184,41 @@ Datepicker.prototype.onNext = function() {
 		this.dt.setMonth(this.dt.getMonth() + 1);
 	}
 	this.fill();
+}
+
+DatepickerMonth__click = function(evt, w) {
+	var oCombo;
+	if (w)
+		oCombo = w.parent
+	else
+		oCombo = (this.parentNode || this.parentElement).widget;
+	if (!oCombo.dropdown.isExpanded)
+		oCombo.showDropdown();
+	else
+		oCombo.dropdown.close();
+	QuiX.stopPropag(evt);
+}
+
+function DatepickerMonth__change(w) {
+	var oDatepicker = w.parent.parent.parent.parent.combo;
+	oDatepicker.onMonth();
+}
+
+function DatepickerNext__click(evt, w) {
+	var oDatepicker = w.parent.parent.parent.parent.combo;
+	oDatepicker.onNext();
+}
+
+function DatepickerPrev__click(evt, w) {
+	var oDatepicker = w.parent.parent.parent.parent.combo;
+	oDatepicker.onPrev();
+}
+
+function DatepickerCell__click() {
+	var oDatepicker;
+	if (QuiX.browser=='moz')
+		oDatepicker = this.parentNode.parentNode.parentNode.datepicker;
+	else
+		oDatepicker = this.parentElement.parentElement.parentElement.datepicker;
+	oDatepicker.onDay(this);
 }

@@ -2,8 +2,8 @@
 
 from porcupine.config.resources import Locale
 from porcupine.core.servlet import XULServlet
-from resources.servlets.ui import PorcupineDesktopServlet
-from resources.servlets.filetrack.strings import resources
+from resources.system.ui import PorcupineDesktopServlet, Frm_AutoNew, Frm_AutoProperties
+from resources.filetrack.strings import resources
 from schemas.org.innoscript import filetrack
 from porcupine.security import objectAccess
 from porcupine.oql.command import OqlCommand
@@ -230,6 +230,18 @@ class Frm_LogEntryProperties(PorcupineDesktopServlet):
                 % (issue.id, issue.__image__, issue.displayName.value)
         
         self.params['SECURITY_TAB'] = self.getSecurity(self.item)
+
+class Frm_AutoNewFiletrack(Frm_AutoNew):
+    def __init__(self,  server, session, request):
+        Frm_AutoNew.__init__(self,  server, session, request)
+        self.secondaryResources = resources
+        self.xul_file = 'resources/system/ui.Frm_AutoNew.xul'
+        
+class Frm_AutoPropertiesFiletrack(Frm_AutoProperties):
+    def __init__(self,  server, session, request):
+        Frm_AutoProperties.__init__(self,  server, session, request)
+        self.secondaryResources = resources
+        self.xul_file = 'resources/system/ui.Frm_AutoProperties.xul'
 
 class Dlg_SelectPersons(PorcupineDesktopServlet):
     def setParams(self):

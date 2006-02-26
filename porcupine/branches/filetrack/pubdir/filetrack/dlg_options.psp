@@ -1,0 +1,27 @@
+<%
+from resources.filetrack.strings import resources
+
+sLang = request.getLang()
+sPageSize = resources.getResource('PAGE_SIZE', sLang)
+sMaxRes = resources.getResource('MAX_SEARCH_RES', sLang)
+sOK = resources.getResource('OK', sLang)
+sCancel = resources.getResource('CANCEL', sLang)
+
+response.content_type = 'text/xml'
+%>
+<a:dialog xmlns:a="http://www.innoscript.org/quix"
+	width="300"
+	height="120"
+	img="filetrack/images/options.gif"
+	left="center"
+	top="center">
+	<a:script name="FileTrack options script" src="filetrack/options.js"/>
+	<a:wbody>
+		<a:label top="7" left="5" caption="<%response.write(sPageSize)%>:" width="200"/>
+		<a:field id="pagesize" width="60" height="22" top="5" left="200"/>
+		<a:label top="30" left="5" caption="<%response.write(sMaxRes)%>:" width="200"/>
+		<a:field id="max_results" width="60" height="22" top="28" left="200"/>
+	</a:wbody>
+	<a:dlgbutton width="60" height="22" caption="<%response.write(sOK)%>" onclick="filetrack.applyPreferences"/>
+	<a:dlgbutton width="60" height="22" onclick="__closeDialog__" caption="<%response.write(sCancel)%>"/>
+</a:dialog>

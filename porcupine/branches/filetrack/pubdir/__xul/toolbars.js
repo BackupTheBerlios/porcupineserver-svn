@@ -5,46 +5,60 @@ Toolbars
 function Toolbar(params) {
 	params = params || {};
 	this.base = Widget;
-	params.padding = '2,4,1,1';
+	params.padding = '2,4,0,0';
 	params.border = params.border || 1;
 	params.overflow = 'hidden';
 	this.base(params);
 	this.div.className = 'toolbar';
-	var iSpacing = params.spacing || 6;
-	this.spacing = parseInt(iSpacing);
-
 	this.handle = new Widget({width:4,height:"100%",border:0,overflow:'hidden'});
 	this.appendChild(this.handle);
 	this.handle.div.className = 'handle';
+
+	var iSpacing = params.spacing || 4;
+	this.spacing = parseInt(iSpacing);
 	this.buttons = [];
 }
 
 Toolbar.prototype = new Widget;
 
-Toolbar.prototype._getOffset = function(idx) {
+Toolbar.prototype._getOffset = function(oButton) {
 	var offset = 0;
-	for (var i=0; i<idx; i++) {
+	for (var i=0; i<this.buttons.length; i++) {
+		if (this.buttons[i]==oButton)
+			break;
 		offset += this.buttons[i]._calcWidth(true) + this.spacing;
 	}
 	return(offset + this.handle._calcWidth(true) + 4);
 }
 
 Toolbar.prototype.addButton = function(params) {
-	params.left = "this.parent._getOffset(" + this.buttons.length + ")";
+	params.left = "this.parent._getOffset(this)";
 	params.height = "100%";
 	var oButton = new FlatButton(params);
+	oButton.destroy = ToolbarButton__destroy;
 	this.appendChild(oButton);
 	this.buttons.push(oButton);
 	return(oButton);
 }
 
 Toolbar.prototype.addSeparator = function() {
-	var l = "this.parent._getOffset(" + this.buttons.length + ")";
+	var l = "this.parent._getOffset(this)";
 	var oSep = new Widget({left:l,width:2,height:"100%",border:1,overflow:'hidden'});
+	oSep.destroy = ToolbarButton__destroy;
 	this.appendChild(oSep);
 	oSep.div.className = 'separator';
 	this.buttons.push(oSep);
 	return(oSep);
+}
+
+ToolbarButton__destroy = function() {
+	var parent = this.parent;
+	parent.buttons.removeItem(this);
+	if (this.base)
+		this.base.prototype.destroy(this);
+	else
+		Widget.prototype.destroy(this);
+	parent.redraw();
 }
 
 function OutlookBar(params) {
@@ -53,8 +67,8 @@ function OutlookBar(params) {
 	params.overflow = 'hidden';
 	this.base(params);
 	this.div.className = 'outlookbar';
-	this.toolheight = params.toolheight || 20;
-	this.tools = [];
+	
+	this.headerHeight = params.headerheight || 20;
 	this.panes = [];
 	this.activePane = 0;
 }
@@ -62,30 +76,39 @@ function OutlookBar(params) {
 OutlookBar.prototype = new Widget;
 
 OutlookBar.prototype.addPane = function(params) {
-	var w = new Widget(
-		{
-			width:"100%",height:this.toolheight,
-			border:1,padding:'2,2,2,2',overflow:'hidden'
-		});
-	this.appendChild(w);
-	w.setPosition('relative');
-	w.div.className = 'tool';
-	w.div.innerHTML = params.caption;
-	var oBar = this;
-	var iPane = this.tools.length;
-	w.attachEvent('onclick', function(){oBar.activatePane(iPane)});
-	this.tools.push(w);
+	var header = new Label({
+		width : "100%",
+		height : this.headerHeight,
+		border : 1,
+		padding : '2,2,2,2',
+		overflow : 'hidden',
+		caption : params.caption,
+		align : params.align || 'center'
+	});
+	this.appendChild(header);
+	header.setPosition('relative');
+	header.div.className = 'tool';
+	header.attachEvent('onclick', OutlookBarHeader__onclick);
+
+	var w1 = new Widget({
+		width : '100%',
+		id : params.id,
+		height : 'this.parent.getHeight(true)-this.parent.panes.length*this.parent.headerHeight',
+		overflow : 'auto'
+	});
 	
-	var w1 = new Widget(
-		{
-			width:"100%",id:params.id,
-			height:"this.parent.getHeight(true)-this.parent.tools.length*this.parent.toolheight",
-			overflow:'auto'
-		});
 	this.appendChild(w1);
-	if (this.panes.length!=0) w1.setDisplay('none');
+
+	if (this.panes.length!=0)
+		w1.setDisplay('none');
 	w1.setPosition('relative');
+
 	this.panes.push(w1);
+
+	w1.header = header;
+	w1.setCaption = OutlookBarPane__setCaption;
+	w1.getCaption = OutlookBarPane__getCaption;
+	w1.destroy = OutlookBarPane__destroy;
 	return(w1);
 }
 
@@ -93,4 +116,26 @@ OutlookBar.prototype.activatePane = function(iPane) {
 	this.panes[this.activePane].setDisplay('none');
 	this.panes[iPane].setDisplay();
 	this.activePane = iPane;
+}
+
+function OutlookBarHeader__onclick(evt, w) {
+	var oBar = w.parent;
+	for (var i=0; i<oBar.panes.length; i++) {
+		if (oBar.panes[i].header == w) {
+			oBar.activatePane(i);
+			return;
+		}
+	}
+}
+function OutlookBarPane__setCaption(sCaption) {
+	this.header.setCaption(sCaption);
+}
+
+function OutlookBarPane__getCaption() {
+	return this.header.getCaption();
+}
+
+function OutlookBarPane__destroy() {
+	this.header.destroy();
+	Widget.prototype.destroy(this);
 }

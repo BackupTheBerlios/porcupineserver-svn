@@ -35,9 +35,9 @@ selectPersons.setPerson = function(evt, w) {
 	var field = dlg.opener.getWidgetById(fname);
 	var field_name = dlg.opener.getWidgetById(fname + '_name');
 	for (var i=0; i<select.options.length; i++) {
-		if (select.options[i].isSelected) {
+		if (select.options[i].selected) {
 			field.setValue(select.options[i].value);
-			field_name.setValue(select.options[i].caption);
+			field_name.setValue(select.options[i].getCaption());
 			break;
 		}
 	}
@@ -48,11 +48,11 @@ selectPersons.setCC = function(evt, w) {
 	var select = dlg.getWidgetById('search_results');
 	var field = dlg.opener.getWidgetById('cc');
 	for (var i=0; i<select.options.length; i++) {
-		if (select.options[i].isSelected) {
+		if (select.options[i].selected) {
 			field.addOption({
 				value: select.options[i].value,
 				img: select.options[i].img,
-				caption: select.options[i].caption
+				caption: select.options[i].getCaption()
 			});
 		}
 	}

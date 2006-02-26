@@ -3,304 +3,307 @@ Menus
 ************************/
 //menu option
 function MenuOption(params) {
-	this.caption = params.caption;
-	this.id = params.id;
-	this.height = params.height || 21;
-	this.img = params.img;
-	this.onclick = getEventListener(params.onclick);
+	params.height = params.height || 21;
+	params.align = 'left';
+	params.imgalign = 'left';
+	params.width = '100%';
+	params.padding = '4,0,3,2';
+	params.onmouseover = MenuOption__onmouseover;
+	params.onmouseout = MenuOption__onmouseout;
+	params.onclick = QuiX.getEventWrapper(MenuOption__onclick, params.onclick);
+
+	this.base = Icon;
+	this.base(params);
+
+	this.div.style.whiteSpace = 'nowrap';
+	if (QuiX.browser == 'moz')
+		this.setDisplay('table');
+	this.setPosition('relative');
+
+	this.subMenu = null;
 	this.type = params.type;
-	this.disabled = (params.disabled=='true' || params.disabled==true)?true:false;
-	delete params.disabled;
-	this.options = [];
-	this.isSelected = (params.selected=='true')?true:false;
-	this.attributes = params.attributes || {};
-	this.base = Widget;
+	this.selected = (params.selected=='true' || params.selected==true)?true:false;
 }
 
-MenuOption.prototype = new Widget;
+MenuOption.prototype = new Icon;
 
-MenuOption.prototype.show = function(contextMenu) {
-	var lpadding, rpadding, oOption = this;
-	lpadding = 24;
-	rpadding = (this.options.length==0)?8:24;
-	this.base({
-		id : this.id,
-		height : this.height,
-		top : contextMenu._top,
-		padding : lpadding + ',' + rpadding + ',3,2',
-		width : '100%',
-		disabled: this.disabled,
-		onmouseover: MenuOption__onmouseover,
-		onmouseout: MenuOption__onmouseout,
-		onclick: MenuOption__onclick,
-		attributes : this.attributes
-	});
-	contextMenu.appendChild(this);
-	this.setDisplay('inline');
-	this.setPosition();
-	this.div.appendChild( document.createTextNode(this.caption));
-	this.div.style.whiteSpace = 'nowrap';
-	if (this.options.length>0) {
-		var w = new Icon({
-			left: 'this.parent.getWidth(true) - 12',
-			top: 'center',
-			padding: '0,0,0,0',
-			overflow: 'hidden',
-			//border: 1,
-			width: 12,
-			height: 12,
-			img: 'images/submenu.gif'
-		});
-		this.appendChild(w);
-		var oSubOptions = this.options;
-		var oSubMenu = new ContextMenu({}, this);
-		oSubMenu.options = oSubOptions;
-		this.subMenu = oSubMenu;
+MenuOption.prototype.addOption = function(params) {
+	if (!this.subMenu)
+		this.subMenu = new ContextMenu({}, this);
+	return this.subMenu.addOption(params);
+}
+
+MenuOption.prototype.redraw = function(bForceAll) {
+	if (this.subMenu) {
+		this.div.className = 'submenu';
+	}
+	else {
+		this.div.className = '';
+	}
+
+	if (this.type) {
+		if (this.selected) {
+			switch (this.type) {
+				case 'radio':
+					this.img = 'images/menu_radio.gif';
+					break;
+				case 'check':
+					this.img = 'images/menu_check.gif';
+			}
+		}
+		else
+			this.img = null;
+		bForceAll = true;
+	}
+	if (!this.img)
+		this.setPadding([22,8,3,2]);
+	else
+		this.setPadding([4,8,3,2]);
+	
+	Icon.prototype.redraw(bForceAll, this);
+}
+
+MenuOption.prototype.destroy = function() {
+	var parent = this.parent;
+	parent.options.removeItem(this);
+
+	if (this.base)
+		this.base.prototype.destroy(this);
+	else
+		Widget.prototype.destroy(this);
+
+	if (parent.options.length==0 && parent.owner instanceof MenuOption) {
+		parent.owner.subMenu = null;
+		parent.close();
+		parent.destroy();
+		parent = null;
 	}
 	
-	if (this.type && this.isSelected) {
-		this._addIndicator();
-	} else if (this.img) {
-		var img = QuiX.getImage(this.img);
-		img.border=0;
-		img.align='absmiddle';
-		img.style.marginRight='4px';
-		img.width=16;
-		img.height=16;
-		this.addPaddingOffset('Left', -20);
-		this.div.insertBefore(img, this.div.firstChild);
-	}
+	if (parent) parent.redraw();
 }
 
-MenuOption.prototype._addIndicator = function() {
-	var img, padding;
+MenuOption.prototype.select = function() {
 	switch (this.type) {
 		case 'radio':
-			img = QuiX.getImage('images/menu_radio.gif');
-			break;
-		case 'check':
-			img = QuiX.getImage('images/menu_check.gif');
-	}
-	img.width=16;
-	img.height=16;
-	img.border=0;
-	img.align='absmiddle';
-	img.style.marginRight='4px';
-
-	this.addPaddingOffset('Left', -20);
-	this.div.insertBefore(img, this.div.firstChild);
-}
-
-MenuOption.prototype.select = function () {
-	switch (this.type) {
-		case 'radio':
-			if (!this.isSelected) {
-				if (this.id) {
-					var oOptions = this.parent.getWidgetById(this.id);
+			if (!this.selected) {
+				var id = this.getId();
+				if (id) {
+					var oOptions = this.parent.getWidgetById(id);
 					if (oOptions.length) {
 						for(var i=0; i<oOptions.length; i++)
-							oOptions[i].isSelected = false;
+							oOptions[i].selected = false;
 					}
 					else
-						oOptions.isSelected = false;
+						oOptions.selected = false;
 				}
-				this.isSelected = true;
+				this.selected = true;
 			}
 			break;
 		case 'check':
-			this.isSelected = !this.isSelected;
+			this.selected = !this.selected;
 	}
 }
 
+MenuOption.prototype.expand = function() {
+	if (this.parent.activeSub) {
+		this.parent.activeSub.close();
+	}
+	if (this.subMenu) {
+		this.parent.activeSub = this.subMenu;
+		this.subMenu.show(
+			this.parent,
+			this.getWidth(true),
+			this.getScreenTop() - this.parent.getScreenTop() );
+		
+		if (this.subMenu.getScreenTop() + this.subMenu.height > document.desktop.getHeight(true)) {
+			this.subMenu.top -= this.subMenu.getScreenTop() + this.subMenu.height - document.desktop.getHeight(true);
+			this.subMenu.redraw();
+		}
+		
+		if (this.subMenu.getScreenLeft() + this.subMenu.width > document.desktop.getWidth(true)) {
+			this.subMenu.left = - this.subMenu.width;
+			this.subMenu.redraw();
+		}
+	}
+}
 
 function MenuOption__onmouseout(evt, w) {
-	w.div.className = 'option';
+	if (w.subMenu)
+		w.div.className = 'submenu';
+	else
+		w.div.className = '';
 }
 
 function MenuOption__onmouseover(evt, w) {
-	if (w.parent.activeSub) {
-		w.parent.activeSub.close();
-		w.parent.activeSub = null;
-	}
-	w.div.className = 'option over';
-	if (w.subMenu) {
-		w.parent.activeSub = w.subMenu;
-		w.subMenu.show(w.parent, w.getWidth(true), w.getTop(true)-w.parent.getPadding()[2]);
-		
-		if (w.subMenu.getScreenTop() + w.subMenu.height > document.desktop.getHeight(true)) {
-			w.subMenu.top -= w.subMenu.getScreenTop() + w.subMenu.height - document.desktop.getHeight(true);
-			w.subMenu.redraw();
-		}
-
-		if (w.subMenu.getScreenLeft() + w.subMenu.width > document.desktop.getWidth(true)) {
-			w.subMenu.left = - w.subMenu.width;
-			w.subMenu.redraw();
-		}
-	}
+	w.expand();
+	w.div.className += ' over';
 }
 
 function MenuOption__onclick(evt, w) {
 	if (w.type) w.select();
+	w.div.className = 'option';
 	QuiX.cleanupOverlays();
-	if (w.onclick) {
-		w.onclick(evt, w);
-	}
 }
 
 //context menu
 function ContextMenu(params, owner) {
+	this.base = Widget;
+	this.base({
+		id : params.id,
+		width : 100,
+		border : 1,
+		onmousedown : QuiX.stopPropag
+	});
+	var rect = new Widget({
+		width: '22',
+		height: '100%',
+		bgcolor: 'silver',
+		overflow: 'hidden'
+	});
+	this.appendChild(rect);
+	this.div.className = 'contextmenu';
+
 	this.options = [];
 	this.owner = owner;
-	this.id = params.id;
-	this.base = Widget;
+	this.activeSub = null;
 	this.onshow = getEventListener(params.onshow);
 	this.isOpen = false;
-	if (this.id) {
-		if (owner._id_widgets[this.id])
-			owner._id_widgets[this.id].push(this);
-		else
-			owner._id_widgets[this.id] = [this];
-	}
 }
 
 ContextMenu.prototype = new Widget;
 
-ContextMenu.prototype.show = function(w,x,y) {
-	var oOption, optionWidth, max_width=0;
+ContextMenu.prototype.redraw = function(bForceAll) {
+	var oOption, optionWidth;
+	var iHeight = 0;
+	
+	for (var i=0; i<this.options.length; i++) {
+		oOption = this.options[i];
+		optionWidth = oOption.div.offsetWidth;
+		iHeight += oOption.div.offsetHeight;
+		if (optionWidth > this.width)
+			this.width = optionWidth + 16;
+	}
+	
+	this.height = iHeight + 2;
+	
+	if (this.top + this.height > document.desktop.getHeight(true))
+		this.top = this.top - this.height;
+	if (this.left + this.width > document.desktop.getWidth(true))
+		this.left = this.left - this.width;
+
+	Widget.prototype.redraw(bForceAll, this);
+}
+
+ContextMenu.prototype.show = function(w, x, y) {
 	if (!this.isOpen) {
-		this._top = 0;
 		if (this.onshow) this.onshow(this);
-		this.base({
-			left:x,
-			top:y,
-			width: 60,
-			border:1,
-			padding:'1,1,1,1',
-			onmousedown: QuiX.stopPropag
-		});
+		this.left = x;
+		this.top = y;
 		w.appendChild(this);
-		
-		var rect = new Widget({
-			width: '22',
-			height: '100%',
-			bgcolor: 'silver',
-			overflow: 'hidden'
-		});
-		
-		this.appendChild(rect);
-		
-		this.div.className = 'contextmenu';
-		for (var i=0; i<this.options.length; i++) {
-			oOption = this.options[i];
-			if (oOption!=-1) {
-				oOption.show(this);
-				optionWidth = oOption.div.offsetWidth;
-				if (QuiX.browser == 'ie' && !oOption.img)
-					optionWidth += oOption.getPadding()[0];
-				if (optionWidth > max_width) max_width = optionWidth;
-				oOption.setDisplay();
-				oOption.setPosition('absolute');
-			}
-			else {
-				oOption = new Widget({
-					width:'this.parent.getWidth()-24',
-					height:2, top:this._top, left:24,
-					border:1, overflow:'hidden'
-				});
-				this.appendChild(oOption);
-				oOption.div.className = 'separator';
-			}
-			this._top += oOption.height;
-	
-		}
-		this.activeSub = null;
-	
-		if (!this.fixedheight) this.height = this._top + 4;
-	
-		if (this.top + this.height > document.desktop.getHeight(true))
-			this.top = y - this.height;
-		if (this.left + this.width > document.desktop.getWidth(true))
-			this.left = x - this.width;
-		
-		this.width=max_width + 8;
-		
-		this.redraw();
 		this.bringToFront();
 		
-		if (w==document.desktop) document.desktop.overlays.push(this);
+		if (w==document.desktop)
+			document.desktop.overlays.push(this);
+		
 		this.isOpen = true;
 	}
 }
 
 ContextMenu.prototype.close = function() {
+	if (this.activeSub) {
+		this.activeSub.close();
+	}
+	if (this.owner.parent.activeSub)
+		this.owner.parent.activeSub = null;
 	if (this.parent == document.desktop)
 		document.desktop.overlays.removeItem(this);
-	this.destroy();
+	this.detach();
 	this.isOpen = false;
 }
 
 ContextMenu.prototype.addOption = function(params) {
-	var oOpt = new MenuOption(params);
-	this.options.push(oOpt);
-	return(oOpt);
+	var oOption;
+	if (params != -1) { //not a separator
+		oOption = new MenuOption(params);
+	}
+	else {
+		oOption = new Widget({
+			width : 'this.parent.getWidth()-22',
+			height : 2,
+			left : 22,
+			border : 1,
+			overflow : 'hidden'
+		});
+		oOption.destroy = MenuOption.prototype.destroy;
+		oOption.div.className = 'separator';
+		oOption.setPosition('relative');
+	}
+	this.appendChild(oOption);
+	this.options.push(oOption);
+	return oOption;
 }
 
 // Menu Bar
-
 function MBar(params) {
 	params = params || {};
-	params.border=1;
-	params.padding = '2,4,1,1';
+	params.border = params.border || 1;
+	params.padding = '2,4,0,1';
 	params.overflow = 'hidden';
 	this.base = Widget;
 	this.base(params);
 	this.div.className = 'menubar';
-	var iSpacing = params.spacing || 8;
+	var iSpacing = params.spacing || 2;
+
 	this.spacing = parseInt(iSpacing);
-	this.contextmenus = [];
+	this.menus = [];
 }
 
 MBar.prototype = new Widget;
 
+MBar.prototype.redraw = function(bForceAll) {
+	for (var i=0; i<this.menus.length; i++) {
+		 this.menus[i].div.style.marginRight = this.spacing + 'px';
+	}
+	Widget.prototype.redraw(bForceAll, this);
+}
+
 MBar.prototype.addRootMenu = function(params) {
-	var oMenubar = this;
-	var ind = this.contextmenus.length;
-	var oMenu = new Widget(
-		{
-			border: 0,padding: '4,4,3,3',
-			onclick: function(evt){oMenubar._menuclick(evt, oMenu, ind)},
-			onmouseover: function(){oMenubar._menuover(oMenu)},
-			onmouseout: function(){oMenubar._menuout(oMenu)}
-		});
+	var oMenu = new Label({
+		top : 'center',
+		border : 0,
+		padding : '8,8,3,4',
+		caption : params.caption,
+		onclick : Menu__click,
+		onmouseover : Menu__mouseover,
+		onmouseout : Menu__mouseout
+	});
 	this.appendChild(oMenu);
-	oMenu.setDisplay('inline');
-	oMenu.setPosition();
 	oMenu.div.className = 'menu';
+	oMenu.setPosition();
 	oMenu.div.style.marginRight = this.spacing + 'px';
+	this.menus.push(oMenu);
 	
-	oMenu.div.innerHTML = params.caption;
 	var oCMenu = new ContextMenu(params, oMenu);
-	this.contextmenus.push(oCMenu);
+	oMenu.contextMenu = oCMenu;
 	return(oCMenu);
 }
 
-MBar.prototype._menuover = function(oMenu) {
-	oMenu.setBorderWidth(1);
-	oMenu.setPadding([3,3,2,2]);
-	oMenu.div.className = 'menu over';
-}
-
-MBar.prototype._menuout = function(oMenu) {
-	oMenu.setBorderWidth(0);
-	oMenu.setPadding([4,4,3,3]);
-	oMenu.div.className = 'menu';
-}
-
-MBar.prototype._menuclick = function(evt, oMenu, ind) {
-	oMenu.div.className = 'menu selected';
-	var oCMenu = this.contextmenus[ind];
-	showWidgetContextMenu(oMenu, oCMenu);
+function Menu__click(evt, w) {
+	w.div.className = 'menu selected';
+	showWidgetContextMenu(w, w.contextMenu);
 	QuiX.stopPropag(evt);
+}
+
+function Menu__mouseover(evt, w) {
+	w.setBorderWidth(1);
+	w.setPadding([7,7,2,3]);
+	w.div.className = 'menu over';
+}
+
+function Menu__mouseout(evt, w) {
+	w.setBorderWidth(0);
+	w.setPadding([8,8,3,4]);
+	w.div.className = 'menu';
 }
 
 function showWidgetContextMenu(w, menu) {
@@ -308,14 +311,14 @@ function showWidgetContextMenu(w, menu) {
 	var ny = w.getScreenTop() + w.div.offsetHeight;
 
 	menu.show(document.desktop, nx, ny);
-
+	
 	if (ny + menu.height > document.desktop.getHeight(true)) {
 		menu.top = menu.owner.getScreenTop() - menu.getHeight(true);
 		menu.redraw();
 	}
 
 	if (nx + menu.width > document.desktop.getWidth(true)) {
-		menu.left = menu.owner.getScreenLeft() + menu.owner.padding[0] - menu.getWidth(true);
+		menu.left = menu.owner.getScreenLeft() - menu.getWidth(true);
 		menu.redraw();
 	}
 }

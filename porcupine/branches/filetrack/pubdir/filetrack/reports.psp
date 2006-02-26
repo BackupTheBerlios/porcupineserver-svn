@@ -1,5 +1,5 @@
 <%
-from resources.servlets.filetrack.strings import resources
+from resources.filetrack.strings import resources
 
 sLang = request.getLang()
 sWarning_Select_Scope = resources.getResource('WARN_SELECT_SCOPE', sLang)

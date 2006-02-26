@@ -1,4 +1,4 @@
-var containerList= function() {}
+var containerList = function() {}
 
 containerList.loadItem = function(evt, w, o) {
 	var oWin = w.getParentByType(Window);
@@ -46,29 +46,32 @@ containerList.getContainerInfo = function(w, bAddPath) {
 			}
 			if (!pathExists) cmb_path.addOption({ caption: sFullPath, value: sFullPath });
 		}
-		var newOption1 = w.getWidgetById('menubar').contextmenus[0].options[0];
-		var newOption2 = w.getWidgetById('contextmenu').options[0];
+		var newOption1 = w.getWidgetById('menubar').menus[0].contextMenu.options[0];
+		var newOption2 = w.getWidgetsByType(Splitter)[0].panes[3].contextMenu.options[0];
 		var containment = req.response.containment;
 		newOption1.options = [];
+		newOption1.subMenu = null;
 		newOption2.options = [];
+		newOption2.subMenu = null;
 		if (req.response.user_role > 1 && containment.length>0) {
-			var mo;
-			newOption1.disabled=false;
-			newOption2.disabled=false;
+			var params, mo1, mo2;
+			newOption1.enable();
+			newOption2.enable();
 			for (var i=0; i<containment.length; i++) {
-				mo = new MenuOption ({
+				params = {
 					caption: containment[i][0],
 					img: containment[i][2],
 					onclick: containerList.createItem
-				});
-				mo.attributes.cc = containment[i][1];
-				newOption1.options.push(mo);
-				newOption2.options.push(mo);
+				}
+				mo1 = newOption1.addOption(params);
+				mo1.attributes.cc = containment[i][1];
+				mo2 = newOption2.addOption(params);
+				mo2.attributes.cc = containment[i][1];
 			}
 		}
 		else {
-			newOption1.disabled=true;
-			newOption2.disabled=true;
+			newOption1.disable();
+			newOption2.disable();
 		}
 		w.attributes.history.push(w.attributes.FolderID);
 	}
@@ -117,14 +120,28 @@ containerList.navigateTo = function(evt, w) {
 
 containerList.listMenu_show = function(menu) {
 	var oItemList = menu.owner.getWidgetsByType(ListView)[0];
-	menu.options[2].disabled = (oItemList.selection.length == 0);//cut
-	menu.options[3].disabled = (oItemList.selection.length == 0);//copy
-	menu.options[4].disabled = QuiX.clipboard.items.lenth==0 || QuiX.clipboard.contains!='objects';//paste
-	menu.options[5].disabled = (oItemList.selection.length == 0);//delete
-	menu.options[7].disabled = !(oItemList.selection.length == 1);//move to
-	menu.options[8].disabled = !(oItemList.selection.length == 1);//copy to
-	menu.options[9].disabled = !(oItemList.selection.length == 1);//rename
-	menu.options[11].disabled = !(oItemList.selection.length == 1);//properties
+	if (oItemList.selection.length == 0) {
+		menu.options[2].disable();//cut
+		menu.options[3].disable();//copy
+		menu.options[5].disable();//delete
+		menu.options[7].disable();//move to
+		menu.options[8].disable();//copy to
+		menu.options[9].disable();//rename
+		menu.options[11].disable();//properties
+	}
+	else {
+		menu.options[2].enable();//cut
+		menu.options[3].enable();//copy
+		menu.options[5].enable();//delete
+		menu.options[7].enable();//move to
+		menu.options[8].enable();//copy to
+		menu.options[9].enable();//rename
+		menu.options[11].enable();//properties
+	}
+	if (QuiX.clipboard.items.length>0 && QuiX.clipboard.contains=='objects')
+		menu.options[4].enable();//paste
+	else
+		menu.options[4].disable();//paste
 }
 
 containerList.showProperties = function(evt, w) {
@@ -174,7 +191,7 @@ containerList.paste = function(evt, w) {
 			containerList.getContainerInfo(win);
 		}
 	}
-	generic.getProcessDialog(w.caption, items.length, _startPasting);
+	generic.getProcessDialog(w.getCaption(), items.length, _startPasting);
 }
 
 containerList.copyMove = function(evt, w) {
@@ -203,7 +220,7 @@ containerList.rename = function(evt, w) {
 
 containerList.deleteItem = function(evt, w) {
 	var win = w.parent.owner.getParentByType(Window);
-	var sCaption = w.caption;
+	var sCaption = w.getCaption();
 	var desktop = document.desktop;
 
 	var _deleteItem = function(evt, w) {
@@ -234,7 +251,7 @@ containerList.deleteItem = function(evt, w) {
 		generic.getProcessDialog(sCaption, items.length, _start);
 	}
 
-	desktop.msgbox(w.caption, 
+	desktop.msgbox(w.getCaption(), 
 		"Are you sure you want to delete the selected items?",
 		[
 			[desktop.attributes['YES'], 60, _deleteItem],

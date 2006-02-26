@@ -106,6 +106,7 @@ B{QuiX} Application Object
     @type left: L{top<schemas.org.innoscript.properties.top>}
     @ivar resourcesImportPath: This is the full import path to a module variable
         of type "L{ResourceStrings<porcupine.config.resources.ResourceStrings>}"
+        used for keeping the application's localized strings
     @type resourcesImportPath: L{String<porcupine.datatypes.String>}
     @ivar isResizable: Indicates if the application's window is resizable
     @type isResizable: L{isResizable<schemas.org.innoscript.properties.isResizable>}

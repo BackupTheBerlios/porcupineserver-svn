@@ -2,10 +2,10 @@
 from threading import currentThread
 
 from porcupine.core.servlet import HTTPServlet, XULServlet
-from resources.servlets.ui import PorcupineDesktopServlet
-from resources.servlets.filetrack.strings import resources
 from porcupine.oql.command import OqlCommand
 from porcupine.utils import xmlUtils, date
+from resources.system.ui import PorcupineDesktopServlet
+from resources.filetrack.strings import resources
 
 SEARCH_FIELDS = ('displayName', 'sender', 'receiver', 'entryDate')
 

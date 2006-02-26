@@ -15,20 +15,20 @@
 	<a:pane length="-1">
 		<a:splitter orientation="v" spacing="0" width="100%%" height="100%%">
 			<a:pane length="-1">
-					<a:contextmenu onshow="filetrack.ccontext_show">
-						<a:menuoption caption="%(CREATE)s" img="images/filenew.gif" onclick="filetrack.newContact"></a:menuoption>
-						<a:sep></a:sep>
-						<a:menuoption caption="%(DELETE)s" img="images/editdelete.gif" onclick="filetrack.deleteItem"></a:menuoption>
-						<a:menuoption caption="%(PROPERTIES)s" onclick="filetrack.showProps"></a:menuoption>
-					</a:contextmenu>'+
-					<a:listview id="contact_list" width="100%%" height="100%%" ondblclick="filetrack.loadItem">
-						<a:listheader>
-							<a:column width="24" caption="" type="img" name="image" resizable="false"></a:column>
-							<a:column width="200" caption="%(SURNAME)s" name="displayName" bgcolor="#EFEFEF" sortable="true"></a:column>
-							<a:column width="120" caption="%(company)s" name="company" sortable="true"></a:column>
-							<a:column width="120" caption="%(email)s" name="email" sortable="true"></a:column>
-						</a:listheader>
-					</a:listview>
+				<a:contextmenu onshow="filetrack.ccontext_show">
+					<a:menuoption caption="%(CREATE)s" img="images/filenew.gif" onclick="filetrack.newContact"></a:menuoption>
+					<a:sep></a:sep>
+					<a:menuoption caption="%(DELETE)s" img="images/editdelete.gif" onclick="filetrack.deleteItem"></a:menuoption>
+					<a:menuoption caption="%(PROPERTIES)s" onclick="filetrack.showContactProps"></a:menuoption>
+				</a:contextmenu>'+
+				<a:listview id="contact_list" width="100%%" height="100%%" ondblclick="filetrack.loadItem">
+					<a:listheader>
+						<a:column width="24" caption="" type="img" name="image" resizable="false"></a:column>
+						<a:column width="200" caption="%(SURNAME)s" name="displayName" bgcolor="#EFEFEF" sortable="true"></a:column>
+						<a:column width="120" caption="%(company)s" name="company" sortable="true"></a:column>
+						<a:column width="120" caption="%(email)s" name="email" sortable="true"></a:column>
+					</a:listheader>
+				</a:listview>
 			</a:pane>
 			<a:pane length="44" id="index" bgcolor="#E8E8EC"> 
 				<a:contextmenu>
