@@ -22,7 +22,7 @@ function Combo(params) {
 	this.selection = null;
 	this.isExpanded = false;
 	this.attachEvent('onmousedown', QuiX.stopPropag);
-	this.onchange = getEventListener(params.onchange);
+	this.onchange = params.onchange;
 
 	var e = ce('INPUT');
 	e.style.borderWidth = '1px';
@@ -74,7 +74,7 @@ function Combo(params) {
 
 	this.button = new XButton({
 		left : 'this.parent.getWidth()-20',
-		height : '100%', width : 20, bgcolor : 'silver',
+		height : '100%', width : 20,
 		img : params.img || 'images/desc8.gif'
 	});
 	this.appendChild(this.button);
@@ -83,8 +83,12 @@ function Combo(params) {
 	
 	if (this.editable) {
 		e.value = (params.value)?params.value:'';
-		if (!this.readonly)
-			if (this.onchange) e.onchange = this.onchange(this);
+		if (!this.readonly) {
+			e.onchange = function() {
+				if (oCombo.onchange)
+					getEventListener(oCombo.onchange)(oCombo);
+			}
+		}
 		else
 			e.readonly = true
 	}
@@ -141,7 +145,7 @@ Combo.prototype.setValue = function(value) {
 				this.div.firstChild.value = opt.getCaption();
 				if (value != old_value)
 					if (this.onchange)
-						this.onchange(this);
+						getEventListener(this.onchange)(this);
 				return;
 			}
 		}
@@ -193,7 +197,7 @@ Combo.prototype.showDropdown = function(w) {
 	oCombo.dropdown.top = iTop;
 	oCombo.dropdown.left = iLeft;
 	if (!oCombo.dropdown.width)
-		oCombo.dropdown.width = oCombo.getWidth(true);
+		oCombo.dropdown.width = 'this.combo.getWidth(true)';
 	oCombo.dropdown.height = oCombo.menuHeight;
 	oCombo.dropdown.setBgColor(oCombo.getBgColor());
 
