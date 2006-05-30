@@ -280,12 +280,19 @@ MBar.prototype.addRootMenu = function(params) {
 	this.appendChild(oMenu);
 	oMenu.div.className = 'menu';
 	oMenu.setPosition();
+	oMenu.destroy = Menu__destroy;
 	oMenu.div.style.marginRight = this.spacing + 'px';
-	this.menus.push(oMenu);
 	
+	this.menus.push(oMenu);
+
 	var oCMenu = new ContextMenu(params, oMenu);
 	oMenu.contextMenu = oCMenu;
 	return(oCMenu);
+}
+
+function Menu__destroy() {
+	this.parent.menus.removeItem(this);
+	Label.prototype.destroy(this);	
 }
 
 function Menu__click(evt, w) {
