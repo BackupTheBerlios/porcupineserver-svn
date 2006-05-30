@@ -2,105 +2,133 @@
 Tree control
 ************************/
 
-function TreeNode(params, p) {
+function TreeNode(params) {
 	params = params || {};
 	params.display = 'none';
-	params.padding = '0,0,1,1';
+	params.padding = '13,0,1,1';
 	this.base = Widget;
 	this.base(params);
 
-	this.caption = params.caption;
 	this.isExpanded = false;
 	this.hasChildren = (params.haschildren=='true' || params.haschildren==true)? true:false;
-	this.img = params.img;
+	this.img = params.img || null;
+	this._expandImg = null;
+	this._imgElement = null;
 	this.childNodes = this.widgets;
 
 	this.div.className = 'treenode';
 	this.div.style.whiteSpace = 'nowrap';
 	this.setPosition();
 
-	if (p instanceof TreeNode) {
-		//sub node
-		this.tree = p.tree;
-		if (!p.hasChildren) p._addExpandImg();
-		this.div.style.marginTop = '2px';
-		this.div.style.marginLeft = this.tree.levelpadding + 'px';
-	}
-	else {
-		// root node
-		this.tree = p;
-		this.setDisplay();
-	}
-	
-	var oTree = this.tree;
-	var oTreeNode = this;
-	
-	if (this.hasChildren) {
-		this._addExpandImg();
-	}
-	else {
-		var padding = this.getPadding();
-		padding[0] = 13;
-		this.setPadding(padding);
-	}
-	
-	if (this.img) {
-		var nm = QuiX.getImage(params.img);
-		nm.border = 0;
-		nm.style.verticalAlign = 'middle';
-		nm.style.marginRight = '4px';
-		this.div.appendChild(nm);
-	}
 	var oA = ce('A');
 	oA.href = 'javascript:void(0)';
-	oA.innerHTML = this.caption;
-	
 	this.div.appendChild(oA);
 	this.anchor = oA;
-	
-	p.appendChild(this);
-	if (this._isDisabled) this.disable();
-	else this.enable();
+	this.setCaption(params.caption || '');
 }
 
 TreeNode.prototype = new Widget;
 
-TreeNode.prototype._addExpandImg = function() {
-	var oTreeNode = this;
-	var padding;
-	var img = QuiX.getImage('images/expand.gif');
-	img.onclick = function(){oTreeNode.toggle()};
-	img.style.marginRight = '4px';
-	img.style.verticalAlign = 'middle';
-	
-	if (!this.div.hasChildNodes)
-		this.div.appendChild(img);
+TreeNode.prototype.redraw = function(bForceAll) {
+	this.tree = this.parent.tree || this.parent;
+	if (this.parent instanceof TreeNode) {
+		//sub node
+		if (!this.parent.hasChildren)
+			this.parent._addExpandImg();
+		this.div.style.marginLeft = this.tree.levelpadding + 'px';
+		this.div.style.marginTop = '2px';
+		if (this.parent.isExpanded)
+			this.setDisplay();
+	}
+	else {
+		// root node
+		this.setDisplay();
+	}
+
+	if (this.hasChildren && this.childNodes.length == 0)
+		this._addExpandImg();
+
+	if (this.img) {
+		if (this._imgElement!==null)
+			this._imgElement.src = this.img;
+		else {
+			var nm = QuiX.getImage(this.img);
+			nm.border = 0;
+			nm.style.verticalAlign = 'middle';
+			nm.style.marginRight = '4px';
+			this.div.insertBefore(nm, this.anchor);
+			this._imgElement = nm;
+		}
+	}
+	else {
+		if (this._imgElement) {
+			QuiX.removeNode(this._imgElement);
+			this._imgElement = null;
+		}
+	}
+	if (this._isDisabled)
+		this.disable();
 	else
+		this.enable();
+
+	Widget.prototype.redraw(bForceAll, this);
+}
+
+TreeNode.prototype.destroy = function() {
+	var p = this.parent;
+	Widget.prototype.destroy(this);
+	if (p instanceof TreeNode && p.childNodes.length == 0 && !p.hasChildren) {
+		p._removeExpandImg();
+	}
+}
+
+TreeNode.prototype._addExpandImg = function() {
+	if (this._expandImg == null) {
+		var oTreeNode = this;
+		this.setPadding([0,0,1,1]);
+
+		var img = QuiX.getImage('images/expand.gif');
+		img.onclick = function(){oTreeNode.toggle()};
+		img.style.marginRight = '4px';
+		img.style.verticalAlign = 'middle';
+		
 		this.div.insertBefore(img, this.div.firstChild);
-	
-	this.attachEvent('ondblclick', function(evt){
-		oTreeNode.toggle();
-		QuiX.stopPropag(evt);
-	});
-	this.hasChildren = true;
-	padding = this.getPadding();
-	padding[0] = 0;
-	this.setPadding(padding);
+		
+		this._expandImg = img;
+		this.attachEvent('ondblclick', TreeNode_bdlclick);
+	}
+}
+
+TreeNode.prototype._removeExpandImg = function() {
+	if (this._expandImg) {
+		QuiX.removeNode(this._expandImg);
+		this._expandImg = null;
+		this.setPadding([13,0,1,1]);
+	}
+}
+
+TreeNode.prototype.getCaption = function() {
+	return this.anchor.innerHTML;
+}
+
+TreeNode.prototype.setCaption = function(sCaption) {
+	this.anchor.innerHTML = sCaption;
 }
 
 TreeNode.prototype.toggle = function() {
 	if (!this.isExpanded) {
-		if (this.tree.onexpand) this.tree.onexpand(this);
+		if (this.tree.onexpand)
+			getEventListener(this.tree.onexpand)(this);
 		for (var i=0; i < this.childNodes.length; i++) {
 			this.childNodes[i].setDisplay();
 		}
-		this.div.childNodes[0].src = 'images/collapse.gif';
+		this._expandImg.src = 'images/collapse.gif';
 	}
 	else {
 		for (var i=0; i < this.childNodes.length; i++) {
 			this.childNodes[i].setDisplay('none');
 		}
-		this.div.childNodes[0].src = 'images/expand.gif';
+		this._expandImg.src = 'images/expand.gif';
 	}
 	this.isExpanded = !this.isExpanded;
 }
@@ -120,6 +148,10 @@ TreeNode.prototype.enable = function() {
 	Widget.prototype.enable(this);
 }
 
+function TreeNode_bdlclick(evt, w) {
+	w.toggle();
+	QuiX.stopPropag(evt);
+}
 
 function Tree(params) {
 	this.base = Widget;
@@ -128,9 +160,10 @@ function Tree(params) {
 	this.div.className = 'tree';
 	if (params) {
 		this.levelpadding = params.levelpadding || 14;
-		this.onexpand = getEventListener(params.onexpand);
-		this.onselect = getEventListener(params.onselect);
+		this.onexpand = params.onexpand;
+		this.onselect = params.onselect;
 	}
+	
 	this.selectedWidget = null;
 	this.roots = this.widgets;
 }
@@ -138,10 +171,12 @@ function Tree(params) {
 Tree.prototype = new Widget;
 
 Tree.prototype.selectNode = function(w) {
-	if (this.selectedWidget) this.selectedWidget.anchor.className = '';
+	if (this.selectedWidget)
+		this.selectedWidget.anchor.className = '';
 	w.anchor.className = 'selected';
 	this.selectedWidget = w;
-	if (this.onselect) this.onselect(w);
+	if (this.onselect)
+		getEventListener(this.onselect)(w);
 }
 
 Tree.prototype.getSelection = function() {
@@ -163,9 +198,9 @@ FolderTree.prototype = new Tree;
 FolderTree.prototype.loadSubfolders = function(treeNode) {
 	var sID = treeNode.getId() || '';
 	var xmlrpc = new XMLRPCRequest(QuiX.root + sID);
-	xmlrpc.oncomplete = this.load_oncomplete;
+	xmlrpc.oncomplete = treeNode.tree.load_oncomplete;
 	xmlrpc.callback_info = treeNode;
-	xmlrpc.callmethod(this.method);
+	xmlrpc.callmethod(treeNode.tree.method);
 }
 
 FolderTree.prototype.load_oncomplete = function(req) {
@@ -176,8 +211,9 @@ FolderTree.prototype.load_oncomplete = function(req) {
 		treeNode.childNodes[0].destroy();
 	}
 	for (var i=0; i<oFolders.length; i++) {
-		newNode = new TreeNode(oFolders[i], treeNode);
-		newNode.setDisplay();
+		newNode = new TreeNode(oFolders[i]);
+		treeNode.appendChild(newNode);
 	}
-	if (this._onexpand) this._onexpand(treeNode);
+	if (this._onexpand)
+		getEventListener(this._onexpand)(treeNode);
 }
