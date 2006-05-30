@@ -48,7 +48,7 @@ function Field(params) {
 	this.type = params.type || 'text';
 	if (this.type == 'radio') {
 		this._value = params.value || '';
-		params.onclick = QuiX.getEventWrapper(Radio_onclick, params.onclick);
+		params.onclick = QuiX.getEventWrapper(Radio__click, params.onclick);
 		params.overflow = '';
 	}
 	params.height = params.height || 22;
@@ -56,7 +56,7 @@ function Field(params) {
 	this.base(params);
 	this.name = params.name;
 	this.readonly = (params.readonly=='true')?true:false;
-	this.onchange = getEventListener(params.onchange);
+	this.onchange = params.onchange;
 	var e;
 	switch (this.type) {
 		case 'checkbox':
@@ -97,12 +97,12 @@ function Field(params) {
 
 	e.onmousedown = QuiX.stopPropag;
 	e.onselectstart = QuiX.stopPropag;
+	
 	var oField = this;
 	e.onchange = function() {
-		if (oField.onchange) oField.onchange(oField);
+		if (oField.onchange) getEventListener(oField.onchange)(oField);
 	}
 
-	if (params.onclick) this.attachEvent('onclick', params.onclick);
 	this._adjustFieldSize();
 }
 
@@ -226,7 +226,7 @@ Field.prototype._setCommonProps = function() {
 	this._adjustFieldSize();
 }
 
-function Radio_onclick(evt, w) {
+function Radio__click(evt, w) {
 	var id = w.getId();
 	if (id) {
 		var radio_group = w.parent.getWidgetById(id);
@@ -243,8 +243,9 @@ function Spin(params) {
 	params = params || {};
 	params.bgcolor = params.bgcolor || 'white';
 	params.border = params.border || 1;
+	params.padding = '0,0,0,0';
 	params.overflow = 'hidden';
-	params.height = params.height || 24;
+	params.height = params.height || 22;
 
 	this.base = Widget;
 	this.base(params);
@@ -256,7 +257,7 @@ function Spin(params) {
 	this.min = params.min || 0;
 	this.max = params.max;
 	this.div.className = 'field';
-	this.onchange = getEventListener(params.onchange);
+	this.onchange = params.onchange;
 
 	var e = ce('INPUT');
 	e.style.borderWidth = '1px';
@@ -266,24 +267,23 @@ function Spin(params) {
 	e.onmousedown = QuiX.stopPropag;
 	e.onselectstart = QuiX.stopPropag;
 	
-	if (params.maxlength) e.maxLength = params.maxlength;
+	if (params.maxlength)
+		e.maxLength = params.maxlength;
 	
 	var oSpin = this;
 
-	upbutton = new XButton(
-		{
-			left : "this.parent.getWidth()-16",
-			height : '50%', width : 16, bgcolor : 'silver',
-			onclick : SpinUp__onclick
-		});
+	upbutton = new XButton({
+		left : "this.parent.getWidth()-16",
+		height : '50%', width : 16,
+		onclick : SpinUp__onclick
+	});
 	this.appendChild(upbutton);
 
-	downbutton = new XButton(
-		{
-			left : "this.parent.getWidth()-16",
-			height : '50%', top : '50%', width : 16, bgcolor : 'silver',
-			onclick : SpinDown__onclick
-		});
+	downbutton = new XButton({
+		left : "this.parent.getWidth()-16",
+		height : '50%', top : '50%', width : 16,
+		onclick : SpinDown__onclick
+	});
 	this.appendChild(downbutton);
 
 	if (!this.editable) {
@@ -293,10 +293,10 @@ function Spin(params) {
 		e.onblur = function() {oSpin.validate();}
 	}
 	
-	this.attachEvent('onkeypress', Spin__onkeypress );
+	this.attachEvent('onkeypress', Spin__onkeypress);
 	
 	if (params.value)
-		this.setValue(parseInt(params.value));
+		this.setValue(params.value);
 }
 
 Spin.prototype = new Widget;
@@ -323,6 +323,12 @@ Spin.prototype.validate = function() {
 	if (val < min) this.setValue(min);
 }
 
+Spin.prototype.setBgColor = function(color) {
+	this.div.style.backgroundColor = color;
+	if (this.div.firstChild)
+		this.div.firstChild.style.backgroundColor = color;
+}
+
 Spin.prototype.getValue = function() {
 	return( parseInt(this.div.firstChild.value) );
 }
@@ -330,7 +336,8 @@ Spin.prototype.getValue = function() {
 Spin.prototype.setValue = function(value) {
 	if (value != this.getValue()) {
 		this.div.firstChild.value = parseInt(value);
-		if (this.onchange) this.onchange(this);
+		if (this.onchange)
+			getEventListener(this.onchange)(this);
 	}
 }
 
