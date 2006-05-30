@@ -113,7 +113,7 @@ generic.rolesInherited_onclick = function(evt, w) {
 }
 
 generic.getSecurity = function(tabcontrol, itab) {
-	var acl_datagrid = tabcontrol.pages[itab].getWidgetsByType(DataGrid)[0];
+	var acl_datagrid = tabcontrol.tabs[itab].getWidgetsByType(DataGrid)[0];
 	var sObjectURI = tabcontrol.getParentByType(Form).action;
 	var xmlrpc = new XMLRPCRequest(sObjectURI);
 	xmlrpc.oncomplete = function(req) {

@@ -6,13 +6,13 @@ selectObjectsDialog.showFolders = function(evt, w) {
 	var btn_search = dialog.body.getWidgetById('btn_search');
 
 	if (w.value == 'off') {
-		main_splitter.panes[0].height = 0;
+		main_splitter.panes[0].length = 0;
 	}
 	else {
 		if (btn_search.value == 'on')
 			btn_search.toggle();
-		else
-			if (main_splitter.panes[0].height==0) main_splitter.panes[0].height = '50%';
+		else if (main_splitter.panes[0].length==0)
+			main_splitter.panes[0].length = '50%';
 		main_splitter.panes[0].getWidgetById("search").hide();
 		main_splitter.panes[0].getWidgetById("folders").show();
 	}
@@ -25,13 +25,13 @@ selectObjectsDialog.showSearch = function(evt, w) {
 	var btn_folders = dialog.body.getWidgetById('btn_folders');
 
 	if (w.value == 'off') {
-		main_splitter.panes[0].height = 0;
+		main_splitter.panes[0].length = 0;
 	}
 	else {
 		if (btn_folders.value == 'on')
 			btn_folders.toggle();
-		else
-			if (main_splitter.panes[0].height==0) main_splitter.panes[0].height = '50%';
+		else if (main_splitter.panes[0].length==0)
+			main_splitter.panes[0].length = '50%';
 		main_splitter.panes[0].getWidgetById("folders").hide();
 		main_splitter.panes[0].getWidgetById("search").show();
 	}

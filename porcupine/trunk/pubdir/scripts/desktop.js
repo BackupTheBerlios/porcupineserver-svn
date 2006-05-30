@@ -31,7 +31,8 @@ desktop.do_logoff = function() {
 desktop.getWindows = function(menu) {
 	var menu_option;
 	var oWindows = document.desktop.getWidgetsByType(Window);
-	menu.options = menu.options.slice(0,2);
+	while (menu.options.length > 2)
+		menu.options[2].destroy();
 	for (var i=0; i<oWindows.length; i++) {
 		if (oWindows[i].parent == document.desktop) {
 			menu_option = menu.addOption({
