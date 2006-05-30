@@ -32,12 +32,12 @@ function File(params) {
 	
 	var oFile = this;
 	
-	this.contextmenu.addOption({ img:'images/upload.gif', caption:'Upload file', onclick: function(evt, w){oFile.showUploadDialog()} });
-	this.contextmenu.addOption({ img:'images/download.gif', caption:'Download file', onclick: function(evt, w){oFile.openDocument()} });
+	this.contextMenu.addOption({ img:'images/upload.gif', caption:'Upload file', onclick: function(evt, w){oFile.showUploadDialog()} });
+	this.contextMenu.addOption({ img:'images/download.gif', caption:'Download file', onclick: function(evt, w){oFile.openDocument()} });
 	
-	if (!this.href) this.contextmenu.options[1].disabled = true;
+	if (!this.href) this.contextMenu.options[1].disabled = true;
 	if (this.readonly)
-		this.contextmenu.options[0].disabled = true;
+		this.contextMenu.options[0].disabled = true;
 	else {
 		//TODO: applet is depreciated. use object instead
 		var applet = document.getElementById('_uploaderapplet');
@@ -79,7 +79,7 @@ File.prototype.showUploadDialog = function() {
 File.prototype.onbeginupload = function(filecontrol) {
 	var oWin = filecontrol.getParentByType(Window);
 	oWin.showWindowFromString('<a:dialog xmlns:a="http://www.innoscript.org/quix"'+
-		' title="' + filecontrol.contextmenu.options[0].caption + '"' +
+		' title="' + filecontrol.contextMenu.options[0].caption + '"' +
 		' width="240" height="100" left="center" top="center">' +
 		'<a:wbody>' +
 		'<a:progressbar width="90%" height="24" left="center" top="center" ' +
@@ -259,7 +259,7 @@ MultiFile.prototype.showUploadDialog = function(evt, w) {
 		var oMultiFile = this;
 		oWin.showWindowFromString(
 			'<a:dialog xmlns:a="http://www.innoscript.org/quix"'+
-			' title="' + this.filecontrol.contextmenu.options[0].caption + '"' +
+			' title="' + this.filecontrol.contextMenu.options[0].caption + '"' +
 			' width="240" height="140" left="center" top="center">' +
 			'<a:wbody>' +
 
