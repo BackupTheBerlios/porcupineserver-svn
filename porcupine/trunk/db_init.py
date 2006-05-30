@@ -446,9 +446,20 @@ usermgmnt.exitApp = function(evt, w) {
 
 usermgmnt.usersListMenu_show = function(menu) {
     var oUserList = menu.owner.getWidgetsByType(ListView)[0];
-    menu.options[1].disabled = (oUserList.selection.length == 0); //delete
-    menu.options[3].disabled = !(oUserList.selection.length == 1 && oUserList.getSelection().haspsw); //reset password
-    menu.options[4].disabled = !(oUserList.selection.length == 1); //properties
+    if (oUserList.selection.length == 1) {
+        menu.options[1].enable();
+        menu.options[4].enable();
+    }
+    else {
+        menu.options[1].disable();
+        menu.options[4].disable();
+    }
+    if (oUserList.selection.length == 1 && oUserList.getSelection().haspsw) {
+        menu.options[3].enable();
+    }
+    else {
+        menu.options[3].disable();
+    }
 } 
 
 usermgmnt.showProperties = function(evt, w) {
