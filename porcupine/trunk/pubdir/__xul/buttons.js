@@ -240,18 +240,26 @@ function FlatButton(params) {
 	this._ispressed = false;
 	
 	if (this.type=='menu') {
-		var img = QuiX.getImage('images/desc8.gif');
-		img.border = 0;
-		img.align = 'absmiddle';
-		this.div.appendChild(img);
 		delete(params.height);
 		delete(params.overflow);
 		var oCMenu = new ContextMenu(params, this);
-		this.contextmenu = oCMenu;
+		this.contextMenu = oCMenu;
+		this._menuImg = null;
 	}
 }
 
 FlatButton.prototype = new Icon;
+
+FlatButton.prototype.redraw = function(bForceAll) {
+	Icon.prototype.redraw(bForceAll, this);
+
+	if (this.type == 'menu' && (!this._menuImg || bForceAll)) {
+		this._menuImg = QuiX.getImage('images/desc8.gif');
+		this._menuImg.border = 0;
+		this._menuImg.align = 'absmiddle';
+		this.div.appendChild(this._menuImg);
+	}
+}
 
 FlatButton.prototype._addBorder = function() {
 	if (this.getBorderWidth()==0) {
@@ -332,13 +340,13 @@ function FlatButton__onclick(evt, w) {
 	if (w.type=='toggle')
 		w.toggle();
 	else if (w.type=='menu') {
-		if (!w.contextmenu.isOpen) {
+		if (!w.contextMenu.isOpen) {
 			w.div.className = 'btnmenu';
-			showWidgetContextMenu(w, w.contextmenu);
+			showWidgetContextMenu(w, w.contextMenu);
 		}
 		else {
 			w.div.className = 'btn';
-			w.contextmenu.close();
+			w.contextMenu.close();
 		}
 	}
 	QuiX.stopPropag(evt);
