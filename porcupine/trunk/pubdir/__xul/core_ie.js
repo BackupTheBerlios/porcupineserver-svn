@@ -18,6 +18,9 @@
 //QuiX generic functions
 
 function __init__() {
+	window.moveTo(0,0);
+	window.resizeTo(screen.availWidth,screen.availHeight);
+
 	var root = document.getElementById("xul");
 	var parser = new XULParser();
 	parser.parse(root.XMLDocument);
@@ -292,9 +295,8 @@ XULParser.prototype.getNodeParams = function(oNode) {
 	return(params);
 }
 
-XULParser.prototype.parseXul = function(oNode, parentW, prm) {
+XULParser.prototype.parseXul = function(oNode, parentW) {
 	if (oNode.nodeType!=1) return;
-	prm = prm || {};
 	var checkForChilds = true;
 	var appendIt = true;
 	var oWidget=null;
@@ -321,7 +323,7 @@ XULParser.prototype.parseXul = function(oNode, parentW, prm) {
 				oWidget = new FlatButton(params);
 				if (params.type=='menu') {
 					parentW.appendChild(oWidget);
-					oWidget = oWidget.contextmenu;
+					oWidget = oWidget.contextMenu;
 					appendIt = false;
 				}
 				break;
@@ -430,20 +432,19 @@ XULParser.prototype.parseXul = function(oNode, parentW, prm) {
 				oWidget = new FolderTree(params);
 				break;
 			case 'treenode':
-				oWidget = new TreeNode(params, parentW);
-				appendIt = false;
+				oWidget = new TreeNode(params);
 				break;
 			case 'toolbar':
 				oWidget = new Toolbar(params);
 				break;
 			case 'tbbutton':
 				oWidget = parentW.addButton(params);
-				if (params.type=='menu') oWidget = oWidget.contextmenu;
+				if (params.type=='menu') oWidget = oWidget.contextMenu;
 				appendIt = false;
 				break;
 			case 'tbsep':
 				checkForChilds = false;
-				parentW.addSeparator();
+				oWidget = parentW.addSeparator();
 				appendIt = false;
 				break;
 			case 'outlookbar':
@@ -531,8 +532,10 @@ XULParser.prototype.parseXul = function(oNode, parentW, prm) {
 		if (oNode.localName == 'form') this.activeForm = null;
 		
 		if (oWidget) { 
-			if (oWidget.onload) oWidget.onload(oWidget);
-			if (params.disabled=='true' || params.disabled==true) oWidget.disable();
+			if (oWidget._registry.onload)
+				oWidget._registry.onload(oWidget);
+			if (params.disabled=='true' || params.disabled==true)
+				oWidget.disable();
 		}
 	}
 	return(oWidget);
@@ -622,15 +625,18 @@ function Widget(params) {
 	}
 	else
 		this.setPadding([0,0,0,0]);
-	if (params.display) this.setDisplay(params.display);
-	if (params.overflow) this.setOverflow(params.overflow);
+
+	if (params.display)
+		this.setDisplay(params.display);
+	if (params.overflow)
+		this.setOverflow(params.overflow);
 	this.setPosition('absolute');
 
 	this._buildEventRegistry(params)
 	this._attachEvents();
-	
-	if (params.onload) this.onload = getEventListener(params.onload);
-	if (params.disabled=='true' || params.disabled==true) this.disable();
+
+	if (params.disabled=='true' || params.disabled==true)
+		this.disable();
 }
 
 Widget.prototype.appendChild = function(w) {
@@ -646,6 +652,7 @@ Widget.prototype.appendChild = function(w) {
 }
 
 Widget.prototype.supportedEvents = [
+	'onload',
 	'onmousedown','onmouseup',
 	'onmousemove','onmouseover','onmouseout',
 	'onselectstart',
@@ -665,12 +672,11 @@ Widget.prototype._buildEventRegistry = function(params) {
 }
 
 Widget.prototype._attachEvents = function() {
+	var evt_handler;
 	for (var evt_type in this._registry) {
-		if (evt_type!='toXMLRPC') {
-			this.attachEvent(
-				evt_type,
-				this._registry[evt_type]
-			);
+		evt_handler = this._registry[evt_type];
+		if (evt_type!='toXMLRPC' && evt_type!='onload' && evt_handler) {
+			this.attachEvent(evt_type, evt_handler);
 		}
 	}
 }
@@ -678,10 +684,7 @@ Widget.prototype._attachEvents = function() {
 Widget.prototype._detachEvents = function(w) {
 	var w = w || this;
 	for (var evt_type in w._registry) {
-		w.detachEvent(
-			evt_type,
-			w._registry[evt_type]
-		);
+		w.detachEvent(evt_type,	w._registry[evt_type]);
 	}
 }
 
@@ -777,8 +780,10 @@ Widget.prototype._setAbsProps = function () {
 
 Widget.prototype._setCommonProps = function (w) {
 	var w = w || this;
-	if (w.height!=null) w.div.style.height = w._calcHeight() + 'px';
-	if (w.width!=null) w.div.style.width = w._calcWidth() + 'px';
+	if (w.height!=null)
+		w.div.style.height = w._calcHeight() + 'px';
+	if (w.width!=null)
+		w.div.style.width = w._calcWidth() + 'px';
 }
 
 Widget.prototype._removeIdRef = function()
@@ -1061,7 +1066,8 @@ Widget.prototype.click = function() {
 Widget.prototype.moveTo = function(x,y) {
 	this.left = x;
 	this.top = y;
-	this.redraw();
+	this.div.style.left = this._calcLeft() + 'px';
+	this.div.style.top = this._calcTop() + 'px';
 }
 
 Widget.prototype.resize = function(x,y) {
@@ -1248,7 +1254,6 @@ function Desktop(params, root) {
 	this.div.className = 'desktop';
 	document.desktop = this;
 	window.onresize = function() {document.desktop.redraw()};
-	
 	this.overlays = [];
 }
 
@@ -1312,6 +1317,7 @@ function ProgressBar(params) {
 	this.bar.div.className = 'bar';
 	this.maxvalue = parseInt(params.maxvalue) || 100;
 	this.value = parseInt(params.value) || 0;
+	this.setValue(this.value);
 }
 
 ProgressBar.prototype = new Widget;
