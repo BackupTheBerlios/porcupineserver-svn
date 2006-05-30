@@ -10,9 +10,7 @@ function Timer(params) {
 	this.timeout = null;
 	this.interval = null;
 	
-	this.handler = getEventListener(params.handler);
-	if (!this.handler)
-		throw new QuiX.Exception("Timer Error", "Timer handler function not defined");
+	this.handler = params.handler;
 	
 	if (params.timeout)
 		this.timeout = parseInt(params.timeout);
@@ -21,9 +19,12 @@ function Timer(params) {
 	else
 		throw new QuiX.Exception("Timer Error", "Timer should define a timeout or an interval");
 
-	if (params.auto==true || params.auto=='true') {
+	this.auto = (params.auto==true || params.auto=='true');
+	if (this.auto) {
 		if (this.interval) {
-			this.handler(this);
+			var h = getEventListener(this.handler);
+			if (h)
+				h(this);
 		}
 		this.start();
 	}
@@ -34,11 +35,13 @@ Timer.prototype = new Widget;
 Timer.prototype.start = function() {
 	if (!this.timerid) {
 		var oTimer = this;
+		var handler_func = getEventListener(this.handler);
 		var _handler = function() {
 			if (oTimer.timeout) {
 				this._timerid = null;
 			}
-			oTimer.handler(oTimer);
+			if (handler_func)
+				handler_func(oTimer);
 		}
 		if (this.timeout)
 			this._timerid = window.setTimeout(_handler, this.timeout);
