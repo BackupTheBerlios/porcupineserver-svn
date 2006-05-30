@@ -152,7 +152,13 @@ function ce(t) {
 }
 
 function getEventListener(f) {
-	if (typeof(f)!='function')
-		f=eval(f);
+	if (typeof(f)!='function') {
+		try {
+			f=eval(f);
+		}
+		catch(e) {
+			f=null;
+		}
+	}
 	return(f);
 }
