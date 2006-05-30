@@ -42,8 +42,8 @@ function DataGrid__onclick(evt, w) {
 		idx = target.cellIndex;
 		ridx = (target.parentElement || target.parentNode).rowIndex;
 		if (idx>0 && idx<w.parent.columns.length-1 && w.parent.columns[idx].editable) {
-			editValue = w.parent.dataSet[ridx][w.parent.columns[idx].id];
-			switch (w.parent.columns[idx].type) {
+			editValue = w.parent.dataSet[ridx][w.parent.columns[idx].name];
+			switch (w.parent.columns[idx].columnType) {
 				case 'optionlist':
 					w2 = new Combo(
 						{
@@ -89,7 +89,7 @@ function DataGrid__onmousedown (evt, w) {
 	var cellindex = w.attributes.__cellindex;
 	var oCell = w.list.rows[rowindex].cells[cellindex];
 	var value = w.attributes.__editwidget.getValue();
-	w.dataSet[rowindex][w.columns[cellindex].id] = value;
+	w.dataSet[rowindex][w.columns[cellindex].name] = value;
 	w._renderCell(oCell, cellindex, value);
 
 	w.attributes.__editwidget.destroy();

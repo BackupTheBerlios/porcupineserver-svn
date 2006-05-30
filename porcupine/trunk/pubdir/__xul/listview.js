@@ -8,29 +8,35 @@ function ListView(params) {
 	params.overflow = 'auto';
 	
 	if (params.onclick) {
-		this._onclick = getEventListener(params.onclick);
+		this.onclick = params.onclick;
 		delete params.onclick
 	}
 	
 	if (params.ondblclick) {
-		this._ondblclick = getEventListener(params.ondblclick);
+		this.ondblclick = params.ondblclick;
 		delete params.ondblclick
 	}
 
 	this.base = Widget;
 	this.base(params);
 	this.div.className = 'listview';
-	this.cellpadding = params.cellpadding || 4;
-	this.cellborder = params.cellborder || 0;
+	this.cellPadding = params.cellpadding || 4;
+	this.cellBorder = params.cellborder || 0;
 	this.multiple = (params.multiple==true || params.multiple=="true")?true:false;
-	this.nulltext = params.nulltext || '&nbsp;';
-	this.dateformat = params.dateformat || 'ddd dd/mmm/yyyy time';
-	this.trueimg = params.trueimg || 'images/check16.gif';
-	this.onselect = getEventListener(params.onselect);
+	this.nullText = params.nulltext || '&nbsp;';
+	this.dateFormat = params.dateformat || 'ddd dd/mmm/yyyy time';
+	this.trueImg = params.trueimg || 'images/check16.gif';
+	this.onselect = params.onselect;
 	this.sortfunc = getEventListener(params.sortfunc);
 
-	if (this._onclick) this.attachEvent('onclick', ListView__onclick);
-	if (this._ondblclick) this.attachEvent('ondblclick', ListView__ondblclick);
+	if (this.onclick) {
+		this._onclick = getEventListener(this.onclick);
+		this.attachEvent('onclick', ListView__onclick);
+	}
+	if (this.ondblclick) {
+		this._ondblclick = getEventListener(this.ondblclick);
+		this.attachEvent('ondblclick', ListView__ondblclick);
+	}
 	
 	this.hasSelector = false;
 
@@ -45,7 +51,6 @@ function ListView(params) {
 ListView.prototype = new Widget;
 
 ListView.prototype.addHeader = function(params, w) {
-
 	var oListview = w || this;
 	params.width = '100%';
 	params.height = (!params.height || params.height<22)?22:parseInt(params.height);
@@ -55,9 +60,11 @@ ListView.prototype.addHeader = function(params, w) {
 	oListview.header.div.className = 'listheader';
 	oListview.header.div.innerHTML = '<table cellspacing="0" width="100%" height="100%"><tr><td class="column filler">&nbsp;</td></tr></table>';
 	oListview.header.div.style.backgroundPosition = '0px ' + (params.height-22) + 'px';
+	
 	var oRow = oListview.header.div.firstChild.rows[0];
 	oListview.columns = oRow.cells;
 	oRow.ondblclick = QuiX.stopPropag;
+	
 	if (oListview.hasSelector) {
 		var selector = oListview._getSelector();
 		oRow.insertBefore(selector, oRow.lastChild);
@@ -68,14 +75,14 @@ ListView.prototype.addHeader = function(params, w) {
 	var list = new Widget({
 		top: oListview.header._calcHeight(true),
 		width:'this.parent.getWidth()-1',
-		height:"this.parent.getHeight()-" + params.height + 1
+		height:'this.parent.getHeight()-' + params.height + 1
 	});
 	oListview.appendChild(list);
 	
 	list.div.className = 'list';
 	var oTable = ce('TABLE');
 	oTable.cellSpacing = 0;
-	oTable.cellPadding = oListview.cellpadding;
+	oTable.cellPadding = oListview.cellPadding;
 	oTable.width = '100%';
 	oTable.onmousedown = function(evt) {
 		evt = evt || event;
@@ -111,7 +118,8 @@ ListView.prototype._getSelector = function() {
 
 ListView.prototype._selrow = function(r) {
 	for (var i=0; i<this.columns.length-1; i++)
-		if (this.columns[i].bg_Color) r.cells[i].bgColor = '';
+		if (this.columns[i].columnBgColor)
+			r.cells[i].bgColor = '';
 	r.className = 'selected';
 	r.isSelected = true;
 }
@@ -120,11 +128,14 @@ ListView.prototype._unselrow = function(r) {
 	r.className = '';
 	r.isSelected = false;
 	for (var i=0; i<this.columns.length-1; i++)
-		if (this.columns[i].bg_Color) r.cells[i].bgColor = this.columns[i].bg_Color;
+		if (this.columns[i].columnBgColor)
+			r.cells[i].bgColor = this.columns[i].columnBgColor;
 }
 
 ListView.prototype._selectline = function (evt, row) {
-	if (this.onselect) this.onselect(evt, this, this.dataSet[row.rowIndex]);
+	if (this.onselect)
+		getEventListener(this.onselect)(evt, this, this.dataSet[row.rowIndex]);
+	
 	if (!row.isSelected) {
 		if (!this.multiple || !evt.shiftKey) this.clearSelection();
 		this._selrow(row);
@@ -173,11 +184,11 @@ ListView.prototype.getSelection = function() {
 }
 
 ListView.prototype.sort = function(column) {
-	if (this.orderby == column.id)
+	if (this.orderby == column.name)
 		this.sortorder = (this.sortorder=='ASC')?'DESC':'ASC';
 	else
 		this.sortorder = 'ASC';
-	this.orderby = column.id;
+	this.orderby = column.name;
 
 	if (this._sortimg) QuiX.removeNode(this._sortimg);
 	this._sortimg = new Image;
@@ -189,7 +200,7 @@ ListView.prototype.sort = function(column) {
 		this.sortfunc(this);
 	} else {
 		// default sort behaviour
-		this.dataSet.sortByAttribute(column.id);
+		this.dataSet.sortByAttribute(column.name);
 		if (this.sortorder=='DESC') this.dataSet.reverse();
 		this.refresh();
 	}
@@ -198,15 +209,25 @@ ListView.prototype.sort = function(column) {
 ListView.prototype.addColumn = function(params, w) {
 	var oListView = w || this;
 	var oCol = ce('TD');
-	oCol.id = params.name;
-	oCol.style.padding = '0px ' + oListView.cellpadding + 'px 0px ' + oListView.cellpadding + 'px';
-	oCol.style.width = (params.width - 2*oListView.cellpadding - 2*oListView.cellborder) + 'px';
+	oCol.className = 'column';
+	oCol.columnBgColor = params.bgcolor || '';
+	oCol.style.padding = '0px ' + oListView.cellPadding + 'px 0px ' + oListView.cellPadding + 'px';
+	oCol.style.width = (params.width - 2*oListView.cellPadding - 2*oListView.cellBorder) + 'px';
+	oCol.setCaption = ListColumn__setCaption;
+	oCol.getCaption = ListColumn__getCaption;
+
+	oCol.name = params.name;
 	var sCaption = params.caption || '&nbsp;';
-	oCol.innerHTML = '<span style="white-space:nowrap">' + sCaption + '</span>'
-	oCol.type = params.type || 'str';
-	if (params.xform) oCol.xform = getEventListener(params.xform);
+	oCol.setCaption(sCaption);
+		
+	oCol.columnType = params.type || 'str';
+	if (params.xform) {
+		oCol.xform = params.xform;
+		oCol._xform = getEventListener(oCol.xform);
+	}
 	
-	if (params.sortable=='true') {
+	oCol.sortable = (params.sortable=='false')?false:true;
+	if (oCol.sortable) {
 		oCol.style.cursor = 'pointer';
 		oCol.onclick = function(evt){
 			oListView.sort(oCol);
@@ -214,18 +235,15 @@ ListView.prototype.addColumn = function(params, w) {
 		}
 	}
 	
-	oCol.className = 'column';
-	if (params.bgcolor) oCol.bg_Color = params.bgcolor;
-	
 	var oHeaderRow = oListView.header.div.firstChild.rows[0];
 	oHeaderRow.insertBefore(oCol, oHeaderRow.lastChild);
 	
-	if (oCol.type == 'bool')
-		oCol.trueimg = params.trueimg || 'images/check16.gif';
-	else if (oCol.type == 'date')
-		oCol.format = params.format || 'ddd dd/mmm/yyyy time';
+	if (oCol.columnType == 'bool')
+		oCol.trueImg = params.trueimg || oListView.trueImg;
+	else if (oCol.columnType == 'date')
+		oCol.format = params.format || oListView.dateFormat;
 		
-	oCol.cellalign = params.align || 'left';
+	oCol.columnAlign = params.align || 'left';
 	
 	var iOffset;
 	if (oListView.header.widgets.length>0)
@@ -236,13 +254,14 @@ ListView.prototype.addColumn = function(params, w) {
 	var resizer = new Widget({
 		width : 4,
 		height : oListView.header._calcHeight(true),
-		left : iOffset + parseInt(params.width) + (oListView.cellpadding/2) - (2*oListView.cellborder),
+		left : iOffset + parseInt(params.width) + (oListView.cellPadding/2) - (2*oListView.cellBorder),
 		overflow : 'hidden',
 		border : 0
 	});
 	oListView.header.appendChild(resizer);
-	var isResizable = (params.resizable=='false')?false:true;
-	if (isResizable) {
+	
+	oCol.isResizable = (params.resizable=='false')?false:true;
+	if (oCol.isResizable) {
 		var iColumn = oListView.columns.length - 1;
 		resizer.div.className = 'resizer';
 		resizer.attachEvent('onmousedown', function(evt) {
@@ -272,11 +291,11 @@ ListView.prototype._endMoveResizer = function(evt, iResizer) {
 	var iColumn = iResizer + this._deadCells;
 	var offsetX = evt.clientX - QuiX.startX;
 	var nw = parseInt(this.columns[iColumn].style.width) + offsetX;
-	nw = (nw<2*this.cellpadding)?2*this.cellpadding:nw;
+	nw = (nw<2*this.cellPadding)?2*this.cellPadding:nw;
 	var iOldWidth = parseInt(this.columns[iColumn].style.width);
 	this.columns[iColumn].style.width = nw + 'px';
 	if (this.list.rows.length > 0)
-		this.list.rows[0].cells[iColumn].style.width = nw- this.cellborder + 'px';
+		this.list.rows[0].cells[iColumn].style.width = nw- this.cellBorder + 'px';
 	for (var i=iResizer; i<this.columns.length - this._deadCells; i++)
 		this.header.widgets[i].left += nw - iOldWidth;
 	this.header.redraw(true);
@@ -296,21 +315,21 @@ ListView.prototype.refresh = function() {
 		oRow.isSelected = false;
 		if (this.hasSelector) {
 			selector = this._getSelector();
-			selector.style.width = (8 - 2*this.cellpadding + 2) + 'px';
+			selector.style.width = (8 - 2*this.cellPadding + 2) + 'px';
 			oRow.appendChild(selector);
 		}
 		for (var j=0 + this._deadCells; j<this.columns.length-1; j++) {
 			var oCell = ce('TD');
 			oCell.className = 'cell';
 			if (i==0)
-				oCell.style.width = parseInt(this.columns[j].style.width) - this.cellborder + 'px';
+				oCell.style.width = parseInt(this.columns[j].style.width) - this.cellBorder + 'px';
 
-			oCell.style.borderWidth = this.cellborder + 'px';
-			sPad = (this.cellpadding + 1) + 'px';
+			oCell.style.borderWidth = this.cellBorder + 'px';
+			sPad = (this.cellPadding + 1) + 'px';
 			oCell.style.padding = '4px ' + sPad + ' 4px ' + sPad;
-			if (this.columns[j].bg_Color) oCell.bgColor = this.columns[j].bg_Color;
+			if (this.columns[j].columnBgColor) oCell.bgColor = this.columns[j].columnBgColor;
 			oRow.appendChild(oCell);
-			oValue = this.dataSet[i][this.columns[j].id];
+			oValue = this.dataSet[i][this.columns[j].name];
 			this._renderCell(oCell, j, oValue, this.dataSet[i])
 		}
 		oFiller = ce('TD');
@@ -332,15 +351,15 @@ ListView.prototype._renderCell = function(cell, cellIndex, value, obj) {
 
 	cell.innerHTML = '';
 	if (value==undefined) {
-		cell.innerHTML = this.nulltext;
+		cell.innerHTML = this.nullText;
 		cell.style.cursor = 'default';
 		return;
 	}
 	
 	if (cellIndex != null) {
 		column = this.columns[cellIndex];
-		cell.align = column.cellalign;
-		column_type = column.type;
+		cell.align = column.columnAlign;
+		column_type = column.columnType;
 	
 		switch (column_type) {
 			case 'optionlist':
@@ -357,7 +376,7 @@ ListView.prototype._renderCell = function(cell, cellIndex, value, obj) {
 				return;
 			case 'bool':
 				if (value) {
-					elem = QuiX.getImage(column.trueimg)
+					elem = QuiX.getImage(column.trueImg)
 					elem.align = 'absmiddle';
 					cell.appendChild(elem);
 				}
@@ -369,15 +388,16 @@ ListView.prototype._renderCell = function(cell, cellIndex, value, obj) {
 					value.format(column.format) + '</span>';
 				return;
 		}
-		if (column.xform) value = column.xform(obj, value);
+		if (column._xform)
+			value = column._xform(obj, value);
 	}
 	// auto-detect value type
 	if (value instanceof Date) {
 		cell.innerHTML = '<span style="white-space:nowrap">' + 
-			value.format(this.dateformat) + '</span>';
+			value.format(this.dateFormat) + '</span>';
 	} else if (typeof(value) == 'boolean') {
 		if (value) {
-			elem = QuiX.getImage(this.trueimg)
+			elem = QuiX.getImage(this.trueImg)
 			elem.align = 'absmiddle';
 			cell.appendChild(elem);
 		} else {
@@ -416,3 +436,12 @@ function ListView__ondblclick(evt, w) {
 function ListView__onscroll(evt, w) {
 	w.header.div.style.top = w.div.scrollTop + 'px';
 }
+
+function ListColumn__setCaption(s) {
+	this.innerHTML = '<span style="white-space:nowrap">' + s + '</span>'
+}
+
+function ListColumn__getCaption(s) {
+	return this.firstChild.innerHTML;
+}
+
