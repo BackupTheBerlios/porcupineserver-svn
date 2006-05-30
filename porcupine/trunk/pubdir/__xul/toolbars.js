@@ -90,12 +90,10 @@ OutlookBar.prototype.addPane = function(params) {
 	header.div.className = 'tool';
 	header.attachEvent('onclick', OutlookBarHeader__onclick);
 
-	var w1 = new Widget({
-		width : '100%',
-		id : params.id,
-		height : 'this.parent.getHeight(true)-this.parent.panes.length*this.parent.headerHeight',
-		overflow : 'auto'
-	});
+	params.width = '100%';
+	params.height = 'this.parent.getHeight(true)-this.parent.panes.length*this.parent.headerHeight';
+
+	var w1 = new Widget(params);
 	
 	this.appendChild(w1);
 
@@ -113,7 +111,8 @@ OutlookBar.prototype.addPane = function(params) {
 }
 
 OutlookBar.prototype.activatePane = function(iPane) {
-	this.panes[this.activePane].setDisplay('none');
+	if (this.activePane > -1)
+		this.panes[this.activePane].setDisplay('none');
 	this.panes[iPane].setDisplay();
 	this.activePane = iPane;
 }
@@ -136,6 +135,11 @@ function OutlookBarPane__getCaption() {
 }
 
 function OutlookBarPane__destroy() {
+	var oBar = this.parent;
+	oBar.panes.removeItem(this);
+	if (oBar.panes.length < oBar.activePane + 1)
+		oBar.activePane = oBar.panes.length - 1;
 	this.header.destroy();
 	Widget.prototype.destroy(this);
+	oBar.redraw();
 }
