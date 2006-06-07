@@ -22,12 +22,13 @@ function Window(params) {
 	this.minh = 120;
 	this.isMinimized = false;
 	this.isMaximized = false;
+	this.onclose = params.onclose;
 	this.childWindows = [];
 	this.opener = null;
-	this.statex = 0;
-	this.statey = 0;
-	this.statew = 0;
-	this.stateh = 0;
+	this._statex = 0;
+	this._statey = 0;
+	this._statew = 0;
+	this._stateh = 0;
 	this.div.className = 'window';
 
 	//title
@@ -166,8 +167,12 @@ Window.prototype.removeControlButton = function(iWhich) {
 }
 
 Window.prototype.close = function() {
-	while (this.childWindows.length != 0) this.childWindows[0].close();
-	if (this.opener) this.opener.childWindows.removeItem(this);
+	if (this.onclose)
+		getEventListener(this.onclose)(this);
+	while (this.childWindows.length != 0)
+		this.childWindows[0].close();
+	if (this.opener)
+		this.opener.childWindows.removeItem(this);
 	this.destroy();
 }
 
@@ -231,60 +236,71 @@ Window.prototype._mouseoutControl = function(iWhich) {
 
 Window.prototype.minimize = function(w) {
 	w = w || this;
-	var maxControl = this.title.getWidgetById('1');
-	if (!w.isMinimized) {
-		var padding = w.getPadding();
-		w.body.hide();
-		if (w.statusBar)
-			w.statusBar.hide();
-		if (w.resizeHandle)
-			w.resizeHandle.hide();
-		w.stateh = w.getHeight(true);
-		w.height = w.title.getHeight(true) + 2*w.getBorderWidth() + padding[2] + padding[3];
-		if (maxControl)
-			maxControl.disable();
-		w.isMinimized = true;
+	var maxControl = w.title.getWidgetById('1');
+	var minControl = w.title.getWidgetById('2');
+	if (minControl) {
+		if (!w.isMinimized) {
+			var padding = w.getPadding();
+			w.body.hide();
+			if (w.statusBar)
+				w.statusBar.hide();
+			if (w.resizeHandle)
+				w.resizeHandle.hide();
+			w.stateh = w.getHeight(true);
+			w.height = w.title.getHeight(true) + 2*w.getBorderWidth() + padding[2] + padding[3];
+			if (maxControl)
+				maxControl.disable();
+			w.isMinimized = true;
+		}
+		else {
+			w.body.show();
+			if (w.statusBar)
+				w.statusBar.show();
+			if (w.resizeHandle)
+				w.resizeHandle.show();
+			w.height = w.stateh;
+			if (maxControl)
+				maxControl.enable();
+			w.isMinimized = false;
+		}
+		w.redraw();
 	}
-	else {
-		w.body.show();
-		if (w.statusBar)
-			w.statusBar.show();
-		if (w.resizeHandle)
-			w.resizeHandle.show();
-		w.height = w.stateh;
-		if (maxControl) maxControl.enable();
-		w.isMinimized = false;
-	}
-	w.redraw();
 }
 
 Window.prototype.maximize = function(w) {
 	w = w || this;
-	var minControl = this.title.getWidgetById('2');
-	if (!w.isMaximized) {
-		w.statex = w._calcLeft();
-		w.statey = w._calcTop();
-		w.statew = w.getWidth(true);
-		w.stateh = w.getHeight(true);
-		w.top = 0; w.left = 0;
-		w.height = '100%';
-		w.width = '100%';
-		if (minControl) minControl.disable();
-		if (w.isResizable) w.resz.disable();
-		w.title.detachEvent('onmousedown');
-		w.isMaximized = true;
+	var maxControl = w.title.getWidgetById('1');
+	var minControl = w.title.getWidgetById('2');
+	if (maxControl) {
+		if (!w.isMaximized) {
+			w._statex = w._calcLeft();
+			w._statey = w._calcTop();
+			w._statew = w.getWidth(true);
+			w._stateh = w.getHeight(true);
+			w.top = 0; w.left = 0;
+			w.height = '100%';
+			w.width = '100%';
+			if (minControl)
+				minControl.disable();
+			if (w.isResizable)
+				w.resz.disable();
+			w.title.detachEvent('onmousedown');
+			w.isMaximized = true;
+		}
+		else {
+			w.top = w._statey;
+			w.left = w._statex;
+			w.width = w._statew;
+			w.height = w._stateh;
+			if (minControl)
+				minControl.enable();
+			if (w.isResizable)
+				w.resz.enable();
+			w.title.attachEvent('onmousedown');
+			w.isMaximized = false;
+		}
+		w.redraw();
 	}
-	else {
-		w.top = w.statey;
-		w.left = w.statex;
-		w.width = w.statew;
-		w.height = w.stateh;
-		if (minControl) minControl.enable();
-		if (w.isResizable) w.resz.enable();
-		w.title.attachEvent('onmousedown');
-		w.isMaximized = false;
-	}
-	w.redraw();
 }
 
 Window.prototype.showWindow = function(sUrl, oncomplete) {
