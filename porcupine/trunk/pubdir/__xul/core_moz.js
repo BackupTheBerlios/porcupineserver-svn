@@ -1,5 +1,5 @@
 //===============================================================================
-//    Copyright 2005, Tassos Koutsovassilis
+//    Copyright 2005, 2006 Tassos Koutsovassilis
 //
 //    This file is part of Porcupine.
 //    Porcupine is free software; you can redistribute it and/or modify
@@ -45,7 +45,7 @@ QuiX.startY = 0;
 QuiX.clipboard = new Clipboard();
 QuiX.tmpWidget = null;
 QuiX.images = [];
-QuiX.root = (new RegExp("https?://[^/]+/[^/]+/%7B[0-9a-f]{32}%7D", "i")).exec(document.location.href) + '/';
+QuiX.root = (new RegExp("https?://[^/]+/[^/]+(?:/?%7B[0-9a-f]{32}%7D)?", "i")).exec(document.location.href) + '/';
 QuiX.progress = '<a:rect xmlns:a="http://www.innoscript.org/quix" ' +
 		'width="240" height="48" overflow="hidden" top="center" left="center" ' +
 		'border="2" bgcolor="white" style="border-color:#999999;border-style:solid" '+

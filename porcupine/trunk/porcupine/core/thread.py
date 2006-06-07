@@ -1,5 +1,5 @@
 #===============================================================================
-#    Copyright 2005, Tassos Koutsovassilis
+#    Copyright 2005, 2006 Tassos Koutsovassilis
 #
 #    This file is part of Porcupine.
 #    Porcupine is free software; you can redistribute it and/or modify
@@ -28,6 +28,7 @@ from porcupine.security import sessionManager
 from porcupine.db import db
 
 SESSIONID = re.compile('/\{([a-f0-9]{32})\}')
+COOKIE_DETECT_PAGE = 'conf/cookiedetect.html'
 
 class PorcupineThread(BaseServerThread):
     def __init__(self, target, name):
@@ -52,27 +53,34 @@ class PorcupineThread(BaseServerThread):
         
         try:
             try:
-                oSessionMatch = re.match(SESSIONID, sPath)
-                if oSessionMatch:
-                    oSession = sessionManager.fetchSession(oSessionMatch.group(1))
-                    sPath = sPath.replace(oSessionMatch.group(), '', 1) or '/'
-                    if oSession:
-                        self.session = oSession
-                        
+                oSession = None
+                cookiesEnabled = True
+                if self.request.cookies.has_key('_sid'):
+                    oSession = sessionManager.fetchSession( self.request.cookies['_sid'].value )
+                else:
+                    cookiesEnabled = False
+                    oSessionMatch = re.match(SESSIONID, sPath)
+                    if oSessionMatch:
+                        sPath = sPath.replace(oSessionMatch.group(), '', 1) or '/'
+                        oSession = sessionManager.fetchSession(oSessionMatch.group(1))
+                
+                if oSession:
+                    self.session = oSession
+                    self.request.serverVariables["AUTH_USER"] = oSession.user.displayName.value
+                    oUser = oSession.user
+                    
+                    if not cookiesEnabled:
                         if not oSession.sessionid in self.request.serverVariables["SCRIPT_NAME"]:
                             self.request.serverVariables["SCRIPT_NAME"] += '/{%s}' % oSession.sessionid
                         else:
                             lstScript = self.request.serverVariables["SCRIPT_NAME"].split('/')
                             self.request.serverVariables["SCRIPT_NAME"] = "/%s/{%s}" %(lstScript[1], oSession.sessionid)
-                        
-                        self.request.serverVariables["AUTH_USER"] = oSession.user.displayName.value
-                        oUser = oSession.user
-                    else:
-                        # invalid sesionid
-                        # create new session and redirect
-                        self.createGuestSessionAndRedirect(sPath)
                 else:
+                    # invalid sesionid
+                    # create new session and redirect
                     self.createGuestSessionAndRedirect(sPath)
+#                else:
+#                    self.createGuestSessionAndRedirect(sPath)
 
                 try:
                     self.request.item = db.getItem(sPath)
@@ -124,6 +132,9 @@ class PorcupineThread(BaseServerThread):
                 pass
 
             if registration:
+                # do we have caching directive?
+                if registration.max_age:
+                    self.response.setExpiration(registration.max_age)
                 # apply post-processing filters
                 dummy = [
                     filter.apply(self.response, self.request, registration)
@@ -158,11 +169,23 @@ class PorcupineThread(BaseServerThread):
         # create new session with the specified guest user
         oGuest = db.getItem(serverSettings.guest_account)
         oNewSession = sessionManager.create(oGuest)
-        self.response.redirect(
-            '%s/{%s}%s%s' % (
-                self.request.getRootUrl()
-                ,oNewSession.sessionid
-                ,sPath
-                ,self.request.getQueryString()
-            )
-        )
+        
+        self.response = response.HTTPResponse()
+        
+        SESSION_ID = oNewSession.sessionid;
+        ROOT = self.request.getRootUrl()
+        PATH = sPath
+        QS = self.request.getQueryString()
+        
+        # add cookie with sessionid
+        self.response.cookies['_sid'] = SESSION_ID
+        self.response.cookies['_sid']['path'] = '/'
+
+        oFile = open(COOKIE_DETECT_PAGE)
+        sBody = oFile.read()
+        oFile.close()
+        
+        self.response.write(sBody % locals() )
+
+        self.response.end()
+

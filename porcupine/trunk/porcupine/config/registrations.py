@@ -1,5 +1,5 @@
 #===============================================================================
-#    Copyright 2005, Tassos Koutsovassilis
+#    Copyright 2005, 2006 Tassos Koutsovassilis
 #
 #    This file is part of Porcupine.
 #    Porcupine is free software; you can redistribute it and/or modify
@@ -24,8 +24,8 @@ from porcupine import serverExceptions
 from porcupine.utils import misc
 
 class Registration(object):
-    __slots__ = ('context', 'type', 'encoding', 'filters')
-    def __init__(self, identifier, enc, filters):
+    __slots__ = ('context', 'type', 'encoding', 'filters', 'max_age')
+    def __init__(self, identifier, enc, filters, max_age):
         try:
             self.context = misc.getClassByName(identifier)
             self.type = 2
@@ -35,8 +35,10 @@ class Registration(object):
                 self.type = 1
             else:
                 self.type = 0
+        
         self.encoding = enc
         self.filters = [misc.getClassByName(filter) for filter in filters]
+        self.max_age = int(max_age);
 
 class App(object):
     def __init__(self, appNode):
@@ -55,10 +57,16 @@ class App(object):
             sAction = contextNode.getAttribute('action')
             encoding = contextNode.getAttribute('encoding').encode('iso-8859-1') or None
             filters = contextNode.getAttribute('filters').encode('iso-8859-1') or []
+            max_age = contextNode.getAttribute('max-age') or 0
+            
             if filters:
                 filters = filters.split(';')
-            self.__config.append( ((sPath, sMethod, sBrowser, sLang), Registration(self.path + '/' + sAction, encoding, filters)) )
-
+            
+            self.__config.append((
+                (sPath, sMethod, sBrowser, sLang),
+                Registration(self.path + '/' + sAction, encoding, filters, max_age)
+            ))
+            
         configXML.unlink()
 
     def getRegistration(self, sPath, sHttpMethod, sBrowser, sLang):
@@ -93,10 +101,16 @@ class StoreConfiguration(object):
             sAction = regNode.getAttribute('action')
             encoding = regNode.getAttribute('encoding').encode('iso-8859-1') or None
             filters = regNode.getAttribute('filters').encode('iso-8859-1') or []
+            max_age = regNode.getAttribute('max-age') or 0
+            
             if filters:
                 filters = filters.split(';')
             
-            self.__config.append( ((sCC, sMethod, sParam, sBrowser, sLang), Registration(sAction, encoding, filters)) )
+            self.__config.append((
+                 (sCC, sMethod, sParam, sBrowser, sLang),
+                 Registration(sAction, encoding, filters, max_age)
+            ))
+            
         configXML.unlink()
 
     def getRegistration(self, sCC, sHttpMethod, sParam, sBrowser, sLang):

@@ -1,5 +1,5 @@
 #===============================================================================
-#    Copyright 2005, Tassos Koutsovassilis
+#    Copyright 2005, 2006 Tassos Koutsovassilis
 #
 #    This file is part of Porcupine.
 #    Porcupine is free software; you can redistribute it and/or modify
@@ -17,7 +17,9 @@
 "Request classes"
 
 from cgi import parse_qs, FieldStorage
+import Cookie
 import cStringIO
+
 from porcupine.core import xmlrpc
 
 class Request(object):
@@ -42,10 +44,16 @@ class Request(object):
     def __init__(self, rawRequest):
         self.serverVariables = rawRequest['env']
         self.serverVariables.setdefault('HTTP_ACCEPT_LANGUAGE', '')
+        
         if self.serverVariables.setdefault('QUERY_STRING', ''):
             self.queryString = parse_qs(self.serverVariables['QUERY_STRING'])
         else:
             self.queryString = {}
+        
+        self.cookies = Cookie.SimpleCookie()
+        if self.serverVariables.has_key('HTTP_COOKIE'):
+            self.cookies.load(self.serverVariables['HTTP_COOKIE'])
+        
         self.input = cStringIO.StringIO(rawRequest['inp'])
         self.interface = rawRequest['if']
         self.item = None

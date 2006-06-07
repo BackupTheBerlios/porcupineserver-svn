@@ -1,5 +1,5 @@
 #===============================================================================
-#    Copyright 2005, Tassos Koutsovassilis
+#    Copyright 2005, 2006 Tassos Koutsovassilis
 #
 #    This file is part of Porcupine.
 #    Porcupine is free software; you can redistribute it and/or modify
@@ -16,7 +16,7 @@
 #===============================================================================
 "Response classes"
 
-import re, os
+import re, os, Cookie
 from threading import currentThread
 
 from porcupine.utils import xmlUtils
@@ -38,6 +38,7 @@ class BaseResponse(object):
     """
     def __init__(self):
         self.__headers = {}
+        self.cookies = Cookie.SimpleCookie()
         self.content_type = 'text/html'
         self.charset = 'utf-8'
         self._body = []
@@ -52,7 +53,7 @@ class BaseResponse(object):
             
         @return: None
         """
-        self.__headers['Cache-Control'] = 'public,max-age=' + str(iSeconds)
+        self.__headers['Cache-Control'] = 'private,max-age=' + str(iSeconds)
 
     def _reset(self):
         self.__init__()
@@ -90,7 +91,7 @@ class BaseResponse(object):
         
         @return: None
         """
-        self.__headers.clear()
+        #self.__headers.clear()
         self.__headers["Location"] = location
         raise serverExceptions.ResponseEnd
 

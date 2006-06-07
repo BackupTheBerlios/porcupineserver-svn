@@ -24,6 +24,10 @@ def interfaceHandler(rh, response):
     sBody = response._getBody()
     if sBody:
         rh.write_buffer('Content-Length: %i\n' % len(sBody))
+        
+    if len(response.cookies) > 0:
+        rh.write_buffer(response.cookies.output() + '\n')
+
     rh.write_buffer('\n')
 
     # write body

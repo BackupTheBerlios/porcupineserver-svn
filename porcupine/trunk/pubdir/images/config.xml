@@ -77,7 +77,7 @@
     <context path="shutdown.gif" method="GET" client=".*" lang=".*" action="shutdown.gif"/>
     <context path="spin_up.gif" method="GET" client=".*" lang=".*" action="spin_up.gif"/>
     <context path="store.gif" method="GET" client=".*" lang=".*" action="store.gif"/>
-    <context path="submenu.gif" method="GET" client=".*" lang=".*" action="submenu.gif"/>
+    <context path="submenu.gif" method="GET" client=".*" lang=".*" action="submenu.gif" max-age="3600"/>
     <context path="taskbar_top.gif" method="GET" client=".*" lang=".*" action="taskbar_top.gif"/>
     <context path="taskbar_bottom.gif" method="GET" client=".*" lang=".*" action="taskbar_bottom.gif"/>
     <context path="tb_handle.gif" method="GET" client=".*" lang=".*" action="tb_handle.gif"/>
@@ -95,5 +95,5 @@
     <context path="win_max_over.gif" method="GET" client=".*" lang=".*" action="win_max_over.gif"/>
     <context path="win_min.gif" method="GET" client=".*" lang=".*" action="win_min.gif"/>
     <context path="win_min_over.gif" method="GET" client=".*" lang=".*" action="win_min_over.gif"/>
-    <context path="win_title.gif" method="GET" client=".*" lang=".*" action="win_title.gif"/>
+    <context path="win_title.gif" method="GET" client=".*" lang=".*" action="win_title.gif" max-age="3600"/>
 </config>
