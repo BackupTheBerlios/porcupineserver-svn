@@ -42,7 +42,7 @@ class PorcupineThread(BaseServerThread):
         sMethod = self.request.serverVariables['REQUEST_METHOD']
         sBrowser = self.request.serverVariables['HTTP_USER_AGENT']
         sLang = self.request.getLang()
-        sPath = self.request.serverVariables.setdefault('PATH_INFO', '/')
+        sPath = self.request.serverVariables.setdefault('PATH_INFO', '/') or '/'
 
         self.response = response.BaseResponse()
 
