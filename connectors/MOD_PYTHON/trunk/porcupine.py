@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 "Porcupine MOD_PYTHON connector"
 
 import socket, sys, ConfigParser, os
@@ -136,21 +135,30 @@ def handler(req):
                 #WEB_LOG.write('closing connection for host %s. Total conns:%d\n' %(host.address, host.tot))
                 #WEB_LOG.flush()
 
-        tplResponse = response.split('\n\n---END BODY---\n\n', 1)
+        tplResponse = tuple( response.split('\n\n---END BODY---\n\n') )
         headers = loads(tplResponse[1])
 
         if not(headers.has_key('Location')):
             # it is not a redirect
+            #cookies
+            if len(tplResponse) > 2:
+                cookies = loads(tplResponse[2])
+                for cookie in cookies:
+                    req.headers_out.add('Set-Cookie', cookie) 
+
             req.content_type = headers.pop('Content-Type')
             req.headers_out['Content-Length'] = str(len(tplResponse[0]))
             for header in headers:
                 req.headers_out[header] = headers[header]
-            req.send_http_header()    
+
+            req.send_http_header()
+            
             req.write(tplResponse[0])
             retVal = apache.OK
         else:
             # it is a redirect
             req.headers_out['Location'] = headers['Location']
+            req.send_http_header()
             retVal = apache.HTTP_MOVED_TEMPORARILY
 
         return retVal
