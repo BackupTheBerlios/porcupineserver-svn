@@ -20,7 +20,6 @@ Splitter.prototype = new Widget;
 
 Splitter.prototype.addPane = function(params) {
 	var ow2;
-	var oSplitter = this;
 
 	params.overflow = params.overflow || 'hidden';
 	var on_off = (params.onoff=='true' || params.onoff==true)?true:false;
@@ -56,7 +55,6 @@ Splitter.prototype.addPane = function(params) {
 
 Splitter.prototype.redraw = function(bForceAll) {
 	var oPane, onoff_w;
-	var free_panes = 0;
 	
 	var offset_var = (this.orientation=='v')?'left':'top';
 	var length_var = (this.orientation=='v')?'width':'height';
@@ -67,7 +65,6 @@ Splitter.prototype.redraw = function(bForceAll) {
 
 		if (oPane.length == '-1') {
 			oPane[length_var] = 'this.parent._calcPaneLength()';
-			free_panes +=1
 		}
 		else
 			oPane[length_var] = oPane.length;
