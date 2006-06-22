@@ -65,6 +65,7 @@ QuiX.modules = [
 	new Module('Date Picker', '__xul/datepicker.js', [14]),
 	new Module('Timers', '__xul/timers.js', []),
 	new Module('Forms & Fields 2', '__xul/formfields2.js', [3]),
+	new Module('VBox & HBox', '__xul/box.js', []),
 ];
 QuiX.tags = {
 	'desktop':-1,'xhtml':-1,'script':-1,'prop':-1,'rect':-1,'progressbar':-1,
@@ -82,7 +83,8 @@ QuiX.tags = {
 	'file':11,'multifile':11,
 	'datepicker':12,
 	'timer':13,
-	'combo':14,'selectlist':14
+	'combo':14,'selectlist':14,
+	'box':15
 };
 QuiX.Exception = function(name, msg) {
 	this.name = name;
@@ -122,7 +124,7 @@ QuiX.createOutline = function(w) {
 		border:2,
 		overflow:'hidden'
 	});
-	w.parent.appendChild(oW, true);	
+	w.parent.appendChild(oW);	
 	oW.minw = w.minw;
 	oW.minh = w.minh;
 	oW.div.className = 'outline';
@@ -486,6 +488,9 @@ XULParser.prototype.parseXul = function(oNode, parentW) {
 			case 'timer':
 				oWidget = new Timer(params);
 				break;
+			case 'box':
+				oWidget = new Box(params);
+				break;
 			case 'prop':
 				var attr_value = params['value'] || '';
 				checkForChilds = false;
@@ -639,14 +644,15 @@ function Widget(params) {
 		this.disable();
 }
 
-Widget.prototype.appendChild = function(w) {
-	this.widgets.push(w);
-	w.parent = this;
+Widget.prototype.appendChild = function(w, p) {
+	p = p || this;
+	p.widgets.push(w);
+	w.parent = p;
 	if (w._id)
 		w._addIdRef();	
-	this.div.appendChild(w.div);
+	p.div.appendChild(w.div);
 	if (w.height=='100%' && w.width=='100%')
-		this.setOverflow('hidden');
+		p.setOverflow('hidden');
 	w.redraw();
 	w.bringToFront();
 }
@@ -933,7 +939,8 @@ Widget.prototype._calcHeight = function(b)
 	var offset = 0;
 	if (!b)	offset = parseInt(this.div.style.paddingTop) + parseInt(this.div.style.paddingBottom) + 2*this.getBorderWidth();
 	if (!isNaN(this.height)) {
-		return(parseInt(this.height)-offset);
+		var w = parseInt(this.height)-offset; 
+		return(w>0?w:0);
 	}
 	else if (typeof(this.height)=='function') {
 		var w = this.height(this)-offset;
@@ -955,7 +962,8 @@ Widget.prototype._calcWidth = function(b)
 	var offset = 0;
 	if (!b) offset = parseInt(this.div.style.paddingLeft) + parseInt(this.div.style.paddingRight) + 2*this.getBorderWidth();
 	if (!isNaN(this.width)) {
-		return(parseInt(this.width)-offset);
+		var w = parseInt(this.width)-offset;
+		return(w>0?w:0);
 	}
 	else if (typeof(this.width)=='function') {
 		var w = this.width(this)-offset;

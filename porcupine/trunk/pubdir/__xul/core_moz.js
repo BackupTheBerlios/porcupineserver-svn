@@ -69,6 +69,7 @@ QuiX.modules = [
 	new Module('Date Picker', '__xul/datepicker.js', [14]),
 	new Module('Timers', '__xul/timers.js', []),
 	new Module('Forms & Fields 2', '__xul/formfields2.js', [3]),
+	new Module('VBox & HBox', '__xul/box.js', []),
 ];
 QuiX.tags = {
 	'desktop':-1,'xhtml':-1,'script':-1,'prop':-1,'rect':-1,'progressbar':-1,
@@ -86,7 +87,8 @@ QuiX.tags = {
 	'file':11,'multifile':11,
 	'datepicker':12,
 	'timer':13,
-	'combo':14,'selectlist':14
+	'combo':14,'selectlist':14,
+	'box':15
 };
 QuiX.Exception = function(name, msg) {
 	this.name = name;
@@ -129,7 +131,7 @@ QuiX.createOutline = function(w) {
 		border:2,
 		overflow:'hidden'
 	});
-	w.parent.appendChild(oW, true);
+	w.parent.appendChild(oW);
 	oW.minw = w.minw;
 	oW.minh = w.minh;
 	oW.div.className = 'outline';
@@ -500,6 +502,9 @@ XULParser.prototype.parseXul = function(oNode, parentW) {
 			case 'timer':
 				oWidget = new Timer(params);
 				break;
+			case 'box':
+				oWidget = new Box(params);
+				break;
 			case 'prop':
 				var attr_value = params['value'] || '';
 				checkForChilds = false;
@@ -645,12 +650,13 @@ function Widget(params) {
 		this.disable();
 }
 
-Widget.prototype.appendChild = function(w) {
-	this.widgets.push(w);
-	w.parent = this;
+Widget.prototype.appendChild = function(w, p) {
+	p = p || this;
+	p.widgets.push(w);
+	w.parent = p;
 	if (w._id)
 		w._addIdRef();
-	this.div.appendChild(w.div);
+	p.div.appendChild(w.div);
 	w.redraw();
 	w.bringToFront();
 }

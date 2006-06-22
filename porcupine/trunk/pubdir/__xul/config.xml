@@ -11,6 +11,7 @@
 	<context path="ReadFile.jar" method="GET" client=".*" lang=".*" action="ReadFile.jar"/>
 
 	<!-- QuiX Modules -->
+	<context path="box.js" method="GET" client=".*" lang=".*" action="box.js"/>
 	<context path="buttons.js" method="GET" client=".*" lang=".*" action="buttons.js"/>
 	<context path="common.js" method="GET" client=".*" lang=".*" action="common.js"/>
 	<context path="datagrid.js" method="GET" client=".*" lang=".*" action="datagrid.js"/>
