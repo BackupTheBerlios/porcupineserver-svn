@@ -408,7 +408,7 @@ Dialog.prototype.removeStatusBar = function() {
 Dialog.prototype.addButton = function(params) {
 	params.top = 'center';
 	var oWidget = new XButton(params)
-	this.buttonHolder.appendChild(oWidget, true);
+	this.buttonHolder.appendChild(oWidget);
 	this.buttonHolder.redraw();
 	if (params['default'] == 'true') {
 		this.defaultButton = oWidget;
