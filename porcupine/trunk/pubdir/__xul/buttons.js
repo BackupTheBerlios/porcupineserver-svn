@@ -283,16 +283,14 @@ FlatButton.prototype.toggle = function() {
 	if (this.value=='off') {
 		this._addBorder();
 		this.div.className='flaton';
-		for (var i=0; i<this.div.childNodes.length; i++) {
-			this.div.childNodes[i].style.margin = '2px 0px 0px 2px';
-		}
+		this.addPaddingOffset('Left', 2);
+		this.addPaddingOffset('Top', 2);
 		this.value = 'on';
 	}
 	else {
 		this._removeBorder();
-		for (var i=0; i<this.div.childNodes.length; i++) {
-			this.div.childNodes[i].style.margin = '0px 2px 0px 0px';
-		}
+		this.addPaddingOffset('Left', -2);
+		this.addPaddingOffset('Top', -2);
 		this.div.className = 'flat';
 		this.value = 'off';
 	}
