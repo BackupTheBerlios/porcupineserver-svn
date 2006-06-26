@@ -894,7 +894,7 @@ Widget.prototype.getHeight = function(b) {
 	b = b || false;
 	hg = parseInt(this.div.style.height);
 	if (isNaN(hg)) return 0;
-	if (b) {
+	if (b && hg>0) {
 		ofs = parseInt(this.div.style.paddingTop) + parseInt(this.div.style.paddingBottom) + 2 * this.getBorderWidth();
 		hg += ofs;
 	}

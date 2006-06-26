@@ -896,7 +896,7 @@ Widget.prototype.getHeight = function(b) {
 	var ofs, hg;
 	b = b || false;
 	hg = parseInt(this.div.style.height);
-	if (b) {
+	if (b && hg>0) {
 		ofs = parseInt(this.div.style.paddingTop) + parseInt(this.div.style.paddingBottom) + 2*this.getBorderWidth();
 		hg += ofs;
 	}
@@ -935,7 +935,8 @@ Widget.prototype._calcHeight = function(b) {
 	var offset = 0;
 	if (!b)	offset = parseInt(this.div.style.paddingTop) + parseInt(this.div.style.paddingBottom) + 2*this.getBorderWidth();
 	if (!isNaN(this.height)) {
-		return (parseInt(this.height)-offset);
+		var w = parseInt(this.height)-offset; 
+		return(w>0?w:0);
 	}
 	else if (typeof(this.height)=='function') {
 		var w = (this.height(this)-offset) || 0;
@@ -958,7 +959,8 @@ Widget.prototype._calcWidth = function(b) {
 		offset = parseInt(this.div.style.paddingLeft) + parseInt(this.div.style.paddingRight) + 2*this.getBorderWidth();
 	}
 	if (!isNaN(this.width)) {
-		return (parseInt(this.width)-offset);
+		var w = parseInt(this.width)-offset;
+		return(w>0?w:0);
 	}
 	else if (typeof(this.width)=='function') {
 		var w = (this.width(this)-offset) || 0;
