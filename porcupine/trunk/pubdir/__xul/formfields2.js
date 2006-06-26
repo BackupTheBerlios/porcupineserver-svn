@@ -104,7 +104,8 @@ Combo.prototype = new Widget;
 Combo.prototype._adjustFieldSize = function() {
 	if (this.div.firstChild) {
 		var nh = this.getHeight();
-		this.div.firstChild.style.width = (this.getWidth()-21) + 'px';
+		var nw = this.getWidth()-21;
+		this.div.firstChild.style.width = (nw>0?nw:0) + 'px';
 		this.div.firstChild.style.height = nh + 'px';
 	}
 }
