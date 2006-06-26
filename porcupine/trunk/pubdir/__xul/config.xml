@@ -1,12 +1,10 @@
 <config>
 	<context path="xul_core.js" method="GET" client="MSIE 6" lang=".*" action="core_ie.js"/>
-	<context path="xmlrpc.js" method="GET" client="MSIE 6" lang=".*" action="xmlrpc_ie.js"/>
-
 	<context path="xul_core.js" method="GET" client="Netscape/7|Mozilla/5.0" lang=".*" action="core_moz.js" filters="porcupine.filters.postprocessing.Gzip"/>
-	<context path="xmlrpc.js" method="GET" client="Netscape/7|Mozilla/5.0" lang=".*" action="xmlrpc_moz.js" filters="porcupine.filters.postprocessing.Gzip"/>
 
 	<context path="quixextensions.js" method="GET" client=".*" lang=".*" action="quixextensions.psp"/>
 
+	<context path="xmlrpc.js" method="GET" client=".*" lang=".*" action="xmlrpc.js"/>
 	<context path="print.htm" method="GET" client=".*" lang=".*" action="print.htm"/>
 	<context path="ReadFile.jar" method="GET" client=".*" lang=".*" action="ReadFile.jar"/>
 
