@@ -107,7 +107,7 @@ generic.addSelectionToAclDataGrid = function(evt, w, source, target) {
 }
 
 generic.rolesInherited_onclick = function(evt, w) {
-	var _acl = w.parent.parent.panes[1];
+	var _acl = w.parent.widgets[1];
 	if (!w.getValue()) _acl.enable();
 	else _acl.disable();
 }

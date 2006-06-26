@@ -16,16 +16,16 @@
 			<a:tabpane top="0" left="0" width="100%%" height="100%%">
 				<a:tab caption="General">
 					<a:field name="CC" type="hidden" value="%(CC)s"></a:field>
-					<a:splitter height="55" width="100%%" orientation="v">
-						<a:pane length="70">
+					<a:box height="55" width="100%%">
+						<a:rect width="70">
 							<a:label top="2" width="100%%" height="20" caption="Name:"></a:label>
 							<a:label top="27" width="100%%" height="20" caption="Description:"></a:label>	
-						</a:pane>
-						<a:pane length="-1">
+						</a:rect>
+						<a:rect width="-1">
 							<a:field name="displayName" width="100%%" value=""></a:field>
 							<a:field name="description" top="25" width="100%%" value=""></a:field>
-						</a:pane>
-					</a:splitter>
+						</a:rect>
+					</a:box>
 					
 					<a:hr top="57" width="100%%"></a:hr>
 

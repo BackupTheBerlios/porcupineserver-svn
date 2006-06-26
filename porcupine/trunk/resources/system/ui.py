@@ -57,57 +57,55 @@ AUTO_CONTROLS = {
 
     datatypes.ReferenceN: '''
         <a:tab caption="%s">
-            <a:splitter width="100%%" height="100%%" orientation="h">
-                <a:pane length="-1">
-                    <a:selectlist name="%s" multiple="true" posts="all" width="100%%" height="100%%">
-                        <a:prop name="SelectFrom" value="%s"></a:prop>
-                        <a:prop name="RelatedCC" value="%s"></a:prop>
-                        %s
-                    </a:selectlist>
-                </a:pane>
-                <a:pane length="24" disabled="%s">
+            <a:box width="100%%" height="100%%" orientation="v">
+                <a:selectlist name="%s" multiple="true" posts="all" height="-1">
+                    <a:prop name="SelectFrom" value="%s"></a:prop>
+                    <a:prop name="RelatedCC" value="%s"></a:prop>
+                    %s
+                </a:selectlist>
+                <a:rect height="24" disabled="%s">
                     <a:flatbutton width="70" height="22" caption="%s..." onclick="generic.selectItems"></a:flatbutton>
                     <a:flatbutton left="80" width="70" height="22" caption="%s" onclick="generic.removeSelectedItems"></a:flatbutton>
-                </a:pane>
-            </a:splitter>
+                </a:rect>
+            </a:box>
         </a:tab>
         '''
 }
 
 SECURITY_TAB = '''
 <a:tab caption="%s" onactivate="generic.getSecurity">
-    <a:splitter orientation="h" spacing="0" width="100%%" height="100%%">
-        <a:pane length="24">
-            <a:field id="__rolesinherited" name="__rolesinherited" type="checkbox" value="%s" onclick="generic.rolesInherited_onclick" caption="%s"></a:field>
-        </a:pane>
-        <a:pane length="-1" disabled="%s">
-            <a:splitter orientation="v" spacing="0" width="100%%" height="100%%">
-                <a:pane length="-1">
-                    <a:datagrid id="__acl" name="__acl" width="100%%" height="100%%">
-                        <a:listheader>
-                            <a:column width="140" caption="%s" name="displayName" editable="false" sortable="true"></a:column>
-                            <a:column width="140" caption="%s" name="role" type="optionlist" sortable="true">
-                                <a:option value="1" caption="%s"></a:option>
-                                <a:option value="2" caption="%s"></a:option>
-                                <a:option value="4" caption="%s"></a:option>
-                                <a:option value="8" caption="%s"></a:option>
-                            </a:column>
-                        </a:listheader>
-                    </a:datagrid>
-                </a:pane>
-                <a:pane length="60">
-                    <a:flatbutton left="center" width="56" height="22" caption="%s" onclick="generic.addACLEntry"></a:flatbutton>
-                    <a:flatbutton top="24" left="center" width="56" height="22" caption="%s" onclick="generic.removeACLEntry"></a:flatbutton>
-                </a:pane>
-            </a:splitter>
-        </a:pane>
-    </a:splitter>
+    <a:box orientation="v" spacing="0" width="100%%" height="100%%">
+        <a:field id="__rolesinherited"
+            height="24"
+            name="__rolesinherited"
+            type="checkbox"
+            value="%s"
+            onclick="generic.rolesInherited_onclick"
+            caption="%s"/>
+        <a:box spacing="0" disabled="%s" height="-1">
+            <a:datagrid id="__acl" name="__acl" width="-1">
+                <a:listheader>
+                    <a:column width="140" caption="%s" name="displayName" editable="false" sortable="true"></a:column>
+                    <a:column width="140" caption="%s" name="role" type="optionlist" sortable="true">
+                        <a:option value="1" caption="%s"></a:option>
+                        <a:option value="2" caption="%s"></a:option>
+                        <a:option value="4" caption="%s"></a:option>
+                        <a:option value="8" caption="%s"></a:option>
+                    </a:column>
+                </a:listheader>
+            </a:datagrid>
+            <a:rect width="60">
+                <a:flatbutton left="center" width="56" height="22" caption="%s" onclick="generic.addACLEntry"></a:flatbutton>
+                <a:flatbutton top="24" left="center" width="56" height="22" caption="%s" onclick="generic.removeACLEntry"></a:flatbutton>
+            </a:rect>
+        </a:box>
+    </a:box>
 </a:tab>
 '''
 
 DATES_FORMAT = 'ddd, dd month yyyy h12:min:sec MM'
 
-DESKSTOP_PANE = '''<a:pane length="-1" overflow="hidden">
+DESKSTOP_PANE = '''<a:rect height="-1" overflow="hidden">
     <a:icon top="10"
             left="10"
             width="80"
@@ -120,7 +118,7 @@ DESKSTOP_PANE = '''<a:pane length="-1" overflow="hidden">
             <a:prop name="folderID" value=""></a:prop>
     </a:icon>
     %s
-</a:pane>'''
+</a:rect>'''
 
 #================================================================================
 # Generic functions

@@ -47,7 +47,7 @@ containerList.getContainerInfo = function(w, bAddPath) {
 			if (!pathExists) cmb_path.addOption({ caption: sFullPath, value: sFullPath });
 		}
 		var newOption1 = w.getWidgetById('menubar').menus[0].contextMenu.options[0];
-		var newOption2 = w.getWidgetsByType(Splitter)[0].panes[3].contextMenu.options[0];
+		var newOption2 = w.getWidgetsByType(Box)[0].widgets[3].contextMenu.options[0];
 		var containment = req.response.containment;
 		newOption1.options = [];
 		newOption1.subMenu = null;

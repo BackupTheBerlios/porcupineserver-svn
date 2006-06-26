@@ -9,8 +9,8 @@
 	left="40%%"
 	top="40%%">
 	<a:wbody>
-		<a:splitter orientation="v" width="100%%" height="100%%">
-			<a:pane length="-1">
+		<a:box width="100%%" height="100%%">
+			<a:rect width="-1">
 				<a:xhtml>
 						<center>
 						<font size="2">QuiX Desktop running on <br/> Porcupine Server v%(VERSION)s</font>
@@ -25,11 +25,11 @@
 						</p>
 						</center>
 				</a:xhtml>
-			</a:pane>
-			<a:pane length="58" >
+			</a:rect>
+			<a:rect width="58" >
 				<a:icon top="140" img="images/powered.gif"></a:icon>
-			</a:pane>
-		</a:splitter>
+			</a:rect>
+		</a:box>
 	</a:wbody>
 	<a:dlgbutton onclick="__closeDialog__" width="60" height="22" caption="Close"></a:dlgbutton>
 </a:dialog>

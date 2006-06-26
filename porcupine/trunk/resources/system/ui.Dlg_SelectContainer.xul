@@ -12,23 +12,19 @@
 	<a:prop name="ID" value="%(ID)s"></a:prop>
 	<a:script name="Copy-Move Dialog Script" src="scripts/dlg_copymove.js"></a:script>
 	<a:wbody>
-		<a:splitter orientation="h" spacing="0" width="100%%" height="100%%">
-			<a:pane length="20">
-				<a:label caption="%(SELECT_FOLDER)s"></a:label>
-			</a:pane>
-			<a:pane length="-1" bgcolor="white">
-				<a:rect width="100%%" height="100%%" padding="2,2,2,2" overflow="auto" border="1" style="border-style:inset">
-					<a:foldertree id="tree" method="getSubtree">
-						<a:treenode
-							id="%(ROOT_ID)s"
-							haschildren="true"
-							img="%(ROOT_IMG)s"
-							caption="%(ROOT_DN)s"
-						></a:treenode>
-					</a:foldertree>
-				</a:rect>
-			</a:pane>
-		</a:splitter>
+		<a:box orientation="v" spacing="0" width="100%%" height="100%%">
+			<a:label height="22" caption="%(SELECT_FOLDER)s"></a:label>
+			<a:rect height="-1" bgcolor="white" padding="2,2,2,2" overflow="auto" border="1" style="border-style:inset">
+				<a:foldertree id="tree" method="getSubtree">
+					<a:treenode
+						id="%(ROOT_ID)s"
+						haschildren="true"
+						img="%(ROOT_IMG)s"
+						caption="%(ROOT_DN)s"
+					></a:treenode>
+				</a:foldertree>
+			</a:rect>
+		</a:box>
 	</a:wbody>
 	<a:dlgbutton onclick="copyMove.copyMove" width="70" height="22" caption="%(OK)s"></a:dlgbutton>
 	<a:dlgbutton onclick="__closeDialog__"  width="70" height="22" caption="%(CANCEL)s"></a:dlgbutton>

@@ -1,9 +1,9 @@
 <?xml version="1.0"?>
-<a:splitter xmlns:a="http://www.innoscript.org/quix" orientation="h" spacing="0" width="100%%" height="100%%">
+<a:box xmlns:a="http://www.innoscript.org/quix" orientation="v" spacing="0" width="100%%" height="100%%">
 	<a:script name="Desktop Script" src="scripts/desktop.js"></a:script>
 	<a:script name="Generic Functions" src="scripts/generic.js"></a:script>
 	%(TOP)s
-	<a:pane length="24" overflow="hidden">
+	<a:rect height="24" overflow="hidden">
 		<a:contextmenu  onshow="desktop.getWindows">
 			<a:menuoption img="images/mini_all.gif" caption="Minimize all" onclick="desktop.minimizeAll"/>
 			<a:sep/>
@@ -27,6 +27,6 @@
 				top="5" width="46"
 				handler="desktop.displayTime"
 				auto="true" />
-	</a:pane>
+	</a:rect>
 	%(BOTTOM)s
-</a:splitter>
+</a:box>

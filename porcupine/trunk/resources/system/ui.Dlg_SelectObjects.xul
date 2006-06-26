@@ -12,53 +12,37 @@
 	<a:script name="Select Objects Dialog Script" src="scripts/dlg_selectobjects.js"></a:script>
 	<a:prop name="CC" value="%(CC)s"></a:prop>
 	<a:wbody>
-		<a:splitter width="100%%" spacing="0" height="100%%" orientation="h">
-			<a:pane length="34">
-				<a:toolbar width="100%%" height="100%%">
-					<a:tbbutton id="btn_folders" width="72" type="toggle" caption="Folders" img="images/view_tree22.gif" onclick="selectObjectsDialog.showFolders"></a:tbbutton>
-					<a:tbbutton id="btn_search" width="72" type="toggle" caption="Search" img="images/search22.gif" onclick="selectObjectsDialog.showSearch"></a:tbbutton>
-				</a:toolbar>
-			</a:pane>
-			<a:pane length="-1">
-				<a:splitter id="spl_main" width="100%%" height="100%%" orientation="h" spacing="1">
-					<a:pane length="0" bgcolor="white">
-						<a:rect id="folders" overflow="auto" padding="2,2,2,2" width="100%%" height="100%%">
-							<a:foldertree id="tree" method="getSubtree" onselect="selectObjectsDialog.refreshList">
-								<a:treenode
-									id="%(ID)s"
-									haschildren="%(HAS_SUBFOLDERS)s"
-									img="%(IMG)s"
-									caption="%(DN)s"
-								></a:treenode>
-							</a:foldertree>
-						</a:rect>
-						<a:rect id="search" width="100%%" height="100%%">
-							<a:tabpane width="100%%" height="100%%">
-								<a:tab caption="Fast Search">
-									<a:rect width="340" height="110" left="center" top="center">
-										<a:label top="2" left="5" width="120" height="20" caption="Name contains:"></a:label>
-										<a:field id="displayName" left="125" top="0" width="200" value=""></a:field>
-										<a:label top="29" left="5" width="120" height="20" caption="Description contains:"></a:label>
-										<a:field id="description" top="27" left="125" width="200" value=""></a:field>
-										<a:label top="56" left="5" width="120" height="20" caption="Include subfolders:"></a:label>
-										<a:field id="deep" type="checkbox" top="54" left="125"></a:field>
+		<a:box width="100%%" height="100%%" spacing="1" orientation="v">
+			<a:toolbar width="100%%" height="34">
+				<a:tbbutton id="btn_folders" width="72" type="toggle" caption="Folders" img="images/view_tree22.gif" onclick="selectObjectsDialog.showFolders"></a:tbbutton>
+				<a:tbbutton id="btn_search" width="72" type="toggle" caption="Search" img="images/search22.gif" onclick="selectObjectsDialog.showSearch"></a:tbbutton>
+			</a:toolbar>
+			<a:box id="vbox_main" orientation="v" height="0" spacing="0">
+				<a:rect overflow="auto" bgcolor="white" height="0">
+					<a:foldertree id="tree" padding="2,2,2,2" method="getSubtree" onselect="selectObjectsDialog.refreshList">
+						<a:treenode
+							id="%(ID)s"
+							haschildren="%(HAS_SUBFOLDERS)s"
+							img="%(IMG)s"
+							caption="%(DN)s"
+						></a:treenode>
+					</a:foldertree>
+				</a:rect>
+				<a:rect overflow="auto" height="0" padding="8,8,8,8">
+					<a:label top="2" left="5" width="120" height="20" caption="Name contains:"></a:label>
+					<a:field id="displayName" left="125" top="0" width="200" value=""></a:field>
+					<a:label top="29" left="5" width="120" height="20" caption="Description contains:"></a:label>
+					<a:field id="description" top="27" left="125" width="200" value=""></a:field>
+					<a:label top="56" left="5" width="120" height="20" caption="Include subfolders:"></a:label>
+					<a:field id="deep" type="checkbox" top="54" left="125"></a:field>
 
-										<a:button top="84" left="center" width="70" height="22" caption="Search" onclick="selectObjectsDialog.search"></a:button>
-									</a:rect>
-								</a:tab>
-								<a:tab caption="Advanced Search">
-								</a:tab>
-							</a:tabpane>
-						</a:rect>
-					</a:pane>
-					<a:pane length="-1">
-						<a:selectlist id="selection" multiple="%(MULTIPLE)s" border="0" posts="selected" width="100%%" height="100%%">
-							%(OPTIONS)s
-						</a:selectlist>
-					</a:pane>
-				</a:splitter>
-			</a:pane>
-		</a:splitter>
+					<a:button top="84" left="180" width="70" height="22" caption="Search" onclick="selectObjectsDialog.search"></a:button>
+				</a:rect>
+			</a:box>
+			<a:selectlist id="selection" multiple="%(MULTIPLE)s" border="0" posts="selected" height="-1">
+				%(OPTIONS)s
+			</a:selectlist>
+		</a:box>
 	</a:wbody>
 	<a:dlgbutton onclick="selectObjectsDialog.select" width="70" height="22" caption="Select"></a:dlgbutton>
 	<a:dlgbutton onclick="__closeDialog__" width="70" height="22" caption="Close"></a:dlgbutton>

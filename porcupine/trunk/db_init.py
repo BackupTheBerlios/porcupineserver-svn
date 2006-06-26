@@ -286,38 +286,34 @@ if (answer == 'Y'):
     app._created = ftime
     app.modified = ftime
     app.interface.value = '''
-<a:splitter orientation="h" spacing="0" width="100%%" height="100%%">
-    <a:pane length="24">
-        <a:menubar width="100%%" height="100%%">
-            <a:menu caption="File">
-                <a:menuoption img="images/filenew.gif" caption="New">
-                    <a:menuoption img="images/user.gif" caption="User" onclick="usermgmnt.newUser"></a:menuoption>
-                    <a:menuoption img="images/group.gif" caption="Group" onclick="usermgmnt.newGroup"></a:menuoption>
+<a:box orientation="v" spacing="0" width="100%%" height="100%%">
+    <a:menubar height="24">
+        <a:menu caption="File">
+            <a:menuoption img="images/filenew.gif" caption="New">
+                <a:menuoption img="images/user.gif" caption="User" onclick="usermgmnt.newUser"></a:menuoption>
+                <a:menuoption img="images/group.gif" caption="Group" onclick="usermgmnt.newGroup"></a:menuoption>
+            </a:menuoption>
+            <a:sep></a:sep>
+            <a:menuoption img="images/exit.gif" caption="Exit" onclick="usermgmnt.exitApp"></a:menuoption>
+        </a:menu>
+        <a:menu caption="About">
+            <a:menuoption img="images/about16.gif" caption="About Users and Groups Management" onclick="usermgmnt.about"></a:menuoption>
+        </a:menu>
+    </a:menubar>
+    <a:toolbar height="34">
+        <a:tbbutton width="30" img="images/reload22.gif" onclick="usermgmnt.refreshUsersList">
+        </a:tbbutton>
+        <a:tbbutton width="38" id="filter" img="images/colorpicker22.gif" type="menu">
+                <a:menuoption id="fv" type="radio" caption="Show all" selected="true" onclick="usermgmnt.applyFilter"></a:menuoption>
+                <a:menuoption id="fv" type="radio" caption="Show users" onclick="usermgmnt.applyFilter">
+                    <a:prop name="CC" value="schemas.org.innoscript.security.User"></a:prop>
                 </a:menuoption>
-                <a:sep></a:sep>
-                <a:menuoption img="images/exit.gif" caption="Exit" onclick="usermgmnt.exitApp"></a:menuoption>
-            </a:menu>
-            <a:menu caption="About">
-                <a:menuoption img="images/about16.gif" caption="About Users and Groups Management" onclick="usermgmnt.about"></a:menuoption>
-            </a:menu>
-        </a:menubar>
-    </a:pane>
-    <a:pane length="34">
-        <a:toolbar width="100%%" height="100%%">
-            <a:tbbutton width="30" img="images/reload22.gif" onclick="usermgmnt.refreshUsersList">
-            </a:tbbutton>
-            <a:tbbutton width="38" id="filter" img="images/colorpicker22.gif" type="menu">
-                    <a:menuoption id="fv" type="radio" caption="Show all" selected="true" onclick="usermgmnt.applyFilter"></a:menuoption>
-                    <a:menuoption id="fv" type="radio" caption="Show users" onclick="usermgmnt.applyFilter">
-                        <a:prop name="CC" value="schemas.org.innoscript.security.User"></a:prop>
-                    </a:menuoption>
-                    <a:menuoption id="fv" type="radio" caption="Show groups" onclick="usermgmnt.applyFilter">
-                        <a:prop name="CC" value="schemas.org.innoscript.security.Group"></a:prop>
-                    </a:menuoption>
-            </a:tbbutton>
-        </a:toolbar>
-    </a:pane>
-    <a:pane length="-1">
+                <a:menuoption id="fv" type="radio" caption="Show groups" onclick="usermgmnt.applyFilter">
+                    <a:prop name="CC" value="schemas.org.innoscript.security.Group"></a:prop>
+                </a:menuoption>
+        </a:tbbutton>
+    </a:toolbar>
+    <a:rect height="-1">
         <a:contextmenu onshow="usermgmnt.usersListMenu_show">
             <a:menuoption img="images/filenew.gif" caption="New">
                     <a:menuoption img="images/user.gif" caption="User" onclick="usermgmnt.newUser"></a:menuoption>
@@ -339,8 +335,8 @@ if (answer == 'Y'):
                 <a:column width="220" caption="Description" name="description" sortable="true"></a:column>
             </a:listheader>
         </a:listview>
-    </a:pane>
-</a:splitter>
+    </a:rect>
+</a:box>
     '''
     app.script.value = '''
 function usermgmnt() {}
@@ -538,29 +534,27 @@ usermgmnt.about = function(evt, w) {
     app._created = ftime
     app.modified = ftime
     app.interface.value = '''
-<a:splitter orientation="h" spacing="0" width="100%%" height="100%%">
-    <a:pane length="24">
-        <a:menubar width="100%%" height="100%%">
-            <a:menu caption="File">
-                <a:menuoption caption="New query" onclick="queryPerformer.newQuery"></a:menuoption>
-                <a:sep></a:sep>
-                <a:menuoption img="images/exit.gif" caption="Exit" onclick="queryPerformer.exitApp"></a:menuoption>
-            </a:menu>
-            <a:menu caption="Edit">
-                <a:menuoption img="images/configure.gif" caption="Options" onclick="queryPerformer.showSettings"></a:menuoption>
-            </a:menu>
-            <a:menu caption="About">
-                <a:menuoption img="images/about16.gif" caption="About OQL Query Performer" onclick="queryPerformer.about"></a:menuoption>
-            </a:menu>
-        </a:menubar>
-    </a:pane>
-    <a:pane length="-1" overflow="auto" id="clientArea">
+<a:box orientation="v" spacing="0" width="100%%" height="100%%">
+    <a:menubar height="24">
+        <a:menu caption="File">
+            <a:menuoption caption="New query" onclick="queryPerformer.newQuery"></a:menuoption>
+            <a:sep></a:sep>
+            <a:menuoption img="images/exit.gif" caption="Exit" onclick="queryPerformer.exitApp"></a:menuoption>
+        </a:menu>
+        <a:menu caption="Edit">
+            <a:menuoption img="images/configure.gif" caption="Options" onclick="queryPerformer.showSettings"></a:menuoption>
+        </a:menu>
+        <a:menu caption="About">
+            <a:menuoption img="images/about16.gif" caption="About OQL Query Performer" onclick="queryPerformer.about"></a:menuoption>
+        </a:menu>
+    </a:menubar>
+    <a:rect length="-1" overflow="auto" id="clientArea">
         <a:prop name="tree_caption" value="displayName"></a:prop>
         <a:prop name="use_image" type="bool" value="0"></a:prop>
         <a:prop name="tree_image" value="__image__"></a:prop>
         <a:file display="none"></a:file>
-    </a:pane>
-</a:splitter>
+    </a:rect>
+</a:box>
     '''
     app.script.value = '''
 function queryPerformer() {}
@@ -576,36 +570,32 @@ queryPerformer.newQuery = function(evt, w) {
             'width="480" height="300" status="true" ' +
             'resizable="true" close="true" minimize="true" maximize="true">' +
             '<a:wbody>' +
-                '<a:splitter orientation="h" spacing="0" width="100%%" height="100%%">' +
-                    '<a:pane length="34">' +
-                        '<a:toolbar width="100%%" height="100%%">' +
-                            '<a:tbbutton width="30" img="images/save22.gif" onclick="queryPerformer.saveQuery"></a:tbbutton>' +
-                            '<a:tbbutton width="30" img="images/execute22.gif" onclick="queryPerformer.executeQuery"></a:tbbutton>' +
-                        '</a:toolbar>' +
-                    '</a:pane>' +
-                    '<a:pane length="-1">' +
-                        '<a:splitter bgcolor="white" orientation="h" interactive="true" width="100%%" height="100%%">' +
-                            '<a:pane length="100">' +
-                                '<a:field id="oqlquery" type="textarea" width="100%%" height="100%%" border="0">' +
-                                '</a:field>' +
-                            '</a:pane>' +
-                            '<a:pane length="-1">' +
-                                '<a:splitter orientation="v" interactive="true" width="100%%" height="100%%">' +
-                                    '<a:pane id="resultsarea" length="50%%" overflow="auto" padding="4,4,4,4"></a:pane>' +
-                                    '<a:pane length="-1">' +
-                                        '<a:listview id="proplist" width="100%%" height="100%%" cellborder="1">' +
-                                            '<a:listheader>' +
-                                                '<a:column width="100" caption="Name" name="name"></a:column>' +
-                                                '<a:column width="80" caption="Type" name="type"></a:column>' +
-                                                '<a:column width="120" caption="Value" name="value"></a:column>' +
-                                            '</a:listheader>' +
-                                        '</a:listview>' +
-                                    '</a:pane>' +
-                                '</a:splitter>' +
-                            '</a:pane>' +
-                        '</a:splitter>' +
-                    '</a:pane>' +
-                '</a:splitter>' +
+                '<a:box orientation="v" spacing="0" width="100%%" height="100%%">' +
+                    '<a:toolbar height="34">' +
+                        '<a:tbbutton width="30" img="images/save22.gif" onclick="queryPerformer.saveQuery"></a:tbbutton>' +
+                        '<a:tbbutton width="30" img="images/execute22.gif" onclick="queryPerformer.executeQuery"></a:tbbutton>' +
+                    '</a:toolbar>' +
+                    '<a:splitter bgcolor="white" orientation="h" interactive="true" height="-1">' +
+                        '<a:pane length="100">' +
+                            '<a:field id="oqlquery" type="textarea" width="100%%" height="100%%" border="0">' +
+                            '</a:field>' +
+                        '</a:pane>' +
+                        '<a:pane length="-1">' +
+                            '<a:splitter orientation="v" interactive="true" width="100%%" height="100%%">' +
+                                '<a:pane id="resultsarea" length="50%%" overflow="auto" padding="4,4,4,4"></a:pane>' +
+                                '<a:pane length="-1">' +
+                                    '<a:listview id="proplist" width="100%%" height="100%%" cellborder="1">' +
+                                        '<a:listheader>' +
+                                            '<a:column width="100" caption="Name" name="name"></a:column>' +
+                                            '<a:column width="80" caption="Type" name="type"></a:column>' +
+                                            '<a:column width="120" caption="Value" name="value"></a:column>' +
+                                        '</a:listheader>' +
+                                    '</a:listview>' +
+                                '</a:pane>' +
+                            '</a:splitter>' +
+                        '</a:pane>' +
+                    '</a:splitter>' +
+                '</a:box>' +
             '</a:wbody>' +
         '</a:window>'
     );
@@ -636,7 +626,6 @@ queryPerformer.executeQuery_oncomplete = function(req) {
     if (oResults.length > 0) {
         var treeNode, caption;
         var schema = req.response[0];
-        
         var oTree = oPane.parseFromString(
             '<a:tree xmlns:a="http://www.innoscript.org/quix" onexpand="queryPerformer.expandNode" onselect="queryPerformer.showProps"></a:tree>',
             function (w) {
@@ -687,25 +676,30 @@ queryPerformer.expandNode = function(w) {
             for (var attr in obj) {
                 oAttr = obj[attr];
                 if (typeof(oAttr) != 'function' && (oAttr instanceof Array)) {
-                    oNode = new TreeNode(
-                        {haschildren:(oAttr.length>0), caption: attr, disabled:(oAttr.length==0)},
-                        w
-                    );
+                    oNode = new TreeNode({
+                         haschildren:(oAttr.length>0),
+                         caption: attr,
+                         disabled:(oAttr.length==0)
+                    });
                     oNode.attributes.obj = oAttr;
+                    w.appendChild(oNode);
                 }
                 else if (oAttr.constructor == Object) {
-                    oNode = new TreeNode(
-                        {haschildren:true, caption: attr},
-                        w
-                    );
+                    oNode = new TreeNode({
+                        haschildren:true,
+                        caption: attr
+                    });
                     oNode.attributes.obj = oAttr;
+                    w.appendChild(oNode);
                 }
             }
             if (w.childNodes.length == 0) {
-                oNode = new TreeNode (
-                    {haschildren:false, caption: 'Empty', disabled:true},
-                    w
-                );
+                oNode = new TreeNode ({
+                    haschildren:false,
+                    caption: 'Empty',
+                    disabled:true
+                });
+                w.appendChild(oNode);
             }
         }
     }    
@@ -717,14 +711,13 @@ queryPerformer.expandArray = function(w, array, options) {
     for (var i=0; i<array.length; i++) {
         nodeimg = (options.use_image)?array[i][options.tree_image]:null;
         caption = (array[i][tree_caption])?array[i][tree_caption]:'Object ' + i.toString();
-        treeNode = new TreeNode(
-            {
-                haschildren:(array.length>0),
-                img: nodeimg,
-                caption: caption, disabled:(array.length==0)
-            }, w
-        );
+        treeNode = new TreeNode({
+            haschildren:(array.length>0),
+            img: nodeimg,
+            caption: caption, disabled:(array.length==0)
+        });
         treeNode.attributes.obj = array[i];
+        w.appendChild(treeNode);
     }
 }
 

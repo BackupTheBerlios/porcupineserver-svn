@@ -35,33 +35,29 @@
 						<a:label top="175" left="105" width="55%%" height="20" canselect="true" caption="%(CONTENTCLASS)s"></a:label>
 				</a:tab>
 				<a:tab caption="Members">
-					<a:splitter width="100%%" height="100%%" orientation="h">
-						<a:pane length="-1">
-							<a:selectlist name="members" multiple="true" posts="all" width="100%%" height="100%%">
-								<a:prop name="SelectFrom" value="%(SELECT_FROM)s"></a:prop>
-								<a:prop name="RelatedCC" value="%(REL_CC)s"></a:prop>
-								%(MEMBERS_OPTIONS)s
-							</a:selectlist>
-						</a:pane>
-						<a:pane length="24" disabled="%(READONLY)s">
+					<a:box width="100%%" height="100%%" orientation="v">
+						<a:selectlist name="members" multiple="true" posts="all" height="-1">
+							<a:prop name="SelectFrom" value="%(SELECT_FROM)s"></a:prop>
+							<a:prop name="RelatedCC" value="%(REL_CC)s"></a:prop>
+							%(MEMBERS_OPTIONS)s
+						</a:selectlist>
+						<a:rect height="24" disabled="%(READONLY)s">
 							<a:flatbutton width="60" height="22" caption="Add..." onclick="generic.selectItems"></a:flatbutton>
 							<a:flatbutton left="70" width="60" height="22" caption="Remove" onclick="generic.removeSelectedItems"></a:flatbutton>
-						</a:pane>
-					</a:splitter>
+						</a:rect>
+					</a:box>
 				</a:tab>
 				<a:tab caption="Policies">
-					<a:splitter width="100%%" height="100%%" orientation="h">
-						<a:pane length="-1">
-							<a:selectlist id="policies" name="policies" multiple="true" posts="all" width="100%%" height="100%%">
-								<a:prop name="SelectFrom" value="%(SELECT_FROM_POLICIES)s"></a:prop>
-								<a:prop name="RelatedCC" value="%(POLICIES_REL_CC)s"></a:prop>
-							</a:selectlist>
-						</a:pane>
-						<a:pane length="24" disabled="%(READONLY)s">
+					<a:box width="100%%" height="100%%" orientation="v">
+						<a:selectlist id="policies" name="policies" multiple="true" posts="all" height="-1">
+							<a:prop name="SelectFrom" value="%(SELECT_FROM_POLICIES)s"></a:prop>
+							<a:prop name="RelatedCC" value="%(POLICIES_REL_CC)s"></a:prop>
+						</a:selectlist>
+						<a:rect height="24" disabled="%(READONLY)s">
 							<a:flatbutton width="60" height="22" caption="Add..." onclick="generic.selectItems"></a:flatbutton>
 							<a:flatbutton left="70" width="60" height="22" caption="Remove" onclick="generic.removeSelectedItems"></a:flatbutton>
-						</a:pane>
-					</a:splitter>
+						</a:rect>
+					</a:box>
 				</a:tab>
 				%(SECURITY_TAB)s
 			</a:tabpane>
