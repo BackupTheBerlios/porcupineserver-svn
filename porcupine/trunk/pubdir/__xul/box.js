@@ -16,14 +16,10 @@ Box.prototype = new Widget;
 
 Box.prototype.appendChild = function(w) {
 	w.destroy = BoxWidget__destroy;
-	if (this.orientation == 'h') {
+	if (this.orientation == 'h')
 		w.height = w.height || '100%';
-		w.length = w.width || '-1';
-	}
-	else {
+	else
 		w.width = w.width || '100%';
-		w.length = w.height || '-1';
-	}
 	Widget.prototype.appendChild(w, this);
 	this.redraw(true);
 }
@@ -38,11 +34,8 @@ Box.prototype.redraw = function(bForceAll) {
 			oWidget = this.widgets[i];
 			oWidget[offset_var] = 'this.parent._getWidgetOffset(' + i + ')';
 	
-			if (oWidget.length == '-1') {
+			if (oWidget[length_var] == null || oWidget[length_var] == '-1')
 				oWidget[length_var] = 'this.parent._calcWidgetLength()';
-			}
-			else
-				oWidget[length_var] = oWidget.length;
 		}
 	}
 	Widget.prototype.redraw(bForceAll, this);
@@ -64,19 +57,17 @@ Box.prototype._getWidgetOffset=function(iPane) {
 Box.prototype._calcWidgetLength = function() {
 	var tl = 0;
 	var free_widgets = 0;
+	var length_var = (this.orientation=='h')?'width':'height';
+	
 	for (var i=0; i<this.widgets.length; i++) {
-		if (this.orientation == 'h') {
-			if (this.widgets[i].length != '-1')
-				tl += this.widgets[i].getWidth(true);
+		if (this.widgets[i][length_var] != 'this.parent._calcWidgetLength()') {
+			if (this.orientation=='h')
+				tl += this.widgets[i]._calcWidth(true);
 			else
-				free_widgets += 1;
+				tl += this.widgets[i]._calcHeight(true);
 		}
-		else {
-			if (this.widgets[i].length != '-1')
-				tl += this.widgets[i].getHeight(true);
-			else
-				free_widgets += 1;
-		}
+		else
+			free_widgets += 1;
 	}
 	var l = (this.orientation=='h')?this.getWidth():this.getHeight();
 	
@@ -86,15 +77,17 @@ Box.prototype._calcWidgetLength = function() {
 
 function BoxWidget__destroy() {
 	var oBox = this.parent;
+	var length_var = (oBox.orientation=='h')?'width':'height';
+	
 	for (var idx=0; idx < oBox.widgets.length; idx++) {
 		 if (oBox.widget[idx] == this)
 		 	break;
 	}
-	if (this.length == '-1' && oBox.widgets.length > 1) {
+	if (this[length_var] == '-1' && oBox.widgets.length > 1) {
 		if (idx == 0)
-			oBox.widgets[1].length = '-1';
+			oBox.widgets[1][length_var] = '-1';
 		else
-			oBox.widgets[idx-1].length = '-1';
+			oBox.widgets[idx-1][length_var] = '-1';
 	}
 	Widget.prototype.destroy(this);
 	oBox.redraw(true);
