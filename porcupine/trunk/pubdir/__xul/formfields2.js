@@ -293,6 +293,9 @@ SelectList.prototype.addOption = function(params) {
 	this.appendChild(w);
 	w.selected = false;
 	w.value = params.value;
+	if (params.selected == 'true' || params.selected == true) {
+		this.selectOption(w);
+	}
 	w.setDisplay();
 	w.setPosition();
 	w.div.style.whiteSpace = 'nowrap';
