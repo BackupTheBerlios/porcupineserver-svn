@@ -73,3 +73,17 @@ desktop.applyUserSettings = function(evt ,w) {
 		}
 	);
 }
+
+desktop.runApplication = function(w) {
+	var autoRun = w.attributes.AUTO_RUN;
+	var runMaximized = w.attributes.RUN_MAXIMIZED;
+	if (autoRun != '') {
+		document.desktop.parseFromUrl(QuiX.root	+ autoRun + '?cmd=run',
+			function(w) {
+				if (runMaximized) {
+					w.maximize();
+				}
+			}
+		);
+	}
+}

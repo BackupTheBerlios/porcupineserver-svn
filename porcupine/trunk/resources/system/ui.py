@@ -413,6 +413,8 @@ class Desktop(PorcupineDesktopServlet):
             'SETTINGS': resources.getResource('SETTINGS', sLang),
             'INFO': resources.getResource('INFO', sLang),
             'USER': self.session.user.displayName.value,
+            'AUTO_RUN' : self.session.user.settings.value.setdefault('AUTO_RUN', ''),
+            'RUN_MAXIMIZED' : int(self.session.user.settings.value.setdefault('RUN_MAXIMIZED', False)),
         }
         # has the user access to recycle bin?
         rb_icon = ''
@@ -483,6 +485,33 @@ class Dlg_UserSettings(XULServlet):
         else:
             self.params['CHECKED_TOP'] = 'true'
             self.params['CHECKED_BOTTOM'] = 'false'
+            
+        autoRun = self.session.user.settings.value.setdefault('AUTO_RUN', '')
+            
+        if self.session.user.settings.value.setdefault('RUN_MAXIMIZED', False) == True:
+            self.params['RUN_MAXIMIZED_VALUE'] = 'true'
+        else:
+            self.params['RUN_MAXIMIZED_VALUE'] = 'false'
+
+        # get applications
+        oCmd = OqlCommand()
+        sOql = "select id,displayName,icon from 'apps' order by displayName asc"
+        apps = oCmd.execute(sOql)
+        
+        sSelected = ''
+        if autoRun == '':
+            sSelected = 'true'
+        
+        sApps = '<a:option caption="%s" selected="%s" value=""/>' % (resources.getResource("NONE_APP", sLang), sSelected)
+        if len(apps) > 0:
+            for app in apps:
+                if autoRun == app['id']:
+                    sSelected = 'true'
+                else:
+                    sSelected = 'false'
+                sApps += '<a:option img="%s" caption="%s" value="%s" selected="%s"/>' % (app['icon'], app['displayName'], app['id'], sSelected)
+
+            self.params['APPS'] = sApps
 
 #================================================================================
 # Recycle Bin

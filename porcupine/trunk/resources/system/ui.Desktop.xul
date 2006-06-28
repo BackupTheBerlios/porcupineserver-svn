@@ -1,7 +1,10 @@
 <?xml version="1.0"?>
-<a:box xmlns:a="http://www.innoscript.org/quix" orientation="v" spacing="0" width="100%%" height="100%%">
-	<a:script name="Desktop Script" src="scripts/desktop.js"></a:script>
-	<a:script name="Generic Functions" src="scripts/generic.js"></a:script>
+<a:box xmlns:a="http://www.innoscript.org/quix" orientation="v" spacing="0"
+	width="100%%" height="100%%" onload="desktop.runApplication">
+	<a:script name="Desktop Script" src="scripts/desktop.js"/>
+	<a:script name="Generic Functions" src="scripts/generic.js"/>
+	<a:prop name="AUTO_RUN" value="%(AUTO_RUN)s"/>
+	<a:prop name="RUN_MAXIMIZED" type="bool" value="%(RUN_MAXIMIZED)d"/>
 	%(TOP)s
 	<a:rect height="24" overflow="hidden">
 		<a:contextmenu  onshow="desktop.getWindows">

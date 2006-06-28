@@ -63,6 +63,9 @@ resources = ResourceStrings({
         
         'TASK_BAR' : 'Task bar',
         'TASK_BAR_POSITION' : 'Task bar position',
+        'AUTO_RUN' : 'Auto run',
+        'RUN_MAXIMIZED' : 'Run maximized',
+        'NONE_APP' : 'None',
         'TOP' : 'Top',
         'BOTTOM' : 'Bottom',
         'APPLY' : 'Apply',
@@ -174,11 +177,16 @@ resources = ResourceStrings({
         'APPLICATIONS' : 'Εφαρμογές',
         'SETTINGS' : 'Ρυθμίσεις',
         'START' : 'Έναρξη',
+        
         'TASK_BAR' : 'Γραμμή εργασιών',
         'TASK_BAR_POSITION' : 'Θέση γραμμής εργασιών',
+        'AUTO_RUN' : 'Αυτόματη εκκίνηση',
+        'RUN_MAXIMIZED' : 'Εκτέλεση σε πλήρη οθόνη',
+        'NONE_APP' : 'Καμμία',
         'TOP' : 'Επάνω',
         'BOTTOM' : 'Κάτω',
         'APPLY' : 'Εφαρμογή',
+        
         'RECYCLE_BIN' : 'Κάδος Ανακύκλωσης',
         'EMPTY_BIN' : 'Άδειασμα Κάδου',
         'ORIGINAL_LOC' : 'Αρχική τοποθεσία',
