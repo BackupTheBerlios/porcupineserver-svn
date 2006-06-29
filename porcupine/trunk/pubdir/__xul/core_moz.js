@@ -37,7 +37,7 @@ function Clipboard() {
 }
 
 var QuiX = function() {}
-QuiX.version = '0.4 build 20060221';
+QuiX.version = '0.5 build 20060629';
 QuiX.namespace = 'http://www.innoscript.org/quix';
 QuiX.browser = 'moz';
 QuiX.startX = 0;
