@@ -1,5 +1,7 @@
 var desktop = function() {}
 
+desktop.autoRun = true;
+
 desktop.logoff = function(evt, w) {
 	var desktop = document.desktop;
 	desktop.msgbox(w.attributes.logoff, 
@@ -69,6 +71,7 @@ desktop.applyUserSettings = function(evt ,w) {
 		function(){
 			oDialog.close();
 			document.desktop.clear();
+			desktop.autoRun = false;
 			document.desktop.parseFromUrl(QuiX.root);
 		}
 	);
@@ -77,7 +80,7 @@ desktop.applyUserSettings = function(evt ,w) {
 desktop.runApplication = function(w) {
 	var autoRun = w.attributes.AUTO_RUN;
 	var runMaximized = w.attributes.RUN_MAXIMIZED;
-	if (autoRun != '') {
+	if (autoRun != '' && desktop.autoRun) {
 		document.desktop.parseFromUrl(QuiX.root	+ autoRun + '?cmd=run',
 			function(w) {
 				if (runMaximized) {
