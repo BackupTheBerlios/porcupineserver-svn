@@ -539,8 +539,6 @@ XULParser.prototype.parseXul = function(oNode, parentW) {
 		if (oWidget) { 
 			if (oWidget._registry.onload)
 				oWidget._registry.onload(oWidget);
-			if (params.disabled=='true' || params.disabled==true)
-				oWidget.disable();
 		}
 	}
 	return(oWidget);

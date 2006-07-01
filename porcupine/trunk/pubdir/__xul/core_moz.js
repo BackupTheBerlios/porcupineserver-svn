@@ -551,8 +551,6 @@ XULParser.prototype.parseXul = function(oNode, parentW) {
 		if (oWidget) { 
 			if (oWidget._registry.onload)
 				oWidget._registry.onload(oWidget);
-			if (params.disabled=='true' || params.disabled==true)
-				oWidget.disable();
 		}
 	}
 	return oWidget;
@@ -699,9 +697,9 @@ Widget.prototype._detachEvents = function(w) {
 
 Widget.prototype.disable = function(w) {
 	w = w || this;
-	w.statecolor = w.div.style.color;
+	w._statecolor = w.div.style.color;
 	w.div.style.color = 'GrayText';
-	w.statecursor = w.div.style.cursor;
+	w._statecursor = w.div.style.cursor;
 	w.div.style.cursor = 'default';
 	if (!w._isDisabled) w._detachEvents();
 	w._isDisabled = true;
@@ -712,8 +710,8 @@ Widget.prototype.disable = function(w) {
 
 Widget.prototype.enable = function(w) {
 	w = w || this;
-	w.div.style.color = w.statecolor || '';
-	w.div.style.cursor = w.statecursor || '';
+	w.div.style.color = w._statecolor || '';
+	w.div.style.cursor = w._statecursor || '';
 	if (w._isDisabled) w._attachEvents();
 	w._isDisabled = false;
 	for (var i=0; i<w.widgets.length; i++) {
