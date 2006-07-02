@@ -1,4 +1,40 @@
 -------------
+Version 0.0.7
+-------------
+NEW: Added WSGI support.
+NEW: Each user can select an application to be launched automatically
+     immediately after successfull login (requested by Jonny).
+NEW: New box layout widget (contributed by Stanislav Ievlev).
+NEW: Added the "max-age" attribute to Porcupine's registrations, for
+     having control over caching of the static files.
+NEW: Added support for cookies to the Response and Request
+     objects.
+NEW: Added new "window.onclose" event to QuiX windows.
+NEW: Added new methods to Window widget: "addControlButton",
+     "removeControlButton", "setIcon", "setResizable", "addStatusBar",
+     "removeStatusBar" and "getStatus".
+NEW: Added new method to Dialog widget: "setButtonsAlign".
+
+OPT: Unified XMLRPC QuiX module (contributed by Stanislav Ievlev).
+OPT: Replaced non-interactive splitters with bax layout controls
+     (more efficient).
+OPT: The session ID is no longer injected in the URL, if the browser
+     accepts cookies.
+OPT: The browser window gets maximized automatically.
+OPT: Most of the QuiX widgets are now fully editable at run-time (thanks
+     to Quill). Optimized widgets include: window, tree, flat button, 
+     tab pane, menu bar, splitter.
+OPT: Assigning an invalid QuiX event handler is no longer blocking (no
+     exception is thrown). Instead, null is returned. 
+
+FIX: The "selected" attribute of an option in a select list was ignored.
+FIX: The context menu displayed when you right-click on the desktop task bar
+     is updated correctly (Hotfix 20060313).
+FIX: The state of the menu options of the context menu inside the
+     "User and Groups Management" application is updated as expected
+     (Hotfix 20060313).
+
+-------------
 Version 0.0.6
 -------------
 NEW: New "db_init" utility, which initializes a blank Porcupine
