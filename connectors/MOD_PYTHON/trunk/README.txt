@@ -9,10 +9,12 @@ Porcupine MOD_PYTHON Apache connector
 4. Edit server.ini and set the "hosts" setting under the "config" section,
    to the address that Porcupine server is listening.
 5. Ensure that mod_python module gets loaded. Search the apache configuration
-   file for the following declaration
+   file for the following declaration:
 	"LoadModule python_module modules/mod_python.so"
-6. Edit Apache's "httpd.ini" configuration file and add the lines
-   marked with the arrows ONLY:
+6. Edit Apache's "httpd.ini" configuration file. Locate your server's
+   root directory configuration section and add the lines marked with the
+   arrows ONLY:
+   
         #
         # This should be changed to whatever you set DocumentRoot to.
         #
@@ -24,6 +26,7 @@ Porcupine MOD_PYTHON Apache connector
 ---->           PythonDebug On
 
         </Directory>
+
 7. Open a brower and type "http://SERVER_NAME/porcupine.py".
 8. Login with the following credentials:
 	Username: admin
