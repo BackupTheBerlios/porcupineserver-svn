@@ -657,6 +657,8 @@ Widget.prototype.appendChild = function(w, p) {
 	p.div.appendChild(w.div);
 	w.redraw();
 	w.bringToFront();
+	if (p._isDisabled)
+		w.disable();
 }
 
 Widget.prototype.supportedEvents = [
@@ -701,8 +703,8 @@ Widget.prototype.disable = function(w) {
 	w.div.style.color = 'GrayText';
 	w._statecursor = w.div.style.cursor;
 	w.div.style.cursor = 'default';
-	if (!w._isDisabled) w._detachEvents();
 	w._isDisabled = true;
+	w._detachEvents();
 	for (var i=0; i<w.widgets.length; i++) {
 		w.widgets[i].disable();
 	}
@@ -712,8 +714,8 @@ Widget.prototype.enable = function(w) {
 	w = w || this;
 	w.div.style.color = w._statecolor || '';
 	w.div.style.cursor = w._statecursor || '';
-	if (w._isDisabled) w._attachEvents();
 	w._isDisabled = false;
+	w._attachEvents();
 	for (var i=0; i<w.widgets.length; i++) {
 		w.widgets[i].enable();
 	}
@@ -1238,7 +1240,8 @@ Widget.prototype.attachEvent = function(eventType, f) {
 	}
 	else
 		handler = this._registry[eventType];
-	this.div.addEventListener(eventType.slice(2,eventType.length), handler, false);
+	if (!this._isDisabled)
+		this.div.addEventListener(eventType.slice(2,eventType.length), handler, false);
 }
 
 Widget.prototype.detachEvent = function(eventType) {
