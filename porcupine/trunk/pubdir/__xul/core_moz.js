@@ -901,16 +901,16 @@ Widget.prototype.getHeight = function(b) {
 		ofs = parseInt(this.div.style.paddingTop) + parseInt(this.div.style.paddingBottom) + 2*this.getBorderWidth();
 		hg += ofs;
 	}
-	return (hg>=0)?hg:0;
+	return hg;
 }
 
 Widget.prototype.getWidth = function(b) {
 	var ofs, wd;
 	b = b || false;
 	wd = parseInt(this.div.style.width);
+	if (isNaN(wd)) return 0;
 	if (b) {
-		var padding = this.getPadding();
-		ofs = padding[0] + padding[1] + 2*this.getBorderWidth();
+		ofs = parseInt(this.div.style.paddingLeft) + parseInt(this.div.style.paddingRight) + 2*this.getBorderWidth();
 		wd += ofs;
 	}
 	return wd;
