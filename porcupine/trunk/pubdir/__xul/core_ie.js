@@ -894,11 +894,11 @@ Widget.prototype.getHeight = function(b) {
 	b = b || false;
 	hg = parseInt(this.div.style.height);
 	if (isNaN(hg)) return 0;
-	if (b && hg>0) {
+	if (b) {
 		ofs = parseInt(this.div.style.paddingTop) + parseInt(this.div.style.paddingBottom) + 2 * this.getBorderWidth();
 		hg += ofs;
 	}
-	return hg;
+	return (hg>=0)?hg:0;
 }
 
 Widget.prototype.getWidth = function(b) {
