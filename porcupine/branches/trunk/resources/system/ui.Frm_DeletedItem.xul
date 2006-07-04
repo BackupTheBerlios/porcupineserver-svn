@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+<a:dialog xmlns:a="http://www.innoscript.org/quix"
+	title="%(NAME)s Properties"
+	img="%(ICON)s"
+	close="true"
+	bgcolor="menu"
+	width="380"
+	height="200"
+	left="30%%"
+	top="30%%">
+	<a:wbody>
+		<a:form action="%(URI)s" method="restore">
+			<a:tabpane top="0" left="0" width="100%%" height="100%%">
+				<a:tab caption="Info">
+					<a:label top="0" left="5" width="100" height="20" caption="Date deleted:"></a:label>
+					<a:label top="0" left="105" width="55%%" height="20" caption="%(MODIFIED)s"></a:label>
+
+					<a:label top="25" left="5" width="100" height="20" caption="Deleted by:"></a:label>
+					<a:label top="25" left="105" width="55%%" height="20" caption="%(MODIFIED_BY)s"></a:label>
+
+					<a:label top="50" left="5" width="100" height="20" caption="Original location:"></a:label>
+					<a:label top="50" left="105" width="55%%" height="20" canselect="true" caption="%(LOC)s"></a:label>
+
+					<a:label top="75" left="5" width="100" height="20" caption="Contentclass:"></a:label>
+					<a:label top="75" left="105" width="55%%" height="20" canselect="true" caption="%(CONTENTCLASS)s"></a:label>
+				</a:tab>
+			</a:tabpane>
+		</a:form>
+	</a:wbody>
+	<a:dlgbutton onclick="" width="70" height="22" caption="Restore"></a:dlgbutton>
+	<a:dlgbutton onclick="__closeDialog__" width="70" height="22" caption="Close"></a:dlgbutton>
+</a:dialog>
