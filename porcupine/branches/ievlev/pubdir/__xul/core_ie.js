@@ -595,7 +595,6 @@ function Widget(params) {
 	this.height = params.height || null;
 	this.minw = 0;
 	this.minh = 0;
-	this.isHidden = false;
 	this.widgets = [];
 	this._id_widgets = {};
 	this.attributes = params.attributes || {};
@@ -611,6 +610,7 @@ function Widget(params) {
 	}
 	else
 		this.div = ce('DIV');
+	this.div.style.visibility = params.hidden?'hidden':'';
 
 	this.div.widget = this;
 
@@ -1094,14 +1094,16 @@ Widget.prototype.clear = function() {
 
 Widget.prototype.hide = function() {
 	this.div.style.visibility = 'hidden';
-	this.isHidden = true;
 }
 
 Widget.prototype.show = function() {
 	this.div.style.visibility = '';
-	this.isHidden = false;
 	this.redraw();
 }
+Widget.prototype.isHidden = function() {
+	return (this.div.style.visibility == 'hidden');
+}
+
 
 Widget.prototype._startResize = function (evt)
 {
@@ -1177,7 +1179,7 @@ Widget.prototype.redraw = function(bForceAll, w) {
 	var w = w || this;
 	var sOverflow;
 	if (w.div.parentElement) {
-		if (!w.isHidden) {
+		if (w.div.style.visibility == '') {
 			sOverflow = w.getOverflow();
 			if (sOverflow != 'hidden') w.setOverflow('hidden');
 			w._setCommonProps();

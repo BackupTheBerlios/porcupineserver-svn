@@ -608,7 +608,6 @@ function Widget(params) {
 	this.height = params.height || null;
 	this.minw = 0;
 	this.minh = 0;
-	this.isHidden = false;
 	this.widgets = [];
 	this._id_widgets = {};
 	this.attributes = params.attributes || {};
@@ -618,6 +617,7 @@ function Widget(params) {
 
 	this.div = ce('DIV');
 	if (params.style) this.div.setAttribute('style', params.style);
+	this.div.style.visibility = params.hidden?'hidden':'';
 	this.div.widget = this;
 
 	this._id = undefined;
@@ -1088,13 +1088,15 @@ Widget.prototype.clear = function() {
 
 Widget.prototype.hide = function() {
 	this.div.style.visibility = 'hidden';
-	this.isHidden = true;
 }
 
 Widget.prototype.show = function() {
 	this.div.style.visibility = '';
-	this.isHidden = false;
 	this.redraw();
+}
+
+Widget.prototype.isHidden = function() {
+	return (this.div.style.visibility == 'hidden');
 }
 
 Widget.prototype._startResize = function (evt) {
@@ -1190,7 +1192,7 @@ Widget.prototype.redraw = function(bForceAll, w) {
 }
 
 Widget.prototype._redraw = function(bForceAll) {
-	if (!this.isHidden) {
+	if (this.div.style.visibility == '') {
 		this._setCommonProps();
 		if (this.getPosition()!='')
 			this._setAbsProps();
