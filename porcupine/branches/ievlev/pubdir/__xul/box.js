@@ -45,11 +45,17 @@ Box.prototype._getWidgetOffset=function(iPane) {
 	var offset = 0;
 	if (this.orientation=='h') {
 		for (var i=0; i<iPane; i++)
+		{
+			if (this.widgets[i].isHidden()) continue;
 			offset += this.widgets[i].getWidth(true) + this.spacing;
+		}
 	}
 	else {
 		for (var i=0; i<iPane; i++)
+		{
+			if (this.widgets[i].isHidden()) continue;
 			offset += this.widgets[i].getHeight(true) + this.spacing;
+		}
 	}
 	return(offset);
 }
@@ -60,6 +66,7 @@ Box.prototype._calcWidgetLength = function() {
 	var length_var = (this.orientation=='h')?'width':'height';
 	
 	for (var i=0; i<this.widgets.length; i++) {
+		if (this.widgets[i].isHidden()) continue;
 		if (this.widgets[i][length_var] != 'this.parent._calcWidgetLength()') {
 			if (this.orientation=='h')
 				tl += this.widgets[i]._calcWidth(true);
