@@ -120,7 +120,8 @@ function _getXml(obj) {
 }
 
 // xmlrpcrequest
-function XMLRPCRequest(sUrl) {
+function XMLRPCRequest(sUrl,async) {
+	this.async = ((typeof async) == "undefined")?true:async;
 	this.url = sUrl;
 	/* FIXME: add checking for opera here in the future
 	          right check is: window.ActiveXObject && !isOpera */
@@ -139,21 +140,17 @@ function XMLRPCRequest(sUrl) {
 
 	this.xmlhttp.onreadystatechange = function() {
 		//alert(req.xmlhttp);
-		if (req.xmlhttp != null) {
-			if (req.xmlhttp.readyState==4) {
-				// parse response...
-				retVal = req.processResult();
-				if (retVal!=null && req.oncomplete) {
-					req.response = retVal;
-					req.oncomplete(req);
-				}
-				req.xmlhttp = null;
-			}
-			else {
-				if (req.onreadystatechange) req.onreadystatechange(req);
+		if (req.xmlhttp.readyState==4) {
+			// parse response...
+			retVal = req.processResult();
+			if (retVal!=null && req.oncomplete) {
+				req.response = retVal;
+				req.oncomplete(req);
 			}
 		}
-
+		else {
+			if (req.onreadystatechange) req.onreadystatechange(req);
+		}
 	}
 }
 
@@ -294,7 +291,7 @@ XMLRPCRequest.prototype.callmethod = function(method_name) {
 		   		message += '<param><value>' + _getXml(arguments[i]) + '</value></param>';
 		   	
 			message += '</params></methodCall>';
-			this.xmlhttp.open('POST', this.url, true);
+			this.xmlhttp.open('POST', this.url, this.async);
 			this.xmlhttp.setRequestHeader("User-Agent", "vcXMLRPC running on " + navigator.userAgent);
 			this.xmlhttp.setRequestHeader("Content-type", "text/xml");
 			this.xmlhttp.send(message);
