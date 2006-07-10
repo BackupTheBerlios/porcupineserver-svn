@@ -10,6 +10,7 @@ function Box(params) {
 	this.orientation = params.orientation || 'h';
 	var iSpacing = params.spacing || 2;
 	this.spacing = parseInt(iSpacing);
+	this.childrenalign = params.childrenalign;
 }
 
 Box.prototype = new Widget;
@@ -28,11 +29,13 @@ Box.prototype.redraw = function(bForceAll) {
 	var oWidget;
 	if (bForceAll) {
 		var offset_var = (this.orientation=='h')?'left':'top';
+		var center_var = (this.orientation=='h')?'top':'left';
 		var length_var = (this.orientation=='h')?'width':'height';
 		
 		for (var i=0; i<this.widgets.length; i++) {
 			oWidget = this.widgets[i];
 			oWidget[offset_var] = 'this.parent._getWidgetOffset(' + i + ')';
+			oWidget[center_var] = 'this.parent._getWidgetPos(' + i + ')';
 	
 			if (oWidget[length_var] == null || oWidget[length_var] == '-1')
 				oWidget[length_var] = 'this.parent._calcWidgetLength()';
@@ -40,6 +43,24 @@ Box.prototype.redraw = function(bForceAll) {
 	}
 	Widget.prototype.redraw(bForceAll, this);
 }
+
+Box.prototype._getWidgetPos = function(iPane)
+{
+	var oWidget = this.widgets[iPane];
+	var boxalign =  oWidget.boxalign || this.childrenalign;
+	var w1 = (this.orientation=='h')?this.parent._calcHeight():this.parent._calcWidth();
+	var w2 = (this.orientation=='h')?oWidget._calcHeight():oWidget._calcWidth();
+	switch (boxalign)
+	{
+		case 'center':
+				return (w1 - w2)/2;
+		case 'right':
+				return (w1 - w2);
+		default: 	
+				return 0;
+	}
+}
+
 
 Box.prototype._getWidgetOffset=function(iPane) {
 	var offset = 0;
