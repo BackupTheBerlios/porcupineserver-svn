@@ -121,7 +121,7 @@ function _getXml(obj) {
 
 // xmlrpcrequest
 function XMLRPCRequest(sUrl,async) {
-        this.async = ((typeof async) == "undefined")?true:async;
+	this.async = ((typeof async) == "undefined")?true:async;
 	this.url = sUrl;
 	/* FIXME: add checking for opera here in the future
 	          right check is: window.ActiveXObject && !isOpera */
@@ -140,21 +140,17 @@ function XMLRPCRequest(sUrl,async) {
 
 	this.xmlhttp.onreadystatechange = function() {
 		//alert(req.xmlhttp);
-		//if (req.xmlhttp != null) {
-			if (req.xmlhttp.readyState==4) {
-				// parse response...
-				retVal = req.processResult();
-				if (retVal!=null && req.oncomplete) {
-					req.response = retVal;
-					req.oncomplete(req);
-				}
-				//req.xmlhttp = null;
+		if (req.xmlhttp.readyState==4) {
+			// parse response...
+			retVal = req.processResult();
+			if (retVal!=null && req.oncomplete) {
+				req.response = retVal;
+				req.oncomplete(req);
 			}
-			else {
-				if (req.onreadystatechange) req.onreadystatechange(req);
-			}
-		//}
-
+		}
+		else {
+			if (req.onreadystatechange) req.onreadystatechange(req);
+		}
 	}
 }
 
