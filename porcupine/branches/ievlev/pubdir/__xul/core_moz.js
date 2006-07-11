@@ -932,50 +932,33 @@ Widget.prototype.getTop = function() {
 	return rg;
 }
 
+Widget.prototype._calcSize = function(height,offset,getHeight) {
+	var height=(typeof(this[height])=='function')?this[height](this[height]):this[height];
+	if (height == null)
+		return height;
+	if (!isNaN(height))
+		return parseInt(height)-offset;
+	else if (height.slice(height.length-1)=='%') {
+		var perc = parseInt(height)/100;
+		var nh = (parseInt(this.parent[getHeight]()*perc)-offset) || 0;
+                return nh>0?nh:0;
+        }
+	else {
+		var w = (eval(height) - offset) || 0;
+		return w>0?w:0;
+	}
+}
+
 Widget.prototype._calcHeight = function(b) {
 	var offset = 0;
 	if (!b)	offset = parseInt(this.div.style.paddingTop) + parseInt(this.div.style.paddingBottom) + 2*this.getBorderWidth();
-	if (!isNaN(this.height)) {
-		var w = parseInt(this.height)-offset; 
-		return(w>0?w:0);
-	}
-	else if (typeof(this.height)=='function') {
-		var w = (this.height(this)-offset) || 0;
-		return(w>0?w:0)
-	}
-	else if (this.height.slice(this.height.length-1)=='%') {
-		var perc = parseInt(this.height)/100;
-		var nh = (parseInt(this.parent.getHeight()*perc)-offset) || 0;
-		return(nh>0?nh:0);
-	}
-	else {
-		var w = (eval(this.height) - offset) || 0;
-		return(w>0?w:0);
-	}
+	return this._calcSize("height",offset,"getHeight");
 }
 
 Widget.prototype._calcWidth = function(b) {
 	var offset = 0;
-	if (!b) {
-		offset = parseInt(this.div.style.paddingLeft) + parseInt(this.div.style.paddingRight) + 2*this.getBorderWidth();
-	}
-	if (!isNaN(this.width)) {
-		var w = parseInt(this.width)-offset;
-		return(w>0?w:0);
-	}
-	else if (typeof(this.width)=='function') {
-		var w = (this.width(this)-offset) || 0;
-		return(w>0?w:0)
-	}
-	else if (this.width.slice(this.width.length-1)=='%') {
-		var perc = parseInt(this.width)/100;
-		var nw = (parseInt(this.parent.getWidth()*perc) - offset) || 0;
-		return(nw>0?nw:0);
-	}
-	else {
-		var w = (eval(this.width)-offset) || 0;
-		return(w>0?w:0);
-	}
+	if (!b)	offset = parseInt(this.div.style.paddingLeft) + parseInt(this.div.style.paddingRight) + 2*this.getBorderWidth();
+	return this._calcSize("width",offset,"getWidth");
 }
 
 Widget.prototype._calcLeft = function() {
