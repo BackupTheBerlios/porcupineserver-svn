@@ -1353,5 +1353,5 @@ ProgressBar.prototype.setValue = function(v) {
 }
 
 ProgressBar.prototype.increase = function(amount) {
-	this.setValue(this.value += parseInt(amount));
+	this.setValue(this.value + parseInt(amount));
 }
