@@ -942,25 +942,24 @@ Widget.prototype._calcSize = function(height,offset,getHeight) {
 		return parseInt(height)-offset;
 	else if (height.slice(height.length-1)=='%') {
 		var perc = parseInt(height)/100;
-		var nh = (parseInt(this.parent[getHeight]()*perc)-offset) || 0;
-                return nh>0?nh:0;
+		return (parseInt(this.parent[getHeight]()*perc)-offset) || 0;
         }
-	else {
-		var w = (eval(height) - offset) || 0;
-		return w>0?w:0;
-	}
+	else
+		return (eval(height) - offset) || 0;
 }
 
 Widget.prototype._calcHeight = function(b) {
 	var offset = 0;
 	if (!b)	offset = parseInt(this.div.style.paddingTop) + parseInt(this.div.style.paddingBottom) + 2*this.getBorderWidth();
-	return this._calcSize("height",offset,"getHeight");
+	var s = this._calcSize("height",offset,"getHeight");
+	return s>0?s:0;
 }
 
 Widget.prototype._calcWidth = function(b) {
 	var offset = 0;
 	if (!b)	offset = parseInt(this.div.style.paddingLeft) + parseInt(this.div.style.paddingRight) + 2*this.getBorderWidth();
-	return this._calcSize("width",offset,"getWidth");
+	var s = this._calcSize("width",offset,"getWidth");
+	return s>0?s:0;
 }
 
 Widget.prototype._calcLeft = function()
