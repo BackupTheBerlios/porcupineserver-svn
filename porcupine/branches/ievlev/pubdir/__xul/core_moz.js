@@ -824,8 +824,9 @@ Widget.prototype.getId = function() {
 }
 
 // bgColor attribute
-Widget.prototype.setBgColor = function(color) {
-	this.div.style.backgroundColor = color;
+Widget.prototype.setBgColor = function(color,w) {
+	var w = w || this;
+	w.div.style.backgroundColor = color;
 }
 Widget.prototype.getBgColor = function() {
 	return this.div.style.backgroundColor;
