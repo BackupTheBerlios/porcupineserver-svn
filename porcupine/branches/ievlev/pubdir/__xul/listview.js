@@ -329,7 +329,7 @@ ListView.prototype.refresh = function() {
 			oCell.style.padding = '4px ' + sPad + ' 4px ' + sPad;
 			if (this.columns[j].columnBgColor) oCell.bgColor = this.columns[j].columnBgColor;
 			oRow.appendChild(oCell);
-			oValue = this.dataSet[i][this.columns[j].name];
+			var oValue = this.dataSet[i][this.columns[j].name];
 			this._renderCell(oCell, j, oValue, this.dataSet[i])
 		}
 		oFiller = ce('TD');
@@ -370,7 +370,7 @@ ListView.prototype._renderCell = function(cell, cellIndex, value, obj) {
 				}
 				return;
 			case 'img':
-				elem = QuiX.getImage(oValue);
+				elem = QuiX.getImage(value);
 				elem.align = 'absmiddle';
 				cell.appendChild(elem);
 				return;
