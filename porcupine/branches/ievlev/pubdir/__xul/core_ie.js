@@ -935,7 +935,7 @@ Widget.prototype.getTop = function()
 }
 
 Widget.prototype._calcSize = function(height,offset,getHeight) {
-	var height=(typeof(this[height])=='function')?this[height](this[height]):this[height];
+	var height=(typeof(this[height])=='function')?this[height](this):this[height];
 	if (height == null)
 		return height;
 	if (!isNaN(height))
