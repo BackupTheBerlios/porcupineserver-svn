@@ -828,8 +828,9 @@ Widget.prototype.getId = function() {
 }
 
 // bgColor attribute
-Widget.prototype.setBgColor = function(color) {
-	this.div.style.backgroundColor = color;
+Widget.prototype.setBgColor = function(color,w) {
+	var w = w || this;
+	w.div.style.backgroundColor = color;
 }
 Widget.prototype.getBgColor = function() {
 	return this.div.style.backgroundColor;
@@ -936,50 +937,32 @@ Widget.prototype.getTop = function() {
 	return rg;
 }
 
+Widget.prototype._calcSize = function(height, offset, getHeight) {
+	var height=(typeof(this[height])=='function')?this[height](this):this[height];
+	if (height == null)
+		return height;
+	if (!isNaN(height))
+		return parseInt(height)-offset;
+	else if (height.slice(height.length-1) == '%') {
+		var perc = parseInt(height)/100;
+		return (parseInt(this.parent[getHeight]()*perc)-offset) || 0;
+	}
+	else
+		return (eval(height) - offset) || 0;
+}
+
 Widget.prototype._calcHeight = function(b) {
 	var offset = 0;
 	if (!b)	offset = parseInt(this.div.style.paddingTop) + parseInt(this.div.style.paddingBottom) + 2*this.getBorderWidth();
-	if (!isNaN(this.height)) {
-		var w = parseInt(this.height)-offset; 
-		return(w>0?w:0);
-	}
-	else if (typeof(this.height)=='function') {
-		var w = (this.height(this)-offset) || 0;
-		return(w>0?w:0)
-	}
-	else if (this.height.slice(this.height.length-1)=='%') {
-		var perc = parseInt(this.height)/100;
-		var nh = (parseInt(this.parent.getHeight()*perc)-offset) || 0;
-		return(nh>0?nh:0);
-	}
-	else {
-		var w = (eval(this.height) - offset) || 0;
-		return(w>0?w:0);
-	}
+	var s = this._calcSize("height", offset, "getHeight");
+	return s>0?s:0;
 }
 
 Widget.prototype._calcWidth = function(b) {
 	var offset = 0;
-	if (!b) {
-		offset = parseInt(this.div.style.paddingLeft) + parseInt(this.div.style.paddingRight) + 2*this.getBorderWidth();
-	}
-	if (!isNaN(this.width)) {
-		var w = parseInt(this.width)-offset;
-		return(w>0?w:0);
-	}
-	else if (typeof(this.width)=='function') {
-		var w = (this.width(this)-offset) || 0;
-		return(w>0?w:0)
-	}
-	else if (this.width.slice(this.width.length-1)=='%') {
-		var perc = parseInt(this.width)/100;
-		var nw = (parseInt(this.parent.getWidth()*perc) - offset) || 0;
-		return(nw>0?nw:0);
-	}
-	else {
-		var w = (eval(this.width)-offset) || 0;
-		return(w>0?w:0);
-	}
+	if (!b)	offset = parseInt(this.div.style.paddingLeft) + parseInt(this.div.style.paddingRight) + 2*this.getBorderWidth();
+	var s = this._calcSize("width",offset,"getWidth");
+	return s>0?s:0;
 }
 
 Widget.prototype._calcLeft = function() {
@@ -1357,5 +1340,5 @@ ProgressBar.prototype.setValue = function(v) {
 }
 
 ProgressBar.prototype.increase = function(amount) {
-	this.setValue(this.value += parseInt(amount));
+	this.setValue(this.value + parseInt(amount));
 }
