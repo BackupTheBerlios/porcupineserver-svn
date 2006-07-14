@@ -100,7 +100,7 @@ BODY {
 	cursor:pointer;
 }
 
-.window{
+.window, .groupbox {
 	border-style : solid;
 	border-color: black;
 	background-color : #D5CCBB;
@@ -376,4 +376,9 @@ BODY {
      background-color: #c0c0ff;
 	 border: 1px solid Gray;
      cursor: pointer;
+}
+
+.groupboxframe {
+     border-color: lightgray;
+     border-style: groove;
 }
