@@ -78,7 +78,7 @@ QuiX.tags = {
 	'tree':6,'treenode':6,'foldertree':6,
 	'toolbar':7,'tbbutton':7,'outlookbar':7,'tool':7,
 	'field':8,'form':8,'spinbutton':8,
-	'hr':9,
+	'hr':9, 'iframe':9,
 	'datagrid':10,
 	'file':11,'multifile':11,
 	'datepicker':12,
@@ -481,6 +481,10 @@ XULParser.prototype.parseXul = function(oNode, parentW) {
 			case 'hr':
 				checkForChilds = false;
 				oWidget = new HR(params);
+				break;
+			case 'iframe':
+				checkForChilds = false;
+				oWidget = new IFrame(params);
 				break;
 			case 'rect':
 				oWidget = new Widget(params);
