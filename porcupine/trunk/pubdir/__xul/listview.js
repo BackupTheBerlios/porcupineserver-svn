@@ -306,7 +306,8 @@ ListView.prototype._endMoveResizer = function(evt, iResizer) {
 }
 
 ListView.prototype.refresh = function() {
-	var oRow, oCell, selector, sPad, oFiller, oListTable
+	var oRow, oCell, selector, sPad, oFiller, oListTable;
+	var oValue;
 	var tbody = document.createElement("tbody");
 	var docFragment = document.createDocumentFragment();
 	// create rows
@@ -370,7 +371,7 @@ ListView.prototype._renderCell = function(cell, cellIndex, value, obj) {
 				}
 				return;
 			case 'img':
-				elem = QuiX.getImage(oValue);
+				elem = QuiX.getImage(value);
 				elem.align = 'absmiddle';
 				cell.appendChild(elem);
 				return;
