@@ -35,13 +35,7 @@ Box.prototype.redraw = function(bForceAll) {
 		for (var i=0; i<this.widgets.length; i++) {
 			oWidget = this.widgets[i];
 			oWidget[offset_var] = 'this.parent._getWidgetOffset(' + i + ')';
-			boxalign = oWidget.boxAlign || this.childrenAlign;
-			if (
-				(this.orientation=='h' && (boxalign == 'center' || boxalign=='bottom')) ||
-				(this.orientation=='v' && (boxalign == 'center' || boxalign=='right')) )
-			{
-				oWidget[center_var] = 'this.parent._getWidgetPos(' + i + ')';
-			}
+			oWidget[center_var] = 'this.parent._getWidgetPos(' + i + ')';
 	
 			if (oWidget[length_var] == null || oWidget[length_var] == '-1')
 				oWidget[length_var] = 'this.parent._calcWidgetLength()';
