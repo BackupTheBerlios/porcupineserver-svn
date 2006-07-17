@@ -81,7 +81,7 @@
     <context path="taskbar_top.gif" method="GET" client=".*" lang=".*" action="taskbar_top.gif"/>
     <context path="taskbar_bottom.gif" method="GET" client=".*" lang=".*" action="taskbar_bottom.gif"/>
     <context path="tb_handle.gif" method="GET" client=".*" lang=".*" action="tb_handle.gif"/>
-    <context path="transp.gif" method="GET" client=".*" lang=".*" action="transp.gif"/>
+    <context path="transp.gif" method="GET" client=".*" lang=".*" action="transp.gif" max-age="3600"/>
     <context path="trashcan_empty22.gif" method="GET" client=".*" lang=".*" action="trashcan_empty22.gif"/>
     <context path="trashcan_empty8.gif" method="GET" client=".*" lang=".*" action="trashcan_empty8.gif"/>
     <context path="trashcan_full.gif" method="GET" client=".*" lang=".*" action="trashcan_full.gif"/>

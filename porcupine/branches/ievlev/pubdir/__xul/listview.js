@@ -306,7 +306,8 @@ ListView.prototype._endMoveResizer = function(evt, iResizer) {
 }
 
 ListView.prototype.refresh = function() {
-	var oRow, oCell, selector, sPad, oFiller, oListTable
+	var oRow, oCell, selector, sPad, oFiller, oListTable;
+	var oValue;
 	var tbody = document.createElement("tbody");
 	var docFragment = document.createDocumentFragment();
 	// create rows
@@ -329,7 +330,7 @@ ListView.prototype.refresh = function() {
 			oCell.style.padding = '4px ' + sPad + ' 4px ' + sPad;
 			if (this.columns[j].columnBgColor) oCell.bgColor = this.columns[j].columnBgColor;
 			oRow.appendChild(oCell);
-			var oValue = this.dataSet[i][this.columns[j].name];
+			oValue = this.dataSet[i][this.columns[j].name];
 			this._renderCell(oCell, j, oValue, this.dataSet[i])
 		}
 		oFiller = ce('TD');

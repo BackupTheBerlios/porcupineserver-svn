@@ -82,7 +82,7 @@ QuiX.tags = {
 	'tree':6,'treenode':6,'foldertree':6,
 	'toolbar':7,'tbbutton':7,'outlookbar':7,'tool':7,
 	'field':8,'form':8,'spinbutton':8,
-	'hr':9,
+	'hr':9, 'iframe':9, 'groupbox':9,
 	'datagrid':10,
 	'file':11,'multifile':11,
 	'datepicker':12,
@@ -495,6 +495,13 @@ XULParser.prototype.parseXul = function(oNode, parentW) {
 			case 'hr':
 				checkForChilds = false;
 				oWidget = new HR(params);
+				break;
+			case 'iframe':
+				checkForChilds = false;
+				oWidget = new IFrame(params);
+				break;
+			case 'groupbox':
+				oWidget = new GroupBox(params);
 				break;
 			case 'rect':
 				oWidget = new Widget(params);
@@ -933,16 +940,16 @@ Widget.prototype.getTop = function() {
 	return rg;
 }
 
-Widget.prototype._calcSize = function(height,offset,getHeight) {
+Widget.prototype._calcSize = function(height, offset, getHeight) {
 	var height=(typeof(this[height])=='function')?this[height](this):this[height];
 	if (height == null)
 		return height;
 	if (!isNaN(height))
 		return parseInt(height)-offset;
-	else if (height.slice(height.length-1)=='%') {
+	else if (height.slice(height.length-1) == '%') {
 		var perc = parseInt(height)/100;
 		return (parseInt(this.parent[getHeight]()*perc)-offset) || 0;
-        }
+	}
 	else
 		return (eval(height) - offset) || 0;
 }
@@ -950,7 +957,7 @@ Widget.prototype._calcSize = function(height,offset,getHeight) {
 Widget.prototype._calcHeight = function(b) {
 	var offset = 0;
 	if (!b)	offset = parseInt(this.div.style.paddingTop) + parseInt(this.div.style.paddingBottom) + 2*this.getBorderWidth();
-	var s = this._calcSize("height",offset,"getHeight");
+	var s = this._calcSize("height", offset, "getHeight");
 	return s>0?s:0;
 }
 
