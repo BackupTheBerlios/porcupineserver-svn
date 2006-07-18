@@ -388,6 +388,12 @@ ListView.prototype._renderCell = function(cell, cellIndex, value, obj) {
 				cell.innerHTML = '<span style="white-space:nowrap">' + 
 					value.format(column.format) + '</span>';
 				return;
+			default:
+				if (typeof column_type == 'function')
+				{
+					cell.appendChild(column_type(column,obj,value))
+					return;
+				}
 		}
 		if (column._xform)
 			value = column._xform(obj, value);
@@ -405,10 +411,9 @@ ListView.prototype._renderCell = function(cell, cellIndex, value, obj) {
 			cell.innerHTML = '&nbsp;';
 		}
 	} else {
-		if (value=='') value=' ';
-		cell.innerHTML = '<span style="white-space:nowrap"></span>';
+		cell.innerHTML = '<span style="white-space:nowrap">' + 
+			((value == '')?' ':value) + '</span>';
 		cell.style.cursor = 'default';
-		cell.firstChild.appendChild(document.createTextNode(value));
 	}
 }
 
