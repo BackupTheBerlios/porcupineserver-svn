@@ -177,16 +177,21 @@ class Reference1(DataType):
         """
         This method returns the object that this data type
         instance references. If the current user has no read
-        permission on the referenced item then it returns None.
+        permission on the referenced item or it has been deleted
+        then it returns None.
         
         @param trans: A valid transaction handle
         
         @rtype: type
         @return: The referenced object, otherwise None
         """
+        oItem = None
         if self.value:
-            return(dbEnv.getItem(self.value, trans))
-        return(None)
+            try:
+                oItem = dbEnv.getItem(self.value, trans)
+            except serverExceptions.DBItemNotFound:
+                pass
+        return(oItem)
         
 class ReferenceN(DataType):
     """
@@ -217,9 +222,12 @@ class ReferenceN(DataType):
         """
         lstItems = []
         for sID in self.value:
-            oItem = dbEnv.getItem(sID, trans)
-            if oItem:
-                lstItems.append(oItem)
+            try:
+                oItem = dbEnv.getItem(sID, trans)
+                if oItem:
+                    lstItems.append(oItem)
+            except serverExceptions.DBItemNotFound:
+                pass
         return(objectSet.ObjectSet(lstItems))
 
 class Relator1(Reference1):
