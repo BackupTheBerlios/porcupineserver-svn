@@ -105,6 +105,13 @@ Window.prototype.setIcon = function(sUrl) {
 	}
 }
 
+Window.prototype.getIcon = function() {
+	var icon = this.title.div.firstChild;
+	if (icon.tagName == 'IMG')
+		return icon.src;
+	return '';
+}
+
 Window.prototype.setResizable = function(bResizable) {
 	var oWindow = this;
 	if (bResizable && !this.resizeHandle) {
