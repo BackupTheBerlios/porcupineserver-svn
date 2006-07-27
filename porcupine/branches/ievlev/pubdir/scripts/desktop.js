@@ -39,7 +39,7 @@ desktop.getWindows = function(menu) {
 		if (oWindows[i].parent == document.desktop) {
 			menu_option = menu.addOption({
 				caption: oWindows[i].getTitle(),
-				img: oWindows[i].icon,
+				img: oWindows[i].getIcon(),
 				onclick: desktop.showWindow
 			});
 			menu_option.attributes.win = oWindows[i];
