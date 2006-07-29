@@ -502,6 +502,9 @@ XULParser.prototype.parseXul = function(oNode, parentW) {
 				break;
 			case 'groupbox':
 				oWidget = new GroupBox(params);
+				parentW.appendChild(oWidget);
+				oWidget = oWidget.body;
+				appendIt = false;
 				break;
 			case 'rect':
 				oWidget = new Widget(params);
