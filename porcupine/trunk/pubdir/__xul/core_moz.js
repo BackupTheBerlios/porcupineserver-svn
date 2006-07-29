@@ -957,6 +957,22 @@ Widget.prototype._calcSize = function(height, offset, getHeight) {
 		return (eval(height) - offset) || 0;
 }
 
+Widget.prototype._calcPos = function(left, offset, getWidth) {
+	var left = (typeof(this[left])=='function')?this[left](this):this[left];
+	if (!isNaN(left))
+		return parseInt(left) + offset;
+	else if (left.slice(left.length-1)=='%') {
+		var perc = parseInt(left)/100;
+		return (this.parent[getWidth]() * perc) || 0;
+	}
+	else {
+		if (left!='center')
+			return(eval(left) || 0);
+		else 
+			return parseInt((this.parent[getWidth]()/2) - (this[getWidth](true)/2)) || 0;
+	}
+}
+
 Widget.prototype._calcHeight = function(b) {
 	var offset = 0;
 	if (!b)	offset = parseInt(this.div.style.paddingTop) + parseInt(this.div.style.paddingBottom) + 2*this.getBorderWidth();
@@ -967,52 +983,16 @@ Widget.prototype._calcHeight = function(b) {
 Widget.prototype._calcWidth = function(b) {
 	var offset = 0;
 	if (!b)	offset = parseInt(this.div.style.paddingLeft) + parseInt(this.div.style.paddingRight) + 2*this.getBorderWidth();
-	var s = this._calcSize("width",offset,"getWidth");
+	var s = this._calcSize("width", offset, "getWidth");
 	return s>0?s:0;
 }
 
 Widget.prototype._calcLeft = function() {
-	if (!isNaN(this.left)) {
-		var l = parseInt(this.left);
-		if (this.parent) l+= this.parent.getPadding()[0];
-		return(l);
-	}
-	else if (typeof(this.left)=='function') {
-		var w = this.left(this) || 0;
-		return(w);
-	}
-	else if (this.left.slice(this.left.length-1)=='%') {
-		var perc = parseInt(this.left)/100;
-		return (this.parent.getWidth() * perc) || 0;
-	}
-	else {
-		if (this.left!='center')
-			return(eval(this.left) || 0);
-		else 
-			return parseInt((this.parent.getWidth()/2) - (this.getWidth(true)/2)) || 0;
-	}
+	return this._calcPos("left", (this.parent?this.parent.getPadding()[0]:0), "getWidth");
 }
 
 Widget.prototype._calcTop = function() {
-	if (!isNaN(this.top)) {
-		var t = parseInt(this.top);
-		if (this.parent) t+= this.parent.getPadding()[2];
-		return(t);
-	}
-	else if (typeof(this.top)=='function') {
-		var w = this.top(this) || 0;
-		return(w);
-	}
-	else if (this.top.slice(this.top.length-1)=='%') {
-		var perc = parseInt(this.top)/100;
-		return (this.parent.getHeight() * perc) || 0;
-	}
-	else {
-		if (this.top!='center')
-			return(eval(this.top) || 0);
-		else
-			return parseInt((this.parent.getHeight()/2) - (this.getHeight(true)/2)) || 0;
-	}
+	return this._calcPos("top", (this.parent?this.parent.getPadding()[2]:0), "getHeight");
 }
 
 Widget.prototype.getScreenLeft = function() {
