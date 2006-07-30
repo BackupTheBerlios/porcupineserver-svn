@@ -73,7 +73,7 @@ ListView.prototype.addHeader = function(params, w) {
 		oListview._deadCells = 0;
 
 	var list = new Widget({
-		top: oListview.header._calcHeight(true),
+		top: function() { return oListview.header.isHidden()?0:oListview.header._calcHeight(true); },
 		width:'this.parent.getWidth()-1',
 		height:'this.parent.getHeight()-' + params.height + 1
 	});
@@ -388,6 +388,12 @@ ListView.prototype._renderCell = function(cell, cellIndex, value, obj) {
 				cell.innerHTML = '<span style="white-space:nowrap">' + 
 					value.format(column.format) + '</span>';
 				return;
+			default:
+				if (typeof column_type == 'function')
+				{
+					cell.appendChild(column_type(column,obj,value))
+					return;
+				}
 		}
 		if (column._xform)
 			value = column._xform(obj, value);
@@ -405,10 +411,9 @@ ListView.prototype._renderCell = function(cell, cellIndex, value, obj) {
 			cell.innerHTML = '&nbsp;';
 		}
 	} else {
-		if (value=='') value=' ';
-		cell.innerHTML = '<span style="white-space:nowrap"></span>';
+		cell.innerHTML = '<span style="white-space:nowrap">' + 
+			((value == '')?' ':value) + '</span>';
 		cell.style.cursor = 'default';
-		cell.firstChild.appendChild(document.createTextNode(value));
 	}
 }
 
