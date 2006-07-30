@@ -706,25 +706,29 @@ Widget.prototype._detachEvents = function(w) {
 
 Widget.prototype.disable = function(w) {
 	w = w || this;
-	w.statecolor = w.div.style.color;
-	w.div.style.color = 'GrayText';
-	w.statecursor = w.div.style.cursor;
-	w.div.style.cursor = '';
-	w._isDisabled = true;
-	w._detachEvents();
-	for (var i=0; i<w.widgets.length; i++) {
-		w.widgets[i].disable();
+	if (!w._isDisabled) {
+		w._statecolor = w.div.style.color;
+		w.div.style.color = 'GrayText';
+		w._statecursor = w.div.style.cursor;
+		w.div.style.cursor = 'default';
+		w._isDisabled = true;
+		w._detachEvents();
+		for (var i=0; i<w.widgets.length; i++) {
+			w.widgets[i].disable();
+		}
 	}
 }
 
 Widget.prototype.enable = function(w) {
 	w = w || this;
-	w.div.style.color = w.statecolor || '';
-	w.div.style.cursor = w.statecursor || '';
-	w._isDisabled = false;
-	w._attachEvents();
-	for (var i=0; i<w.widgets.length; i++) {
-		w.widgets[i].enable();
+	if (w._isDisabled) {
+		w.div.style.color = w._statecolor;
+		w.div.style.cursor = w._statecursor;
+		w._isDisabled = false;
+		w._attachEvents();
+		for (var i=0; i<w.widgets.length; i++) {
+			w.widgets[i].enable();
+		}
 	}
 }
 
