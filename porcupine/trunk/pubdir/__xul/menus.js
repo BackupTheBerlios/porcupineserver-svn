@@ -178,19 +178,12 @@ ContextMenu.prototype.redraw = function(bForceAll) {
 	
 	for (var i=0; i<this.options.length; i++) {
 		oOption = this.options[i];
-		if (oOption instanceof Icon)
-		{
-			if (QuiX.browser == 'ie') {
-				optionWidth = 0;
-				for (var j=0; j<oOption.div.childNodes.length; j++) {
-					optionWidth += oOption.div.childNodes[j].offsetWidth;
-				}
-			}
-			else
-				optionWidth = oOption.div.offsetWidth;
-			if (optionWidth > this.width)
-				this.width = optionWidth + 16;
-		}
+		if (oOption instanceof Icon && QuiX.browser == 'ie') {
+			optionWidth = oOption.div.getElementsByTagName('SPAN')[0].offsetWidth + 26;
+		} else
+			optionWidth = oOption.div.offsetWidth;
+		if (optionWidth > this.width)
+			this.width = optionWidth + 16;
 		iHeight += oOption.div.offsetHeight;
 	}
 	
