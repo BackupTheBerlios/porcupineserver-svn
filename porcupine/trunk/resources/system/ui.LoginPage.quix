@@ -1,4 +1,4 @@
-<a:desktop xmlns:a="http://www.innoscript.org/quix" bgcolor="#93AECA">
+<a:desktop xmlns:a="http://www.innoscript.org/quix" bgcolor="#a18e70">
 
 	<a:prop name="CLOSE" value="%(CLOSE)s"></a:prop>
 	<a:prop name="CANCEL" value="%(CANCEL)s"></a:prop>

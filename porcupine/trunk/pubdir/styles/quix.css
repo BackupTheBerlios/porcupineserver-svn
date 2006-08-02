@@ -1,17 +1,18 @@
 HTML {
-	overflow: hidden;
+	overflow : hidden;
 }
 
 BODY {
-	margin: 0px;
-	width: 100%;
-	height: 100%;
-	position: fixed;
+	margin : 0px;
+	width : 100%;
+	height : 100%;
+	position : fixed;
 	font-family : Geneva, sans-serif;
 	font-size : 8.5pt;
 }
 
 .desktop {
+	background-image : url(../images/bc_brown.jpg);
 }
 
 .outline{
