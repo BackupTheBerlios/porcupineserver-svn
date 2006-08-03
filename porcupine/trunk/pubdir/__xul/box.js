@@ -71,19 +71,13 @@ Box.prototype._getWidgetPos = function(iPane)
 
 Box.prototype._getWidgetOffset=function(iPane) {
 	var offset = 0;
-	if (this.orientation=='h') {
-		for (var i=0; i<iPane; i++)
-		{
-			if (this.widgets[i].isHidden()) continue;
-			offset += this.widgets[i].getWidth(true) + this.spacing;
-		}
-	}
-	else {
-		for (var i=0; i<iPane; i++)
-		{
-			if (this.widgets[i].isHidden()) continue;
-			offset += this.widgets[i].getHeight(true) + this.spacing;
-		}
+	if (iPane > 0)
+	{
+		ow = this.widgets[iPane-1];
+		if (this.orientation=='h')
+			offset = ow.getLeft() + ow.getWidth(true) + this.spacing;
+		else
+			offset = ow.getTop() + ow.getHeight(true) + this.spacing;
 	}
 	return(offset);
 }
