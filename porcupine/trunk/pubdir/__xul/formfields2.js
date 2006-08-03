@@ -166,7 +166,7 @@ Combo.prototype.disable = function() {
 	if (this.div.firstChild) {
 		this.div.firstChild.disabled = true;
 		this.div.firstChild.style.backgroundColor = 'menu';
-		if (!this.readonly) this.div.firstChild.onclick = void(0);
+		if (!this.readonly) this.div.firstChild.onclick = null;
 	}
 	Widget.prototype.disable(this);
 }
