@@ -971,7 +971,7 @@ Widget.prototype._calcPos = function(left, offset, getWidth) {
 	}
 	else {
 		if (left!='center')
-			return(eval(left) || 0);
+			return(eval(left) + offset || 0);
 		else 
 			return parseInt((this.parent[getWidth]()/2) - (this[getWidth](true)/2)) || 0;
 	}
