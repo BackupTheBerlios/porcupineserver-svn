@@ -3,7 +3,7 @@ Box layout
 ************************/
 function Box(params) {
 	params = params || {};
-	params.overflow = 'hidden';
+	params.overflow = params.overflow || 'hidden';
 	this.base = Widget;
 	this.base(params);
 	this.div.className = 'box';
@@ -54,7 +54,7 @@ Box.prototype._getWidgetPos = function(iPane)
 {
 	var oWidget = this.widgets[iPane];
 	var boxalign =  oWidget.boxAlign || this.childrenAlign;
-	var w1 = (this.orientation=='h')?this.parent.getHeight(true):this.parent.getWidth(true);
+	var w1 = (this.orientation=='h')?this.parent.getHeight():this.parent.getWidth();
 	var w2 = (this.orientation=='h')?oWidget.getHeight(true):oWidget.getWidth(true);
 	switch (boxalign)
 	{
