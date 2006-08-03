@@ -116,8 +116,8 @@ Window.prototype.setResizable = function(bResizable) {
 	var oWindow = this;
 	if (bResizable && !this.resizeHandle) {
 		this.resizeHandle = new Widget({
-			left:"this.parent.getWidth()-15",
-			top:"this.parent.getHeight()-15",
+			left:"this.parent.getWidth()-16",
+			top:"this.parent.getHeight()-16",
 			width:16,
 			height:16,
 			border:0,
@@ -137,7 +137,7 @@ Window.prototype.addControlButton = function(iWhich) {
 	var oControl, img, iOffset;
 	var oWindow = this;
 	if (iWhich>-1 && iWhich<3) {
-		iOffset = (iWhich + 1) * 16;
+		iOffset = (iWhich + 1) * 17;
 		oControl = new Widget({
 			id:iWhich.toString(),
 			left:"this.parent.getWidth()-" + iOffset,top:-1,padding:'0,0,0,0',
