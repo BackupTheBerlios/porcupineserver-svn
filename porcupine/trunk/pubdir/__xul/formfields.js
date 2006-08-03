@@ -168,6 +168,7 @@ Field.prototype.setCaption = function(caption) {
 		var textnode = this.div.getElementsByTagName('SPAN')[0];
 		if (!textnode) {
 			textnode =ce('SPAN');
+			textnode.style.cursor = 'default';
 			textnode.innerHTML = caption;
 			textnode.style.verticalAlign = 'middle';
 			this.div.appendChild(textnode);
