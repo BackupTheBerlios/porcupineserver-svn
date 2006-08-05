@@ -73,7 +73,12 @@ Box.prototype._getWidgetOffset=function(iPane) {
 	var offset = 0;
 	if (iPane > 0)
 	{
-		var ow = this.widgets[iPane-1];
+		var i = iPane - 1;
+		var ow = this.widgets[i];
+		while (ow.isHidden() && i >= 0) {
+			ow = this.widgets[i];
+			i -= 1;
+		}
 		if (this.orientation=='h')
 			offset = ow.getLeft() + ow.getWidth(true) + this.spacing;
 		else
