@@ -3,7 +3,7 @@ Box layout
 ************************/
 function Box(params) {
 	params = params || {};
-	params.overflow = 'hidden';
+	params.overflow = params.overflow || 'hidden';
 	this.base = Widget;
 	this.base(params);
 	this.div.className = 'box';
@@ -35,6 +35,7 @@ Box.prototype.redraw = function(bForceAll) {
 		for (var i=0; i<this.widgets.length; i++) {
 			oWidget = this.widgets[i];
 			oWidget[offset_var] = 'this.parent._getWidgetOffset(' + i + ')';
+			boxalign = oWidget.boxAlign || this.childrenAlign;
 			oWidget[center_var] = 'this.parent._getWidgetPos(' + i + ')';
 	
 			if (oWidget[length_var] == null || oWidget[length_var] == '-1')
@@ -48,7 +49,7 @@ Box.prototype._getWidgetPos = function(iPane)
 {
 	var oWidget = this.widgets[iPane];
 	var boxalign =  oWidget.boxAlign || this.childrenAlign;
-	var w1 = (this.orientation=='h')?this.parent.getHeight(true):this.parent.getWidth(true);
+	var w1 = (this.orientation=='h')?this.parent.getHeight():this.parent.getWidth();
 	var w2 = (this.orientation=='h')?oWidget.getHeight(true):oWidget.getWidth(true);
 	switch (boxalign)
 	{
@@ -65,19 +66,18 @@ Box.prototype._getWidgetPos = function(iPane)
 
 Box.prototype._getWidgetOffset=function(iPane) {
 	var offset = 0;
-	if (this.orientation=='h') {
-		for (var i=0; i<iPane; i++)
-		{
-			if (this.widgets[i].isHidden()) continue;
-			offset += this.widgets[i].getWidth(true) + this.spacing;
+	if (iPane > 0)
+	{
+		var i = iPane - 1;
+		var ow = this.widgets[i];
+		while (ow.isHidden() && i >= 0) {
+			ow = this.widgets[i];
+			i -= 1;
 		}
-	}
-	else {
-		for (var i=0; i<iPane; i++)
-		{
-			if (this.widgets[i].isHidden()) continue;
-			offset += this.widgets[i].getHeight(true) + this.spacing;
-		}
+		if (this.orientation=='h')
+			offset = ow.getLeft() + ow.getWidth(true) + this.spacing;
+		else
+			offset = ow.getTop() + ow.getHeight(true) + this.spacing;
 	}
 	return(offset);
 }
