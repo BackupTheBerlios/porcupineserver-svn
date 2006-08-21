@@ -157,7 +157,7 @@ class XULServlet(HTTPServlet):
         #sPath = os.path.sep.join(self.__class__.__module__.split('.'))
         #self.xul_file = '%s.%s.xul' % (sPath, self.__class__.__name__)
         class_dir = os.path.dirname(sys.modules[self.__class__.__module__].__file__)
-        self.xul_file = '%s%s%s.%s.xul' % (class_dir, os.path.sep, self.__module__.split('.')[-1], self.__class__.__name__)
+        self.xul_file = '%s%s%s.%s.quix' % (class_dir, os.path.sep, self.__module__.split('.')[-1], self.__class__.__name__)
         
     def execute(self):
         """This method opens the QuiX XUL definition and writes it to

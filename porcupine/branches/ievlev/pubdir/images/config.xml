@@ -7,6 +7,8 @@
     <context path="app.gif" method="GET" client=".*" lang=".*" action="app.gif"/>
     <context path="appsfolder.gif" method="GET" client=".*" lang=".*" action="appsfolder.gif"/>
     <context path="asc8.gif" method="GET" client=".*" lang=".*" action="asc8.gif"/>
+    <context path="bc_lightgray.jpg" method="GET" client=".*" lang=".*" action="bc_lightgray.jpg" max-age="3600"/>
+    <context path="bc_brown.jpg" method="GET" client=".*" lang=".*" action="bc_brown.jpg" max-age="3600"/>
     <context path="cancel.gif" method="GET" client=".*" lang=".*" action="cancel.gif"/>
     <context path="cancel10.gif" method="GET" client=".*" lang=".*" action="cancel10.gif"/>
     <context path="cancel8.gif" method="GET" client=".*" lang=".*" action="cancel8.gif"/>
@@ -73,6 +75,7 @@
     <context path="resize-handle.gif" method="GET" client=".*" lang=".*" action="resize-handle.gif"/>
     <context path="rightarrow16.gif" method="GET" client=".*" lang=".*" action="rightarrow16.gif"/>
     <context path="save22.gif" method="GET" client=".*" lang=".*" action="save22.gif"/>
+    <context path="search16.gif" method="GET" client=".*" lang=".*" action="search16.gif"/>
     <context path="search22.gif" method="GET" client=".*" lang=".*" action="search22.gif"/>
     <context path="shutdown.gif" method="GET" client=".*" lang=".*" action="shutdown.gif"/>
     <context path="spin_up.gif" method="GET" client=".*" lang=".*" action="spin_up.gif"/>
