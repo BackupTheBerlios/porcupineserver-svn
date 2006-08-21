@@ -74,16 +74,16 @@ Splitter.prototype.redraw = function(bForceAll) {
 		for (var i=0; i<this.panes.length; i++) {
 			oPane = this.panes[i];
 			if (oPane.onoff == true) {
-				if (!oPane.getWidgetById('__onoff')) {
+				if (!this.getWidgetById('__onoff' + i)) {
 					if (this.orientation == 'v') {
 						oPane.addPaddingOffset('Right', 8);
 						onoff_w = new FlatButton({
-							id : '__onoff',
+							id : '__onoff' + i,
 							width : 8,
 							height : 'this.parent.getHeight(true)',
 							padding : '2,2,2,2',
-							top : -oPane.getPadding()[2],
-							left : 'this.parent.getWidth(true)-8',
+							top : -this.getPadding()[2],
+							left : 'this.parent._getPaneOffset(' + (i + 1) + ')-8',
 							img : 'images/on_off_left.gif',
 							onclick : SplitterOnOff_click
 						});
@@ -91,23 +91,24 @@ Splitter.prototype.redraw = function(bForceAll) {
 					else {
 						oPane.addPaddingOffset('Bottom', 8);
 						onoff_w = new FlatButton({
-							id : '__onoff',
+							id : '__onoff' + i,
 							width : 'this.parent.getWidth(true)',
 							height : 8,
 							padding : '2,2,2,2',
-							top : 'this.parent.getHeight(true)-8',
-							left : -oPane.getPadding()[0],
+							top : 'this.parent._getPaneOffset(' + (i + 1) + ')-8',
+							left : -this.getPadding()[0],
 							img : 'images/on_off_up.gif',
 							imgalign : 'top',
 							onclick : SplitterOnOff_click, 
 							style : 'font-size:0px'
 						});
 					}
-					oPane.appendChild(onoff_w);
+					onoff_w.attributes._paneIndex = i;
+					this.appendChild(onoff_w);
 				}
 			}
 			else {
-				onoff_w = oPane.getWidgetById('__onoff');
+				onoff_w = this.getWidgetById('__onoff' + i);
 				if (onoff_w) {
 					onoff_w.destroy();
 					if (this.orientation == 'v')
@@ -301,33 +302,28 @@ function SplitterHandle__mousedown(evt, w) {
 
 function SplitterOnOff_click(evt, w) {
 	var dir, padding;
-	var p = w.parent;
-	var oSplitter = p.parent;
+	var oSplitter = w.parent;
+	var pane_index = w.attributes._paneIndex;
+	var p = oSplitter.panes[pane_index];
 	var prop2 = (oSplitter.orientation=='v')?'left':'top';
-	var padding_offset = (oSplitter.orientation=='v')?0:2;
-	if ( p.length!=8 ) {
+	var padding_offset = (oSplitter.orientation=='v')?'Left':'Top';
+	if ( p.length!=0 ) {
 		//collapse
 		padding = p.getPadding();
-		w.attributes.length = p.length;
-		w.attributes.padding = padding[padding_offset + 1];
+		w.attributes._length = p.length;
+		w.attributes._padding = padding;
 		dir = (oSplitter.orientation=='v')?'right':'down';
 		w.setImageURL('images/on_off_' + dir + '.gif');
-		p.length = 8;
-		padding[padding_offset + 1] = 0;
-		padding[padding_offset] += 8;
-		p.setPadding(padding);
-		w[prop2] = -padding[padding_offset];
+		p.length = 0;
+		p.setPadding([0,0,0,0]);
+		p.addPaddingOffset(padding_offset, 8);
 		oSplitter.redraw();
 	} else {
 		//expand
-		p.length = w.attributes.length;
-		w[prop2] = (oSplitter.orientation=='v')?'this.parent.getWidth(true)-8':'this.parent.getHeight(true)-8';
+		p.length = w.attributes._length;
 		dir = (oSplitter.orientation=='v')?'left':'up';
 		w.setImageURL('images/on_off_' + dir + '.gif');
-		padding = p.getPadding();
-		padding[padding_offset + 1] = w.attributes.padding;
-		padding[padding_offset] -= 8;
-		p.setPadding(padding);
+		p.setPadding(w.attributes._padding);
 		oSplitter.redraw();
 	}
 }

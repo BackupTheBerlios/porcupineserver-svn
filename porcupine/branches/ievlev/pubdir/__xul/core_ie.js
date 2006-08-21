@@ -488,6 +488,9 @@ XULParser.prototype.parseXul = function(oNode, parentW) {
 				break;
 			case 'groupbox':
 				oWidget = new GroupBox(params);
+				parentW.appendChild(oWidget);
+				oWidget = oWidget.body;
+				appendIt = false;
 				break;
 			case 'rect':
 				oWidget = new Widget(params);
@@ -703,25 +706,29 @@ Widget.prototype._detachEvents = function(w) {
 
 Widget.prototype.disable = function(w) {
 	w = w || this;
-	w.statecolor = w.div.style.color;
-	w.div.style.color = 'GrayText';
-	w.statecursor = w.div.style.cursor;
-	w.div.style.cursor = '';
-	w._isDisabled = true;
-	w._detachEvents();
-	for (var i=0; i<w.widgets.length; i++) {
-		w.widgets[i].disable();
+	if (!w._isDisabled) {
+		w._statecolor = w.div.style.color;
+		w.div.style.color = 'GrayText';
+		w._statecursor = w.div.style.cursor;
+		w.div.style.cursor = 'default';
+		w._isDisabled = true;
+		w._detachEvents();
+		for (var i=0; i<w.widgets.length; i++) {
+			w.widgets[i].disable();
+		}
 	}
 }
 
 Widget.prototype.enable = function(w) {
 	w = w || this;
-	w.div.style.color = w.statecolor || '';
-	w.div.style.cursor = w.statecursor || '';
-	w._isDisabled = false;
-	w._attachEvents();
-	for (var i=0; i<w.widgets.length; i++) {
-		w.widgets[i].enable();
+	if (w._isDisabled) {
+		w.div.style.color = w._statecolor;
+		w.div.style.cursor = w._statecursor;
+		w._isDisabled = false;
+		w._attachEvents();
+		for (var i=0; i<w.widgets.length; i++) {
+			w.widgets[i].enable();
+		}
 	}
 }
 
@@ -955,7 +962,7 @@ Widget.prototype._calcSize = function(height, offset, getHeight) {
 		return (eval(height) - offset) || 0;
 }
 
-Widget.prototype._calcPos = function(left,offset,getWidth) {
+Widget.prototype._calcPos = function(left, offset, getWidth) {
 	var left = (typeof(this[left])=='function')?this[left](this):this[left];
 	if (!isNaN(left))
 		return parseInt(left) + offset;
@@ -965,7 +972,7 @@ Widget.prototype._calcPos = function(left,offset,getWidth) {
 	}
 	else {
 		if (left!='center')
-			return(eval(left) || 0);
+			return(eval(left) + offset || 0);
 		else 
 			return parseInt((this.parent[getWidth]()/2) - (this[getWidth](true)/2)) || 0;
 	}
@@ -986,15 +993,14 @@ Widget.prototype._calcWidth = function(b) {
 }
 
 Widget.prototype._calcLeft = function() {
-	return this._calcPos("left",(this.parent?this.parent.getPadding()[0]:0),"getWidth");
+	return this._calcPos("left", (this.parent?this.parent.getPadding()[0]:0), "getWidth");
 }
 
 Widget.prototype._calcTop = function() {
-	return this._calcPos("top",(this.parent?this.parent.getPadding()[2]:0),"getHeight");
+	return this._calcPos("top", (this.parent?this.parent.getPadding()[2]:0), "getHeight");
 }
 
-Widget.prototype.getScreenLeft = function()
-{
+Widget.prototype.getScreenLeft = function() {
 	var oElement = this.div;
 	var iX = 0, b;
 	while(oElement) {
@@ -1009,8 +1015,7 @@ Widget.prototype.getScreenLeft = function()
 	return(iX - 1);
 }
 
-Widget.prototype.getScreenTop = function()
-{
+Widget.prototype.getScreenTop = function() {
 	var oElement = this.div;
 	var iY = 0, b=0;
 	while(oElement) {
@@ -1025,8 +1030,7 @@ Widget.prototype.getScreenTop = function()
 	return(iY - 1);
 }
 
-Widget.prototype.bringToFront = function(w)
-{
+Widget.prototype.bringToFront = function(w) {
 	w = w || this;
 	if (w.div.style.zIndex==0 || w.div.style.zIndex < w.parent.maxz) {
 		w.div.style.zIndex = ++w.parent.maxz;

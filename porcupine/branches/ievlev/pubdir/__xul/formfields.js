@@ -55,21 +55,18 @@ function Field(params) {
 	params.padding = '0,0,0,0';
 	this.base(params);
 	this.name = params.name;
-	this.readonly = (params.readonly=='true')?true:false;
+	this.readonly = (params.readonly=='true' || params.readonly==true)?true:false;
 	this.onchange = params.onchange;
 	var e;
 	switch (this.type) {
 		case 'checkbox':
-			var sChecked = (params.value==true || params.value == 'true')?'checked':'';
-			this.div.innerHTML = '<input type=checkbox ' + sChecked +
-				' style="vertical-align:middle">';
-			e = this.div.firstChild;
-			if (this.readonly) e.disabled = true;
-			if (params.caption) this.setCaption(params.caption);
-			break;
 		case 'radio':
-			var sChecked = (params.checked==true || params.checked == 'true')?'checked':'';
-			this.div.innerHTML = '<input type="radio" ' + sChecked +
+			var sChecked;
+			if (this.type=='checkbox')
+				sChecked = (params.value==true || params.value == 'true')?'checked':'';
+			else
+				sChecked = (params.checked==true || params.checked == 'true')?'checked':'';
+			this.div.innerHTML = '<input type=' + this.type + ' ' + sChecked +
 				' style="vertical-align:middle">';
 			e = this.div.firstChild;
 			if (this.readonly) e.disabled = true;
@@ -168,6 +165,7 @@ Field.prototype.setCaption = function(caption) {
 		var textnode = this.div.getElementsByTagName('SPAN')[0];
 		if (!textnode) {
 			textnode =ce('SPAN');
+			textnode.style.cursor = 'default';
 			textnode.innerHTML = caption;
 			textnode.style.verticalAlign = 'middle';
 			this.div.appendChild(textnode);
