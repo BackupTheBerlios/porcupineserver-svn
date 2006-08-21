@@ -54,13 +54,13 @@ function Combo(params) {
 		height: '100%',
 		overflow: 'auto',
 		onmousedown : QuiX.cancelDefault
-	});	
+	});
 	this.dropdown.appendChild(cont);
 	this.options = cont.widgets;
 
 	var resizer = new Widget({
-		left : 'this.parent.getWidth()-15',
-		top : 'this.parent.getHeight()-15',
+		left : 'this.parent.getWidth()-16',
+		top : 'this.parent.getHeight()-16',
 		width : 16,
 		height : 16,
 		border : 0,
@@ -157,6 +157,7 @@ Combo.prototype.enable = function() {
 	if (this.div.firstChild) {
 		this.div.firstChild.disabled = false;
 		this.div.firstChild.style.backgroundColor = '';
+		if (!this.readonly) this.div.firstChild.onclick = ComboBtn__onclick;
 	}
 	Widget.prototype.enable(this);
 }
@@ -165,6 +166,7 @@ Combo.prototype.disable = function() {
 	if (this.div.firstChild) {
 		this.div.firstChild.disabled = true;
 		this.div.firstChild.style.backgroundColor = 'menu';
+		if (!this.readonly) this.div.firstChild.onclick = null;
 	}
 	Widget.prototype.disable(this);
 }

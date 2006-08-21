@@ -14,17 +14,15 @@ function Datepicker(params) {
 	var oDatepicker = this;
 	var oDropdown = this.dropdown;
 	oDropdown.parseFromString(
-		'<a:splitter orientation="h" xmlns:a="http://www.innoscript.org/quix" width="100%" height="100%" spacing="0">' +
-			'<a:pane length="28" bgcolor="menu">' +
-				'<a:rect left="center" top="center" width="195" height="22">' + 
-					'<a:flatbutton width="22" height="100%" caption="&lt;&lt;"></a:flatbutton>' +
-					'<a:combo id="month" left="24" width="100" height="100%" editable="false"></a:combo>' +
-					'<a:spinbutton id="year" maxlength="4" left="123" width="50" height="100%" editable="true"></a:spinbutton>' +
-					'<a:flatbutton left="173" width="22" height="100%" caption="&gt;&gt;"></a:flatbutton>' +
-				'</a:rect>' +
-			'</a:pane>' +
-			'<a:pane length="-1"></a:pane>' +
-		'</a:splitter>',
+		'<a:box orientation="v" bgcolor="menu" xmlns:a="http://www.innoscript.org/quix" width="100%" height="100%" spacing="4" childrenalign="center">' +
+			'<a:rect width="195" height="22">' + 
+				'<a:flatbutton width="22" height="100%" caption="&lt;&lt;"></a:flatbutton>' +
+				'<a:combo id="month" left="24" width="100" height="100%" editable="false"></a:combo>' +
+				'<a:spinbutton id="year" maxlength="4" left="123" width="50" height="100%" editable="true"></a:spinbutton>' +
+				'<a:flatbutton left="173" width="22" height="100%" caption="&gt;&gt;"></a:flatbutton>' +
+			'</a:rect>' +
+			'<a:rect length="-1"/>' +
+		'</a:box>',
 		function(w) {
 			var spl = w;
 			oDropdown.minw = oDropdown.width = 200;
@@ -39,7 +37,7 @@ function Datepicker(params) {
 				this.detach();
 			}
 			
-			spl.panes[0].attachEvent('onclick', QuiX.stopPropag);
+			spl.widgets[0].attachEvent('onclick', QuiX.stopPropag);
 		
 			oDatepicker.year = spl.getWidgetById('year');
 			oDatepicker.year.onchange = function() { oDatepicker.onYear(); }
@@ -56,7 +54,7 @@ function Datepicker(params) {
 			spl.getWidgetsByType(FlatButton)[0].attachEvent('onclick', DatepickerPrev__click);
 			spl.getWidgetsByType(FlatButton)[1].attachEvent('onclick', DatepickerNext__click);
 			
-			oDatepicker.render(spl.panes[1].div);
+			oDatepicker.render(spl.widgets[1].div);
 			oDatepicker.fill();
 		}
 	);
@@ -200,17 +198,17 @@ DatepickerMonth__click = function(evt, w) {
 }
 
 function DatepickerMonth__change(w) {
-	var oDatepicker = w.parent.parent.parent.parent.combo;
+	var oDatepicker = w.parent.parent.parent.combo;
 	oDatepicker.onMonth();
 }
 
 function DatepickerNext__click(evt, w) {
-	var oDatepicker = w.parent.parent.parent.parent.combo;
+	var oDatepicker = w.parent.parent.parent.combo;
 	oDatepicker.onNext();
 }
 
 function DatepickerPrev__click(evt, w) {
-	var oDatepicker = w.parent.parent.parent.parent.combo;
+	var oDatepicker = w.parent.parent.parent.combo;
 	oDatepicker.onPrev();
 }
 

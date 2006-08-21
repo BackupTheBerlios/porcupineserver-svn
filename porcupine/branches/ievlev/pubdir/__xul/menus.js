@@ -178,10 +178,13 @@ ContextMenu.prototype.redraw = function(bForceAll) {
 	
 	for (var i=0; i<this.options.length; i++) {
 		oOption = this.options[i];
-		optionWidth = oOption.div.offsetWidth;
-		iHeight += oOption.div.offsetHeight;
+		if (oOption instanceof Icon && QuiX.browser == 'ie') {
+			optionWidth = oOption.div.getElementsByTagName('SPAN')[0].offsetWidth + 26;
+		} else
+			optionWidth = oOption.div.offsetWidth;
 		if (optionWidth > this.width)
 			this.width = optionWidth + 16;
+		iHeight += oOption.div.offsetHeight;
 	}
 	
 	this.height = iHeight + 2;
