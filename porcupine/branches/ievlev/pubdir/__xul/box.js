@@ -109,7 +109,7 @@ function BoxWidget__destroy() {
 	var length_var = (oBox.orientation=='h')?'width':'height';
 	
 	for (var idx=0; idx < oBox.widgets.length; idx++) {
-		 if (oBox.widget[idx] == this)
+		 if (oBox.widgets[idx] == this)
 		 	break;
 	}
 	if (this[length_var] == '-1' && oBox.widgets.length > 1) {
