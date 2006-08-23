@@ -52,13 +52,17 @@ ListView.prototype = new Widget;
 
 
 ListView.prototype.attachEvent = function(eventType, f) {
-	if (eventType == "onselect") this.onselect = f;
-	Widget.prototype.attachEvent(eventType,f, this);
+	if (eventType == "onselect")
+		this.onselect = f;
+	else
+		Widget.prototype.attachEvent(eventType,f, this);
 }
 
 ListView.prototype.detachEvent = function(eventType) {
-	if (eventType == "onselect") this.onselect = null;
-	Widget.prototype.attachEvent(eventType, this);
+	if (eventType == "onselect")
+		this.onselect = null;
+	else
+		Widget.prototype.detachEvent(eventType, this);
 }
 
 
@@ -145,8 +149,7 @@ ListView.prototype._unselrow = function(r) {
 }
 
 ListView.prototype._selectline = function (evt, row) {
-	if (!row.isSelected && this.onselect)
-		getEventListener(this.onselect)(evt, this, this.dataSet[row.rowIndex]);
+	var fire = this.multiple || !row.isSelected;
 	
 	if (!row.isSelected) {
 		if (!this.multiple || !evt.shiftKey) this.clearSelection();
@@ -159,6 +162,10 @@ ListView.prototype._selectline = function (evt, row) {
 		this.clearSelection();
 		this._selrow(row);
 		this.selection.push(row.rowIndex);
+	}
+	if (fire && this.onselect)
+	{
+		getEventListener(this.onselect)(evt, this, this.dataSet[row.rowIndex]);
 	}
 }
 
