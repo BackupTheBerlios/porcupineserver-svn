@@ -50,6 +50,18 @@ function ListView(params) {
 
 ListView.prototype = new Widget;
 
+
+ListView.prototype.attachEvent = function(eventType, f) {
+	if (eventType == "onselect") this.onselect = f;
+	Widget.prototype.attachEvent(eventType,f, this);
+}
+
+ListView.prototype.detachEvent = function(eventType) {
+	if (eventType == "onselect") this.onselect = null;
+	Widget.prototype.attachEvent(eventType, this);
+}
+
+
 ListView.prototype.addHeader = function(params, w) {
 	var oListview = w || this;
 	params.width = '100%';
@@ -133,7 +145,7 @@ ListView.prototype._unselrow = function(r) {
 }
 
 ListView.prototype._selectline = function (evt, row) {
-	if (this.onselect)
+	if (!row.isSelected && this.onselect)
 		getEventListener(this.onselect)(evt, this, this.dataSet[row.rowIndex]);
 	
 	if (!row.isSelected) {
@@ -212,7 +224,8 @@ ListView.prototype.addColumn = function(params, w) {
 	oCol.className = 'column';
 	oCol.columnBgColor = params.bgcolor || '';
 	oCol.style.padding = '0px ' + oListView.cellPadding + 'px 0px ' + oListView.cellPadding + 'px';
-	oCol.style.width = (params.width - 2*oListView.cellPadding - 2*oListView.cellBorder) + 'px';
+	if (params.width)
+		oCol.style.width = (params.width - 2*oListView.cellPadding - 2*oListView.cellBorder) + 'px';
 	oCol.setCaption = ListColumn__setCaption;
 	oCol.getCaption = ListColumn__getCaption;
 
@@ -322,7 +335,7 @@ ListView.prototype.refresh = function() {
 		for (var j=0 + this._deadCells; j<this.columns.length-1; j++) {
 			var oCell = ce('TD');
 			oCell.className = 'cell';
-			if (i==0)
+			if (i==0 && this.columns[j].style.width)
 				oCell.style.width = parseInt(this.columns[j].style.width) - this.cellBorder + 'px';
 
 			oCell.style.borderWidth = this.cellBorder + 'px';

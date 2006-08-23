@@ -1193,25 +1193,26 @@ Widget.prototype.print = function(expand) {
 	}
 }
 
-Widget.prototype.attachEvent = function(eventType, f) {
-	var oWidget = this;
-	if (this._registry[eventType]) {
-		this.detachEvent(eventType);
+Widget.prototype.attachEvent = function(eventType, f, w) {
+	var w = w || this;
+	if (w._registry[eventType]) {
+		w.detachEvent(eventType,w);
 	}
 	if (f) {
 		if (typeof f=='string')
 			f = getEventListener(f);
-		var handler = function(e){return f(e, oWidget)};
-		this._registry[eventType] = handler;
+		var handler = function(e){return f(e, w)};
+		w._registry[eventType] = handler;
 	}
 	else
-		handler = this._registry[eventType];
-	if (!this._isDisabled)
-		this.div.attachEvent(eventType, handler);
+		handler = w_registry[eventType];
+	if (!w._isDisabled)
+		w.div.attachEvent(eventType, handler);
 }
 
-Widget.prototype.detachEvent = function(eventType) {
-	this.div.detachEvent(eventType, this._registry[eventType]);
+Widget.prototype.detachEvent = function(eventType, w) {
+	var w = w || this;
+	w.div.detachEvent(eventType, w._registry[eventType]);
 }
 
 function Widget__contextmenu(evt, w) {
