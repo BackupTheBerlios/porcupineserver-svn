@@ -703,7 +703,7 @@ Widget.prototype._attachEvents = function() {
 Widget.prototype._detachEvents = function(w) {
 	var w = w || this;
 	for (var evt_type in w._registry) {
-		w.detachEvent(evt_type,	w._registry[evt_type]);
+		w.detachEvent(evt_type);
 	}
 }
 
@@ -1226,7 +1226,7 @@ Widget.prototype.attachEvent = function(eventType, f, w) {
 
 Widget.prototype.detachEvent = function(eventType, w) {
 	var w = w || this;
-	w.div.removeEventListener(eventType.slice(2,eventType.length), this._registry[eventType], false);
+	w.div.removeEventListener(eventType.slice(2,eventType.length), w._registry[eventType], false);
 }
 
 function Widget__contextmenu(evt, w) {

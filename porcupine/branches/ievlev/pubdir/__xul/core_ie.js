@@ -700,7 +700,7 @@ Widget.prototype._attachEvents = function() {
 Widget.prototype._detachEvents = function(w) {
 	var w = w || this;
 	for (var evt_type in w._registry) {
-		w.detachEvent(evt_type,	w._registry[evt_type]);
+		w.detachEvent(evt_type);
 	}
 }
 
