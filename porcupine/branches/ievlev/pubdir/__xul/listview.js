@@ -52,10 +52,24 @@ ListView.prototype = new Widget;
 
 
 ListView.prototype.attachEvent = function(eventType, f) {
-	if (eventType == "onselect")
-		this.onselect = f;
-	else
-		Widget.prototype.attachEvent(eventType,f, this);
+	var f = getEventListener(f);
+	switch (eventType)
+	{
+		case "onselect":
+			this.onselect = f;
+			break;
+		case "onclick":
+			this._onclick = f;
+			Widget.prototype.attachEvent('onclick', ListView__onclick,this);
+			break;
+		case "ondblclick":
+			this._ondblclick = f;
+			Widget.prototype.attachEvent('ondblclick', ListView__ondblclick,this);
+			break;
+		default:
+			Widget.prototype.attachEvent(eventType,f, this);
+			break;
+	}
 }
 
 ListView.prototype.detachEvent = function(eventType) {
