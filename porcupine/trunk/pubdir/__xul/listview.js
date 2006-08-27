@@ -6,16 +6,6 @@ function ListView(params) {
 	params = params || {};
 	params.bgcolor = params.bgcolor || 'white';
 	params.overflow = 'auto';
-	
-	if (params.onclick) {
-		this.onclick = params.onclick;
-		delete params.onclick
-	}
-	
-	if (params.ondblclick) {
-		this.ondblclick = params.ondblclick;
-		delete params.ondblclick
-	}
 
 	this.base = Widget;
 	this.base(params);
@@ -26,20 +16,12 @@ function ListView(params) {
 	this.nullText = params.nulltext || '&nbsp;';
 	this.dateFormat = params.dateformat || 'ddd dd/mmm/yyyy time';
 	this.trueImg = params.trueimg || 'images/check16.gif';
-	this.onselect = params.onselect;
 	this.sortfunc = getEventListener(params.sortfunc);
 
-	if (this.onclick) {
-		this._onclick = getEventListener(this.onclick);
-		this.attachEvent('onclick', ListView__onclick);
-	}
-	if (this.ondblclick) {
-		this._ondblclick = getEventListener(this.ondblclick);
-		this.attachEvent('ondblclick', ListView__ondblclick);
-	}
-	
-	this.hasSelector = false;
+	if (params.onselect)
+		this.attachEvent("onselect", params.onselect);
 
+	this.hasSelector = false;
 	this.selection = [];
 	this.dataSet = [];
 	
@@ -49,6 +31,35 @@ function ListView(params) {
 }
 
 ListView.prototype = new Widget;
+
+
+ListView.prototype.attachEvent = function(eventType, f) {
+	var f = getEventListener(f);
+	switch (eventType) {
+		case "onselect":
+			this.onselect = f;
+			break;
+		case "onclick":
+			this._onclick = f;
+			Widget.prototype.attachEvent('onclick', ListView__onclick, this);
+			break;
+		case "ondblclick":
+			this._ondblclick = f;
+			Widget.prototype.attachEvent('ondblclick', ListView__ondblclick, this);
+			break;
+		default:
+			Widget.prototype.attachEvent(eventType, f, this);
+			break;
+	}
+}
+
+ListView.prototype.detachEvent = function(eventType) {
+	if (eventType == "onselect")
+		this.onselect = null;
+	else
+		Widget.prototype.detachEvent(eventType, this);
+}
+
 
 ListView.prototype.addHeader = function(params, w) {
 	var oListview = w || this;
@@ -133,8 +144,7 @@ ListView.prototype._unselrow = function(r) {
 }
 
 ListView.prototype._selectline = function (evt, row) {
-	if (this.onselect)
-		getEventListener(this.onselect)(evt, this, this.dataSet[row.rowIndex]);
+	var fire = this.multiple || !row.isSelected;
 	
 	if (!row.isSelected) {
 		if (!this.multiple || !evt.shiftKey) this.clearSelection();
@@ -147,6 +157,10 @@ ListView.prototype._selectline = function (evt, row) {
 		this.clearSelection();
 		this._selrow(row);
 		this.selection.push(row.rowIndex);
+	}
+	if (fire && this.onselect)
+	{
+		getEventListener(this.onselect)(evt, this, this.dataSet[row.rowIndex]);
 	}
 }
 
@@ -212,7 +226,8 @@ ListView.prototype.addColumn = function(params, w) {
 	oCol.className = 'column';
 	oCol.columnBgColor = params.bgcolor || '';
 	oCol.style.padding = '0px ' + oListView.cellPadding + 'px 0px ' + oListView.cellPadding + 'px';
-	oCol.style.width = (params.width - 2*oListView.cellPadding - 2*oListView.cellBorder) + 'px';
+	if (params.width)
+		oCol.style.width = (params.width - 2*oListView.cellPadding - 2*oListView.cellBorder) + 'px';
 	oCol.setCaption = ListColumn__setCaption;
 	oCol.getCaption = ListColumn__getCaption;
 
@@ -322,7 +337,7 @@ ListView.prototype.refresh = function() {
 		for (var j=0 + this._deadCells; j<this.columns.length-1; j++) {
 			var oCell = ce('TD');
 			oCell.className = 'cell';
-			if (i==0)
+			if (i==0 && this.columns[j].style.width)
 				oCell.style.width = parseInt(this.columns[j].style.width) - this.cellBorder + 'px';
 
 			oCell.style.borderWidth = this.cellBorder + 'px';
