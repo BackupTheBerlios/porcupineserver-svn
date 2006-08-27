@@ -7,7 +7,7 @@
 	<a:prop name="RUN_MAXIMIZED" type="bool" value="%(RUN_MAXIMIZED)d"/>
 	%(TOP)s
 	<a:rect height="24" overflow="hidden">
-		<a:contextmenu  onshow="desktop.getWindows">
+		<a:contextmenu onshow="desktop.getWindows">
 			<a:menuoption img="images/mini_all.gif" caption="Minimize all" onclick="desktop.minimizeAll"/>
 			<a:sep/>
 		</a:contextmenu>
@@ -16,6 +16,7 @@
 				<a:menuoption caption="%(APPLICATIONS)s" img="images/appsfolder.gif">
 					%(APPS)s
 				</a:menuoption>
+				<a:menuoption caption="HyperSearch" img="images/search16.gif" onclick="desktop.launchHyperSearch"></a:menuoption>
 				<a:menuoption caption="%(SETTINGS)s" img="images/admintools.gif" onclick="desktop.showSettings"></a:menuoption>
 				<a:sep></a:sep>
 				<a:menuoption caption="%(INFO)s" img="images/about16.gif" onclick="desktop.showAbout"></a:menuoption>

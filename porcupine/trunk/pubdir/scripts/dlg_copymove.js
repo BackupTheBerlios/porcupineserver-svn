@@ -5,12 +5,18 @@ copyMove.copyMove = function(evt, w) {
 	var method = dlg.attributes.method;
 	var targetid = dlg.getWidgetById('tree').getSelection().getId();
 	
-	var xmlrpc = new XMLRPCRequest(QuiX.root + dlg.attributes.ID);
-	xmlrpc.oncomplete = function(req) {
-		if (method!='copyTo') {
-			dlg.attributes.refreshFunc(dlg.attributes.window);
+	if (method!='select_folder') {
+		var xmlrpc = new XMLRPCRequest(QuiX.root + dlg.attributes.ID);
+		xmlrpc.oncomplete = function(req) {
+			if (method!='copyTo') {
+				dlg.attributes.refreshFunc(dlg.attributes.window);
+			}
+			dlg.close();
 		}
+		xmlrpc.callmethod(method, targetid);
+	}
+	else {
+		dlg.attributes.refreshFunc(dlg.attributes.window, dlg);
 		dlg.close();
 	}
-	xmlrpc.callmethod(method, targetid);
 }

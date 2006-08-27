@@ -1,0 +1,12 @@
+<config>
+	<context path="hypersearch.quix"
+			 method="GET"
+			 client=".*"
+			 lang=".*"
+			 action="hypersearch.psp"/>
+	<context path="hypersearch.js"
+			 method="GET"
+			 client=".*"
+			 lang=".*"
+			 action="hypersearch.js"/>
+</config>

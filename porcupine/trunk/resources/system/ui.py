@@ -297,15 +297,18 @@ class Dlg_SelectContainer(PorcupineDesktopServlet):
             'OK': resources.getResource('OK', sLang)
         }
         sAction = self.request.queryString['action'][0]
-        sTitle = resources.getResource(sAction.upper(), sLang)
-        self.params['TITLE'] = sTitle + ' &quot;' + self.item.displayName.value + '&quot;'
+        self.params['TITLE'] = resources.getResource(sAction.upper(), sLang)
+        
+        if sAction!='select_folder':
+            self.params['TITLE'] += ' &quot;' + self.item.displayName.value + '&quot;'
         if sAction=='move':
             self.params['METHOD'] = 'moveTo'
         elif sAction=='restore':
             self.params['METHOD'] = 'restoreTo'
-        else:
+        elif sAction=='copy':
             self.params['METHOD'] = 'copyTo'
-
+        else:
+            self.params['METHOD'] = 'select_folder'
 
 class Dlg_Rename(PorcupineDesktopServlet):
     def setParams(self):
