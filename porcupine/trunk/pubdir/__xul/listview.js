@@ -32,7 +32,6 @@ function ListView(params) {
 
 ListView.prototype = new Widget;
 
-
 ListView.prototype.attachEvent = function(eventType, f) {
 	var f = getEventListener(f);
 	switch (eventType) {
@@ -49,7 +48,6 @@ ListView.prototype.attachEvent = function(eventType, f) {
 			break;
 		default:
 			Widget.prototype.attachEvent(eventType, f, this);
-			break;
 	}
 }
 
@@ -59,7 +57,6 @@ ListView.prototype.detachEvent = function(eventType) {
 	else
 		Widget.prototype.detachEvent(eventType, this);
 }
-
 
 ListView.prototype.addHeader = function(params, w) {
 	var oListview = w || this;
@@ -365,10 +362,8 @@ ListView.prototype.refresh = function() {
 ListView.prototype._renderCell = function(cell, cellIndex, value, obj) {
 	var elem, column, column_type;
 
-	cell.innerHTML = '';
 	if (value==undefined) {
 		cell.innerHTML = this.nullText;
-		cell.style.cursor = 'default';
 		return;
 	}
 	
@@ -428,7 +423,6 @@ ListView.prototype._renderCell = function(cell, cellIndex, value, obj) {
 	} else {
 		cell.innerHTML = '<span style="white-space:nowrap">' + 
 			((value == '')?' ':value) + '</span>';
-		cell.style.cursor = 'default';
 	}
 }
 

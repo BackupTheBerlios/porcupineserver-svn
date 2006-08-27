@@ -288,16 +288,17 @@ BODY {
 }
 
 .listview .listheader .resizer {
-	cursor: e-resize;
-	border-style: solid;
+	cursor : e-resize;
+	border-style : solid;
 	background-image : url(../images/transp.gif);
 }
 
 .listview .list TABLE TR .cell{
-	white-space:nowrap;
-	overflow:hidden;
-	border-color: silver;
-	border-style: none solid solid none;
+	white-space : nowrap;
+	overflow : hidden;
+	border-color : silver;
+	border-style : none solid solid none;
+	cursor : default;
 }
 
 .listview TABLE {
