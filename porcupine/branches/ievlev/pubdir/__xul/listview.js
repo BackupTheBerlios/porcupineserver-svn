@@ -6,16 +6,6 @@ function ListView(params) {
 	params = params || {};
 	params.bgcolor = params.bgcolor || 'white';
 	params.overflow = 'auto';
-	
-	if (params.onclick) {
-		this.onclick = params.onclick;
-		delete params.onclick
-	}
-	
-	if (params.ondblclick) {
-		this.ondblclick = params.ondblclick;
-		delete params.ondblclick
-	}
 
 	this.base = Widget;
 	this.base(params);
@@ -26,20 +16,12 @@ function ListView(params) {
 	this.nullText = params.nulltext || '&nbsp;';
 	this.dateFormat = params.dateformat || 'ddd dd/mmm/yyyy time';
 	this.trueImg = params.trueimg || 'images/check16.gif';
-	this.onselect = params.onselect;
 	this.sortfunc = getEventListener(params.sortfunc);
 
-	if (this.onclick) {
-		this._onclick = getEventListener(this.onclick);
-		this.attachEvent('onclick', ListView__onclick);
-	}
-	if (this.ondblclick) {
-		this._ondblclick = getEventListener(this.ondblclick);
-		this.attachEvent('ondblclick', ListView__ondblclick);
-	}
-	
-	this.hasSelector = false;
+	if (params.onselect)
+		this.attachEvent("onselect", params.onselect);
 
+	this.hasSelector = false;
 	this.selection = [];
 	this.dataSet = [];
 	
@@ -50,25 +32,22 @@ function ListView(params) {
 
 ListView.prototype = new Widget;
 
-
 ListView.prototype.attachEvent = function(eventType, f) {
 	var f = getEventListener(f);
-	switch (eventType)
-	{
+	switch (eventType) {
 		case "onselect":
 			this.onselect = f;
 			break;
 		case "onclick":
 			this._onclick = f;
-			Widget.prototype.attachEvent('onclick', ListView__onclick,this);
+			Widget.prototype.attachEvent('onclick', ListView__onclick, this);
 			break;
 		case "ondblclick":
 			this._ondblclick = f;
-			Widget.prototype.attachEvent('ondblclick', ListView__ondblclick,this);
+			Widget.prototype.attachEvent('ondblclick', ListView__ondblclick, this);
 			break;
 		default:
-			Widget.prototype.attachEvent(eventType,f, this);
-			break;
+			Widget.prototype.attachEvent(eventType, f, this);
 	}
 }
 
@@ -78,7 +57,6 @@ ListView.prototype.detachEvent = function(eventType) {
 	else
 		Widget.prototype.detachEvent(eventType, this);
 }
-
 
 ListView.prototype.addHeader = function(params, w) {
 	var oListview = w || this;
@@ -384,10 +362,8 @@ ListView.prototype.refresh = function() {
 ListView.prototype._renderCell = function(cell, cellIndex, value, obj) {
 	var elem, column, column_type;
 
-	cell.innerHTML = '';
 	if (value==undefined) {
 		cell.innerHTML = this.nullText;
-		cell.style.cursor = 'default';
 		return;
 	}
 	
@@ -447,7 +423,6 @@ ListView.prototype._renderCell = function(cell, cellIndex, value, obj) {
 	} else {
 		cell.innerHTML = '<span style="white-space:nowrap">' + 
 			((value == '')?' ':value) + '</span>';
-		cell.style.cursor = 'default';
 	}
 }
 

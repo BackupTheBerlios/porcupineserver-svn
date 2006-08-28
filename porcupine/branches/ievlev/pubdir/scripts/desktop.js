@@ -90,3 +90,11 @@ desktop.runApplication = function(w) {
 		);
 	}
 }
+
+desktop.launchHyperSearch = function(evt, w) {
+	var query_string = '';
+	var win = w.getParentByType(Window);
+	if (win)
+		query_string = '?id=' + win.attributes.FolderID;
+	document.desktop.parseFromUrl('hypersearch/hypersearch.quix' + query_string);
+}

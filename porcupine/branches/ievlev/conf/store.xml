@@ -57,7 +57,7 @@
 			lang=".*"
 			action="resources.system.ui.Dlg_UserSettings"/>
 			
-	<reg cc="schemas.org.innoscript.common.(Root)?Folder"
+	<reg cc="schemas\.org\.innoscript\..+\..*Folder|schemas\.org\.innoscript\.common\.AdminTools"
 			method="GET"
 			param="list"
 			client="(MSIE [6-7])|(Mozilla/5.0.+rv:1.[7-9])"

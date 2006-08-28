@@ -1205,7 +1205,7 @@ Widget.prototype.attachEvent = function(eventType, f, w) {
 		w._registry[eventType] = handler;
 	}
 	else
-		handler = w_registry[eventType];
+		handler = w._registry[eventType];
 	if (!w._isDisabled)
 		w.div.attachEvent(eventType, handler);
 }

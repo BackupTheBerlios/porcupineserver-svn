@@ -136,8 +136,8 @@ generic.removeACLEntry = function(evt, w) {
 }
 
 generic.computeSize = function(obj, value) {
-	if (obj.size)
-		return Math.round(obj.size/1024) + ' KB';
+	if (value)
+		return Math.round(value/1024) + ' KB';
 	else
 		return '';
 }
