@@ -677,30 +677,32 @@ Widget.prototype.supportedEvents = [
 	'oncontextmenu'
 ];
 
+function Widget__registerHandler(w, evt_type, handler)
+{
+	w._registry[evt_type] = function(e) { handler(e, w) };
+}
+
 Widget.prototype._buildEventRegistry = function(params) {
-	var evt_type;
 	this._registry = {};
 	for (var i=0; i<this.supportedEvents.length; i++) {
-		evt_type = this.supportedEvents[i];
+		var evt_type = this.supportedEvents[i];
 		if (params[evt_type])
-			this._registry[evt_type] = getEventListener(params[evt_type]);
+			Widget__registerHandler(this,evt_type,getEventListener(params[evt_type]));
 	}
 }
 
 Widget.prototype._attachEvents = function() {
-	var evt_handler;
 	for (var evt_type in this._registry) {
-		evt_handler = this._registry[evt_type];
-		if (evt_type!='toXMLRPC' && evt_type!='onload' && evt_handler) {
-			this.attachEvent(evt_type, evt_handler);
-		}
+		if (evt_type!='toXMLRPC' && evt_type!='onload' && this._registry[evt_type])
+			this.attachEvent(evt_type, null, this); //restore events directly from registry
 	}
 }
 
 Widget.prototype._detachEvents = function(w) {
 	var w = w || this;
 	for (var evt_type in w._registry) {
-		w.detachEvent(evt_type);
+		if (evt_type!='toXMLRPC' && evt_type!='onload' && w._registry[evt_type])
+			w.detachEvent(evt_type,w,true);
 	}
 }
 
@@ -1195,24 +1197,19 @@ Widget.prototype.print = function(expand) {
 
 Widget.prototype.attachEvent = function(eventType, f, w) {
 	var w = w || this;
-	if (w._registry[eventType]) {
-		w.detachEvent(eventType,w);
-	}
-	if (f) {
-		if (typeof f=='string')
-			f = getEventListener(f);
-		var handler = function(e){return f(e, w)};
-		w._registry[eventType] = handler;
-	}
-	else
-		handler = w._registry[eventType];
+	var f = getEventListener(f);
+
+	if (w._registry[eventType] && f) w.detachEvent(eventType,w);
+	if (f)	Widget__registerHandler(w,eventType,f);
+
 	if (!w._isDisabled)
-		w.div.attachEvent(eventType, handler);
+		w.div.attachEvent(eventType, w._registry[eventType]);
 }
 
-Widget.prototype.detachEvent = function(eventType, w) {
+Widget.prototype.detachEvent = function(eventType, w, isInternal) {
 	var w = w || this;
 	w.div.detachEvent(eventType, w._registry[eventType]);
+	if (!isInternal) delete w._registry[eventType]; //remove from registry to avoid resurrection
 }
 
 function Widget__contextmenu(evt, w) {

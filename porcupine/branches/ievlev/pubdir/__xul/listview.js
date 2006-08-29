@@ -32,30 +32,35 @@ function ListView(params) {
 
 ListView.prototype = new Widget;
 
-ListView.prototype.attachEvent = function(eventType, f) {
+ListView.prototype.attachEvent = function(eventType, f, w) {
 	var f = getEventListener(f);
-	switch (eventType) {
-		case "onselect":
-			this.onselect = f;
-			break;
-		case "onclick":
-			this._onclick = f;
-			Widget.prototype.attachEvent('onclick', ListView__onclick, this);
-			break;
-		case "ondblclick":
-			this._ondblclick = f;
-			Widget.prototype.attachEvent('ondblclick', ListView__ondblclick, this);
-			break;
-		default:
-			Widget.prototype.attachEvent(eventType, f, this);
-	}
+	if (f) //setup new handler
+		switch (eventType) {
+			case "onselect":
+				this.onselect = f;
+				break;
+			case "onclick":
+				this._onclick = f;
+				Widget.prototype.attachEvent('onclick', ListView__onclick, this);
+				break;
+			case "ondblclick":
+				this._ondblclick = f;
+				Widget.prototype.attachEvent('ondblclick', ListView__ondblclick, this);
+				break;
+			default:
+				Widget.prototype.attachEvent(eventType, f, this);
+				break;
+		}
+	else //resurrect handler from registry
+		Widget.prototype.attachEvent(eventType, f, this);
+		
 }
 
-ListView.prototype.detachEvent = function(eventType) {
-	if (eventType == "onselect")
+ListView.prototype.detachEvent = function(eventType, w, isInternal) {
+	if (eventType == "onselect" && !isInternal)
 		this.onselect = null;
 	else
-		Widget.prototype.detachEvent(eventType, this);
+		Widget.prototype.detachEvent(eventType, this, isInternal);
 }
 
 ListView.prototype.addHeader = function(params, w) {
