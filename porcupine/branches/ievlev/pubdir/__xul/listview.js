@@ -40,12 +40,9 @@ ListView.prototype.attachEvent = function(eventType, f, w) {
 				this.onselect = f;
 				break;
 			case "onclick":
-				this._onclick = f;
-				Widget.prototype.attachEvent('onclick', ListView__onclick, this);
-				break;
 			case "ondblclick":
-				this._ondblclick = f;
-				Widget.prototype.attachEvent('ondblclick', ListView__ondblclick, this);
+				var cb = function(evt,w) { ListView__onclick(evt,w,f) };
+				Widget.prototype.attachEvent(eventType, cb, this);
 				break;
 			default:
 				Widget.prototype.attachEvent(eventType, f, this);
@@ -431,22 +428,11 @@ ListView.prototype._renderCell = function(cell, cellIndex, value, obj) {
 	}
 }
 
-function ListView__onclick (evt, w) {
+function ListView__onclick (evt, w, f) {
 	var target = QuiX.getTarget(evt);
 	while (target.tagName!='DIV') {
 		if (target.tagName == 'TR') {
-			w._onclick(evt, w, w.dataSet[target.rowIndex]);
-			break;
-		}
-		target = target.parentElement || target.parentNode;
-	}
-}
-
-function ListView__ondblclick(evt, w) {
-	var target = QuiX.getTarget(evt);
-	while (target.tagName!='DIV') {
-		if (target.tagName == 'TR') {
-			w._ondblclick(evt, w, w.dataSet[target.rowIndex]);
+			f(evt, w, w.dataSet[target.rowIndex]);
 			break;
 		}
 		target = target.parentElement || target.parentNode;
