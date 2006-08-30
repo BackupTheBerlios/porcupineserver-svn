@@ -1,5 +1,5 @@
 //===============================================================================
-//    Copyright 2005, 2006 Tassos Koutsovassilis
+//    Copyright 2005, 2006 Tassos Koutsovassilis and Contributors
 //
 //    This file is part of Porcupine.
 //    Porcupine is free software; you can redistribute it and/or modify
@@ -17,7 +17,7 @@
 
 //QuiX generic functions
 
-function __init__(){
+function __init__() {
 	window.moveTo(0,0);
 	if (window.outerHeight<screen.availHeight||window.outerWidth<screen.availWidth)
 	{
@@ -142,6 +142,7 @@ QuiX.cleanupOverlays = function() {
 	while (ovr.length>0) ovr[0].close();
 }
 QuiX.stopPropag = function(evt) {
+	var evt = evt || event;
 	evt.stopPropagation();
 }
 QuiX.cancelDefault = function(evt) {
@@ -173,7 +174,7 @@ QuiX.getImage = function(url) {
 
 // xml document
 function XmlDocument() {}
-XmlDocument.create = function (s) {
+XmlDocument.create = function(s) {
 	var dom = new DOMParser();
 	if (s) dom = dom.parseFromString(s, 'text/xml');
 	else dom = dom.parseFromString('', 'text/xml');
@@ -198,7 +199,7 @@ function XULParser() {
 	this.oncomplete = null;
 }
 
-XULParser.prototype.detectModules = function (oNode) {
+XULParser.prototype.detectModules = function(oNode) {
 	if (oNode.nodeType!=1) return;
 	var dependency;
 	var sTag = oNode.localName;
@@ -675,8 +676,8 @@ Widget.prototype.supportedEvents = [
 	'onload',
 	'onmousedown','onmouseup',
 	'onmousemove','onmouseover','onmouseout',
-	'onclick','ondblclick',
 	'onkeypress','onkeyup',
+	'onclick','ondblclick',
 	'oncontextmenu'
 ];
 
@@ -857,10 +858,10 @@ Widget.prototype.getBorderWidth = function() {
 }
 
 //display attribute
-Widget.prototype.setDisplay = function (sDispl) {
+Widget.prototype.setDisplay = function(sDispl) {
 	this.div.style.display = sDispl || '';
 }
-Widget.prototype.getDisplay = function () {
+Widget.prototype.getDisplay = function() {
 	return this.div.style.display;
 }
 
@@ -915,7 +916,7 @@ Widget.prototype.getHeight = function(b) {
 	hg = parseInt(this.div.style.height);
 	if (isNaN(hg)) return 0;
 	if (b) {
-		ofs = parseInt(this.div.style.paddingTop) + parseInt(this.div.style.paddingBottom) + 2*this.getBorderWidth();
+		ofs = parseInt(this.div.style.paddingTop) + parseInt(this.div.style.paddingBottom) + 2 * this.getBorderWidth();
 		hg += ofs;
 	}
 	return hg;
@@ -1080,6 +1081,7 @@ Widget.prototype.isHidden = function() {
 
 Widget.prototype._startResize = function (evt) {
 	var oWidget = this;
+	var evt = evt || event;
 	QuiX.startX = evt.clientX;
 	QuiX.startY = evt.clientY;
 
@@ -1092,6 +1094,7 @@ Widget.prototype._startResize = function (evt) {
 }
 
 Widget.prototype._resizing = function(evt) {
+	var evt = evt || event;
 	offsetX = evt.clientX - QuiX.startX;
 	offsetY = evt.clientY - QuiX.startY;
 	QuiX.tmpWidget.resize(this.getWidth(true) + offsetX,
@@ -1099,6 +1102,7 @@ Widget.prototype._resizing = function(evt) {
 }
 
 Widget.prototype._endResize = function(evt) {
+	var evt = evt || event;
 	offsetX = evt.clientX - QuiX.startX;
 	offsetY = evt.clientY - QuiX.startY;
 	this.resize(this.getWidth(true) + offsetX,
@@ -1112,6 +1116,7 @@ Widget.prototype._endResize = function(evt) {
 
 Widget.prototype._startMove = function(evt) {
 	var oWidget = this;
+	var evt = evt || event;
 	QuiX.startX = evt.clientX;
 	QuiX.startY = evt.clientY;
 
@@ -1124,6 +1129,7 @@ Widget.prototype._startMove = function(evt) {
 }
 
 Widget.prototype._moving = function(evt) {
+	var evt = evt || event;
 	offsetX = evt.clientX - QuiX.startX;
 	offsetY = evt.clientY - QuiX.startY;
 	QuiX.tmpWidget.moveTo(this.getLeft() + offsetX,
@@ -1131,6 +1137,7 @@ Widget.prototype._moving = function(evt) {
 }
 
 Widget.prototype._endMove = function(evt) {
+	var evt = evt || event;
 	document.desktop.detachEvent('onmousemove');
 	document.desktop.detachEvent('onmouseup');
 	QuiX.tmpWidget.destroy();
@@ -1214,7 +1221,7 @@ Widget.prototype.attachEvent = function(eventType, f, w) {
 	var f = getEventListener(f);
 
 	if (w._registry[eventType] && f) w.detachEvent(eventType, w);
-	if (f) Widget__registerHandler(w,eventType,f);
+	if (f) Widget__registerHandler(w, eventType, f);
 
 	if (!w._isDisabled)
 		w.div.addEventListener(eventType.slice(2,eventType.length), w._registry[eventType], false);

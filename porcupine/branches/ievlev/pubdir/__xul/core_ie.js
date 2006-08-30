@@ -124,7 +124,7 @@ QuiX.createOutline = function(w) {
 		border:2,
 		overflow:'hidden'
 	});
-	w.parent.appendChild(oW);	
+	w.parent.appendChild(oW);
 	oW.minw = w.minw;
 	oW.minh = w.minh;
 	oW.div.className = 'outline';
@@ -135,7 +135,7 @@ QuiX.cleanupOverlays = function() {
 	while (ovr.length>0) ovr[0].close();
 }
 QuiX.stopPropag = function(evt) {
-	evt = window.event || evt;
+	var evt = evt || event;
 	evt.cancelBubble=true;
 }
 QuiX.cancelDefault = function(evt) {
@@ -200,7 +200,6 @@ XULParser.prototype.detectModules = function(oNode) {
 			this.__modulesToLoad.push(oMod);
 		}
 	}
-
 	if (iMod && oNode.getAttribute('img')) {
 		src = oNode.getAttribute('img');
 		if (src!='' && !QuiX.images.hasItem(src)) {
@@ -534,9 +533,8 @@ XULParser.prototype.parseXul = function(oNode, parentW) {
 				parentW.div.innerHTML = oNode.xml;
 		}
 		
-		if (oWidget && parentW && !oWidget.parent && appendIt) {
+		if (oWidget && parentW && !oWidget.parent && appendIt)
 			parentW.appendChild(oWidget);
-		}
 		
 		if (checkForChilds) {
 			for (var i=0; i<oNode.childNodes.length; i++) {
@@ -551,7 +549,7 @@ XULParser.prototype.parseXul = function(oNode, parentW) {
 				oWidget._registry.onload(oWidget);
 		}
 	}
-	return(oWidget);
+	return oWidget;
 }
 
 function Module(sName, sFile, d) {
@@ -580,7 +578,7 @@ function QImage(url) {
 
 QImage.prototype.load = function(parser) {
 	this.parser = parser;
-	var img = new Image();
+	var img = new Image;
 	QuiX.images.push(this.url);
 	img.resource = this;
 	img.onload = Resource_onstatechange;
@@ -645,7 +643,7 @@ function Widget(params) {
 		this.setOverflow(params.overflow);
 	this.setPosition('absolute');
 
-	this._buildEventRegistry(params)
+	this._buildEventRegistry(params);
 	this._attachEvents();
 
 	if (params.disabled=='true' || params.disabled==true)
@@ -657,7 +655,7 @@ Widget.prototype.appendChild = function(w, p) {
 	p.widgets.push(w);
 	w.parent = p;
 	if (w._id)
-		w._addIdRef();	
+		w._addIdRef();
 	p.div.appendChild(w.div);
 	if (w.height=='100%' && w.width=='100%')
 		p.setOverflow('hidden');
@@ -694,7 +692,7 @@ Widget.prototype._buildEventRegistry = function(params) {
 Widget.prototype._attachEvents = function() {
 	for (var evt_type in this._registry) {
 		if (evt_type!='toXMLRPC' && evt_type!='onload' && this._registry[evt_type])
-			this.attachEvent(evt_type, null, this); //restore events directly from registry
+			this.attachEvent(evt_type, null, this);//restore events directly from registry
 	}
 }
 
@@ -857,7 +855,7 @@ Widget.prototype.getBorderWidth = function() {
 Widget.prototype.setDisplay = function(sDispl) {
 	this.div.style.display = sDispl || '';
 }
-Widget.prototype.getDisplay = function(){
+Widget.prototype.getDisplay = function() {
 	return this.div.style.display;
 }
 
@@ -930,8 +928,7 @@ Widget.prototype.getWidth = function(b) {
 	return wd;
 }
 
-Widget.prototype.getLeft = function()
-{
+Widget.prototype.getLeft = function() {
 	var ofs, lf;
 	lf = parseInt(this.div.style.left);
 	if (isNaN(lf)) return 0;
@@ -940,8 +937,7 @@ Widget.prototype.getLeft = function()
 	return lf;
 }
 
-Widget.prototype.getTop = function()
-{
+Widget.prototype.getTop = function() {
 	var ofs, rg;
 	rg = parseInt(this.div.style.top);
 	if (isNaN(rg)) return 0;
@@ -1073,16 +1069,16 @@ Widget.prototype.show = function() {
 	this.div.style.visibility = '';
 	this.redraw();
 }
+
 Widget.prototype.isHidden = function() {
 	return (this.div.style.visibility == 'hidden');
 }
 
-
-Widget.prototype._startResize = function (evt)
-{
+Widget.prototype._startResize = function (evt) {
 	var oWidget = this;
-	QuiX.startX = event.clientX;
-	QuiX.startY = event.clientY;
+	var evt = evt || event;
+	QuiX.startX = evt.clientX;
+	QuiX.startY = evt.clientY;
 
 	QuiX.tmpWidget = QuiX.createOutline(this);
 	QuiX.tmpWidget.bringToFront();
@@ -1092,18 +1088,18 @@ Widget.prototype._startResize = function (evt)
 	this.parent.div.style.cursor = 'se-resize';
 }
 
-Widget.prototype._resizing = function(evt)
-{
-	offsetX = event.clientX - QuiX.startX;
-	offsetY = event.clientY - QuiX.startY;
+Widget.prototype._resizing = function(evt) {
+	var evt = evt || event;
+	offsetX = evt.clientX - QuiX.startX;
+	offsetY = evt.clientY - QuiX.startY;
 	QuiX.tmpWidget.resize(this.getWidth(true) + offsetX,
 				this.getHeight(true) + offsetY);
 }
 
-Widget.prototype._endResize = function(evt)
-{
-	offsetX = event.clientX - QuiX.startX;
-	offsetY = event.clientY - QuiX.startY;
+Widget.prototype._endResize = function(evt) {
+	var evt = evt || event;
+	offsetX = evt.clientX - QuiX.startX;
+	offsetY = evt.clientY - QuiX.startY;
 	this.resize(this.getWidth(true) + offsetX,
 				this.getHeight(true) + offsetY);
 	this.bringToFront();
@@ -1113,11 +1109,11 @@ Widget.prototype._endResize = function(evt)
 	this.parent.div.style.cursor = '';
 }
 
-Widget.prototype._startMove = function(evt)
-{
+Widget.prototype._startMove = function(evt) {
 	var oWidget = this;
-	QuiX.startX = event.clientX;
-	QuiX.startY = event.clientY;
+	var evt = evt || event;
+	QuiX.startX = evt.clientX;
+	QuiX.startY = evt.clientY;
 
 	QuiX.tmpWidget = QuiX.createOutline(this);
 	QuiX.tmpWidget.bringToFront();
@@ -1127,21 +1123,21 @@ Widget.prototype._startMove = function(evt)
 	this.parent.div.style.cursor = 'move';
 }
 
-Widget.prototype._moving = function(evt)
-{
-	offsetX = event.clientX - QuiX.startX;
-	offsetY = event.clientY - QuiX.startY;
+Widget.prototype._moving = function(evt) {
+	var evt = evt || event;
+	offsetX = evt.clientX - QuiX.startX;
+	offsetY = evt.clientY - QuiX.startY;
 	QuiX.tmpWidget.moveTo(this.getLeft() + offsetX,
 				this.getTop() + offsetY);	
 }
 
-Widget.prototype._endMove = function(evt)
-{
+Widget.prototype._endMove = function(evt) {
+	var evt = evt || event;
 	QuiX.tmpWidget.destroy();
 	document.desktop.detachEvent('onmouseup');
 	document.desktop.detachEvent('onmousemove');
-	offsetX = event.clientX - QuiX.startX;
-	offsetY = event.clientY - QuiX.startY;
+	offsetX = evt.clientX - QuiX.startX;
+	offsetY = evt.clientY - QuiX.startY;
 	this.moveTo(this.getLeft() + offsetX,
 				this.getTop() + offsetY);
 	this.bringToFront();
@@ -1167,8 +1163,8 @@ Widget.prototype.redraw = function(bForceAll, w) {
 
 Widget.prototype.print = function(expand) {
 	var oWidget = this;
-	var iframe = document.getElementById('_print');
 	expand = expand || false;
+	var iframe = document.getElementById('_print');
 	if (!iframe) {
 		var iframe = ce('IFRAME');
 		iframe.name = '_print';
@@ -1199,8 +1195,8 @@ Widget.prototype.attachEvent = function(eventType, f, w) {
 	var w = w || this;
 	var f = getEventListener(f);
 
-	if (w._registry[eventType] && f) w.detachEvent(eventType,w);
-	if (f)	Widget__registerHandler(w,eventType,f);
+	if (w._registry[eventType] && f) w.detachEvent(eventType, w);
+	if (f) Widget__registerHandler(w, eventType, f);
 
 	if (!w._isDisabled)
 		w.div.attachEvent(eventType, w._registry[eventType]);
