@@ -53,7 +53,6 @@ ListView.prototype.attachEvent = function(eventType, f, w) {
 		}
 	else //resurrect handler from registry
 		Widget.prototype.attachEvent(eventType, f, this);
-		
 }
 
 ListView.prototype.detachEvent = function(eventType, w, isInternal) {
@@ -99,7 +98,7 @@ ListView.prototype.addHeader = function(params, w) {
 	oTable.width = '100%';
 	oTable.onmousedown = function(evt) {
 		var evt = evt || event;
-		if (oListview.isDisabled) return;
+		if (oListview._isDisabled) return;
 		var target = QuiX.getTarget(evt);
 		while (target.tagName!='DIV') {
 			if (target.tagName == 'TR') {
