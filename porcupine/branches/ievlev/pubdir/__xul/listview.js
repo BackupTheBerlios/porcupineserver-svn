@@ -37,7 +37,10 @@ ListView.prototype.attachEvent = function(eventType, f, w) {
 	if (f) //setup new handler
 		switch (eventType) {
 			case "onselect":
-				this.onselect = f;
+				this.onselect = function(evt,w) { f(evt,w);
+				                                  if (w._registry["onclick"])
+								      w._registry["onclick"](evt,w);
+				                                 };
 				break;
 			case "onclick":
 			case "ondblclick":
@@ -95,11 +98,12 @@ ListView.prototype.addHeader = function(params, w) {
 	oTable.cellPadding = oListview.cellPadding;
 	oTable.width = '100%';
 	oTable.onmousedown = function(evt) {
-		evt = evt || event;
+		var evt = evt || event;
+		if (oListview.isDisabled) return;
 		var target = QuiX.getTarget(evt);
 		while (target.tagName!='DIV') {
 			if (target.tagName == 'TR') {
-				oListview._selectline(evt || event, target);
+				oListview._selectline(evt, target);
 				break;
 			}
 			target = target.parentElement || target.parentNode;
@@ -429,6 +433,7 @@ ListView.prototype._renderCell = function(cell, cellIndex, value, obj) {
 }
 
 function ListView__onclick (evt, w, f) {
+	if (!evt) return;
 	var target = QuiX.getTarget(evt);
 	while (target.tagName!='DIV') {
 		if (target.tagName == 'TR') {
