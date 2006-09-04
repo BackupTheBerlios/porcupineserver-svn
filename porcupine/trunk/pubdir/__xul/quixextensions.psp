@@ -145,8 +145,6 @@ document.getWidgetById = function(wid) {
 		return(divs.widget);
 }
 
-function nullEvent(){}
-
 function ce(t) {
 	return(document.createElement(t));
 }
