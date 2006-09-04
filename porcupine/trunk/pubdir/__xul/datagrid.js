@@ -33,6 +33,15 @@ DataGrid.prototype.getValue = function(params) {
 	return this.dataSet;
 }
 
+DataGrid.prototype.disable = function() {
+	if (this.attributes.__editwidget) {
+		this.attributes.__editwidget.destroy();
+		this.attributes.__editwidget = null;
+		this.detachEvent('onmousedown');
+	}
+	Widget.prototype.disable(this);
+}
+
 function DataGrid__onclick(evt, w) {
 	var target=null, idx, ridx, editValue, w2, w2_type;
 	target = QuiX.getTarget(evt);
@@ -45,13 +54,12 @@ function DataGrid__onclick(evt, w) {
 			editValue = w.parent.dataSet[ridx][w.parent.columns[idx].name];
 			switch (w.parent.columns[idx].columnType) {
 				case 'optionlist':
-					w2 = new Combo(
-						{
-							top: target.offsetTop,
-							left: target.offsetLeft,
-							width: target.offsetWidth,
-							height: target.offsetHeight
-						});
+					w2 = new Combo({
+						top: target.offsetTop,
+						left: target.offsetLeft,
+						width: target.offsetWidth,
+						height: target.offsetHeight
+					});
 					w.appendChild(w2);
 					var options = w.parent.columns[idx].options;
 					for (var i=0; i<options.length; i++) {
@@ -65,15 +73,14 @@ function DataGrid__onclick(evt, w) {
 				case 'bool':
 					w2_type = 'checkbox';
 				default:
-					w2 = new Field(
-						{
-							top: target.offsetTop,
-							left: target.offsetLeft,
-							width: target.offsetWidth,
-							height: target.offsetHeight,
-							value: editValue,
-							type: w2_type
-						});
+					w2 = new Field({
+						top: target.offsetTop,
+						left: target.offsetLeft,
+						width: target.offsetWidth,
+						height: target.offsetHeight,
+						value: editValue,
+						type: w2_type
+					});
 					w.appendChild(w2);
 			}
 			w.parent.attributes.__editwidget = w2;
@@ -93,6 +100,7 @@ function DataGrid__onmousedown (evt, w) {
 	w._renderCell(oCell, cellindex, value);
 
 	w.attributes.__editwidget.destroy();
+	w.attributes.__editwidget = null;
 
 	w.detachEvent('onmousedown');
 	
