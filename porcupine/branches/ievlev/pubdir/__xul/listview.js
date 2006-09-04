@@ -18,9 +18,6 @@ function ListView(params) {
 	this.trueImg = params.trueimg || 'images/check16.gif';
 	this.sortfunc = getEventListener(params.sortfunc);
 
-	if (params.onselect)
-		this.attachEvent("onselect", params.onselect);
-
 	this.hasSelector = false;
 	this.selection = [];
 	this.dataSet = [];
@@ -32,34 +29,21 @@ function ListView(params) {
 
 ListView.prototype = new Widget;
 
-ListView.prototype.attachEvent = function(eventType, f, w) {
-	var f = getEventListener(f);
-	if (f) //setup new handler
+ListView.prototype.customEvents = Widget.prototype.customEvents.concat(['onselect']);
+
+ListView.prototype._registerHandler = function(eventType, handler, isCustom) {
+	var wrapper;
+	if (handler)
 		switch (eventType) {
-			case "onselect":
-				this.onselect = function(evt,w) { f(evt,w);
-				                                  if (w._registry["onclick"])
-								      w._registry["onclick"](evt,w);
-				                                 };
-				break;
 			case "onclick":
 			case "ondblclick":
-				var cb = function(evt,w) { ListView__onclick(evt,w,f) };
-				Widget.prototype.attachEvent(eventType, cb, this);
-				break;
-			default:
-				Widget.prototype.attachEvent(eventType, f, this);
+				//if it not wrapped wrap it...
+				if(handler && handler.toString().lastIndexOf('return handler(evt || event, w)')==-1)
+					wrapper = function(evt, w){ return ListView__onclick(evt, w, handler) };
 				break;
 		}
-	else //resurrect handler from registry
-		Widget.prototype.attachEvent(eventType, f, this);
-}
-
-ListView.prototype.detachEvent = function(eventType, w, isInternal) {
-	if (eventType == "onselect" && !isInternal)
-		this.onselect = null;
-	else
-		Widget.prototype.detachEvent(eventType, this, isInternal);
+	wrapper = wrapper || handler;
+	Widget.prototype._registerHandler(eventType, wrapper, isCustom, this);
 }
 
 ListView.prototype.addHeader = function(params, w) {
@@ -160,9 +144,9 @@ ListView.prototype._selectline = function (evt, row) {
 		this._selrow(row);
 		this.selection.push(row.rowIndex);
 	}
-	if (fire && this.onselect)
-	{
-		getEventListener(this.onselect)(evt, this, this.dataSet[row.rowIndex]);
+	
+	if (fire && this._customRegistry.onselect) {
+		getEventListener(this._customRegistry.onselect)(evt, this, this.dataSet[row.rowIndex]);
 	}
 }
 
@@ -404,8 +388,7 @@ ListView.prototype._renderCell = function(cell, cellIndex, value, obj) {
 					value.format(column.format) + '</span>';
 				return;
 			default:
-				if (typeof column_type == 'function')
-				{
+				if (typeof column_type == 'function') {
 					cell.appendChild(column_type(column,obj,value))
 					return;
 				}

@@ -112,6 +112,7 @@ QuiX.removeWidget = function(w) {
 	w.div.removeNode(true);
 
 	w._registry = null;
+	w._customRegistry = null;
 	w.div = null;
 	w = null;
 }
@@ -545,8 +546,8 @@ XULParser.prototype.parseXul = function(oNode, parentW) {
 		if (oNode.localName == 'form') this.activeForm = null;
 		
 		if (oWidget) { 
-			if (oWidget._registry.onload)
-				oWidget._registry.onload(oWidget);
+			if (oWidget._customRegistry.onload)
+				oWidget._customRegistry.onload(oWidget);
 		}
 	}
 	return oWidget;
@@ -665,47 +666,8 @@ Widget.prototype.appendChild = function(w, p) {
 		w.disable();
 }
 
-Widget.prototype.supportedEvents = [
-	'onload',
-	'onmousedown','onmouseup',
-	'onmousemove','onmouseover','onmouseout',
-	'onselectstart',
-	'onkeypress','onkeyup',
-	'onclick','ondblclick',
-	'oncontextmenu'
-];
-
-function Widget__registerHandler(w, evt_type, handler)
-{
-	w._registry[evt_type] = function(e) { handler(e, w) };
-}
-
-Widget.prototype._buildEventRegistry = function(params) {
-	this._registry = {};
-	for (var i=0; i<this.supportedEvents.length; i++) {
-		var evt_type = this.supportedEvents[i];
-		if (params[evt_type])
-			Widget__registerHandler(this,evt_type,getEventListener(params[evt_type]));
-	}
-}
-
-Widget.prototype._attachEvents = function() {
-	for (var evt_type in this._registry) {
-		if (evt_type!='toXMLRPC' && evt_type!='onload' && this._registry[evt_type])
-			this.attachEvent(evt_type, null, this);//restore events directly from registry
-	}
-}
-
-Widget.prototype._detachEvents = function(w) {
-	var w = w || this;
-	for (var evt_type in w._registry) {
-		if (evt_type!='toXMLRPC' && evt_type!='onload' && w._registry[evt_type])
-			w.detachEvent(evt_type,w,true);
-	}
-}
-
 Widget.prototype.disable = function(w) {
-	w = w || this;
+	var w = w || this;
 	if (!w._isDisabled) {
 		w._statecolor = w.div.style.color;
 		w.div.style.color = 'GrayText';
@@ -1191,21 +1153,114 @@ Widget.prototype.print = function(expand) {
 	}
 }
 
-Widget.prototype.attachEvent = function(eventType, f, w) {
+//events sub-system
+Widget.prototype.supportedEvents = [
+	'onmousedown','onmouseup',
+	'onmousemove','onmouseover','onmouseout',
+	'onkeypress','onkeyup',
+	'onclick','ondblclick',
+	'oncontextmenu'
+];
+
+Widget.prototype.customEvents = ['onload'];
+
+Widget.prototype._registerHandler = function(evt_type, handler, isCustom, w) {
 	var w = w || this;
-	var f = getEventListener(f);
-
-	if (w._registry[eventType] && f) w.detachEvent(eventType, w);
-	if (f) Widget__registerHandler(w, eventType, f);
-
-	if (!w._isDisabled)
-		w.div.attachEvent(eventType, w._registry[eventType]);
+	var char = (w._isDisabled)?'*':'';
+	if (!isCustom)
+		w._registry[char + evt_type] = function(evt){return handler(evt || event, w)};
+	else
+		w._customRegistry[char + evt_type] = handler;
 }
 
-Widget.prototype.detachEvent = function(eventType, w, isInternal) {
+Widget.prototype._buildEventRegistry = function(params) {
+	this._registry = {};
+	this._customRegistry = {};
+	var i;
+	// register DOM events
+	for (i=0; i<this.supportedEvents.length; i++) {
+		var evt_type = this.supportedEvents[i];
+		if (params[evt_type])
+			this._registerHandler(evt_type, getEventListener(params[evt_type]), false);
+	}
+	//register custom events
+	for (i=0; i<this.customEvents.length; i++) {
+		var evt_type = this.customEvents[i];
+		if (params[evt_type])
+			this._registerHandler(evt_type, getEventListener(params[evt_type]), true);
+	}
+}
+
+Widget.prototype._attachEvents = function() {
+	for (var evt_type in this._registry) {
+		if (evt_type!='toXMLRPC' && evt_type.slice(0,1)!='_') {
+			if (evt_type.slice(0,1)=='*') evt_type=evt_type.slice(1, evt_type.length);
+			this.attachEvent(evt_type, null);//restore events directly from registry
+		}
+	}
+}
+
+Widget.prototype._detachEvents = function(w) {
 	var w = w || this;
-	w.div.detachEvent(eventType, w._registry[eventType]);
-	if (!isInternal) delete w._registry[eventType]; //remove from registry to avoid resurrection
+	var first_char;
+	for (var evt_type in w._registry) {
+		first_char = evt_type.slice(0,1);
+		if (evt_type!='toXMLRPC' && first_char!='_' && first_char!='*')
+			w.detachEvent(evt_type, '*');
+	}
+}
+
+Widget.prototype._getHandler = function(eventType, f) {
+	var f = getEventListener(f);
+	if (!f) {//restore from registry
+		f = this._registry[eventType] ||
+			this._registry['_' + eventType] ||
+			this._registry['*' + eventType] ||
+			this._customRegistry[eventType] ||
+			this._customRegistry['_' + eventType] ||
+			this._customRegistry['*' + eventType];
+	}
+	return f;
+}
+
+Widget.prototype.attachEvent = function(eventType, f, w) {
+	var w = w || this;
+	var isCustom = w.customEvents.hasItem(eventType);
+	var registry = (isCustom)?w._customRegistry:w._registry;
+	var f = w._getHandler(eventType, f);
+	
+	if (f) {
+		if (!w._isDisabled && !isCustom)
+			w.detachEvent(eventType);
+		if (f!=registry[eventType])
+			w._registerHandler(eventType, f, isCustom);
+	}
+
+	if (registry['_' + eventType])
+		delete registry['_' + eventType];
+	
+	if (!w._isDisabled && registry['*' + eventType])
+		delete registry['*' + eventType];
+
+	if (!w._isDisabled && !isCustom) {
+		w.div.attachEvent(eventType, registry[eventType]);
+	}
+}
+
+Widget.prototype.detachEvent = function(eventType, char) {
+	var registry = null;
+	var char = char || '_';
+	if (this._registry[eventType]) {
+		this.div.detachEvent(eventType, this._registry[eventType]);
+		registry = this._registry;
+	}
+	else if (this._customRegistry[eventType]) {
+		registry = this._customRegistry;
+	}
+	if (registry) {
+		registry[char + eventType] = registry[eventType];
+		delete registry[eventType];
+	}
 }
 
 function Widget__contextmenu(evt, w) {
@@ -1218,11 +1273,11 @@ function Desktop(params, root) {
 	params.id = 'desktop';
 	params.width = 'document.documentElement.clientWidth';
 	params.height = 'document.documentElement.clientHeight';
-	params.onmousedown = QuiX.getEventWrapper(Desktop__onmousedown, params.onmousedown);
-	params.oncontextmenu = function() {return false}
+	params.onmousedown = Desktop__onmousedown;
+	params.oncontextmenu = Desktop__onmousedown;
 	this.base(params);
 	this.setPosition();
-	this.div.onselectstart = function(){return(false)};
+	this.div.onselectstart = function(){return false};
 	this._setCommonProps();
 	this.div.innerHTML = '<p align="right" style="color:#666666;margin:0px;">QuiX v' + QuiX.version + '</p>';
 	root.appendChild(this.div);
@@ -1277,6 +1332,8 @@ Desktop.prototype.msgbox = function(mtitle, message, buttons, image, mleft, mtop
 
 function Desktop__onmousedown(evt, w) {
 	QuiX.cleanupOverlays();
+	QuiX.cancelDefault(evt);
+	return false;
 }
 
 // progress bar

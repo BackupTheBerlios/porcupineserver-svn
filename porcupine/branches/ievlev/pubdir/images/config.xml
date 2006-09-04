@@ -7,7 +7,6 @@
     <context path="app.gif" method="GET" client=".*" lang=".*" action="app.gif"/>
     <context path="appsfolder.gif" method="GET" client=".*" lang=".*" action="appsfolder.gif"/>
     <context path="asc8.gif" method="GET" client=".*" lang=".*" action="asc8.gif"/>
-    <context path="bc_lightgray.jpg" method="GET" client=".*" lang=".*" action="bc_lightgray.jpg" max-age="3600"/>
     <context path="bc_brown.jpg" method="GET" client=".*" lang=".*" action="bc_brown.jpg" max-age="3600"/>
     <context path="cancel.gif" method="GET" client=".*" lang=".*" action="cancel.gif"/>
     <context path="cancel10.gif" method="GET" client=".*" lang=".*" action="cancel10.gif"/>
