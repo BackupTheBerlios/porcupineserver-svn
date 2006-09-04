@@ -18,9 +18,6 @@ function ListView(params) {
 	this.trueImg = params.trueimg || 'images/check16.gif';
 	this.sortfunc = getEventListener(params.sortfunc);
 
-	if (params.onselect)
-		this.attachEvent("onselect", params.onselect);
-
 	this.hasSelector = false;
 	this.selection = [];
 	this.dataSet = [];
@@ -32,30 +29,21 @@ function ListView(params) {
 
 ListView.prototype = new Widget;
 
-ListView.prototype.attachEvent = function(eventType, f) {
-	var f = getEventListener(f);
-	switch (eventType) {
-		case "onselect":
-			this.onselect = f;
-			break;
-		case "onclick":
-			this._onclick = f;
-			Widget.prototype.attachEvent('onclick', ListView__onclick, this);
-			break;
-		case "ondblclick":
-			this._ondblclick = f;
-			Widget.prototype.attachEvent('ondblclick', ListView__ondblclick, this);
-			break;
-		default:
-			Widget.prototype.attachEvent(eventType, f, this);
-	}
-}
+ListView.prototype.customEvents = Widget.prototype.customEvents.concat(['onselect']);
 
-ListView.prototype.detachEvent = function(eventType) {
-	if (eventType == "onselect")
-		this.onselect = null;
-	else
-		Widget.prototype.detachEvent(eventType, this);
+ListView.prototype._registerHandler = function(eventType, handler, isCustom) {
+	var wrapper;
+	if (handler)
+		switch (eventType) {
+			case "onclick":
+			case "ondblclick":
+				//if it not wrapped wrap it...
+				if(handler && handler.toString().lastIndexOf('return handler(evt || event, w)')==-1)
+					wrapper = function(evt, w){ return ListView__onclick(evt, w, handler) };
+				break;
+		}
+	wrapper = wrapper || handler;
+	Widget.prototype._registerHandler(eventType, wrapper, isCustom, this);
 }
 
 ListView.prototype.addHeader = function(params, w) {
@@ -93,11 +81,12 @@ ListView.prototype.addHeader = function(params, w) {
 	oTable.cellPadding = oListview.cellPadding;
 	oTable.width = '100%';
 	oTable.onmousedown = function(evt) {
-		evt = evt || event;
+		var evt = evt || event;
+		if (oListview._isDisabled) return;
 		var target = QuiX.getTarget(evt);
 		while (target.tagName!='DIV') {
 			if (target.tagName == 'TR') {
-				oListview._selectline(evt || event, target);
+				oListview._selectline(evt, target);
 				break;
 			}
 			target = target.parentElement || target.parentNode;
@@ -155,9 +144,9 @@ ListView.prototype._selectline = function (evt, row) {
 		this._selrow(row);
 		this.selection.push(row.rowIndex);
 	}
-	if (fire && this.onselect)
-	{
-		getEventListener(this.onselect)(evt, this, this.dataSet[row.rowIndex]);
+	
+	if (fire && this._customRegistry.onselect) {
+		getEventListener(this._customRegistry.onselect)(evt, this, this.dataSet[row.rowIndex]);
 	}
 }
 
@@ -399,8 +388,7 @@ ListView.prototype._renderCell = function(cell, cellIndex, value, obj) {
 					value.format(column.format) + '</span>';
 				return;
 			default:
-				if (typeof column_type == 'function')
-				{
+				if (typeof column_type == 'function') {
 					cell.appendChild(column_type(column,obj,value))
 					return;
 				}
@@ -426,22 +414,12 @@ ListView.prototype._renderCell = function(cell, cellIndex, value, obj) {
 	}
 }
 
-function ListView__onclick (evt, w) {
+function ListView__onclick (evt, w, f) {
+	if (!evt) return;
 	var target = QuiX.getTarget(evt);
 	while (target.tagName!='DIV') {
 		if (target.tagName == 'TR') {
-			w._onclick(evt, w, w.dataSet[target.rowIndex]);
-			break;
-		}
-		target = target.parentElement || target.parentNode;
-	}
-}
-
-function ListView__ondblclick(evt, w) {
-	var target = QuiX.getTarget(evt);
-	while (target.tagName!='DIV') {
-		if (target.tagName == 'TR') {
-			w._ondblclick(evt, w, w.dataSet[target.rowIndex]);
+			f(evt, w, w.dataSet[target.rowIndex]);
 			break;
 		}
 		target = target.parentElement || target.parentNode;
