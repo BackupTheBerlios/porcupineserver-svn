@@ -112,6 +112,7 @@ QuiX.removeWidget = function(w) {
 	w.div.removeNode(true);
 
 	w._registry = null;
+	w._customRegistry = null;
 	w.div = null;
 	w = null;
 }
@@ -124,7 +125,7 @@ QuiX.createOutline = function(w) {
 		border:2,
 		overflow:'hidden'
 	});
-	w.parent.appendChild(oW);	
+	w.parent.appendChild(oW);
 	oW.minw = w.minw;
 	oW.minh = w.minh;
 	oW.div.className = 'outline';
@@ -135,7 +136,7 @@ QuiX.cleanupOverlays = function() {
 	while (ovr.length>0) ovr[0].close();
 }
 QuiX.stopPropag = function(evt) {
-	evt = window.event || evt;
+	var evt = evt || event;
 	evt.cancelBubble=true;
 }
 QuiX.cancelDefault = function(evt) {
@@ -200,7 +201,6 @@ XULParser.prototype.detectModules = function(oNode) {
 			this.__modulesToLoad.push(oMod);
 		}
 	}
-
 	if (iMod && oNode.getAttribute('img')) {
 		src = oNode.getAttribute('img');
 		if (src!='' && !QuiX.images.hasItem(src)) {
@@ -534,9 +534,8 @@ XULParser.prototype.parseXul = function(oNode, parentW) {
 				parentW.div.innerHTML = oNode.xml;
 		}
 		
-		if (oWidget && parentW && !oWidget.parent && appendIt) {
+		if (oWidget && parentW && !oWidget.parent && appendIt)
 			parentW.appendChild(oWidget);
-		}
 		
 		if (checkForChilds) {
 			for (var i=0; i<oNode.childNodes.length; i++) {
@@ -547,11 +546,11 @@ XULParser.prototype.parseXul = function(oNode, parentW) {
 		if (oNode.localName == 'form') this.activeForm = null;
 		
 		if (oWidget) { 
-			if (oWidget._registry.onload)
-				oWidget._registry.onload(oWidget);
+			if (oWidget._customRegistry.onload)
+				oWidget._customRegistry.onload(oWidget);
 		}
 	}
-	return(oWidget);
+	return oWidget;
 }
 
 function Module(sName, sFile, d) {
@@ -580,7 +579,7 @@ function QImage(url) {
 
 QImage.prototype.load = function(parser) {
 	this.parser = parser;
-	var img = new Image();
+	var img = new Image;
 	QuiX.images.push(this.url);
 	img.resource = this;
 	img.onload = Resource_onstatechange;
@@ -645,7 +644,7 @@ function Widget(params) {
 		this.setOverflow(params.overflow);
 	this.setPosition('absolute');
 
-	this._buildEventRegistry(params)
+	this._buildEventRegistry(params);
 	this._attachEvents();
 
 	if (params.disabled=='true' || params.disabled==true)
@@ -657,7 +656,7 @@ Widget.prototype.appendChild = function(w, p) {
 	p.widgets.push(w);
 	w.parent = p;
 	if (w._id)
-		w._addIdRef();	
+		w._addIdRef();
 	p.div.appendChild(w.div);
 	if (w.height=='100%' && w.width=='100%')
 		p.setOverflow('hidden');
@@ -667,45 +666,8 @@ Widget.prototype.appendChild = function(w, p) {
 		w.disable();
 }
 
-Widget.prototype.supportedEvents = [
-	'onload',
-	'onmousedown','onmouseup',
-	'onmousemove','onmouseover','onmouseout',
-	'onselectstart',
-	'onkeypress','onkeyup',
-	'onclick','ondblclick',
-	'oncontextmenu'
-];
-
-Widget.prototype._buildEventRegistry = function(params) {
-	var evt_type;
-	this._registry = {};
-	for (var i=0; i<this.supportedEvents.length; i++) {
-		evt_type = this.supportedEvents[i];
-		if (params[evt_type])
-			this._registry[evt_type] = getEventListener(params[evt_type]);
-	}
-}
-
-Widget.prototype._attachEvents = function() {
-	var evt_handler;
-	for (var evt_type in this._registry) {
-		evt_handler = this._registry[evt_type];
-		if (evt_type!='toXMLRPC' && evt_type!='onload' && evt_handler) {
-			this.attachEvent(evt_type, evt_handler);
-		}
-	}
-}
-
-Widget.prototype._detachEvents = function(w) {
-	var w = w || this;
-	for (var evt_type in w._registry) {
-		w.detachEvent(evt_type);
-	}
-}
-
 Widget.prototype.disable = function(w) {
-	w = w || this;
+	var w = w || this;
 	if (!w._isDisabled) {
 		w._statecolor = w.div.style.color;
 		w.div.style.color = 'GrayText';
@@ -855,7 +817,7 @@ Widget.prototype.getBorderWidth = function() {
 Widget.prototype.setDisplay = function(sDispl) {
 	this.div.style.display = sDispl || '';
 }
-Widget.prototype.getDisplay = function(){
+Widget.prototype.getDisplay = function() {
 	return this.div.style.display;
 }
 
@@ -928,8 +890,7 @@ Widget.prototype.getWidth = function(b) {
 	return wd;
 }
 
-Widget.prototype.getLeft = function()
-{
+Widget.prototype.getLeft = function() {
 	var ofs, lf;
 	lf = parseInt(this.div.style.left);
 	if (isNaN(lf)) return 0;
@@ -938,8 +899,7 @@ Widget.prototype.getLeft = function()
 	return lf;
 }
 
-Widget.prototype.getTop = function()
-{
+Widget.prototype.getTop = function() {
 	var ofs, rg;
 	rg = parseInt(this.div.style.top);
 	if (isNaN(rg)) return 0;
@@ -1071,16 +1031,16 @@ Widget.prototype.show = function() {
 	this.div.style.visibility = '';
 	this.redraw();
 }
+
 Widget.prototype.isHidden = function() {
 	return (this.div.style.visibility == 'hidden');
 }
 
-
-Widget.prototype._startResize = function (evt)
-{
+Widget.prototype._startResize = function (evt) {
 	var oWidget = this;
-	QuiX.startX = event.clientX;
-	QuiX.startY = event.clientY;
+	var evt = evt || event;
+	QuiX.startX = evt.clientX;
+	QuiX.startY = evt.clientY;
 
 	QuiX.tmpWidget = QuiX.createOutline(this);
 	QuiX.tmpWidget.bringToFront();
@@ -1090,18 +1050,18 @@ Widget.prototype._startResize = function (evt)
 	this.parent.div.style.cursor = 'se-resize';
 }
 
-Widget.prototype._resizing = function(evt)
-{
-	offsetX = event.clientX - QuiX.startX;
-	offsetY = event.clientY - QuiX.startY;
+Widget.prototype._resizing = function(evt) {
+	var evt = evt || event;
+	offsetX = evt.clientX - QuiX.startX;
+	offsetY = evt.clientY - QuiX.startY;
 	QuiX.tmpWidget.resize(this.getWidth(true) + offsetX,
 				this.getHeight(true) + offsetY);
 }
 
-Widget.prototype._endResize = function(evt)
-{
-	offsetX = event.clientX - QuiX.startX;
-	offsetY = event.clientY - QuiX.startY;
+Widget.prototype._endResize = function(evt) {
+	var evt = evt || event;
+	offsetX = evt.clientX - QuiX.startX;
+	offsetY = evt.clientY - QuiX.startY;
 	this.resize(this.getWidth(true) + offsetX,
 				this.getHeight(true) + offsetY);
 	this.bringToFront();
@@ -1111,11 +1071,11 @@ Widget.prototype._endResize = function(evt)
 	this.parent.div.style.cursor = '';
 }
 
-Widget.prototype._startMove = function(evt)
-{
+Widget.prototype._startMove = function(evt) {
 	var oWidget = this;
-	QuiX.startX = event.clientX;
-	QuiX.startY = event.clientY;
+	var evt = evt || event;
+	QuiX.startX = evt.clientX;
+	QuiX.startY = evt.clientY;
 
 	QuiX.tmpWidget = QuiX.createOutline(this);
 	QuiX.tmpWidget.bringToFront();
@@ -1125,21 +1085,21 @@ Widget.prototype._startMove = function(evt)
 	this.parent.div.style.cursor = 'move';
 }
 
-Widget.prototype._moving = function(evt)
-{
-	offsetX = event.clientX - QuiX.startX;
-	offsetY = event.clientY - QuiX.startY;
+Widget.prototype._moving = function(evt) {
+	var evt = evt || event;
+	offsetX = evt.clientX - QuiX.startX;
+	offsetY = evt.clientY - QuiX.startY;
 	QuiX.tmpWidget.moveTo(this.getLeft() + offsetX,
 				this.getTop() + offsetY);	
 }
 
-Widget.prototype._endMove = function(evt)
-{
+Widget.prototype._endMove = function(evt) {
+	var evt = evt || event;
 	QuiX.tmpWidget.destroy();
 	document.desktop.detachEvent('onmouseup');
 	document.desktop.detachEvent('onmousemove');
-	offsetX = event.clientX - QuiX.startX;
-	offsetY = event.clientY - QuiX.startY;
+	offsetX = evt.clientX - QuiX.startX;
+	offsetY = evt.clientY - QuiX.startY;
 	this.moveTo(this.getLeft() + offsetX,
 				this.getTop() + offsetY);
 	this.bringToFront();
@@ -1165,8 +1125,8 @@ Widget.prototype.redraw = function(bForceAll, w) {
 
 Widget.prototype.print = function(expand) {
 	var oWidget = this;
-	var iframe = document.getElementById('_print');
 	expand = expand || false;
+	var iframe = document.getElementById('_print');
 	if (!iframe) {
 		var iframe = ce('IFRAME');
 		iframe.name = '_print';
@@ -1193,26 +1153,114 @@ Widget.prototype.print = function(expand) {
 	}
 }
 
-Widget.prototype.attachEvent = function(eventType, f, w) {
+//events sub-system
+Widget.prototype.supportedEvents = [
+	'onmousedown','onmouseup',
+	'onmousemove','onmouseover','onmouseout',
+	'onkeypress','onkeyup',
+	'onclick','ondblclick',
+	'oncontextmenu'
+];
+
+Widget.prototype.customEvents = ['onload'];
+
+Widget.prototype._registerHandler = function(evt_type, handler, isCustom, w) {
 	var w = w || this;
-	if (w._registry[eventType]) {
-		w.detachEvent(eventType,w);
-	}
-	if (f) {
-		if (typeof f=='string')
-			f = getEventListener(f);
-		var handler = function(e){return f(e, w)};
-		w._registry[eventType] = handler;
-	}
+	var char = (w._isDisabled)?'*':'';
+	if (!isCustom)
+		w._registry[char + evt_type] = function(evt){return handler(evt || event, w)};
 	else
-		handler = w._registry[eventType];
-	if (!w._isDisabled)
-		w.div.attachEvent(eventType, handler);
+		w._customRegistry[char + evt_type] = handler;
 }
 
-Widget.prototype.detachEvent = function(eventType, w) {
+Widget.prototype._buildEventRegistry = function(params) {
+	this._registry = {};
+	this._customRegistry = {};
+	var i;
+	// register DOM events
+	for (i=0; i<this.supportedEvents.length; i++) {
+		var evt_type = this.supportedEvents[i];
+		if (params[evt_type])
+			this._registerHandler(evt_type, getEventListener(params[evt_type]), false);
+	}
+	//register custom events
+	for (i=0; i<this.customEvents.length; i++) {
+		var evt_type = this.customEvents[i];
+		if (params[evt_type])
+			this._registerHandler(evt_type, getEventListener(params[evt_type]), true);
+	}
+}
+
+Widget.prototype._attachEvents = function() {
+	for (var evt_type in this._registry) {
+		if (evt_type!='toXMLRPC' && evt_type.slice(0,1)!='_') {
+			if (evt_type.slice(0,1)=='*') evt_type=evt_type.slice(1, evt_type.length);
+			this.attachEvent(evt_type, null);//restore events directly from registry
+		}
+	}
+}
+
+Widget.prototype._detachEvents = function(w) {
 	var w = w || this;
-	w.div.detachEvent(eventType, w._registry[eventType]);
+	var first_char;
+	for (var evt_type in w._registry) {
+		first_char = evt_type.slice(0,1);
+		if (evt_type!='toXMLRPC' && first_char!='_' && first_char!='*')
+			w.detachEvent(evt_type, '*');
+	}
+}
+
+Widget.prototype._getHandler = function(eventType, f) {
+	var f = getEventListener(f);
+	if (!f) {//restore from registry
+		f = this._registry[eventType] ||
+			this._registry['_' + eventType] ||
+			this._registry['*' + eventType] ||
+			this._customRegistry[eventType] ||
+			this._customRegistry['_' + eventType] ||
+			this._customRegistry['*' + eventType];
+	}
+	return f;
+}
+
+Widget.prototype.attachEvent = function(eventType, f, w) {
+	var w = w || this;
+	var isCustom = w.customEvents.hasItem(eventType);
+	var registry = (isCustom)?w._customRegistry:w._registry;
+	var f = w._getHandler(eventType, f);
+	
+	if (f) {
+		if (!w._isDisabled && !isCustom)
+			w.detachEvent(eventType);
+		if (f!=registry[eventType])
+			w._registerHandler(eventType, f, isCustom);
+	}
+
+	if (registry['_' + eventType])
+		delete registry['_' + eventType];
+	
+	if (!w._isDisabled && registry['*' + eventType])
+		delete registry['*' + eventType];
+
+	if (!w._isDisabled && !isCustom) {
+		w.div.attachEvent(eventType, registry[eventType]);
+	}
+}
+
+Widget.prototype.detachEvent = function(eventType, char) {
+	var registry = null;
+	var char = char || '_';
+	if (this._registry[eventType]) {
+		this.div.detachEvent(eventType, this._registry[eventType]);
+		registry = this._registry;
+	}
+	else if (this._customRegistry[eventType]) {
+		registry = this._customRegistry;
+	}
+	if (registry) {
+		registry[char + eventType] = registry[eventType];
+		delete registry[eventType];
+	}
 }
 
 function Widget__contextmenu(evt, w) {
@@ -1225,11 +1273,11 @@ function Desktop(params, root) {
 	params.id = 'desktop';
 	params.width = 'document.documentElement.clientWidth';
 	params.height = 'document.documentElement.clientHeight';
-	params.onmousedown = QuiX.getEventWrapper(Desktop__onmousedown, params.onmousedown);
-	params.oncontextmenu = function() {return false}
+	params.onmousedown = Desktop__onmousedown;
+	params.oncontextmenu = Desktop__onmousedown;
 	this.base(params);
 	this.setPosition();
-	this.div.onselectstart = function(){return(false)};
+	this.div.onselectstart = function(){return false};
 	this._setCommonProps();
 	this.div.innerHTML = '<p align="right" style="color:#666666;margin:0px;">QuiX v' + QuiX.version + '</p>';
 	root.appendChild(this.div);
@@ -1284,6 +1332,8 @@ Desktop.prototype.msgbox = function(mtitle, message, buttons, image, mleft, mtop
 
 function Desktop__onmousedown(evt, w) {
 	QuiX.cleanupOverlays();
+	QuiX.cancelDefault(evt);
+	return false;
 }
 
 // progress bar
