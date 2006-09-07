@@ -171,7 +171,7 @@ XMLRPCRequest.prototype.processResult = function() {
 				//Check for XMLRPC Errors
 				rpcErr = dom.getElementsByTagName("fault");
 				if(rpcErr.length > 0) {
-					rpcErr = this.toObject(this.getNode(rpcErr[0], [0]));
+					rpcErr = this.toObject(this.getNode(rpcErr[0], 0));
 					throw new QuiX.Exception(rpcErr.faultCode, rpcErr.faultString);
 		   		}
 	
@@ -180,7 +180,7 @@ XMLRPCRequest.prototype.processResult = function() {
 				if (main.length == 0) {
 					throw new QuiX.Exception('Malformed XMLRPC response', this.xmlhttp.responseText)
 				}
-				data = this.toObject(this.getNode(main[0], [0]));
+				data = this.toObject(this.getNode(main[0], 0));
 				return data;
 			}
 			else {
@@ -196,23 +196,18 @@ XMLRPCRequest.prototype.processResult = function() {
 	}
 }
 
-XMLRPCRequest.prototype.getNode = function(data, tree) {
+XMLRPCRequest.prototype.getNode = function(data, len) {
 	var nc = 0; //nodeCount
 	if(data != null) {
 		for(i=0;i<data.childNodes.length;i++) {
 			if(data.childNodes[i].nodeType == 1) {
-				if(nc == tree[0]) {
-					data = data.childNodes[i];
-					if(tree.length > 1) {
-						tree.shift();
-						data = this.getNode(data, tree);
-					}
-					return data;
-				}
-				nc++
+				if(nc == len)
+					return data.childNodes[i];
+				else
+					nc++
 			}
 		}
-	}	
+	}
 	return false;
 }
 
@@ -238,28 +233,30 @@ XMLRPCRequest.prototype.toObject = function(data) {
 			return ( new Date().parseIso8601(data.firstChild.nodeValue) );
 			break;
 		case "array":
-			data = this.getNode(data, [0]);
+			data = this.getNode(data, 0);
 			if(data && data.tagName == "data") {
-				ret = new Array();
-				var i = 0;
-				while(child = this.getNode(data, [i++])) {
-					ret.push(this.toObject(child));
+				ret = [];
+				for(var i = 0;i<data.childNodes.length;++i)
+				{
+					var elem = data.childNodes[i];
+					if (elem.nodeType == 1) ret.push(this.toObject(elem));
 				}
 				return ret;
 			}
-			else {
+			else
 				throw new QuiX.Exception('Malformed XMLRPC response', 'Bad array.');
-			}
 			break;
 		case "struct":
 			ret = {};
-			var i = 0;
-			while(child = this.getNode(data, [i++])) {
-				if(child.tagName == "member") {
-					ret[this.getNode(child, [0]).firstChild.nodeValue] = this.toObject(this.getNode(child, [1]));
-				}
-				else {
-					throw new QuiX.Exception('Malformed XMLRPC response', "'member' element expected, found '" + child.tagName + "' instead");
+			for (var i = 0;i<data.childNodes.length;++i)
+			{
+				var elem = data.childNodes[i];
+				if (elem.nodeType == 1)
+				{
+					if(elem.tagName == "member")
+						ret[this.getNode(elem,0).firstChild.nodeValue] = this.toObject(this.getNode(elem, 1));
+					else
+						throw new QuiX.Exception('Malformed XMLRPC response', "'member' element expected, found '" + child.tagName + "' instead");
 				}
 			}
 			return ret;
@@ -273,7 +270,7 @@ XMLRPCRequest.prototype.toObject = function(data) {
 			break;
 */
 		case "value":
-			child = this.getNode(data, [0]);
+			child = this.getNode(data, 0);
 			return (!child) ? ((data.firstChild) ? new String(data.firstChild.nodeValue) : "") : this.toObject(child);
 			break;
 		default:
