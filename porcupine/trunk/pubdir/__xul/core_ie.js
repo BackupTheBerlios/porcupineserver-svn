@@ -118,8 +118,8 @@ QuiX.removeWidget = function(w) {
 }
 QuiX.createOutline = function(w) {
 	var oW = new Widget({
-		left:w.left,
-		top:w.top,
+		left:w.getLeft(),
+		top:w.getTop(),
 		width:w.getWidth(true),
 		height:w.getHeight(true),
 		border:2,
@@ -932,7 +932,7 @@ Widget.prototype._calcPos = function(left, offset, getWidth) {
 	}
 	else {
 		if (left!='center')
-			return(eval(left) + offset || 0);
+			return( (eval(left) + offset) || 0 );
 		else 
 			return parseInt((this.parent[getWidth]()/2) - (this[getWidth](true)/2)) || 0;
 	}
@@ -1116,7 +1116,7 @@ Widget.prototype.redraw = function(bForceAll, w) {
 			w._setCommonProps();
 			if (w.getPosition()!='') w._setAbsProps();
 			for (var i=0; i<w.widgets.length; i++) {
-				if (w.widgets[i]._mustRedraw() || bForceAll) w.widgets[i].redraw(bForceAll);
+				if (bForceAll || w.widgets[i]._mustRedraw()) w.widgets[i].redraw(bForceAll);
 			}
 			if (sOverflow != 'hidden') w.setOverflow(sOverflow);
 		}
@@ -1274,7 +1274,7 @@ function Desktop(params, root) {
 	params.width = 'document.documentElement.clientWidth';
 	params.height = 'document.documentElement.clientHeight';
 	params.onmousedown = Desktop__onmousedown;
-	params.oncontextmenu = Desktop__onmousedown;
+	params.oncontextmenu = Desktop__oncontextmenu;
 	this.base(params);
 	this.setPosition();
 	this.div.onselectstart = function(){return false};
@@ -1334,6 +1334,10 @@ function Desktop__onmousedown(evt, w) {
 	QuiX.cleanupOverlays();
 	QuiX.cancelDefault(evt);
 	return false;
+}
+
+function Desktop__oncontextmenu(evt, w) {
+	QuiX.cancelDefault(evt);
 }
 
 // progress bar

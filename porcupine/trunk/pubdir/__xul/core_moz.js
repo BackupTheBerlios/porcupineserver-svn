@@ -125,8 +125,8 @@ QuiX.removeWidget = function(w) {
 }
 QuiX.createOutline = function(w) {
 	var oW = new Widget({
-		left:w.left,
-		top:w.top,
+		left:w.getLeft(),
+		top:w.getTop(),
 		width:w.getWidth(true),
 		height:w.getHeight(true),
 		border:2,
@@ -937,7 +937,7 @@ Widget.prototype._calcPos = function(left, offset, getWidth) {
 	}
 	else {
 		if (left!='center')
-			return(eval(left) + offset || 0);
+			return( (eval(left) + offset) || 0 );
 		else 
 			return parseInt((this.parent[getWidth]()/2) - (this[getWidth](true)/2)) || 0;
 	}
@@ -1300,7 +1300,7 @@ function Desktop(params, root) {
 	params.height = 'document.documentElement.clientHeight';
 	params.overflow = 'hidden';
 	params.onmousedown = Desktop__onmousedown;
-	params.oncontextmenu = Desktop__onmousedown;
+	params.oncontextmenu = Desktop__oncontextmenu;
 	this.base(params);
 	this._setCommonProps();
 	this.div.innerHTML = '<p align="right" style="color:#666666;margin:0px;">QuiX v' + QuiX.version + '</p>';
@@ -1359,6 +1359,10 @@ function Desktop__onmousedown(evt, w) {
 	QuiX.cleanupOverlays();
 	QuiX.cancelDefault(evt);
 	return false;
+}
+
+function Desktop__oncontextmenu(evt, w) {
+	QuiX.cancelDefault(evt);
 }
 
 // progress bar
