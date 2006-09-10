@@ -117,8 +117,8 @@ TreeNode.prototype.setCaption = function(sCaption) {
 
 TreeNode.prototype.toggle = function() {
 	if (!this.isExpanded) {
-		if (this.tree.onexpand)
-			getEventListener(this.tree.onexpand)(this);
+		if (this.tree._customRegistry.onexpand)
+			this.tree._customRegistry.onexpand(this);
 		for (var i=0; i < this.childNodes.length; i++) {
 			this.childNodes[i].setDisplay();
 		}
@@ -158,11 +158,8 @@ function Tree(params) {
 	this.base(params);
 	
 	this.div.className = 'tree';
-	if (params) {
+	if (params)
 		this.levelpadding = params.levelpadding || 14;
-		this.onexpand = params.onexpand;
-		this.onselect = params.onselect;
-	}
 	
 	this.selectedWidget = null;
 	this.roots = this.widgets;
@@ -170,13 +167,15 @@ function Tree(params) {
 
 Tree.prototype = new Widget;
 
+Tree.prototype.customEvents = Widget.prototype.customEvents.concat(['onexpand', 'onselect']);
+
 Tree.prototype.selectNode = function(w) {
 	if (this.selectedWidget)
 		this.selectedWidget.anchor.className = '';
 	w.anchor.className = 'selected';
 	this.selectedWidget = w;
-	if (this.onselect)
-		getEventListener(this.onselect)(w);
+	if (this._customRegistry.onselect)
+		this._customRegistry.onselect(w);
 }
 
 Tree.prototype.getSelection = function() {
@@ -189,8 +188,8 @@ function FolderTree(params) {
 	this.base(params);
 
 	this.method = params.method;
-	this._onexpand = this.onexpand;
-	this.onexpand = this.loadSubfolders;
+	this._onexpand = this._customRegistry.onexpand;
+	this.attachEvent('onexpand', this.loadSubfolders);
 }
 
 FolderTree.prototype = new Tree;
@@ -215,5 +214,5 @@ FolderTree.prototype.load_oncomplete = function(req) {
 		treeNode.appendChild(newNode);
 	}
 	if (this._onexpand)
-		getEventListener(this._onexpand)(treeNode);
+		this._onexpand(treeNode);
 }
