@@ -65,7 +65,7 @@ QuiX.modules = [
 	new Module('Forms & Fields', '__xul/formfields.js', [3]),
 	new Module('Common Widgets', '__xul/common.js', [3]),
 	new Module('Datagrid', '__xul/datagrid.js', [5,8]),
-	new Module('File Control', '__xul/file.js', [3,8]),
+	new Module('File Control', '__xul/file.js', [1,3,8]),
 	new Module('Date Picker', '__xul/datepicker.js', [14]),
 	new Module('Timers', '__xul/timers.js', []),
 	new Module('Forms & Fields 2', '__xul/formfields2.js', [3]),
