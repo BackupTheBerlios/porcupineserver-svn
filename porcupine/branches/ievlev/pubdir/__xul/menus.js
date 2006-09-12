@@ -152,7 +152,8 @@ function ContextMenu(params, owner) {
 		id : params.id,
 		width : 100,
 		border : 1,
-		onmousedown : QuiX.stopPropag
+		onmousedown : QuiX.stopPropag,
+		onshow : params.onshow
 	});
 	var rect = new Widget({
 		width: '22',
@@ -166,11 +167,12 @@ function ContextMenu(params, owner) {
 	this.options = [];
 	this.owner = owner;
 	this.activeSub = null;
-	this.onshow = getEventListener(params.onshow);
 	this.isOpen = false;
 }
 
 ContextMenu.prototype = new Widget;
+
+ContextMenu.prototype.customEvents = Widget.prototype.customEvents.concat(['onshow']);
 
 ContextMenu.prototype.redraw = function(bForceAll) {
 	var oOption, optionWidth;
@@ -182,7 +184,7 @@ ContextMenu.prototype.redraw = function(bForceAll) {
 			optionWidth = oOption.div.getElementsByTagName('SPAN')[0].offsetWidth + 26;
 		} else
 			optionWidth = oOption.div.offsetWidth;
-		if (optionWidth > this.width)
+		if (optionWidth + 2 > this.width)
 			this.width = optionWidth + 16;
 		iHeight += oOption.div.offsetHeight;
 	}
@@ -199,12 +201,13 @@ ContextMenu.prototype.redraw = function(bForceAll) {
 
 ContextMenu.prototype.show = function(w, x, y) {
 	if (!this.isOpen) {
-		if (this.onshow) this.onshow(this);
+		if (this._customRegistry.onshow)
+			this._customRegistry.onshow(this);
 		this.left = x;
 		this.top = y;
 		w.appendChild(this);
 		this.bringToFront();
-		
+
 		if (w==document.desktop)
 			document.desktop.overlays.push(this);
 		

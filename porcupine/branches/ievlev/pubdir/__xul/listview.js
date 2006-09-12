@@ -56,6 +56,7 @@ ListView.prototype.addHeader = function(params, w) {
 	oListview.header.div.className = 'listheader';
 	oListview.header.div.innerHTML = '<table cellspacing="0" width="100%" height="100%"><tr><td class="column filler">&nbsp;</td></tr></table>';
 	oListview.header.div.style.backgroundPosition = '0px ' + (params.height-22) + 'px';
+	oListview.header.redraw = ListViewHeader__redraw;
 	
 	var oRow = oListview.header.div.firstChild.rows[0];
 	oListview.columns = oRow.cells;
@@ -209,11 +210,21 @@ ListView.prototype.sort = function(column) {
 ListView.prototype.addColumn = function(params, w) {
 	var oListView = w || this;
 	var oCol = ce('TD');
+	var header_width, perc;
+	
 	oCol.className = 'column';
 	oCol.columnBgColor = params.bgcolor || '';
 	oCol.style.padding = '0px ' + oListView.cellPadding + 'px 0px ' + oListView.cellPadding + 'px';
-	if (params.width)
+
+	if (params.width.slice(params.width.length-1) == '%') {
+		header_width = oListView.header.getWidth();
+		perc = parseInt(params.width) / 100;
+		oCol.style.width = parseInt(header_width * perc) - 2*this.cellPadding - 2 + 'px';
+		oCol.proportion = perc;
+	}
+	else
 		oCol.style.width = (params.width - 2*oListView.cellPadding - 2*oListView.cellBorder) + 'px';
+
 	oCol.setCaption = ListColumn__setCaption;
 	oCol.getCaption = ListColumn__getCaption;
 
@@ -227,7 +238,7 @@ ListView.prototype.addColumn = function(params, w) {
 		oCol._xform = getEventListener(oCol.xform);
 	}
 	
-	oCol.sortable = (params.sortable=='false')?false:true;
+	oCol.sortable = (params.sortable=='false' || params.sortable==false)?false:true;
 	if (oCol.sortable) {
 		oCol.style.cursor = 'pointer';
 		oCol.onclick = function(evt){
@@ -246,22 +257,15 @@ ListView.prototype.addColumn = function(params, w) {
 		
 	oCol.columnAlign = params.align || 'left';
 	
-	var iOffset;
-	if (oListView.header.widgets.length>0)
-		iOffset = oListView.header.widgets[oListView.header.widgets.length - 1].left;
-	else
-		iOffset = (oListView.hasSelector)?10:-2;
-	
 	var resizer = new Widget({
 		width : 4,
 		height : oListView.header._calcHeight(true),
-		left : iOffset + parseInt(params.width) + (oListView.cellPadding/2) - (2*oListView.cellBorder),
-		overflow : 'hidden',
-		border : 0
+		left : 'this.parent.parent._calcResizerOffset(this)',
+		overflow : 'hidden'
 	});
 	oListView.header.appendChild(resizer);
 	
-	oCol.isResizable = (params.resizable=='false')?false:true;
+	oCol.isResizable = (params.resizable=='false' || params.resizable==false)?false:true;
 	if (oCol.isResizable) {
 		var iColumn = oListView.columns.length - 1;
 		resizer.div.className = 'resizer';
@@ -270,6 +274,25 @@ ListView.prototype.addColumn = function(params, w) {
 		});
 	}
 	return oCol;
+}
+
+ListView.prototype._calcResizerOffset = function(w) {
+	var oHeader = this.header;
+	var left = (this.hasSelector)?10:0;
+	var offset = 2 * parseInt(this.cellPadding);
+	var column_width;
+	for (var i=this._deadCells; i<this.columns.length; i++) {
+		column_width = parseInt(this.columns[i].style.width);
+		left += column_width + offset;
+
+		if (this.list.rows.length > 0)
+			this.list.rows[0].cells[i].style.width =
+				column_width - this.cellBorder + 'px';
+
+		if (oHeader.widgets[i - this._deadCells]==w) break;
+	}
+	left += (2*i);
+	return left;
 }
 
 ListView.prototype._moveResizer = function(evt, iResizer) {
@@ -283,7 +306,7 @@ ListView.prototype._moveResizer = function(evt, iResizer) {
 
 ListView.prototype._resizerMoving = function(evt, iResizer) {
 	var offsetX = evt.clientX - QuiX.startX;
-	if (offsetX>-parseInt(this.columns[iResizer + this._deadCells].style.width))
+	if ( offsetX > -(this.columns[iResizer + this._deadCells].offsetWidth - 2*this.cellPadding - this.cellBorder) )
 		QuiX.tmpWidget.moveTo(this.header.widgets[iResizer]._calcLeft() + offsetX,
 			this.header.widgets[iResizer]._calcTop());
 }
@@ -292,14 +315,13 @@ ListView.prototype._endMoveResizer = function(evt, iResizer) {
 	var iColumn = iResizer + this._deadCells;
 	var offsetX = evt.clientX - QuiX.startX;
 	var nw = parseInt(this.columns[iColumn].style.width) + offsetX;
-	nw = (nw<2*this.cellPadding)?2*this.cellPadding:nw;
-	var iOldWidth = parseInt(this.columns[iColumn].style.width);
+	nw = (nw < 2*this.cellPadding)?2*this.cellPadding:nw;
+	
 	this.columns[iColumn].style.width = nw + 'px';
-	if (this.list.rows.length > 0)
-		this.list.rows[0].cells[iColumn].style.width = nw- this.cellBorder + 'px';
-	for (var i=iResizer; i<this.columns.length - this._deadCells; i++)
-		this.header.widgets[i].left += nw - iOldWidth;
+	if (this.columns[iColumn].proportion)
+		this.columns[iColumn].proportion = 0;
 	this.header.redraw(true);
+	
 	ListView__onscroll(null, this);
 	QuiX.tmpWidget.destroy();
 	this.detachEvent('onmouseup');
@@ -308,7 +330,7 @@ ListView.prototype._endMoveResizer = function(evt, iResizer) {
 
 ListView.prototype.refresh = function() {
 	var oRow, oCell, selector, sPad, oFiller, oListTable;
-	var oValue;
+	var oValue, column_width, offset;
 	var tbody = document.createElement("tbody");
 	var docFragment = document.createDocumentFragment();
 	// create rows
@@ -321,10 +343,12 @@ ListView.prototype.refresh = function() {
 			oRow.appendChild(selector);
 		}
 		for (var j=0 + this._deadCells; j<this.columns.length-1; j++) {
-			var oCell = ce('TD');
+			oCell = ce('TD');
 			oCell.className = 'cell';
-			if (i==0 && this.columns[j].style.width)
-				oCell.style.width = parseInt(this.columns[j].style.width) - this.cellBorder + 'px';
+			column_width = this.columns[j].style.width;
+			if (i==0 && column_width) {
+				oCell.style.width = parseInt(column_width) - this.cellBorder + 'px';
+			}
 
 			oCell.style.borderWidth = this.cellBorder + 'px';
 			sPad = (this.cellPadding + 1) + 'px';
@@ -436,5 +460,17 @@ function ListColumn__setCaption(s) {
 
 function ListColumn__getCaption(s) {
 	return this.firstChild.innerHTML;
+}
+
+function ListViewHeader__redraw(bForceAll) {
+	var columns = this.parent.columns;
+	var header_width = this._calcWidth();
+	for (var i = this.parent._deadCells; i<columns.length; i++) {
+		if (columns[i].proportion) {
+			columns[i].style.width = parseInt(header_width * columns[i].proportion) -
+									 2*this.parent.cellPadding - 2 + 'px';
+		}
+	}
+	Widget.prototype.redraw(bForceAll, this);
 }
 
