@@ -135,13 +135,37 @@ QuiX.cleanupOverlays = function() {
 	var ovr = document.desktop.overlays;
 	while (ovr.length>0) ovr[0].close();
 }
+
+QuiX.addEvent = function(el, type, proc) {
+	if (el.addEventListener) {
+		el.addEventListener(type.slice(2,type.length), proc, false);
+		return true;
+	} else if (el.attachEvent) {
+		return el.attachEvent(type, proc);
+	}
+}
+
+QuiX.removeEvent = function(el, type, proc) {
+	if (el.removeEventListener) {
+		el.removeEventListener(type.slice(2,type.length), proc, false);
+		return true;
+	} else if (el.detachEvent) {
+		return el.detachEvent(type, proc);
+	}
+}
+
 QuiX.stopPropag = function(evt) {
-	var evt = evt || event;
-	evt.cancelBubble=true;
+	if (evt && evt.stopPropagation) evt.stopPropagation();
+	else if (window.event && window.event.event.cancelBubble)
+		window.event.cancelBubble = true;
 }
+
 QuiX.cancelDefault = function(evt) {
-	evt.returnValue = false;
+	if (evt && evt.preventDefault) evt.preventDefault();
+	else if (window.event && window.event.returnValue)
+		window.event.returnValue = false;
 }
+
 QuiX.getTarget = function(evt) {
 	return evt.srcElement;
 }
@@ -1238,20 +1262,19 @@ Widget.prototype.attachEvent = function(eventType, f, w) {
 
 	if (registry['_' + eventType])
 		delete registry['_' + eventType];
-	
+
 	if (!w._isDisabled && registry['*' + eventType])
 		delete registry['*' + eventType];
 
-	if (!w._isDisabled && !isCustom) {
-		w.div.attachEvent(eventType, registry[eventType]);
-	}
+	if (!w._isDisabled && !isCustom)
+		QuiX.addEvent(w.div, eventType, w._registry[eventType]);
 }
 
 Widget.prototype.detachEvent = function(eventType, char) {
 	var registry = null;
 	var char = char || '_';
 	if (this._registry[eventType]) {
-		this.div.detachEvent(eventType, this._registry[eventType]);
+		QuiX.removeEvent(this.div, eventType, this._registry[eventType]);
 		registry = this._registry;
 	}
 	else if (this._customRegistry[eventType]) {
