@@ -216,14 +216,16 @@ ListView.prototype.addColumn = function(params, w) {
 	oCol.columnBgColor = params.bgcolor || '';
 	oCol.style.padding = '0px ' + oListView.cellPadding + 'px 0px ' + oListView.cellPadding + 'px';
 
-	if (params.width.slice(params.width.length-1) == '%') {
-		header_width = oListView.header.getWidth();
-		perc = parseInt(params.width) / 100;
-		oCol.style.width = parseInt(header_width * perc) - 2*this.cellPadding - 2 + 'px';
-		oCol.proportion = perc;
+	if (params.width) {
+		if (params.width.slice(params.width.length-1) == '%') {
+			header_width = oListView.header.getWidth();
+			perc = parseInt(params.width) / 100;
+			oCol.style.width = parseInt(header_width * perc) - 2*this.cellPadding - 2 + 'px';
+			oCol.proportion = perc;
+		}
+		else
+			oCol.style.width = (params.width - 2*oListView.cellPadding - 2*oListView.cellBorder) + 'px';
 	}
-	else
-		oCol.style.width = (params.width - 2*oListView.cellPadding - 2*oListView.cellBorder) + 'px';
 
 	oCol.setCaption = ListColumn__setCaption;
 	oCol.getCaption = ListColumn__getCaption;
