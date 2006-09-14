@@ -1216,11 +1216,11 @@ Widget.prototype.customEvents = ['onload'];
 
 Widget.prototype._registerHandler = function(evt_type, handler, isCustom, w) {
 	var w = w || this;
-	var char = (w._isDisabled)?'*':'';
+	var chr = (w._isDisabled)?'*':'';
 	if (!isCustom)
-		w._registry[char + evt_type] = function(evt){return handler(evt || event, w)};
+		w._registry[chr + evt_type] = function(evt){return handler(evt || event, w)};
 	else
-		w._customRegistry[char + evt_type] = handler;
+		w._customRegistry[chr + evt_type] = handler;
 }
 
 Widget.prototype._buildEventRegistry = function(params) {
@@ -1296,9 +1296,9 @@ Widget.prototype.attachEvent = function(eventType, f, w) {
 		QuiX.addEvent(w.div, eventType, w._registry[eventType]);
 }
 
-Widget.prototype.detachEvent = function(eventType, char) {
+Widget.prototype.detachEvent = function(eventType, chr) {
 	var registry = null;
-	var char = char || '_';
+	var chr = chr || '_';
 	if (this._registry[eventType]) {
 		QuiX.removeEvent(this.div, eventType, this._registry[eventType]);
 		registry = this._registry;
@@ -1307,7 +1307,7 @@ Widget.prototype.detachEvent = function(eventType, char) {
 		registry = this._customRegistry;
 	}
 	if (registry) {
-		registry[char + eventType] = registry[eventType];
+		registry[chr + eventType] = registry[eventType];
 		delete registry[eventType];
 	}
 }
