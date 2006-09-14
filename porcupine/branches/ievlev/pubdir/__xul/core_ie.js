@@ -156,7 +156,7 @@ QuiX.removeEvent = function(el, type, proc) {
 
 QuiX.stopPropag = function(evt) {
 	if (evt && evt.stopPropagation) evt.stopPropagation();
-	else if (window.event && window.event.event.cancelBubble)
+	else if (window.event && window.event.cancelBubble)
 		window.event.cancelBubble = true;
 }
 
