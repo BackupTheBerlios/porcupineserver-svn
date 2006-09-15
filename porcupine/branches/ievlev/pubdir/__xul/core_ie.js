@@ -156,14 +156,12 @@ QuiX.removeEvent = function(el, type, proc) {
 
 QuiX.stopPropag = function(evt) {
 	if (evt && evt.stopPropagation) evt.stopPropagation();
-	else if (window.event && window.event.cancelBubble)
-		window.event.cancelBubble = true;
+	else if (window.event) window.event.cancelBubble = true;
 }
 
 QuiX.cancelDefault = function(evt) {
 	if (evt && evt.preventDefault) evt.preventDefault();
-	else if (window.event && window.event.returnValue)
-		window.event.returnValue = false;
+	else if (window.event) window.event.returnValue = false;
 }
 
 QuiX.getTarget = function(evt) {
