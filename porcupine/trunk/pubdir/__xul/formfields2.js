@@ -22,7 +22,6 @@ function Combo(params) {
 	this.selection = null;
 	this.isExpanded = false;
 	this.attachEvent('onmousedown', QuiX.stopPropag);
-	this.onchange = params.onchange;
 
 	var e = ce('INPUT');
 	e.style.borderWidth = '1px';
@@ -85,8 +84,8 @@ function Combo(params) {
 		e.value = (params.value)?params.value:'';
 		if (!this.readonly) {
 			e.onchange = function() {
-				if (oCombo.onchange)
-					getEventListener(oCombo.onchange)(oCombo);
+				if (oCombo._customRegistry.onchange)
+					getEventListener(oCombo._customRegistry.onchange)(oCombo);
 			}
 		}
 		else
@@ -100,6 +99,8 @@ function Combo(params) {
 }
 
 Combo.prototype = new Widget;
+
+Combo.prototype.customEvents = Widget.prototype.customEvents.concat(['onchange']);
 
 Combo.prototype._adjustFieldSize = function() {
 	if (this.div.firstChild) {
@@ -145,8 +146,8 @@ Combo.prototype.setValue = function(value) {
 				opt.selected = true;
 				this.div.firstChild.value = opt.getCaption();
 				if (value != old_value)
-					if (this.onchange)
-						getEventListener(this.onchange)(this);
+					if (this._customRegistry.onchange)
+						getEventListener(this._customRegistry.onchange)(this);
 				return;
 			}
 		}
