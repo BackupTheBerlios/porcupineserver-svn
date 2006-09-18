@@ -88,7 +88,7 @@ function GroupBox(params) {
 
 GroupBox.prototype = new Widget;
 
-GroupBox.prototype.customEvents = Widget.prototype.customEvents.concat(['onactivate', 'ondeactivate']);
+GroupBox.prototype.customEvents = Widget.prototype.customEvents.concat(['onstatechange']);
 
 GroupBox.prototype.setBgColor = function(color) {
 	Widget.prototype.setBgColor(color,this);
@@ -108,16 +108,12 @@ GroupBox.prototype.setValue = function(value) {
 
 function GroupBox__checkBody(evt ,w) {
 	var box = w.parent;
-	if (w.getValue()) {
+	if (w.getValue())
 		box.body.enable();
-		if (box._customRegistry.onactivate)
-			box._customRegistry.onactivate(evt, box);
-	}
-	else {
+	else
 		box.body.disable();
-		if (box._customRegistry.ondeactivate)
-			box._customRegistry.ondeactivate(evt, box);
-	}
+	if (box._customRegistry.onstatechange)
+		box._customRegistry.onstatechange(evt, box);
 	if (evt)
 		QuiX.stopPropag(evt);
 }
