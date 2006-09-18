@@ -142,13 +142,35 @@ QuiX.cleanupOverlays = function() {
 	var ovr = document.desktop.overlays;
 	while (ovr.length>0) ovr[0].close();
 }
+
+QuiX.addEvent = function(el, type, proc) {
+	if (el.addEventListener) {
+		el.addEventListener(type.slice(2,type.length), proc, false);
+		return true;
+	} else if (el.attachEvent) {
+		return el.attachEvent(type, proc);
+	}
+}
+
+QuiX.removeEvent = function(el, type, proc) {
+	if (el.removeEventListener) {
+		el.removeEventListener(type.slice(2,type.length), proc, false);
+		return true;
+	} else if (el.detachEvent) {
+		return el.detachEvent(type, proc);
+	}
+}
+
 QuiX.stopPropag = function(evt) {
-	var evt = evt || event;
-	evt.stopPropagation();
+	if (evt && evt.stopPropagation) evt.stopPropagation();
+	else if (window.event) window.event.cancelBubble = true;
 }
+
 QuiX.cancelDefault = function(evt) {
-	evt.preventDefault();
+	if (evt && evt.preventDefault) evt.preventDefault();
+	else if (window.event) window.event.returnValue = false;
 }
+
 QuiX.getTarget = function(evt) {
 	return evt.target;
 }
@@ -652,7 +674,7 @@ function Widget(params) {
 	if (params.overflow)
 		this.setOverflow(params.overflow);
 	this.setPosition('absolute');
-	
+
 	this._buildEventRegistry(params);
 	this._attachEvents();
 
@@ -1220,7 +1242,7 @@ Widget.prototype._buildEventRegistry = function(params) {
 Widget.prototype._attachEvents = function() {
 	for (var evt_type in this._registry) {
 		if (evt_type!='toXMLRPC' && evt_type.slice(0,1)!='_') {
-			if (evt_type.slice(0,1)=='*') evt_type=evt_type.slice(1,evt_type.length);
+			if (evt_type.slice(0,1)=='*') evt_type=evt_type.slice(1, evt_type.length);
 			this.attachEvent(evt_type, null);//restore events directly from registry
 		}
 	}
@@ -1264,19 +1286,19 @@ Widget.prototype.attachEvent = function(eventType, f, w) {
 
 	if (registry['_' + eventType])
 		delete registry['_' + eventType];
-	
+
 	if (!w._isDisabled && registry['*' + eventType])
 		delete registry['*' + eventType];
-	
+
 	if (!w._isDisabled && !isCustom)
-		w.div.addEventListener(eventType.slice(2,eventType.length), w._registry[eventType], false);
+		QuiX.addEvent(w.div, eventType, w._registry[eventType]);
 }
 
 Widget.prototype.detachEvent = function(eventType, chr) {
 	var registry = null;
 	var chr = chr || '_';
 	if (this._registry[eventType]) {
-		this.div.removeEventListener(eventType.slice(2,eventType.length), this._registry[eventType], false);
+		QuiX.removeEvent(this.div, eventType, this._registry[eventType]);
 		registry = this._registry;
 	}
 	else if (this._customRegistry[eventType]) {
