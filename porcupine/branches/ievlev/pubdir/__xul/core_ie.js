@@ -32,7 +32,6 @@ function Clipboard() {
 	this.items = [];
 }
 
-var QuiX = function() {}
 QuiX.version = '0.5 build 20060629';
 QuiX.namespace = 'http://www.innoscript.org/quix';
 QuiX.browser = 'ie';
@@ -134,34 +133,6 @@ QuiX.createOutline = function(w) {
 QuiX.cleanupOverlays = function() {
 	var ovr = document.desktop.overlays;
 	while (ovr.length>0) ovr[0].close();
-}
-
-QuiX.addEvent = function(el, type, proc) {
-	if (el.addEventListener) {
-		el.addEventListener(type.slice(2,type.length), proc, false);
-		return true;
-	} else if (el.attachEvent) {
-		return el.attachEvent(type, proc);
-	}
-}
-
-QuiX.removeEvent = function(el, type, proc) {
-	if (el.removeEventListener) {
-		el.removeEventListener(type.slice(2,type.length), proc, false);
-		return true;
-	} else if (el.detachEvent) {
-		return el.detachEvent(type, proc);
-	}
-}
-
-QuiX.stopPropag = function(evt) {
-	if (evt && evt.stopPropagation) evt.stopPropagation();
-	else if (window.event) window.event.cancelBubble = true;
-}
-
-QuiX.cancelDefault = function(evt) {
-	if (evt && evt.preventDefault) evt.preventDefault();
-	else if (window.event) window.event.returnValue = false;
 }
 
 QuiX.getTarget = function(evt) {
@@ -736,7 +707,7 @@ Widget.prototype.parseFromString = function(s, oncomplete) {
 }
 
 Widget.prototype.parseFromUrl = function(url, oncomplete) {
-	var xmlhttp = new ActiveXObject("microsoft.xmlhttp");
+	var xmlhttp = QuiX.XMLHttpRequest();
 	var oWidget = this;
 	xmlhttp.onreadystatechange = function() {
 		if (xmlhttp != null && xmlhttp.readyState==4) {

@@ -123,11 +123,7 @@ function _getXml(obj) {
 function XMLRPCRequest(sUrl,async) {
 	this.async = ((typeof async) == "undefined")?true:async;
 	this.url = sUrl;
-	/* FIXME: add checking for opera here in the future
-	          right check is: window.ActiveXObject && !isOpera */
-	this.xmlhttp = window.ActiveXObject? new ActiveXObject("microsoft.xmlhttp"):
-	                                     new XMLHttpRequest();
-
+	this.xmlhttp = QuiX.XMLHttpRequest();
 	this.onreadystatechange = null;
 	this.oncomplete = null;
 	
