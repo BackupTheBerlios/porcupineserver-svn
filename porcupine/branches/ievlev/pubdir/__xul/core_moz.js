@@ -893,6 +893,7 @@ Widget.prototype.getWidth = function(b) {
 Widget.prototype.getLeft = function() {
 	var ofs, lf;
 	lf = parseInt(this.div.style.left);
+	if (isNaN(lf)) return 0;
 	ofs = this.parent.getPadding()[0];
 	lf -= ofs
 	return lf;
@@ -901,6 +902,7 @@ Widget.prototype.getLeft = function() {
 Widget.prototype.getTop = function() {
 	var ofs, rg;
 	rg = parseInt(this.div.style.top);
+	if (isNaN(rg)) return 0;
 	ofs = this.parent.getPadding()[2];
 	rg -= ofs
 	return rg;
@@ -1094,9 +1096,9 @@ Widget.prototype._moving = function(evt) {
 
 Widget.prototype._endMove = function(evt) {
 	var evt = evt || event;
-	document.desktop.detachEvent('onmousemove');
-	document.desktop.detachEvent('onmouseup');
 	QuiX.tmpWidget.destroy();
+	document.desktop.detachEvent('onmouseup');
+	document.desktop.detachEvent('onmousemove');
 	offsetX = evt.clientX - QuiX.startX;
 	offsetY = evt.clientY - QuiX.startY;
 	this.moveTo(this.getLeft() + offsetX,
