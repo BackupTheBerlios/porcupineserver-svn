@@ -210,7 +210,7 @@ XULParser.prototype.detectModules = function(oNode) {
 			this.__modulesToLoad.push(oMod);
 		}
 	}
-	if (iMod && oNode.hasAttribute('img')) {
+	if (iMod && oNode.getAttribute('img')) {
 		src = oNode.getAttribute('img');
 		if (src!='' && !QuiX.images.hasItem(src)) {
 			this.__imagesToLoad.push(src);
@@ -723,7 +723,7 @@ Widget.prototype.parseFromUrl = function(url, oncomplete) {
 		}
 	}
 	xmlhttp.open('GET', url, true);
-	xmlhttp.send(null);
+	xmlhttp.send('');
 }
 
 Widget.prototype.getParentByType = function(wtype) {
@@ -996,10 +996,8 @@ Widget.prototype.bringToFront = function(w) {
 	}
 }
 
-Widget.prototype.click = function(w) {
-	var e = document.createEvent('MouseEvents');
-	e.initEvent('click', true, false);
-	this.div.dispatchEvent(e);
+Widget.prototype.click = function() {
+	QuiX.sendEvent(this.div,'MouseEvents','onclick');
 }
 
 Widget.prototype.moveTo = function(x,y) {

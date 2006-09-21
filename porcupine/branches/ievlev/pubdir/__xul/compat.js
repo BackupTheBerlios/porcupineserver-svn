@@ -18,6 +18,19 @@ QuiX.removeEvent = function(el, type, proc) {
 	}
 }
 
+QuiX.sendEvent = function(el, module, type /*, args*/) {
+	if (el.dispatchEvent) {
+		if (!document.implementation.hasFeature(module,""))
+			return false;
+		var e = document.createEvent(module);
+		e.initEvent(type.slice(2,type.length), true, false/*, args */);
+		el.dispatchEvent(e);
+		return true;
+	} else if (el.fireEvent) {
+		return el.fireEvent(type);
+	}
+}
+
 QuiX.stopPropag = function(evt) {
 	if (evt && evt.stopPropagation) evt.stopPropagation();
 	else if (window.event) window.event.cancelBubble = true;

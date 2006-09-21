@@ -991,7 +991,7 @@ Widget.prototype.bringToFront = function(w) {
 }
 
 Widget.prototype.click = function() {
-	this.div.click();
+	QuiX.sendEvent(this.div,'MouseEvents','onclick');
 }
 
 Widget.prototype.moveTo = function(x,y) {
