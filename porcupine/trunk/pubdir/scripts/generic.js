@@ -86,8 +86,8 @@ generic.openContainer = function(evt, w) {
 }
 
 generic.runApp = function(evt,w) {
-	var appID = w.attributes.ID;
-	document.desktop.parseFromUrl(QuiX.root	+ appID + '?cmd=run');
+	var appUrl = w.attributes.url;
+	document.desktop.parseFromUrl(QuiX.root	+ appUrl);
 }
 
 generic.addSelectionToAclDataGrid = function(evt, w, source, target) {

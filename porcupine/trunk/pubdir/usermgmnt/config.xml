@@ -1,0 +1,12 @@
+<config>
+	<context path="usermgmnt.quix"
+			 method="GET"
+			 client=".*"
+			 lang=".*"
+			 action="usermgmnt.quix"/>
+	<context path="usermgmnt.js"
+			 method="GET"
+			 client=".*"
+			 lang=".*"
+			 action="usermgmnt.js"/>
+</config>

@@ -90,110 +90,24 @@ class AppsFolder(system.Container):
 class Application(system.Item):
     """B{QuiX} Application Object
     
-    @ivar icon: The application's icon url
+    @ivar launchUrl: The application's startup URL. This URL should point to
+                     a valid QuiX definition file.
+    @type launchUrl: L{launchUrl<schemas.org.innoscript.properties.launchUrl>}
+
+    @ivar icon: The icon to appear on the desktop menus.
     @type icon: L{icon<schemas.org.innoscript.properties.icon>}
-    
-    @ivar width: The application's width
-    @type width: L{width<schemas.org.innoscript.properties.width>}
-
-    @ivar height: The application's height
-    @type height: L{height<schemas.org.innoscript.properties.height>}
-
-    @ivar top: The application's top coordinate
-    @type top: L{top<schemas.org.innoscript.properties.top>}
-
-    @ivar left: The application's left coordinate
-    @type left: L{top<schemas.org.innoscript.properties.top>}
-
-    @ivar resourcesImportPath: This is the full import path to a module variable
-        of type "L{ResourceStrings<porcupine.config.resources.ResourceStrings>}"
-        used for keeping the application's localized strings
-    @type resourcesImportPath: L{String<porcupine.datatypes.String>}
-
-    @ivar isResizable: Indicates if the application's window is resizable
-    @type isResizable: L{isResizable<schemas.org.innoscript.properties.isResizable>}
-
-    @ivar canMaximize: Indicates if the application's window is maximizable
-    @type canMaximize: L{canMaximize<schemas.org.innoscript.properties.canMaximize>}
-
-    @ivar canMinimize: Indicates if the application's window is minimizable
-    @type canMinimize: L{canMinimize<schemas.org.innoscript.properties.canMinimize>}
-
-    @ivar interface: The application's interface in QuiX xml format
-    @type interface: L{interface<schemas.org.innoscript.properties.interface>}
-
-    @ivar script: The main script required for the application start up
-    @type script: L{script<schemas.org.innoscript.properties.script>}
     """
     __image__ = "images/app.gif"
     __slots__ = (
-        'icon','width','height','top','left',
-        'isResizable','canMaximize','canMinimize',
-        'interface','script','resourcesImportPath'
+        'launchUrl',
+        'icon',
     )
     __props__ = system.Item.__props__ + __slots__
     
     def __init__(self):
         system.Item.__init__(self)
-        self.isResizable = properties.isResizable()
-        self.canMinimize = properties.canMinimize()
-        self.canMaximize = properties.canMaximize()
+        self.launchUrl = properties.launchUrl()
         self.icon = properties.icon()
-        self.width = properties.width()
-        self.height = properties.height()
-        self.top = properties.top()
-        self.left = properties.left()
-        self.interface = properties.interface()
-        self.script = properties.script()
-        self.resourcesImportPath = datatypes.String()
-        
-    def getInterface(self, rootURI):
-        """
-        Adds the required boilerplate to the
-        L{interface} property.
-        
-        @param rootURI: The server root URI including the
-            session ID e.g.
-            C{http://www.innoscript.org/porcupine.py/{7ee699bd4fcdeba32aef3d10eac3d6f4}}
-        @type rootURI: str
-        
-        @rtype: str
-        """
-        sTitle = self.displayName.value
-        if self.isResizable.value:
-            sResizable = 'true'
-        else:
-            sResizable = 'false'
-        if self.canMinimize.value:
-            sMinimize = 'true'
-        else:
-            sMinimize = 'false'
-        if self.canMaximize.value:
-            sMaximize = 'true'
-        else:
-            sMaximize = 'false'
-        sIcon = self.icon.value
-        sWidth = self.width.value.replace('%', '%%')
-        sHeight = self.height.value.replace('%', '%%')
-        sTop = self.top.value.replace('%', '%%')
-        sLeft = self.left.value.replace('%', '%%')
-        sInterface = self.interface.value
-        sID = self.id
-        sIface = '''<?xml version="1.0" encoding="utf-8"?>
-        <a:window xmlns:a="http://www.innoscript.org/quix"
-            title="%(sTitle)s" resizable="%(sResizable)s" close="true"
-            minimize="%(sMinimize)s" maximize="%(sMaximize)s" img="%(sIcon)s"
-            width="%(sWidth)s" height="%(sHeight)s" left="%(sLeft)s" top="%(sTop)s">
-            <a:script name="%(sTitle)s Script" src="%(rootURI)s/%(sID)s?cmd=getscript"></a:script>
-            <a:wbody>%(sInterface)s</a:wbody>
-        </a:window>''' % vars()
-        return sIface
-        
-    def getSize(self):
-        "Getter of L{size} property"
-        return len(self.interface) + len(self.script)
-    size = property(getSize, None, None,
-                        'The application\'s size in bytes')
 
 class Folder(system.Container):
     """
