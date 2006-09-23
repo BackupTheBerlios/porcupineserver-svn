@@ -6,19 +6,22 @@ hypersearch.selectFolder = function(evt, w)
 	win.showWindow(QuiX.root + '?cmd=selectcontainer&action=select_folder',
 		function(w)
 		{
-			w.attributes.window = win;
-			w.attributes.refreshFunc = hypersearch.updateFolder;
+			w.attachEvent("onclose", hypersearch.updateFolder)
+			//w.attributes.window = win;
+			//w.attributes.refreshFunc = hypersearch.updateFolder;
 		}
 	);
 }
 
-hypersearch.updateFolder = function(hypersearch_win, select_win)
+hypersearch.updateFolder = function(dlg)
 {
-	var selection = select_win.getWidgetById("tree").getSelection();
-	var id = selection.getId();
-	var caption = selection.getCaption();
-	hypersearch_win.getWidgetById("container_id").setValue(id);
-	hypersearch_win.getWidgetById("container_name").setValue(caption);
+	if (dlg.buttonIndex == 0) {
+		var selection = dlg.getWidgetById("tree").getSelection();
+		var id = selection.getId();
+		var caption = selection.getCaption();
+		dlg.opener.getWidgetById("container_id").setValue(id);
+		dlg.opener.getWidgetById("container_name").setValue(caption);
+	}
 }
 
 hypersearch.updateModifiedMode = function(evt, w)
