@@ -1,8 +1,6 @@
 <config>
 	<context path="container_list.js" method="GET" client=".*" lang=".*" action="container_list.js"/>
 	<context path="desktop.js" method="GET" client=".*" lang=".*" action="desktop.js"/>
-	<context path="dlg_copymove.js" method="GET" client=".*" lang=".*" action="dlg_copymove.js"/>
-	<context path="dlg_rename.js" method="GET" client=".*" lang=".*" action="dlg_rename.js"/>
 	<context path="dlg_selectobjects.js" method="GET" client=".*" lang=".*" action="dlg_selectobjects.js"/>
 	<context path="form_auto.js" method="GET" client=".*" lang=".*" action="form_auto.js"/>
 	<context path="form_group.js" method="GET" client=".*" lang=".*" action="form_group.js"/>
