@@ -301,15 +301,7 @@ class Dlg_SelectContainer(PorcupineDesktopServlet):
         
         if sAction!='select_folder':
             self.params['TITLE'] += ' &quot;' + self.item.displayName.value + '&quot;'
-        if sAction=='move':
-            self.params['METHOD'] = 'moveTo'
-        elif sAction=='restore':
-            self.params['METHOD'] = 'restoreTo'
-        elif sAction=='copy':
-            self.params['METHOD'] = 'copyTo'
-        else:
-            self.params['METHOD'] = 'select_folder'
-
+        
 class Dlg_Rename(PorcupineDesktopServlet):
     def setParams(self):
         sLang = self.request.getLang()
@@ -444,12 +436,12 @@ class Desktop(PorcupineDesktopServlet):
         
         # get applications
         oCmd = OqlCommand()
-        sOql = "select id,displayName,icon from 'apps' order by displayName asc"
+        sOql = "select launchUrl,displayName,icon from 'apps' order by displayName asc"
         apps = oCmd.execute(sOql)
         sApps = ''
         if len(apps) > 0:
             for app in apps:
-                sApps += '<a:menuoption img="%s" caption="%s" onclick="generic.runApp"><a:prop name="ID" value="%s"></a:prop></a:menuoption>' % (app['icon'], app['displayName'], app['id'])
+                sApps += '<a:menuoption img="%s" caption="%s" onclick="generic.runApp"><a:prop name="url" value="%s"></a:prop></a:menuoption>' % (app['icon'], app['displayName'], app['launchUrl'])
             self.params['APPS'] = sApps
         else:
             self.params['APPS'] = '<a:menuoption caption="%s" disabled="true"></a:menuoption>' % resources.getResource('EMPTY', sLang)
@@ -498,7 +490,7 @@ class Dlg_UserSettings(XULServlet):
 
         # get applications
         oCmd = OqlCommand()
-        sOql = "select id,displayName,icon from 'apps' order by displayName asc"
+        sOql = "select displayName,launchUrl,icon from 'apps' order by displayName asc"
         apps = oCmd.execute(sOql)
         
         sSelected = ''
@@ -508,11 +500,11 @@ class Dlg_UserSettings(XULServlet):
         sApps = '<a:option caption="%s" selected="%s" value=""/>' % (resources.getResource("NONE_APP", sLang), sSelected)
         if len(apps) > 0:
             for app in apps:
-                if autoRun == app['id']:
+                if autoRun == app['launchUrl']:
                     sSelected = 'true'
                 else:
                     sSelected = 'false'
-                sApps += '<a:option img="%s" caption="%s" value="%s" selected="%s"/>' % (app['icon'], app['displayName'], app['id'], sSelected)
+                sApps += '<a:option img="%s" caption="%s" value="%s" selected="%s"/>' % (app['icon'], app['displayName'], app['launchUrl'], sSelected)
 
             self.params['APPS'] = sApps
 
@@ -718,16 +710,7 @@ class Frm_AppProperties(PorcupineDesktopServlet):
             'NAME': self.item.displayName.value,
             'DESCRIPTION': self.item.description.value,
             'ICON': self.item.icon.value,
-            'INTERFACE': xmlUtils.XMLEncode(self.item.interface.value),
-            'SCRIPT': xmlUtils.XMLEncode(self.item.script.value),
-            'IS_RESIZABLE': self.getStringFromBoolean(self.item.isResizable.value),
-            'CAN_MINIMIZE': self.getStringFromBoolean(self.item.canMinimize.value),
-            'CAN_MAXIMIZE': self.getStringFromBoolean(self.item.canMaximize.value),
-            'LEFT': self.item.left.value,
-            'TOP': self.item.top.value,
-            'WIDTH': self.item.width.value,
-            'HEIGHT': self.item.height.value,
-            'RESOURCES_PATH': self.item.resourcesImportPath.value,
+            'LAUNCH_URL': xmlUtils.XMLEncode(self.item.launchUrl.value),
             'MODIFIED': date.Date(self.item.modified).format(DATES_FORMAT, sLang),
             'MODIFIED_BY': self.item.modifiedBy,
             'CONTENTCLASS': self.item.contentclass,
@@ -735,33 +718,5 @@ class Frm_AppProperties(PorcupineDesktopServlet):
             'READONLY': self.getStringFromBoolean(readonly)
         }
 
-class Run_App(HTTPServlet):
-    def execute(self):
-        self.response.setExpiration(1200)
-        self.response.content_type = 'text/xml';
-        rootUri = self.request.serverVariables['SCRIPT_NAME']
 
-        sInterface = self.item.getInterface(rootUri)
-        sLang = self.request.getLang()
-        
-        if (self.item.resourcesImportPath.value):
-            stringResources = misc.getClassByName(self.item.resourcesImportPath.value)
-            dctLocStrings = stringResources.getLocale(sLang)
-        else:
-            dctLocStrings = {}
-        
-        self.response.write(sInterface % dctLocStrings)
-        
-class GetAppScript(HTTPServlet):
-    def execute(self):
-        self.response.setExpiration(1200)
-        sLang = self.request.getLang()
 
-        if (self.item.resourcesImportPath.value):
-            stringResources = misc.getClassByName(self.item.resourcesImportPath.value)
-            dctLocStrings = stringResources.getLocale(sLang)
-        else:
-            dctLocStrings = {}
-
-        self.response.content_type = 'text/javascript'
-        self.response.write(self.item.script.value % dctLocStrings)

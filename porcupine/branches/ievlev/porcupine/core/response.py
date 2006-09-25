@@ -17,6 +17,7 @@
 "Response classes"
 
 import re, os, Cookie
+import time
 from threading import currentThread
 
 from porcupine.utils import xmlUtils
@@ -53,7 +54,8 @@ class BaseResponse(object):
             
         @return: None
         """
-        self.__headers['Cache-Control'] = 'private,max-age=' + str(iSeconds)
+        self.__headers['Cache-Control'] = 'max-age=' + str(iSeconds) + ',public'
+        self.__headers['Expires'] = time.strftime("%a, %d %b %Y %H:%M:%S GMT", time.gmtime(time.time() + iSeconds))
 
     def _reset(self):
         self.__init__()

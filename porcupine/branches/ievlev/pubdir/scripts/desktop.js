@@ -81,7 +81,7 @@ desktop.runApplication = function(w) {
 	var autoRun = w.attributes.AUTO_RUN;
 	var runMaximized = w.attributes.RUN_MAXIMIZED;
 	if (autoRun != '' && desktop.autoRun) {
-		document.desktop.parseFromUrl(QuiX.root	+ autoRun + '?cmd=run',
+		document.desktop.parseFromUrl(QuiX.root	+ autoRun,
 			function(w) {
 				if (runMaximized) {
 					w.maximize();

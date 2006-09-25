@@ -1,16 +1,16 @@
 <?xml version="1.0"?>
 <a:dialog xmlns:a="http://www.innoscript.org/quix"
-	title="%(NAME)s Properties"
-	img="%(IMG)s"
-	resizable="true"
-	maximize="true"
-	minimize="true"
-	close="true"
-	bgcolor="menu"
-	width="560"
-	height="425"
-	left="30%%"
-	top="30%%">
+title="%(NAME)s Properties"
+img="%(IMG)s"
+resizable="true"
+maximize="true"
+minimize="true"
+close="true"
+bgcolor="menu"
+width="380"
+height="325"
+left="30%%"
+top="30%%">
 	<a:wbody>
 		<a:form action="%(URI)s" method="update">
 			<a:tabpane top="0" left="0" width="100%%" height="100%%">
@@ -29,51 +29,24 @@
 					<a:hr top="57" width="100%%"></a:hr>
 
 					<a:label top="67" left="5" width="60" height="20" caption="Icon:"></a:label>
-					<a:field name="icon" top="65" left="75" width="140" value="%(ICON)s" readonly="%(READONLY)s"></a:field>
+					<a:field name="icon" top="65" left="75" width="180" value="%(ICON)s" readonly="%(READONLY)s"></a:field>
 					
-					<a:label top="92" left="5" width="60" height="20" caption="Width:"></a:label>
-					<a:field name="width" top="90" left="75" width="140" value="%(WIDTH)s" readonly="%(READONLY)s"></a:field>
+					<a:label top="92" left="5" width="60" height="20" caption="Launch URL:"></a:label>
+					<a:field name="launchUrl" top="90" left="75" width="180" value="%(LAUNCH_URL)s" readonly="%(READONLY)s"></a:field>
 
-					<a:label top="117" left="5" width="60" height="20" caption="Height:"></a:label>
-					<a:field name="height" top="115" left="75" width="140" value="%(HEIGHT)s" readonly="%(READONLY)s"></a:field>
-
-					<a:label top="142" left="5" width="60" height="20" caption="Top:"></a:label>
-					<a:field name="top" top="140" left="75" width="140" value="%(TOP)s" readonly="%(READONLY)s"></a:field>
-
-					<a:label top="167" left="5" width="60" height="20" caption="Left:"></a:label>
-					<a:field name="left" top="165" left="75" width="140" value="%(LEFT)s" readonly="%(READONLY)s"></a:field>
-
-					<a:label top="192" left="5" width="60" height="20" caption="Resources:"></a:label>
-					<a:field name="resourcesImportPath" top="190" left="75" width="140" value="%(RESOURCES_PATH)s"></a:field>
+					<a:hr top="120" width="100%%"></a:hr>
 					
-					<a:field name="isResizable" type="checkbox" top="67" left="240" value="%(IS_RESIZABLE)s" readonly="%(READONLY)s"></a:field>
-					<a:label left="260" top="67" width="60" height="20" caption="Resizable"></a:label>
-					
-					<a:field name="canMaximize" top="87" left="240" type="checkbox" value="%(CAN_MAXIMIZE)s" readonly="%(READONLY)s"></a:field>
-					<a:label top="87" left="260" width="90" height="20" caption="Maximize button"></a:label>
+					<a:label top="130" left="5" width="100" height="20" caption="Date modified:"></a:label>
+					<a:label top="130" left="105" width="55%%" height="20" caption="%(MODIFIED)s"></a:label>
 
-					<a:field name="canMinimize" top="107" left="240" type="checkbox" value="%(CAN_MINIMIZE)s" readonly="%(READONLY)s"></a:field>
-					<a:label top="107" left="260" width="90" height="20" caption="Minimize button"></a:label>
+					<a:label top="150" left="5" width="100" height="20" caption="Modified by:"></a:label>
+					<a:label top="150" left="105" width="55%%" height="20" caption="%(MODIFIED_BY)s"></a:label>
 
-					<a:hr top="220" width="100%%"></a:hr>
-					
-					<a:label top="230" left="5" width="100" height="20" caption="Date modified:"></a:label>
-					<a:label top="230" left="105" width="55%%" height="20" caption="%(MODIFIED)s"></a:label>
+					<a:label top="170" left="5" width="100" height="20" caption="Object ID:"></a:label>
+					<a:label top="170" left="105" width="55%%" height="20" canselect="true" caption="%(ID)s"></a:label>
 
-					<a:label top="250" left="5" width="100" height="20" caption="Modified by:"></a:label>
-					<a:label top="250" left="105" width="55%%" height="20" caption="%(MODIFIED_BY)s"></a:label>
-
-					<a:label top="270" left="5" width="100" height="20" caption="Object ID:"></a:label>
-					<a:label top="270" left="105" width="55%%" height="20" canselect="true" caption="%(ID)s"></a:label>
-
-					<a:label top="290" left="5" width="100" height="20" caption="Contentclass:"></a:label>
-					<a:label top="290" left="105" width="55%%" height="20" canselect="true" caption="%(CONTENTCLASS)s"></a:label>
-				</a:tab>
-				<a:tab caption="Interface">
-					<a:field type="textarea" name="interface" width="100%%" height="100%%" readonly="%(READONLY)s">%(INTERFACE)s</a:field>
-				</a:tab>
-				<a:tab caption="Script">
-					<a:field type="textarea" name="script" width="100%%" height="100%%" readonly="%(READONLY)s">%(SCRIPT)s</a:field>
+					<a:label top="190" left="5" width="100" height="20" caption="Contentclass:"></a:label>
+					<a:label top="190" left="105" width="55%%" height="20" canselect="true" caption="%(CONTENTCLASS)s"></a:label>
 				</a:tab>
 				%(SECURITY_TAB)s
 			</a:tabpane>

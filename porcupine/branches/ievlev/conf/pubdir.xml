@@ -6,5 +6,7 @@
 		<dir name="styles" path="styles"/>
 		<dir name="images" path="images"/>
 		<dir name="hypersearch" path="hypersearch"/>
+		<dir name="usermgmnt" path="usermgmnt"/>
+		<dir name="queryperformer" path="queryperformer"/>
 	</dirs>
 </config>

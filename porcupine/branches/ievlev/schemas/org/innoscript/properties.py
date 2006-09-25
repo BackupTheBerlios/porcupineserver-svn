@@ -31,99 +31,25 @@ class file(File):
     __slots__ = ()
     isRequired = True
 
+class launchUrl(String):
+    """
+    A Url to valid QuiX file.
+    
+    Added in:
+        1. L{Application<schemas.org.innoscript.common.Application>}
+    """
+    __slots__ = ()
+    isRequired = True
+
 class icon(String):
     """
-    Icon URL.
+    Icon Url.
     
     Added in:
         1. L{Application<schemas.org.innoscript.common.Application>}
     """
     __slots__ = ()
 
-class top(String):
-    """
-    Y-coordinate in pixels or percentage.
-    
-    Added in:
-        1. L{Application<schemas.org.innoscript.common.Application>}
-    """
-    __slots__ = ()
-    
-class left(String):
-    """
-    X-coordinate in pixels or percentage.
-    
-    Added in:
-        1. L{Application<schemas.org.innoscript.common.Application>}
-    """
-    __slots__ = ()
-    
-class width(String):
-    """
-    Width in pixels or percentage.
-    
-    Added in:
-        1. L{Application<schemas.org.innoscript.common.Application>}
-    """
-    __slots__ = ()
-    isRequired = True
-    
-class height(String):
-    """
-    Width in pixels or percentage.
-    
-    Added in:
-        1. L{Application<schemas.org.innoscript.common.Application>}
-    """
-    __slots__ = ()
-    isRequired = True
-    
-class isResizable(Boolean):
-    """
-    Boolean declaring if a window is resizable or not.
-    
-    Added in:
-        1. L{Application<schemas.org.innoscript.common.Application>}
-    """
-    __slots__ = ()
-    
-class canMaximize(Boolean):
-    """
-    Boolean declaring if a window can be maximized or not.
-    
-    Added in:
-        1. L{Application<schemas.org.innoscript.common.Application>}
-    """
-    __slots__ = ()
-    
-class canMinimize(Boolean):
-    """
-    Boolean declaring if a window can be minimized or not.
-    
-    Added in:
-        1. L{Application<schemas.org.innoscript.common.Application>}
-    """
-    __slots__ = ()
-    
-class interface(Text):
-    """
-    Large string containing a QuiX interface description.
-    
-    Added in:
-        1. L{Application<schemas.org.innoscript.common.Application>}
-    """
-    __slots__ = ()
-    isRequired = True
-        
-class script(Text):
-    """
-    Large string containing the javascript code for
-    for an application startup.
-    
-    Added in:
-        1. L{Application<schemas.org.innoscript.common.Application>}
-    """
-    __slots__ = ()
     
 class category_objects(RelatorN):
     """

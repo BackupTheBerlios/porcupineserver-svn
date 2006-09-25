@@ -61,13 +61,25 @@ recycleBin.restoreTo = function(evt, w) {
 	var win = w.parent.owner.getParentByType(Window);
 	var oList = win.getWidgetById("itemslist");
 	var action = w.attributes.action;
-	document.desktop.parseFromUrl(QuiX.root + 
+	win.showWindow(QuiX.root + 
 		oList.getSelection().id  + '?cmd=selectcontainer&action=' + action,
 		function(w) {
-			w.attributes.window = win;
-			w.attributes.refreshFunc = recycleBin.getContainerInfo;
+			w.attachEvent("onclose", containerList.doRestore);
+			w.attributes.method = action;
 		}
 	);
+}
+
+containerList.doRestore = function(dlg) {
+	if (dlg.buttonIndex == 0) {
+		var targetid = dlg.getWidgetById('tree').getSelection().getId();
+		
+		var xmlrpc = new XMLRPCRequest(QuiX.root + dlg.attributes.ID);
+		xmlrpc.oncomplete = function(req) {
+			recycleBin.getContainerInfo(dlg.opener);
+		}
+		xmlrpc.callmethod('restoreTo', targetid);
+	}
 }
 
 recycleBin.empty = function(evt, w) {

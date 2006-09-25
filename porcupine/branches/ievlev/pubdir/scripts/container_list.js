@@ -198,24 +198,49 @@ containerList.copyMove = function(evt, w) {
 	var win = w.parent.owner.getParentByType(Window);
 	var oList = win.getWidgetById("itemslist");
 	var action = w.attributes.action;
-	document.desktop.parseFromUrl(QuiX.root + oList.getSelection().id  + '?cmd=selectcontainer&action=' + action,
+	win.showWindow(QuiX.root + oList.getSelection().id  + '?cmd=selectcontainer&action=' + action,
 		function(w) {
-			w.attributes.window = win;
-			w.attributes.refreshFunc = containerList.getContainerInfo;
+			w.attachEvent("onclose", containerList.doCopyMove);
+			w.attributes.method = action;
 		}
 	);
+}
+
+containerList.doCopyMove = function(dlg) {
+	if (dlg.buttonIndex == 0) {
+		var method = (dlg.attributes.method=='copy')?'copyTo':'moveTo';
+		var targetid = dlg.getWidgetById('tree').getSelection().getId();
+		
+		var xmlrpc = new XMLRPCRequest(QuiX.root + dlg.attributes.ID);
+		xmlrpc.oncomplete = function(req) {
+			if (method!='copyTo') {
+				containerList.getContainerInfo(dlg.opener);
+			}
+		}
+		xmlrpc.callmethod(method, targetid);
+	}
 }
 
 containerList.rename = function(evt, w) {
 	var win = w.parent.owner.getParentByType(Window);
 	var oList = win.getWidgetById("itemslist");
-	document.desktop.parseFromUrl(QuiX.root + oList.getSelection().id  + '?cmd=rename',
+	win.showWindow(QuiX.root + oList.getSelection().id  + '?cmd=rename',
 		function(w) {
-			w.attributes.refreshlist = function() {
-				containerList.getContainerInfo(win);
-			}
+			w.attachEvent("onclose", containerList.doRename);
 		}
 	);
+}
+
+containerList.doRename = function(dlg) {
+	if (dlg.buttonIndex == 0) {
+		var new_name = dlg.getWidgetById('new_name').getValue();
+		
+		var xmlrpc = new XMLRPCRequest(QuiX.root + dlg.attributes.ID);
+		xmlrpc.oncomplete = function(req) {
+			containerList.getContainerInfo(dlg.opener);
+		}
+		xmlrpc.callmethod('rename', new_name);
+	}
 }
 
 containerList.deleteItem = function(evt, w) {

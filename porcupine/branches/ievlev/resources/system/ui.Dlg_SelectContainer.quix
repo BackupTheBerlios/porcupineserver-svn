@@ -8,9 +8,7 @@
 	height="300"
 	left="center"
 	top="center">
-	<a:prop name="method" value="%(METHOD)s"></a:prop>
 	<a:prop name="ID" value="%(ID)s"></a:prop>
-	<a:script name="Copy-Move Dialog Script" src="scripts/dlg_copymove.js"></a:script>
 	<a:wbody>
 		<a:box orientation="v" spacing="0" width="100%%" height="100%%">
 			<a:label height="22" caption="%(SELECT_FOLDER)s"></a:label>
@@ -26,6 +24,6 @@
 			</a:rect>
 		</a:box>
 	</a:wbody>
-	<a:dlgbutton onclick="copyMove.copyMove" width="70" height="22" caption="%(OK)s"></a:dlgbutton>
+	<a:dlgbutton onclick="__closeDialog__" width="70" height="22" caption="%(OK)s"></a:dlgbutton>
 	<a:dlgbutton onclick="__closeDialog__"  width="70" height="22" caption="%(CANCEL)s"></a:dlgbutton>
 </a:dialog>

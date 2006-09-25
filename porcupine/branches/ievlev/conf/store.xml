@@ -7,20 +7,6 @@
 	
 	<!--_____________________________SYSTEM_REGISTRATIONS______________________________-->
 	<!--_________________________________HTTP_SERVLETS_________________________________-->
-	<reg cc="schemas.org.innoscript.common.Application"
-			method="GET"
-			param="run"
-			client="(MSIE [6-7])|(Mozilla/5.0.+rv:1.[7-9])"
-			lang=".*"
-			action="resources.system.ui.Run_App"/>
-
-	<reg cc="schemas.org.innoscript.common.Application"
-			method="GET"
-			param="getscript"
-			client="(MSIE [6-7])|(Mozilla/5.0.+rv:1.[7-9])"
-			lang=".*"
-			action="resources.system.ui.GetAppScript"/>
-
 	<reg cc="schemas.org.innoscript.common.Document"
 			method="GET"
 			param="getfile"

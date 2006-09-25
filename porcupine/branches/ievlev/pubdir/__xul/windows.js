@@ -22,7 +22,6 @@ function Window(params) {
 	this.minh = 120;
 	this.isMinimized = false;
 	this.isMaximized = false;
-	this.onclose = params.onclose;
 	this.childWindows = [];
 	this.opener = null;
 	this._statex = 0;
@@ -83,6 +82,8 @@ function Window(params) {
 }
 
 Window.prototype = new Widget;
+
+Window.prototype.customEvents = Widget.prototype.customEvents.concat(['onclose']);
 
 Window.prototype.images = [
 	QuiX.getImage('images/win_close.gif'),
@@ -151,7 +152,11 @@ Window.prototype.addControlButton = function(iWhich) {
 		this.title.appendChild(oControl);
 		switch(iWhich) {
 			case 0:
-				oControl.attachEvent('onclick', function(){oWindow.close()});
+				oControl.attachEvent('onclick', function(){
+					if (oWindow.buttonIndex)
+						oWindow.buttonIndex = -1;
+					oWindow.close()
+				});
 				break;
 			case 1:
 				oControl.attachEvent('onclick', function(){oWindow.maximize()});
@@ -174,8 +179,8 @@ Window.prototype.removeControlButton = function(iWhich) {
 }
 
 Window.prototype.close = function() {
-	if (this.onclose)
-		getEventListener(this.onclose)(this);
+	if (this._customRegistry.onclose)
+		getEventListener(this._customRegistry.onclose)(this);
 	while (this.childWindows.length != 0)
 		this.childWindows[0].close();
 	if (this.opener)
@@ -365,12 +370,12 @@ function Dialog(params) {
 		top: 0, height: '100%',
 		width: 0, border:0, overflow:'hidden'
 	});
-	//this.buttonHolder.div.style.borderStyle = 'solid';
 	this.buttonHolder.redraw = Dialog__buttonHolderRedraw;
 	
 	this.setButtonsAlign(params.align);
 	this.footer.appendChild(this.buttonHolder);
 	this.buttons = this.buttonHolder.widgets;
+	this.buttonIndex = -1;
 	this.defaultButton = null;
 	if (this.resizeHandle)
 		this.resizeHandle.bringToFront();
@@ -414,7 +419,7 @@ Dialog.prototype.removeStatusBar = function() {
 
 Dialog.prototype.addButton = function(params) {
 	params.top = 'center';
-	var oWidget = new XButton(params)
+	var oWidget = new DialogButton(params, this);
 	this.buttonHolder.appendChild(oWidget);
 	this.buttonHolder.redraw();
 	if (params['default'] == 'true') {
@@ -449,4 +454,29 @@ function Dialog__buttonHolderRedraw(bForceAll) {
 	}
 	this.width = iOffset;
 	Widget.prototype.redraw(bForceAll, this);
+}
+
+function DialogButton(params, dialog) {
+	this.base = XButton;
+	this.base(params);
+	this.dialog = dialog;
+}
+
+DialogButton.prototype = new XButton;
+
+DialogButton.prototype._registerHandler = function(eventType, handler, isCustom) {
+	var wrapper;
+	if(handler && handler.toString().lastIndexOf('return handler(evt || event, w)')==-1)
+		wrapper = function(evt, w) {
+			for (var i=0; i<w.dialog.buttons.length; i++) {
+				if (w.dialog.buttons[i] == w) {
+					w.dialog.buttonIndex = i;
+					break;
+				}
+			}
+			handler(evt, w);
+		}
+
+	wrapper = wrapper || handler;
+	Widget.prototype._registerHandler(eventType, wrapper, isCustom, this);
 }
