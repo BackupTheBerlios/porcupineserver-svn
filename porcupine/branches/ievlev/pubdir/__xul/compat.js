@@ -45,7 +45,21 @@ QuiX.XMLHttpRequest = function() {
 	if (window.XMLHttpRequest)
 		return new XMLHttpRequest;
 	else if (window.ActiveXObject)
-		return new ActiveXObject("microsoft.xmlhttp");
+		return new ActiveXObject('microsoft.xmlhttp');
 	else
 		return null;
+}
+
+QuiX.domFromString = function(s)
+{
+	var dom = null;
+	if (window.DOMParser)
+		dom = (new DOMParser).parseFromString(s,'text/xml');
+	else if (window.ActiveXObject)
+	{
+		dom = new ActiveXObject("msxml2.domdocument");
+		dom.loadXML(s);
+	}
+
+	return dom;
 }

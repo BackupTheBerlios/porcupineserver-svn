@@ -25,9 +25,8 @@ function __init__() {
 		window.outerWidth = screen.availWidth;
 	}
 	var root = document.body.removeChild(document.getElementById("xul"));
-	var oDom = XmlDocument.create(root.innerHTML);
 	var parser = new XULParser();
-	parser.parse(oDom);
+	parser.parse(QuiX.domFromString(root.innerHTML));
 }
 
 function Clipboard() {
@@ -164,15 +163,6 @@ QuiX.getImage = function(url) {
 		var img = new Image();
 		img.src = url;
 		return img;
-}
-
-// xml document
-function XmlDocument() {}
-XmlDocument.create = function(s) {
-	var dom = new DOMParser();
-	if (s) dom = dom.parseFromString(s, 'text/xml');
-	else dom = dom.parseFromString('', 'text/xml');
-	return(dom);
 }
 
 function getNodeXml(oNode) {
@@ -709,8 +699,7 @@ Widget.prototype.parse = function(dom, callback) {
 }
 
 Widget.prototype.parseFromString = function(s, oncomplete) {
-	var oDom = XmlDocument.create(s);
-	this.parse(oDom, oncomplete);
+	this.parse(QuiX.domFromString(s), oncomplete);
 }
 
 Widget.prototype.parseFromUrl = function(url, oncomplete) {

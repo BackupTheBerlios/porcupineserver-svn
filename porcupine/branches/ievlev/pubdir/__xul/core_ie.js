@@ -159,14 +159,6 @@ QuiX.getImage = function(url) {
 		return img;
 }
 
-// xml document
-function XmlDocument() {}
-XmlDocument.create = function(s) {
-	var dom = new ActiveXObject("msxml2.domdocument");
-	if (s) dom.loadXML(s);
-	return(dom);
-}
-
 // xul parser
 function XULParser() {
 	this.__modulesToLoad = [];
@@ -702,8 +694,7 @@ Widget.prototype.parse = function(dom, callback) {
 }
 
 Widget.prototype.parseFromString = function(s, oncomplete) {
-	var oDom = XmlDocument.create(s);
-	this.parse(oDom, oncomplete);
+	this.parse(QuiX.domFromString(s), oncomplete);
 }
 
 Widget.prototype.parseFromUrl = function(url, oncomplete) {
