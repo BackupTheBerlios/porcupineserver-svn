@@ -47,7 +47,6 @@ BODY {
 	color: blue;
 	border-color:	ThreedHighlight ThreeDDarkShadow
 			ThreeDDarkShadow ThreedHighlight;
-	-moz-border-radius : 4px;
 }
 .flaton {
 	border-style: solid;
@@ -55,7 +54,6 @@ BODY {
 			ThreedHighlight ThreeDDarkShadow;
 	background-color : InfoBackground;
 	cursor:pointer;
-	-moz-border-radius : 4px;
 }
 
 .btn {
@@ -106,7 +104,6 @@ BODY {
 	border-style : solid;
 	border-color: black;
 	background-color : #D5CCBB;
-	-moz-border-radius : 4px;
 }
 
 .window .header{
@@ -123,7 +120,6 @@ BODY {
 	border-style : solid;
 	border-color:	ThreeDDarkShadow ThreedHighlight 
 			ThreedHighlight ThreeDDarkShadow;
-	-moz-border-radius : 4px;
 }
 
 .resize{
@@ -246,7 +242,6 @@ BODY {
 	float: left;
 	clear: right;
 	white-space : nowrap;
-	-moz-border-radius : 3px;
 }
 
 .tabpane .over {
