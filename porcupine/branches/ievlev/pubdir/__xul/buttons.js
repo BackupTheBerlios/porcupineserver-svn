@@ -134,6 +134,8 @@ function XButton(params) {
 		border: 1,
 		width: params.width,
 		height: params.height,
+		minw: params.minw,
+		minh: params.minh,
 		top: params.top,
 		left: params.left,
 		bgcolor: params.bgcolor || 'buttonface',
