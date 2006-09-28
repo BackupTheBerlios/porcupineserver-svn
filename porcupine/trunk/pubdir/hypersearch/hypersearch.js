@@ -7,8 +7,6 @@ hypersearch.selectFolder = function(evt, w)
 		function(w)
 		{
 			w.attachEvent("onclose", hypersearch.updateFolder)
-			//w.attributes.window = win;
-			//w.attributes.refreshFunc = hypersearch.updateFolder;
 		}
 	);
 }
@@ -85,7 +83,6 @@ hypersearch.getSearchQuery = function(w) {
     	case '1':
     		date_to = new Date();
     		date_from = new Date(date_to - 604800000);
-    		alert(date_to + '\n' + date_from);
     		break;
     	case '2':
     		date_to = new Date();

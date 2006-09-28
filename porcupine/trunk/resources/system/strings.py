@@ -119,7 +119,19 @@ resources = ResourceStrings({
         'MODIFIEDBY' : 'Modified by',
         'INCLUDESUBS' : 'Include subfolders',
         'ADD' : 'Add',
-        'REMOVE' : 'Remove'
+        'REMOVE' : 'Remove',
+        'SEARCH' : 'Search',
+
+        #HyperSearch
+        'SEARCH_IN' : 'Search in',
+        'ALL_OR_PART_OF_THE_NAME': 'All or part of the name',
+        'WORD_OR_PHRASE_IN_DESCRIPTION' : 'Word or phrase in description',
+        'MODIFIED_WITHIN' : 'Modified within',
+        'DONT_REMEMBER' : 'I don\'t remember',
+        'LAST_WEEK' : 'Last week',
+        'LAST_MONTH' : 'Last month',
+        'SPECIFY_DATES' : 'Specify dates',
+        'OPEN_CONTAINER' : 'Open container'
     }),
     'el' : Locale({
         # dates 
@@ -233,6 +245,18 @@ resources = ResourceStrings({
         'MODIFIEDBY' : 'Τροποποιήθηκε από',
         'INCLUDESUBS' : 'Να συμπεριληφθούν οι υποφάκελοι',
         'ADD' : 'Προσθήκη',
-        'REMOVE' : 'Αφαίρεση'
+        'REMOVE' : 'Αφαίρεση',
+        'SEARCH' : 'Αναζήτηση',
+
+        #HyperSearch
+        'SEARCH_IN' : 'Αναζήτηση μέσα στο',
+        'ALL_OR_PART_OF_THE_NAME': 'Όλο ή μέρος του ονόματος',
+        'WORD_OR_PHRASE_IN_DESCRIPTION' : 'Λέξη ή φράση στην περιγραφή',
+        'MODIFIED_WITHIN' : 'Τροποποιήθηκε',
+        'DONT_REMEMBER' : 'δεν θυμάμαι',
+        'LAST_WEEK' : 'την τελευταία βδομάδα',
+        'LAST_MONTH' : 'τον τελευταίο μήνα',
+        'SPECIFY_DATES' : 'προσδιορισμός διαστήματος',
+        'OPEN_CONTAINER' : 'Άνοιγμα φακέλου που περιέχεται'
     })
 })
