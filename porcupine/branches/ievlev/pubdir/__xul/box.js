@@ -31,6 +31,7 @@ Box.prototype.redraw = function(bForceAll) {
 		var offset_var = (this.orientation=='h')?'left':'top';
 		var center_var = (this.orientation=='h')?'top':'left';
 		var length_var = (this.orientation=='h')?'width':'height';
+		var width_var = (this.orientation=='h')?'height':'width';
 		
 		for (var i=0; i<this.widgets.length; i++) {
 			oWidget = this.widgets[i];
@@ -40,6 +41,8 @@ Box.prototype.redraw = function(bForceAll) {
 	
 			if (oWidget[length_var] == null || oWidget[length_var] == '-1')
 				oWidget[length_var] = 'this.parent._calcWidgetLength()';
+			if (oWidget[width_var] == '-1')
+				oWidget[width_var] = 'this.parent._calcWidgetWidth()';
 		}
 	}
 	Widget.prototype.redraw(bForceAll, this);
@@ -102,6 +105,19 @@ Box.prototype._calcWidgetLength = function() {
 	
 	var nl = (l - tl - ((this.widgets.length-1)*this.spacing)) / free_widgets;
 	return(nl>0?nl:0);
+}
+
+Box.prototype._calcWidgetWidth = function() {
+	var tl = 0;
+	var width_var = (this.orientation=='h')?'height':'width';
+	
+	for (var i=0; i<this.widgets.length; i++) {
+		var w = this.widgets[i];
+		if (w.isHidden()) continue;
+		var minw = (typeof w.minw == 'function')?w.minw(w):w.minw;
+		tl = Math.max(tl,minw);
+	}
+	return tl;
 }
 
 function BoxWidget__destroy() {
