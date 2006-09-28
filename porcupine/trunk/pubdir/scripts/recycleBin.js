@@ -64,13 +64,13 @@ recycleBin.restoreTo = function(evt, w) {
 	win.showWindow(QuiX.root + 
 		oList.getSelection().id  + '?cmd=selectcontainer&action=' + action,
 		function(w) {
-			w.attachEvent("onclose", containerList.doRestore);
+			w.attachEvent("onclose", recycleBin.doRestore);
 			w.attributes.method = action;
 		}
 	);
 }
 
-containerList.doRestore = function(dlg) {
+recycleBin.doRestore = function(dlg) {
 	if (dlg.buttonIndex == 0) {
 		var targetid = dlg.getWidgetById('tree').getSelection().getId();
 		
