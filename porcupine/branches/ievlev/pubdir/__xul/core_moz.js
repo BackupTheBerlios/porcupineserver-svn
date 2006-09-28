@@ -131,8 +131,9 @@ QuiX.createOutline = function(w) {
 		overflow:'hidden'
 	});
 	w.parent.appendChild(oW);
-	oW.minw = w.minw;
-	oW.minh = w.minh;
+	//calculate size because minw/minh procedure can depends on it's children size
+	oW.minw = (typeof w.minw == "function")?w.minw(w):w.minw;
+	oW.minh = (typeof w.minh == "function")?w.minh(w):w.minh;
 	oW.div.className = 'outline';
 	return(oW);
 }
@@ -601,8 +602,8 @@ function Widget(params) {
 	this.top = params.top || 0;
 	this.width = params.width || null;
 	this.height = params.height || null;
-	this.minw = 0;
-	this.minh = 0;
+	this.minw = params.minw || 0;
+	this.minh = params.minh || 0;
 	this.widgets = [];
 	this._id_widgets = {};
 	this.attributes = params.attributes || {};
@@ -931,6 +932,8 @@ Widget.prototype._calcHeight = function(b) {
 	var offset = 0;
 	if (!b)	offset = parseInt(this.div.style.paddingTop) + parseInt(this.div.style.paddingBottom) + 2*this.getBorderWidth();
 	var s = this._calcSize("height", offset, "getHeight");
+	var ms=(typeof(this.minh)=='function')?this.minh(this):this.minh;
+	if (s < ms) s = ms;
 	return s>0?s:0;
 }
 
@@ -938,6 +941,8 @@ Widget.prototype._calcWidth = function(b) {
 	var offset = 0;
 	if (!b)	offset = parseInt(this.div.style.paddingLeft) + parseInt(this.div.style.paddingRight) + 2*this.getBorderWidth();
 	var s = this._calcSize("width", offset, "getWidth");
+	var ms=(typeof(this.minw)=='function')?this.minw(this):this.minw;
+	if (s < ms) s = ms;
 	return s>0?s:0;
 }
 
@@ -997,8 +1002,10 @@ Widget.prototype.moveTo = function(x,y) {
 }
 
 Widget.prototype.resize = function(x,y) {
-	this.width = (x>this.minw)?x:this.minw;
-	this.height = (y>this.minh)?y:this.minh;
+	var minw = (typeof this.minw == "function")?this.minw(this):this.minw;
+	var minh = (typeof this.minh == "function")?this.minh(this):this.minh;
+	this.width = (x>minw)?x:minw;
+	this.height = (y>minh)?y:minh;
 	this.redraw();
 }
 

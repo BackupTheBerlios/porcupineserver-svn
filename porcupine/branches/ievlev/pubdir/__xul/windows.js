@@ -18,8 +18,8 @@ function Window(params) {
 
 	this.base = Widget;
 	this.base(params);
-	this.minw = 140;
-	this.minh = 120;
+	this.minw = params.minw || 140;
+	this.minh = params.minh || 120;
 	this.isMinimized = false;
 	this.isMaximized = false;
 	this.childWindows = [];
