@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <%
+	from resources.system.strings import resources
+	
 	response.content_type = "text/xml"
 	container_id = ""
 	container_title = ""
@@ -9,6 +11,26 @@
 		container = server.store.getItem(container_id)
 		container_title = container.displayName.value
 	end
+	
+	sLang = request.getLang()
+	sSearchIn = resources.getResource('SEARCH_IN', sLang)
+	sIncludeSubs = resources.getResource('INCLUDESUBS', sLang)
+	sNameSearch = resources.getResource('ALL_OR_PART_OF_THE_NAME', sLang)
+	sDescSearch = resources.getResource('WORD_OR_PHRASE_IN_DESCRIPTION', sLang)
+	sModifiedWithin = resources.getResource('MODIFIED_WITHIN', sLang)
+	sDontRemember = resources.getResource('DONT_REMEMBER', sLang)
+	sLastWeek = resources.getResource('LAST_WEEK', sLang)
+	sLastMonth = resources.getResource('LAST_MONTH', sLang)
+	sSpecifyDates = resources.getResource('SPECIFY_DATES', sLang)
+	sSearch = resources.getResource('SEARCH', sLang)
+	
+	sName = resources.getResource('displayName', sLang)
+	sSize = resources.getResource('SIZE', sLang)
+	sModifiedBy = resources.getResource('MODIFIEDBY', sLang)
+	sDateModified = resources.getResource('DATEMOD', sLang)
+	
+	sOpenContainer = resources.getResource('OPEN_CONTAINER', sLang)
+	sProperties = resources.getResource('PROPERTIES', sLang)
 %>
 <qx:window xmlns:qx="http://www.innoscript.org/quix" img="images/search16.gif" left="center"
 		top="center" width="640" height="440" title="Hypersearch" close="true"
@@ -17,27 +39,27 @@
 	<qx:script name="Hypersearch script" src="hypersearch/hypersearch.js"/>
 	<qx:wbody overflow="auto">
         <qx:splitter width="100%" height="100%" orientation="v" spacing="0">
-			<qx:pane overflow="hidden" length="200" onoff="true">
+			<qx:pane overflow="hidden" length="220" onoff="true">
 				<qx:box orientation="v" padding="8,8,8,8" width="100%" height="100%"
 						id="search_criteria" overflow="auto">
-					<qx:label height="22" caption="Search in:"/>
+					<qx:label height="22" caption="<%response.write(sSearchIn)%>"/>
 					<qx:box height="24">
 						<qx:field id="container_name" value="<%response.write(container_title)%>"/>
 						<qx:field type="hidden" id="container_id" value="<%response.write(container_id)%>"/>
 						<qx:flatbutton caption="..." width="24" onclick="hypersearch.selectFolder"/>
 					</qx:box>
-					<qx:field id="scope" type="checkbox" caption="Include subfolders" />
+					<qx:field id="scope" type="checkbox" caption="<%response.write(sIncludeSubs)%>" />
 					<qx:hr/>
-					<qx:label height="22" caption="All or part of the name:"/>
+					<qx:label height="22" caption="<%response.write(sNameSearch)%>:"/>
 					<qx:field id="name" />
-					<qx:label height="22" caption="Word or phrase in description:"/>
+					<qx:label height="22" caption="<%response.write(sDescSearch)%>:"/>
 					<qx:field id="description" />
 					<qx:hr/>
-					<qx:label height="22" caption="Mofidied within:"/>
-					<qx:field id="modified" type="radio" onclick="hypersearch.updateModifiedMode" value="0" checked="true" caption="I do not care"/>
-					<qx:field id="modified" type="radio" onclick="hypersearch.updateModifiedMode" value="1" caption="Last week"/>
-					<qx:field id="modified" type="radio" onclick="hypersearch.updateModifiedMode" value="2" caption="Last month"/>
-					<qx:field id="modified" type="radio" onclick="hypersearch.updateModifiedMode" value="3" caption="Specify dates"/>
+					<qx:label height="22" caption="<%response.write(sModifiedWithin)%>:"/>
+					<qx:field id="modified" type="radio" onclick="hypersearch.updateModifiedMode" value="0" checked="true" caption="<%response.write(sDontRemember)%>"/>
+					<qx:field id="modified" type="radio" onclick="hypersearch.updateModifiedMode" value="1" caption="<%response.write(sLastWeek)%>"/>
+					<qx:field id="modified" type="radio" onclick="hypersearch.updateModifiedMode" value="2" caption="<%response.write(sLastMonth)%>"/>
+					<qx:field id="modified" type="radio" onclick="hypersearch.updateModifiedMode" value="3" caption="<%response.write(sSpecifyDates)%>"/>
 					<qx:box id="date_from_box" height="24" padding="8,0,0,0" disabled="true">
 						<qx:label caption="from" width="40"/>
 						<qx:datepicker id="from"/>
@@ -47,15 +69,15 @@
 						<qx:datepicker id="to"/>
 					</qx:box>
 					<qx:box padding="0,0,8,0" orientation="v" childrenalign="right">
-						<qx:button width="80" height="24" caption="Search" onclick="hypersearch.search"/>
+						<qx:button width="80" height="24" caption="<%response.write(sSearch)%>" onclick="hypersearch.search"/>
 					</qx:box>
 				</qx:box>
 			</qx:pane>
 			<qx:pane overflow="hidden" bgcolor="white" length="-1">
 				<qx:contextmenu onshow="hypersearch.updateContextMenu">
-					<qx:menuoption caption="Open container" onclick="hypersearch.openContainer"/>
+					<qx:menuoption caption="<%response.write(sOpenContainer)%>" onclick="hypersearch.openContainer"/>
 					<qx:sep/>
-					<qx:menuoption caption="Properties" onclick="hypersearch.openPropertiesDialog"/>
+					<qx:menuoption caption="<%response.write(sProperties)%>" onclick="hypersearch.openPropertiesDialog"/>
 				</qx:contextmenu>
 				<qx:listview id="searchresults"
 							width="100%%"
@@ -63,10 +85,10 @@
 							ondblclick="hypersearch.showObjectProperties">
 					<qx:listheader>
 						<qx:column width="24" caption="" type="img" name="image" resizable="false"/>
-						<qx:column width="120" caption="Name" name="displayName" bgcolor="#EFEFEF" sortable="true"/>
-						<qx:column width="40" caption="Size" name="size" xform="generic.computeSize" sortable="true"/>
-						<qx:column width="100" caption="Modified by" name="modifiedBy" sortable="true"/>
-						<qx:column width="140" caption="Date modified" type="date" name="modified" sortable="true"/>
+						<qx:column width="120" caption="<%response.write(sName)%>" name="displayName" bgcolor="#EFEFEF" sortable="true"/>
+						<qx:column width="60" caption="<%response.write(sSize)%>" name="size" xform="generic.computeSize" sortable="true"/>
+						<qx:column width="120" caption="<%response.write(sModifiedBy)%>" name="modifiedBy" sortable="true"/>
+						<qx:column width="160" caption="<%response.write(sDateModified)%>" type="date" name="modified" sortable="true"/>
 					</qx:listheader>
 				</qx:listview>
 			</qx:pane>

@@ -1,7 +1,6 @@
 <config>
 	<dirs>
 		<dir name="__xul" path="__xul"/>
-		<dir name="oql" path="oql"/>
 		<dir name="scripts" path="scripts"/>
 		<dir name="styles" path="styles"/>
 		<dir name="images" path="images"/>
