@@ -79,8 +79,6 @@ class PorcupineThread(BaseServerThread):
                     # invalid sesionid
                     # create new session and redirect
                     self.createGuestSessionAndRedirect(sPath)
-#                else:
-#                    self.createGuestSessionAndRedirect(sPath)
 
                 try:
                     self.request.item = db.getItem(sPath)
@@ -185,7 +183,7 @@ class PorcupineThread(BaseServerThread):
         sBody = oFile.read()
         oFile.close()
         
-        self.response.write(sBody % locals() )
+        self.response.write( sBody % locals() )
 
         self.response.end()
 
