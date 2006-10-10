@@ -27,14 +27,14 @@ queryPerformer.executeQuery = function(evt, w) {
 }
 
 queryPerformer.executeQuery_oncomplete = function(req) {
-    var oPane = req.callback_info;
-    var oWin = oPane.getParentByType(Window);
-    var oResults = req.response;
-    oPane.clear();
+	var treeNode, caption;
+	var oPane = req.callback_info;
+	var oWin = oPane.getParentByType(Window);
+	var oResults = req.response;
+	oPane.clear();
     if (oResults.length > 0) {
-        var treeNode, caption;
         var schema = req.response[0];
-        var oTree = oPane.parseFromString(
+        oPane.parseFromString(
             '<a:tree xmlns:a="http://www.innoscript.org/quix" onexpand="queryPerformer.expandNode" onselect="queryPerformer.showProps"></a:tree>',
             function (w) {
                 queryPerformer.expandArray(w, oResults, oWin.getParentByType(Window).getWidgetById('clientArea').attributes);
@@ -49,7 +49,7 @@ queryPerformer.executeQuery_oncomplete = function(req) {
 queryPerformer.about = function(evt, w) {
     document.desktop.msgbox(
         w.getCaption(),
-        "OQL Query Performer v0.1<br/>(c)2005 Innoscript",
+        "OQL Query Performer v0.1<br/>(c)2005-2006 Innoscript",
         [['OK', 60]],
         'images/messagebox_info.gif', 'center', 'center', 260, 112
     );
