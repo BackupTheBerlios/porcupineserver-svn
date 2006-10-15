@@ -29,7 +29,7 @@ usermgmnt.newUser = function(evt, w) {
     var oWin = w.parent.owner.parent.owner.getParentByType(Window);
     var oUserList = w.parent.owner.parent.owner.parent.parent.parent.getWidgetById('userslist');
     var sFolder = QuiX.root + oUserList.attributes.FolderID;
-    oWin.showWindow(sFolder + '?cmd=new&cc=schemas.org.innoscript.security.User',
+    oWin.showWindow(sFolder + '?cmd=new&cc=org.innoscript.schemas.security.User',
         function(win) {
             win.attributes.refreshlist = function(){usermgmnt.getUsers(oUserList)}
         }
@@ -82,7 +82,7 @@ usermgmnt.newGroup = function(evt, w) {
     var oWin = w.parent.owner.parent.owner.getParentByType(Window);
     var oUserList = oWin.getWidgetById('userslist');
     var sFolder = QuiX.root + oUserList.attributes.FolderID;
-    oWin.showWindow(sFolder + '?cmd=new&cc=schemas.org.innoscript.security.Group',
+    oWin.showWindow(sFolder + '?cmd=new&cc=org.innoscript.schemas.security.Group',
         function(win) {
             win.attributes.refreshlist = function(){usermgmnt.getUsers(oUserList)}
         }
