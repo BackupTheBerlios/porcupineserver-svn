@@ -1,4 +1,60 @@
 -------------
+Version 0.0.8
+-------------
+NEW: QuiX is now IE7 compatible.
+NEW: New desktop utility named "HyperSearch", used for searching the Porcupine
+     database.
+NEW: New IFrame QuiX widget.
+NEW: Box children can be right or bottom aligned for vertical and horizontal
+     boxes respectively.
+NEW: New GroupBox QuiX widget.
+NEW: New method "getIcon" for the Window widget.
+NEW: Added support for QuiX ListView columns of functional type.
+NEW: ListView columns accept widths expressed as percentages.
+NEW: Added ability to create a ListView with hidden header.
+NEW: Added the media type (text/xml) for quix static files.
+NEW: Added background image to QuiX desktop.
+NEW: The event subsystem of the QuiX base Widget is completely rewritten
+     from scratch. Added global support of "attachEvent" and "detachEvent",
+     even for "custom" events such as "onselect", "onexpand" etc.
+NEW: New "buttonIndex" property added to QuiX Dialogs. This property contains
+     the index of the dialog button that was last pressed.
+
+OPT: Removed the "schemas", "pubdir" and "resources" folders. Each resource
+     now can be freely placed inside any directory. This way, it is now
+     possible to have one folder per Porcupine application, simplifying
+     the development process.
+OPT: Simplified the application object. Instead of having the UI
+     and the script embedded within the objects, an external "launchUrl"
+     is used for launching the application.
+OPT: The "getItem" and "getItems" methods of "Relator1" and "RelatatorN"
+     datatypes no longer raise an DBItemNotFound excpetion if the
+     referenced object is deleted. "None" is returned instead.
+OPT: Added support for synchrounous QuiX XMLRPC calls.
+OPT: XMLRPC requests are multi-shot.
+OPT: Removed the "isHidden" property from the QuiX base Widget class.
+     Use the "isHidden()" method instead.
+OPT: Hidden widgets contained inside boxes are excluded from
+     calculations.
+OPT: Changed the extension of QuiX files from ".xul" to ".quix".
+OPT: Boxes can have their overflow attribute set.
+OPT: Box children offsets are calculated faster.
+OPT: Disabled selection on disabled ListViews.
+OPT: Remove editing widget upon disabling a DataGrid.
+OPT: Optimized QuiX's XMLRPC array and member serialization.
+OPT: The "setExpiration" Response method apart from setting the
+     'Cache-Control' header it also sets the 'Expires' header.
+
+FIX: Fixed QuiX dataSet sorting by attributes that contain undefined
+     values.
+FIX: Enabling or disabling a widget twice, without restoring its
+     previous state, does not restore its color properly.
+FIX: Fixed on-off Splitter button positioning when contained
+     inside a pane with padding other than 0,0,0,0.
+FIX: When enabling or disabling a Combo the onclick handler set on the
+     INPUT element is attached/detached accordingly.
+
+-------------
 Version 0.0.7
 -------------
 NEW: Added WSGI support.
