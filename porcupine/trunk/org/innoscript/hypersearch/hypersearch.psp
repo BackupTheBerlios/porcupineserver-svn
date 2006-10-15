@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <%
-	from resources.system.strings import resources
+	from org.innoscript.desktop.strings import resources
 	
 	response.content_type = "text/xml"
 	container_id = ""
