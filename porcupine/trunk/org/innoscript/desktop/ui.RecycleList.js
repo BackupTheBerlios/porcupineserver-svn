@@ -99,7 +99,7 @@ recycleBin.empty = function(evt, w) {
 	}
 	
 	desktop.msgbox(w.getCaption(), 
-		"Are you sure you want to empty the recycle bin?",
+		w.attributes.confirmString,
 		[
 			[desktop.attributes['YES'], 60, _empty],
 			[desktop.attributes['NO'], 60]

@@ -72,6 +72,7 @@ resources = ResourceStrings({
         
         'RECYCLE_BIN' : 'Recycle Bin',
         'EMPTY_BIN' : 'Empty Bin',
+        'EMPTY_BIN?' : 'Are you sure you want to empty the recycle bin?',
         'ORIGINAL_LOC' : 'Original location',
         'SIZE' : 'Size',
 
@@ -201,6 +202,7 @@ resources = ResourceStrings({
         
         'RECYCLE_BIN' : 'Κάδος Ανακύκλωσης',
         'EMPTY_BIN' : 'Άδειασμα Κάδου',
+        'EMPTY_BIN?' : 'Είστε σίγουροι ότι θέλετε να αδειάσετε τον κάδο ανακύκλωσης;',
         'ORIGINAL_LOC' : 'Αρχική τοποθεσία',
         'SIZE' : 'Μέγεθος',
         'OK' : 'Εντάξει',

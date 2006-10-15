@@ -22,6 +22,7 @@
 				<a:tbbutton width="120"
 					img="desktop/images/trashcan_empty22.gif"
 					caption="%(EMPTY_BIN)s" onclick="recycleBin.empty">
+					<a:prop name="confirmString" value="%(EMPTY_BIN?)s"/>
 				</a:tbbutton>
 			</a:toolbar>
 			<a:rect length="-1">
