@@ -33,7 +33,7 @@ function Clipboard() {
 }
 
 var QuiX = function() {}
-QuiX.version = '0.5 build 20060629';
+QuiX.version = '0.6 build 20061015';
 QuiX.namespace = 'http://www.innoscript.org/quix';
 QuiX.browser = 'ie';
 QuiX.startX = 0;

@@ -120,9 +120,9 @@ queryPerformer.expandArray = function(w, array, options) {
         nodeimg = (options.use_image)?array[i][options.tree_image]:null;
         caption = (array[i][tree_caption])?array[i][tree_caption]:'Object ' + i.toString();
         treeNode = new TreeNode({
-            haschildren:(array.length>0),
-            img: nodeimg,
-            caption: caption, disabled:(array.length==0)
+            haschildren : (array.length>0),
+            img : nodeimg,
+            caption : caption, disabled:(array.length==0)
         });
         treeNode.attributes.obj = array[i];
         w.appendChild(treeNode);
@@ -133,7 +133,7 @@ queryPerformer.getType = function(obj) {
     var typ = 'Unknown';
     if (obj instanceof Date) {
         typ = 'Date';
-    } else if (typeof(obj) == 'boolean') {
+    } else if (typeof obj == 'boolean') {
         typ = 'Boolean';
     } else if (obj instanceof Array) {
         typ = 'Array';
