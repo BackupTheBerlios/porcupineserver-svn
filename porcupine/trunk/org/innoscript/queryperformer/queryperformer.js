@@ -148,21 +148,19 @@ queryPerformer.getType = function(obj) {
 queryPerformer.showSettings = function(evt, w) {
     var win = w.parent.owner.getParentByType(Window);
     var ca = win.getWidgetById("clientArea");
-    win.showWindowFromString(
-        '<a:dialog xmlns:a="http://www.innoscript.org/quix" width="300" height="160" ' +
-            'title="' + w.getCaption() + '" img="images/configure.gif" left="center" top="center">' +
-            '<a:wbody>' +
-                '<a:label top="7" left="5" caption="Attribute for tree captions:" width="140"></a:label>' +
-                '<a:field id="tree_caption" width="120" height="22" top="5" left="140" value="' + ca.attributes.tree_caption + '"></a:field>' +
-                '<a:field id="use_image" type="checkbox" top="30" left="5" value="' + ca.attributes.use_image + '" onclick="queryPerformer.toggleUseImage"></a:field>' +
-                '<a:label top="32" left="25" caption="Use image for tree nodes" width="200"></a:label>' +
-                '<a:label top="62" left="5" caption="Image attribute:" width="120"></a:label>' +
-                '<a:field id="tree_image" disabled="' + !(ca.attributes.use_image) + '" width="120" height="22" top="60" left="90" value="' + ca.attributes.tree_image + '"></a:field>' +
-            '</a:wbody>' +
-            '<a:dlgbutton width="60" height="22" caption="OK" onclick="queryPerformer.applyPreferences"></a:dlgbutton>' +
-            '<a:dlgbutton width="60" height="22" onclick="__closeDialog__" caption="Cancel"></a:dlgbutton>' +
-        '</a:dialog>'
-    );
+    win.showWindow('queryperformer/options.quix',
+    	function(dlg) {
+    		dlg.setTitle(w.getCaption());
+    		dlg.getWidgetById('tree_caption').setValue(ca.attributes.tree_caption);
+    		dlg.getWidgetById('use_image').setValue(ca.attributes.use_image);
+    		var tree_img = dlg.getWidgetById('tree_image');
+    		if (ca.attributes.use_image)
+    			tree_img.enable();
+    		else
+    			tree_img.disable();
+    		tree_img.setValue(ca.attributes.tree_image);
+    	}
+    )
 }
 
 queryPerformer.toggleUseImage = function(evt, w) {

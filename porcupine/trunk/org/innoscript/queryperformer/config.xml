@@ -9,6 +9,11 @@
 			 client=".*"
 			 lang=".*"
 			 action="newquery.quix"/>
+	<context path="options.quix"
+			 method="GET"
+			 client=".*"
+			 lang=".*"
+			 action="options.quix"/>
 	<context path="queryperformer.js"
 			 method="GET"
 			 client=".*"
