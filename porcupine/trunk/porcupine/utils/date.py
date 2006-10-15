@@ -18,7 +18,7 @@
 
 import time
 
-from resources.system.strings import resources
+from org.innoscript.desktop.strings import resources
 
 class Date(object):
     """
