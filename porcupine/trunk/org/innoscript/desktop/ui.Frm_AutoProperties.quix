@@ -1,0 +1,36 @@
+<?xml version="1.0"?>
+<a:dialog xmlns:a="http://www.innoscript.org/quix"
+	title="%(NAME)s"
+	img="%(ICON)s"
+	resizable="true"
+	close="true"
+	width="400"
+	height="420"
+	left="30%%"
+	top="10%%">
+	<a:script name="Generic Form Script" src="desktop/ui.Frm_Auto.js"></a:script>
+	<a:wbody>
+		<a:form action="%(URI)s" method="update">
+			<a:tabpane top="0" left="0" width="100%%" height="100%%">
+				%(PROPERTIES_TAB)s
+				%(EXTRA_TABS)s
+				%(SECURITY_TAB)s
+				<a:tab caption="%(INFO)s">
+					<a:label top="0" left="5" width="120" height="20" caption="%(DATEMOD)s:"></a:label>
+					<a:label top="0" left="125" width="55%%" height="20" caption="%(MODIFIED)s"></a:label>
+
+					<a:label top="25" left="5" width="120" height="20" caption="%(MODIFIEDBY)s:"></a:label>
+					<a:label top="25" left="125" width="55%%" height="20" caption="%(MODIFIED_BY)s"></a:label>
+
+					<a:label top="50" left="5" width="120" height="20" caption="%(OBJID)s:"></a:label>
+					<a:label top="50" left="125" width="55%%" height="20" canselect="true" caption="%(ID)s"></a:label>
+
+					<a:label top="75" left="5" width="120" height="20" caption="%(CLASS)s:"></a:label>
+					<a:label top="75" left="125" width="55%%" height="20" canselect="true" caption="%(CONTENTCLASS)s"></a:label>
+				</a:tab>
+			</a:tabpane>
+		</a:form>
+	</a:wbody>
+	<a:dlgbutton onclick="generic.updateItem" width="70" height="22" caption="%(UPDATE)s" default="true" disabled="%(UPDATE_DISABLED)s"></a:dlgbutton>
+	<a:dlgbutton onclick="__closeDialog__" width="70" height="22" caption="%(CLOSE)s"></a:dlgbutton>
+</a:dialog>
