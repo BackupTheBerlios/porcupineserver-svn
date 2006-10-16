@@ -45,10 +45,10 @@ MenuOption.prototype.redraw = function(bForceAll) {
 		if (this.selected) {
 			switch (this.type) {
 				case 'radio':
-					this.img = 'images/menu_radio.gif';
+					this.img = '__quix/images/menu_radio.gif';
 					break;
 				case 'check':
-					this.img = 'images/menu_check.gif';
+					this.img = '__quix/images/menu_check.gif';
 			}
 		}
 		else

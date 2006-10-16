@@ -15,7 +15,7 @@ function ListView(params) {
 	this.multiple = (params.multiple==true || params.multiple=="true")?true:false;
 	this.nullText = params.nulltext || '&nbsp;';
 	this.dateFormat = params.dateformat || 'ddd dd/mmm/yyyy time';
-	this.trueImg = params.trueimg || 'images/check16.gif';
+	this.trueImg = params.trueimg || '__quix/images/check16.gif';
 	this.sortfunc = getEventListener(params.sortfunc);
 
 	this.hasSelector = false;
@@ -193,7 +193,7 @@ ListView.prototype.sort = function(column) {
 
 	if (this._sortimg) QuiX.removeNode(this._sortimg);
 	this._sortimg = new Image;
-	this._sortimg.src = (this.sortorder=='ASC')?'images/asc8.gif':'images/desc8.gif';
+	this._sortimg.src = (this.sortorder=='ASC')?'__quix/images/asc8.gif':'__quix/images/desc8.gif';
 	this._sortimg.align = 'absmiddle';
 	column.appendChild(this._sortimg);
 	

@@ -87,7 +87,7 @@ TreeNode.prototype._addExpandImg = function() {
 		var oTreeNode = this;
 		this.setPadding([0,0,1,1]);
 
-		var img = QuiX.getImage('images/expand.gif');
+		var img = QuiX.getImage('__quix/images/expand.gif');
 		img.onclick = function(){oTreeNode.toggle()};
 		img.style.marginRight = '4px';
 		img.style.verticalAlign = 'middle';
@@ -122,13 +122,13 @@ TreeNode.prototype.toggle = function() {
 		for (var i=0; i < this.childNodes.length; i++) {
 			this.childNodes[i].setDisplay();
 		}
-		this._expandImg.src = 'images/collapse.gif';
+		this._expandImg.src = '__quix/images/collapse.gif';
 	}
 	else {
 		for (var i=0; i < this.childNodes.length; i++) {
 			this.childNodes[i].setDisplay('none');
 		}
-		this._expandImg.src = 'images/expand.gif';
+		this._expandImg.src = '__quix/images/expand.gif';
 	}
 	this.isExpanded = !this.isExpanded;
 }

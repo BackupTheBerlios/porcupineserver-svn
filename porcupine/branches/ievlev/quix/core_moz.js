@@ -35,7 +35,7 @@ function Clipboard() {
 	this.items = [];
 }
 
-QuiX.version = '0.5 build 20060629';
+QuiX.version = '0.6 build 20061015';
 QuiX.namespace = 'http://www.innoscript.org/quix';
 QuiX.browser = 'moz';
 QuiX.startX = 0;
@@ -52,22 +52,22 @@ QuiX.progress = '<a:rect xmlns:a="http://www.innoscript.org/quix" ' +
 		'<a:progressbar id="pb" width="150" maxvalue="1" height="4" ' +
 		'top="center" left="center"></a:progressbar></a:rect>';
 QuiX.modules = [
-	new Module('Windows and Dialogs', '__xul/windows.js', [3]),
-	new Module('Menus', '__xul/menus.js', [3]),
-	new Module('Splitter', '__xul/splitter.js', [3]),
-	new Module('Labels & Buttons', '__xul/buttons.js', []),
-	new Module('Tab Pane', '__xul/tabpane.js', []),
-	new Module('List View', '__xul/listview.js', []),
-	new Module('Tree', '__xul/tree.js', []),
-	new Module('Toolbars', '__xul/toolbars.js', [3]),
-	new Module('Forms & Fields', '__xul/formfields.js', [3]),
-	new Module('Common Widgets', '__xul/common.js', [3]),
-	new Module('Datagrid', '__xul/datagrid.js', [5,8]),
-	new Module('File Control', '__xul/file.js', [1,3,8]),
-	new Module('Date Picker', '__xul/datepicker.js', [14]),
-	new Module('Timers', '__xul/timers.js', []),
-	new Module('Forms & Fields 2', '__xul/formfields2.js', [3]),
-	new Module('VBox & HBox', '__xul/box.js', []),
+	new Module('Windows and Dialogs', '__quix/windows.js', [3]),
+	new Module('Menus', '__quix/menus.js', [3]),
+	new Module('Splitter', '__quix/splitter.js', [3]),
+	new Module('Labels & Buttons', '__quix/buttons.js', []),
+	new Module('Tab Pane', '__quix/tabpane.js', []),
+	new Module('List View', '__quix/listview.js', []),
+	new Module('Tree', '__quix/tree.js', []),
+	new Module('Toolbars', '__quix/toolbars.js', [3]),
+	new Module('Forms & Fields', '__quix/formfields.js', [3]),
+	new Module('Common Widgets', '__quix/common.js', [3]),
+	new Module('Datagrid', '__quix/datagrid.js', [5,8]),
+	new Module('File Control', '__quix/file.js', [1,3,8]),
+	new Module('Date Picker', '__quix/datepicker.js', [14]),
+	new Module('Timers', '__quix/timers.js', []),
+	new Module('Forms & Fields 2', '__quix/formfields2.js', [3]),
+	new Module('VBox & HBox', '__quix/box.js', []),
 ];
 QuiX.tags = {
 	'desktop':-1,'xhtml':-1,'script':-1,'prop':-1,'rect':-1,'progressbar':-1,

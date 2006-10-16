@@ -84,7 +84,7 @@ Splitter.prototype.redraw = function(bForceAll) {
 							padding : '2,2,2,2',
 							top : -this.getPadding()[2],
 							left : 'this.parent._getPaneOffset(' + (i + 1) + ')-8',
-							img : 'images/on_off_left.gif',
+							img : '__quix/images/on_off_left.gif',
 							onclick : SplitterOnOff_click
 						});
 					}
@@ -97,7 +97,7 @@ Splitter.prototype.redraw = function(bForceAll) {
 							padding : '2,2,2,2',
 							top : 'this.parent._getPaneOffset(' + (i + 1) + ')-8',
 							left : -this.getPadding()[0],
-							img : 'images/on_off_up.gif',
+							img : '__quix/images/on_off_up.gif',
 							imgalign : 'top',
 							onclick : SplitterOnOff_click, 
 							style : 'font-size:0px'
@@ -313,7 +313,7 @@ function SplitterOnOff_click(evt, w) {
 		w.attributes._length = p.length;
 		w.attributes._padding = padding;
 		dir = (oSplitter.orientation=='v')?'right':'down';
-		w.setImageURL('images/on_off_' + dir + '.gif');
+		w.setImageURL('__quix/images/on_off_' + dir + '.gif');
 		p.length = 0;
 		p.setPadding([0,0,0,0]);
 		p.addPaddingOffset(padding_offset, 8);
@@ -322,7 +322,7 @@ function SplitterOnOff_click(evt, w) {
 		//expand
 		p.length = w.attributes._length;
 		dir = (oSplitter.orientation=='v')?'left':'up';
-		w.setImageURL('images/on_off_' + dir + '.gif');
+		w.setImageURL('__quix/images/on_off_' + dir + '.gif');
 		p.setPadding(w.attributes._padding);
 		oSplitter.redraw();
 	}

@@ -66,7 +66,7 @@ Icon.prototype.setImageURL = function(s) {
 }
 
 Icon.prototype._addDummyImage = function() {
-	var img = QuiX.getImage('images/transp.gif');
+	var img = QuiX.getImage('__quix/images/transp.gif');
 	img.style.verticalAlign = 'middle';
 	img.style.height = '100%';
 	img.style.width = '1px';
@@ -256,7 +256,7 @@ FlatButton.prototype.redraw = function(bForceAll) {
 	Icon.prototype.redraw(bForceAll, this);
 
 	if (this.type == 'menu' && (!this._menuImg || bForceAll)) {
-		this._menuImg = QuiX.getImage('images/desc8.gif');
+		this._menuImg = QuiX.getImage('__quix/images/desc8.gif');
 		this._menuImg.border = 0;
 		this._menuImg.align = 'absmiddle';
 		this.div.appendChild(this._menuImg);
