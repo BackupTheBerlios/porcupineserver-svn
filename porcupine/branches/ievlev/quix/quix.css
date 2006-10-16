@@ -12,7 +12,7 @@ BODY {
 }
 
 .desktop {
-	background-image : url(../images/bc_brown.jpg);
+	background-image : url(images/bc_brown.jpg);
 }
 
 .outline{
@@ -109,7 +109,7 @@ BODY {
 .window .header{
 	color : white;
 	font-weight : bolder;
-	background-image : url(../images/win_title.gif);
+	background-image : url(images/win_title.gif);
 	background-color : #FF6600;
 	background-repeat : repeat-x;
 	white-space: nowrap;
@@ -123,7 +123,7 @@ BODY {
 }
 
 .resize{
-	background-image : url(../images/resize-handle.gif);
+	background-image : url(images/resize-handle.gif);
 	background-repeat : no-repeat;
 	cursor : se-resize;
 }
@@ -173,7 +173,7 @@ BODY {
 }
 
 .toolbar .handle {
-	background-image : url(../images/tb_handle.gif);
+	background-image : url(images/tb_handle.gif);
 }
 
 .menubar {
@@ -210,7 +210,7 @@ BODY {
 }
 
 .contextmenu .submenu {
-	background-image : url(../images/submenu.gif);
+	background-image : url(images/submenu.gif);
 	background-position : right;
 	background-repeat : no-repeat;
 }
@@ -257,7 +257,7 @@ BODY {
 
 .listview .listheader {
 	background-color: #F5F2EF;
-	background-image : url(../images/list_header.gif);
+	background-image : url(images/list_header.gif);
 	background-repeat : repeat-x;
 }
 
@@ -289,7 +289,7 @@ BODY {
 .listview .listheader .resizer {
 	cursor : e-resize;
 	border-style : solid;
-	/*background-image : url(../images/transp.gif);*/
+	/*background-image : url(images/transp.gif);*/
 }
 
 .listview .list TABLE TR .cell{

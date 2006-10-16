@@ -1161,7 +1161,7 @@ Widget.prototype.print = function(expand) {
 			iframe.contentWindow.print();
 		}
 		document.body.appendChild(iframe);
-		iframe.src = '__xul/print.htm';
+		iframe.src = '__quix/print.htm';
 	}
 	else {
 		iframe.contentWindow.location.reload();

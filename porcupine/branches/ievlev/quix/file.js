@@ -45,7 +45,7 @@ function File(params) {
 			applet = ce('APPLET');
 			applet.id = '_uploaderapplet';
 			applet.code = 'ReadFile.class';
-			applet.archive = "__xul/ReadFile.jar";
+			applet.archive = "__quix/ReadFile.jar";
 			applet.style.width = "1px";
 			applet.style.height = "1px";
 			applet.style.visibility = 'hidden';

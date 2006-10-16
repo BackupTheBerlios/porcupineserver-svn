@@ -32,7 +32,7 @@ function Clipboard() {
 	this.items = [];
 }
 
-QuiX.version = '0.6 build 20061015'
+QuiX.version = '0.6 build 20061015';
 QuiX.namespace = 'http://www.innoscript.org/quix';
 QuiX.browser = 'ie';
 QuiX.startX = 0;
@@ -1137,7 +1137,7 @@ Widget.prototype.print = function(expand) {
 			frame.focus();
 			frame.print();
 		});
-		iframe.src = '__xul/print.htm';
+		iframe.src = '__quix/print.htm';
 	}
 	else {
 		iframe.contentWindow.location.reload();
