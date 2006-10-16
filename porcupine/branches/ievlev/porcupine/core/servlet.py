@@ -176,10 +176,10 @@ class XULServlet(HTTPServlet):
             self.response.write('''<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0//EN" "http://www.w3.org/TR/REC-html40/strict.dtd">
 <html>
     <head>
-        <script type="text/javascript" defer="defer" src="%s/__xul/quixextensions.js"></script>
-        <script type="text/javascript" defer="defer" src="%s/__xul/xul_core.js"></script>
-        <script type="text/javascript" defer="defer" src="%s/__xul/xmlrpc.js"></script>
-        <link type="text/css" rel="stylesheet" href="%s/styles/quix.css"></link>
+        <script type="text/javascript" defer="defer" src="%s/__quix/quixextensions.js"></script>
+        <script type="text/javascript" defer="defer" src="%s/__quix/xul_core.js"></script>
+        <script type="text/javascript" defer="defer" src="%s/__quix/xmlrpc.js"></script>
+        <link type="text/css" rel="stylesheet" href="%s/__quix/quix.css"></link>
     </head>
     <body onload="__init__()">
         <xml id="xul" style="display:none">

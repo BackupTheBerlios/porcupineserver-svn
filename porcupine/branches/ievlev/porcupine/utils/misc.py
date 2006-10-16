@@ -54,7 +54,7 @@ def getClassByName(name):
     
     For example::
     
-        getClassByName('schemas.org.innoscript.common.Folder')()
+        getClassByName('org.innoscript.schemas.common.Folder')()
     
     instantiates a new I{Folder} object.
     

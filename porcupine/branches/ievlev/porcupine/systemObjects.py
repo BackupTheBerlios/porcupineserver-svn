@@ -18,7 +18,7 @@
 System top-level Porcupine Objects.
 Use these as base classes to create you own custom objects.
 
-@see: L{schemas.org.innoscript} module as a usage guideline.
+@see: L{org.innoscript.schemas} module as a usage guideline.
 """
 
 import time, copy
@@ -806,7 +806,7 @@ class Item(GenericItem, Cloneable, Moveable, Removeable):
                 raise serverExceptions.PermissionDenied
         
         except serverExceptions.DBTransactionIncomplete:
-            trans.retry()  
+            trans.retry()
 
 
 class Container(Item):
@@ -819,7 +819,7 @@ class Container(Item):
         Porcupine objects that this class instance can accept.
     @type containment: tuple
     """
-    __image__ = "images/folder.gif"
+    __image__ = "desktop/images/folder.gif"
     __slots__ = ('_subfolders','_items')
     containment = ()
     isCollection = property(lambda x:True)
@@ -961,7 +961,7 @@ class RecycleBin(Container):
     By default every I{RecycleBin} class instance is a system item.
     It cannot be deleted, copied, moved or recycled.
     """
-    __image__ = "images/recbin.gif"
+    __image__ = "images/trashcan_empty8.gif"
     __slots__ = ()
     containment = ('porcupine.systemObjects.DeletedItem', )
 

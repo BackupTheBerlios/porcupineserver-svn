@@ -23,10 +23,10 @@ if (answer == 'Y'):
         db.open(dbparams.db_class)
     except serverExceptions.ConfigurationError, e:
         sys.exit(e.info)
-    
-    import schemas.org.innoscript.common
-    import schemas.org.innoscript.security
+
     import porcupine.systemObjects
+    import org.innoscript.schemas.common
+    import org.innoscript.schemas.security
 
     # truncate database
     sys.stdout.write('Deleting existing database...')
@@ -37,7 +37,7 @@ if (answer == 'Y'):
     ftime = time.time()
 
     sys.stdout.write('Creating root folder...')
-    rootFolder = schemas.org.innoscript.common.RootFolder()
+    rootFolder = org.innoscript.schemas.common.RootFolder()
     rootFolder._id = ''
     rootFolder.description.value = 'Root Folder'
     rootFolder.displayName.value = 'Porcupine Server'
@@ -55,7 +55,7 @@ if (answer == 'Y'):
     sys.stdout.write('[OK]\n')
 
     sys.stdout.write('Creating recycle bin...')
-    rb = schemas.org.innoscript.common.RecycleBin()
+    rb = org.innoscript.schemas.common.RecycleBin()
     rb._id = 'rb'
     
     rb.description.value = 'Deleted items container'
@@ -71,7 +71,7 @@ if (answer == 'Y'):
     sys.stdout.write('[OK]\n')
 
     sys.stdout.write('Creating Categories folder...')
-    catFolder = schemas.org.innoscript.common.Category()
+    catFolder = org.innoscript.schemas.common.Category()
     catFolder._id = 'categories'
     catFolder.displayName.value = 'Categories'
     catFolder._isSystem = True
@@ -84,7 +84,7 @@ if (answer == 'Y'):
     sys.stdout.write('[OK]\n')
     
     sys.stdout.write('Creating Administrative Tools folder...')
-    adminFolder = schemas.org.innoscript.common.AdminTools()
+    adminFolder = org.innoscript.schemas.common.AdminTools()
     adminFolder._id = 'admintools'
     adminFolder.displayName.value = 'Administrative Tools'
     adminFolder._isSystem = True
@@ -103,7 +103,7 @@ if (answer == 'Y'):
     sys.stdout.write('[OK]\n')
 
     sys.stdout.write('Creating Users folder...')
-    userFolder = schemas.org.innoscript.security.UsersFolder()
+    userFolder = org.innoscript.schemas.security.UsersFolder()
     userFolder._id = 'users'
     userFolder._parentid = 'admintools'
     userFolder.displayName.value = 'Users and Groups'
@@ -127,7 +127,7 @@ if (answer == 'Y'):
     sys.stdout.write('[OK]\n')
 
     sys.stdout.write('Creating Admin user...')
-    admin = schemas.org.innoscript.security.User()
+    admin = org.innoscript.schemas.security.User()
     admin._id = 'admin'
     admin._parentid = 'users'
     admin.displayName.value = 'admin'
@@ -145,7 +145,7 @@ if (answer == 'Y'):
     sys.stdout.write('[OK]\n')
 
     sys.stdout.write('Creating SYSTEM user...')
-    system = schemas.org.innoscript.security.SystemUser()
+    system = org.innoscript.schemas.security.SystemUser()
     system._id = 'system'
     system._parentid = 'users'
     system.displayName.value = 'SYSTEM'
@@ -160,7 +160,7 @@ if (answer == 'Y'):
     sys.stdout.write('[OK]\n')
 
     sys.stdout.write('Creating GUEST user...')
-    guest = schemas.org.innoscript.security.GuestUser()
+    guest = org.innoscript.schemas.security.GuestUser()
     guest._id = 'guest'
     guest._parentid = 'users'
     guest.displayName.value = 'GUEST'
@@ -175,7 +175,7 @@ if (answer == 'Y'):
     sys.stdout.write('[OK]\n')
 
     sys.stdout.write('Creating Everyone group...')
-    everyone = schemas.org.innoscript.security.EveryoneGroup()
+    everyone = org.innoscript.schemas.security.EveryoneGroup()
     everyone._id = 'everyone'
     everyone._parentid = 'users'
     everyone.displayName.value = 'Everyone'
@@ -190,7 +190,7 @@ if (answer == 'Y'):
     sys.stdout.write('[OK]\n')
 
     sys.stdout.write('Creating Authenticated Users group...')
-    auth = schemas.org.innoscript.security.AuthUsersGroup()
+    auth = org.innoscript.schemas.security.AuthUsersGroup()
     auth._id = 'authusers'
     auth._parentid = 'users'
     auth.displayName.value = 'Authenticated Users'
@@ -205,7 +205,7 @@ if (answer == 'Y'):
     sys.stdout.write('[OK]\n')
 
     sys.stdout.write('Creating Administrators Group...')
-    admins = schemas.org.innoscript.security.Group()
+    admins = org.innoscript.schemas.security.Group()
     admins._id = 'administrators'
     admins._parentid = 'users'
     admins.displayName.value = 'Administrators'
@@ -213,7 +213,7 @@ if (answer == 'Y'):
     admins._created = ftime
     admins.modified = ftime
     admins._owner = sOwner
-    admin.modifiedBy = sOwner
+    admins.modifiedBy = sOwner
     admins.members.value = ['admin']
     admins.description.value = 'Administrators group'
     admins.security = userFolder.security
@@ -221,7 +221,7 @@ if (answer == 'Y'):
     sys.stdout.write('[OK]\n')
 
     sys.stdout.write('Creating Server Policies folder...')
-    polFolder = schemas.org.innoscript.security.PoliciesFolder()
+    polFolder = org.innoscript.schemas.security.PoliciesFolder()
     polFolder._id = 'policies'
     polFolder._parentid = 'admintools'
     polFolder.displayName.value = 'Policies'
@@ -240,7 +240,7 @@ if (answer == 'Y'):
     sys.stdout.write('[OK]\n')
 
     sys.stdout.write('Creating Upload Policy...')
-    policy = schemas.org.innoscript.security.Policy()
+    policy = org.innoscript.schemas.security.Policy()
     policy._id = 'uploadpolicy'
     policy._parentid = 'policies'
     policy.displayName.value = 'Upload Documents'
@@ -256,7 +256,7 @@ if (answer == 'Y'):
     sys.stdout.write('[OK]\n')
 
     sys.stdout.write('Creating QuiX Applications folder...')
-    appFolder = schemas.org.innoscript.common.AppsFolder()
+    appFolder = org.innoscript.schemas.common.AppsFolder()
     appFolder._id = 'apps'
     appFolder._parentid = 'admintools'
     appFolder.displayName.value = 'Applications'
@@ -276,7 +276,7 @@ if (answer == 'Y'):
     sys.stdout.write('[OK]\n')
 
     sys.stdout.write('Creating Users and Groups Management application...')
-    app = schemas.org.innoscript.common.Application()
+    app = org.innoscript.schemas.common.Application()
     app._id = 'appusrmgmnt'
     app._parentid = 'apps'
     app.displayName.value = 'Users and Groups Management'
@@ -286,14 +286,14 @@ if (answer == 'Y'):
     app._created = ftime
     app.modified = ftime
     app.launchUrl.value = 'usermgmnt/usermgmnt.quix'
-    app.icon.value = 'images/group.gif'
+    app.icon.value = 'usermgmnt/images/icon.gif'
     app.inheritRoles = False
     app.security = {'administrators': 8}
     db.putItem(app, None)
     sys.stdout.write('[OK]\n')
 
     sys.stdout.write('Creating OQL Query Performer application...')
-    app = schemas.org.innoscript.common.Application()
+    app = org.innoscript.schemas.common.Application()
     app._id = 'oqlqueryperf'
     app._parentid = 'apps'
     app.displayName.value = 'OQL Query Performer'
@@ -303,7 +303,7 @@ if (answer == 'Y'):
     app._created = ftime
     app.modified = ftime
     app.launchUrl.value = 'queryperformer/queryperformer.quix'
-    app.icon.value = 'images/oql.gif'
+    app.icon.value = 'queryperformer/images/icon.gif'
     app.inheritRoles = False
     app.security = {'administrators': 8}
     db.putItem(app, None)

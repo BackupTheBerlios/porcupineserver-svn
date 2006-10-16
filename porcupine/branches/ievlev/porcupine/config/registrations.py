@@ -43,7 +43,7 @@ class Registration(object):
 class App(object):
     def __init__(self, appNode):
         appName = appNode.getAttribute('name')
-        self.path = 'pubdir/' + appNode.getAttribute('path')
+        self.path = appNode.getAttribute('path')
         self.__config = []
         self.__cache = {}
         configXML = minidom.parse(self.path + '/config.xml')

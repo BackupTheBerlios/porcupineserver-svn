@@ -1,11 +1,9 @@
 <config>
 	<dirs>
-		<dir name="__xul" path="__xul"/>
-		<dir name="scripts" path="scripts"/>
-		<dir name="styles" path="styles"/>
-		<dir name="images" path="images"/>
-		<dir name="hypersearch" path="hypersearch"/>
-		<dir name="usermgmnt" path="usermgmnt"/>
-		<dir name="queryperformer" path="queryperformer"/>
+		<dir name="__quix" path="quix"/>
+		<dir name="desktop" path="org/innoscript/desktop"/>
+		<dir name="hypersearch" path="org/innoscript/hypersearch"/>
+		<dir name="usermgmnt" path="org/innoscript/usermgmnt"/>
+		<dir name="queryperformer" path="org/innoscript/queryperformer"/>
 	</dirs>
 </config>
