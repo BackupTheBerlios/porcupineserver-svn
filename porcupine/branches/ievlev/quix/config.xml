@@ -9,7 +9,7 @@
 	<context path="ReadFile.jar" method="GET" client=".*" lang=".*" action="ReadFile.jar"/>
 
 	<!-- QuiX Stylesheets -->
-	<context path="quix.css" method="GET" client=".*" lang=".*" action="quix.css"/>
+	<context path="quix.css" method="GET" client=".*" lang=".*" action="quix.psp"/>
 
 	<!-- QuiX Modules -->
 	<context path="box.js" method="GET" client=".*" lang=".*" action="box.js"/>
@@ -33,7 +33,7 @@
 	<!-- QuiX images-->
 	<context path="images/add16.gif" method="GET" client=".*" lang=".*" action="images/add16.gif"/>
 	<context path="images/asc8.gif" method="GET" client=".*" lang=".*" action="asc8.gif"/>
-	<context path="images/bc_brown.jpg" method="GET" client="MSIE 7|(Mozilla/5.0.+rv:1.[7-9])" lang=".*" action="images/bc_brown.jpg" max-age="3600"/>
+	<context path="images/bc_brown.jpg" method="GET" client=".*" lang=".*" action="images/bc_brown.jpg" max-age="3600"/>
 	<context path="images/check16.gif" method="GET" client=".*" lang=".*" action="images/check16.gif"/>
 	<context path="images/collapse.gif" method="GET" client=".*" lang=".*" action="images/collapse.gif"/>
 	<context path="images/date16.gif" method="GET" client=".*" lang=".*" action="images/date16.gif"/>
