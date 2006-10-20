@@ -673,7 +673,7 @@ function Widget(params) {
 		this.disable();
 }
 
-Widget.prototype.appendChild = function(w, p) {
+Widget.prototype.appendChild = function(w, p, ommitRedraw) {
 	p = p || this;
 	p.widgets.push(w);
 	w.parent = p;
@@ -682,7 +682,10 @@ Widget.prototype.appendChild = function(w, p) {
 	p.div.appendChild(w.div);
 	if (w.height=='100%' && w.width=='100%')
 		p.setOverflow('hidden');
-	w.redraw();
+
+	if (!ommitRedraw)
+		w.redraw();
+
 	w.bringToFront();
 	if (p._isDisabled)
 		w.disable();
