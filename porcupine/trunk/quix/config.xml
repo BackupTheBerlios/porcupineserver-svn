@@ -32,7 +32,7 @@
 
 	<!-- QuiX images-->
 	<context path="images/add16.gif" method="GET" client=".*" lang=".*" action="images/add16.gif"/>
-	<context path="images/asc8.gif" method="GET" client=".*" lang=".*" action="asc8.gif"/>
+	<context path="images/asc8.gif" method="GET" client=".*" lang=".*" action="images/asc8.gif"/>
 	<context path="images/bc_brown.jpg" method="GET" client=".*" lang=".*" action="images/bc_brown.jpg" max-age="3600"/>
 	<context path="images/check16.gif" method="GET" client=".*" lang=".*" action="images/check16.gif"/>
 	<context path="images/collapse.gif" method="GET" client=".*" lang=".*" action="images/collapse.gif"/>
