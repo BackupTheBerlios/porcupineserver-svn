@@ -7,7 +7,7 @@
 	
 	<!--_____________________________SYSTEM_REGISTRATIONS______________________________-->
 	<!--_________________________________HTTP_SERVLETS_________________________________-->
-	<reg cc="org.innoscript.schemas.common.Document"
+	<reg cc="org.innoscript.desktop.schema.common.Document"
 			method="GET"
 			param="getfile"
 			client=".*"
@@ -15,56 +15,56 @@
 			action="org/innoscript/desktop/getdocument.psp"/>
 	
 	<!--________________________________QUIX_INTERFACES________________________________-->
-	<reg cc="org.innoscript.schemas.common.RootFolder"
+	<reg cc="org.innoscript.desktop.schema.common.RootFolder"
 			method="GET"
 			param=""
 			client="(MSIE [6-7])|(Mozilla/5.0.+rv:1.[7-9])"
 			lang=".*"
 			action="org.innoscript.desktop.ui.Desktop"/>
 
-	<reg cc="org.innoscript.schemas.common.RootFolder"
+	<reg cc="org.innoscript.desktop.schema.common.RootFolder"
 			method="GET"
 			param="login"
 			client="(MSIE [6-7])|(Mozilla/5.0.+rv:1.[7-9])"
 			lang=".*"
 			action="org.innoscript.desktop.ui.LoginPage"/>
 
-	<reg cc="org.innoscript.schemas.common.RootFolder"
+	<reg cc="org.innoscript.desktop.schema.common.RootFolder"
 			method="GET"
 			param="about"
 			client="(MSIE [6-7])|(Mozilla/5.0.+rv:1.[7-9])"
 			lang=".*"
 			action="org.innoscript.desktop.ui.AboutDialog"/>
 
-	<reg cc="org.innoscript.schemas.common.RootFolder"
+	<reg cc="org.innoscript.desktop.schema.common.RootFolder"
 			method="GET"
 			param="user_settings"
 			client="(MSIE [6-7])|(Mozilla/5.0.+rv:1.[7-9])"
 			lang=".*"
 			action="org.innoscript.desktop.ui.Dlg_UserSettings"/>
 			
-	<reg cc="org\.innoscript\.schemas\..+\..*Folder|schemas\.org\.innoscript\.common\.AdminTools"
+	<reg cc="org\.innoscript\.desktop\.schema\..+\..*Folder|schemas\.org\.innoscript\.common\.AdminTools"
 			method="GET"
 			param="list"
 			client="(MSIE [6-7])|(Mozilla/5.0.+rv:1.[7-9])"
 			lang=".*"
 			action="org.innoscript.desktop.ui.ContainerList"/>
 			
-	<reg cc="org.innoscript.schemas.common.RecycleBin"
+	<reg cc="org.innoscript.desktop.schema.common.RecycleBin"
 			method="GET"
 			param="list"
 			client="(MSIE [6-7])|(Mozilla/5.0.+rv:1.[7-9])"
 			lang=".*"
 			action="org.innoscript.desktop.ui.RecycleList"/>
 			
-	<reg cc="org.innoscript.schemas.security.UsersFolder"
+	<reg cc="org.innoscript.desktop.schema.security.UsersFolder"
 			method="GET"
 			param="new"
 			client="(MSIE [6-7])|(Mozilla/5.0.+rv:1.[7-9])"
 			lang=".*"
 			action="org.innoscript.desktop.ui.Frm_UserGroupNew"/>
 
-	<reg cc="org.innoscript.schemas.common.AppsFolder"
+	<reg cc="org.innoscript.desktop.schema.common.AppsFolder"
 			method="GET"
 			param="new"
 			client="(MSIE [6-7])|(Mozilla/5.0.+rv:1.[7-9])"
@@ -72,42 +72,42 @@
 			action="org.innoscript.desktop.ui.Frm_AppNew"/>
 			
 
-	<reg cc="org.innoscript.schemas.\w+.(\w*Folder|Category)|org.innoscript.schemas.common.AdminTools"
+	<reg cc="org.innoscript.desktop.schema.\w+.(\w*Folder|Category)|org.innoscript.desktop.schema.common.AdminTools"
 			method="GET"
 			param="selectobjects"
 			client="(MSIE [6-7])|(Mozilla/5.0.+rv:1.[7-9])"
 			lang=".*"
 			action="org.innoscript.desktop.ui.Dlg_SelectObjects"/>
 			
-	<reg cc="org.innoscript.schemas.\w+.(\w*Folder|Category)"
+	<reg cc="org.innoscript.desktop.schema.\w+.(\w*Folder|Category)"
 			method="GET"
 			param="new"
 			client="(MSIE [6-7])|(Mozilla/5.0.+rv:1.[7-9])"
 			lang=".*"
 			action="org.innoscript.desktop.ui.Frm_AutoNew"/>
 			
-	<reg cc="org.innoscript.schemas.common.Application"
+	<reg cc="org.innoscript.desktop.schema.common.Application"
 			method="GET"
 			param="properties"
 			client="(MSIE [6-7])|(Mozilla/5.0.+rv:1.[7-9])"
 			lang=".*"
 			action="org.innoscript.desktop.ui.Frm_AppProperties"/>
 
-	<reg cc="org.innoscript.schemas.security.User$"
+	<reg cc="org.innoscript.desktop.schema.security.User$"
 			method="GET"
 			param="resetpsw"
 			client="(MSIE [6-7])|(Mozilla/5.0.+rv:1.[7-9])"
 			lang=".*"
 			action="org.innoscript.desktop.ui.Frm_UserResetPassword"/>
 			
-	<reg cc="org.innoscript.schemas.security.User$"
+	<reg cc="org.innoscript.desktop.schema.security.User$"
 			method="GET"
 			param="properties"
 			client="(MSIE [6-7])|(Mozilla/5.0.+rv:1.[7-9])"
 			lang=".*"
 			action="org.innoscript.desktop.ui.Frm_UserProperties"/>
 			
-	<reg cc="org.innoscript.schemas.security.Group"
+	<reg cc="org.innoscript.desktop.schema.security.Group"
 			method="GET"
 			param="properties"
 			client="(MSIE [6-7])|(Mozilla/5.0.+rv:1.[7-9])"
@@ -143,49 +143,49 @@
 			action="org.innoscript.desktop.ui.Frm_AutoProperties"/>
 
 	<!--_________________________________XML_RPC_________________________________-->
-	<reg cc="org.innoscript.schemas.common.RootFolder"
+	<reg cc="org.innoscript.desktop.schema.common.RootFolder"
 			method="POST"
 			param=""
 			client="vcXMLRPC"
 			lang=".*"
 			action="org.innoscript.desktop.XMLRPC.RootFolder"/>
 
-	<reg cc="org.innoscript.schemas.common.RootFolder"
+	<reg cc="org.innoscript.desktop.schema.common.RootFolder"
 			method="POST"
 			param="login"
 			client="vcXMLRPC"
 			lang=".*"
 			action="org.innoscript.desktop.XMLRPC.Login"/>
 
-	<reg cc="org.innoscript.schemas.common.RootFolder"
+	<reg cc="org.innoscript.desktop.schema.common.RootFolder"
 			method="POST"
 			param="applySettings"
 			client="vcXMLRPC"
 			lang=".*"
 			action="org.innoscript.desktop.XMLRPC.ApplyUserSettings"/>
 			
-	<reg cc="org.innoscript.schemas.common.Category"
+	<reg cc="org.innoscript.desktop.schema.common.Category"
 			method="POST"
 			param=""
 			client="vcXMLRPC"
 			lang=".*"
 			action="org.innoscript.desktop.XMLRPC.Category"/>
 	
-	<reg cc="org.innoscript.schemas.\w+.\w*Folder|org.innoscript.schemas.common.AdminTools"
+	<reg cc="org.innoscript.desktop.schema.\w+.\w*Folder|org.innoscript.desktop.schema.common.AdminTools"
 			method="POST"
 			param=""
 			client="vcXMLRPC"
 			lang=".*"
 			action="org.innoscript.desktop.XMLRPC.ContainerGeneric"/>
 
-	<reg cc="org.innoscript.schemas.common.RecycleBin"
+	<reg cc="org.innoscript.desktop.schema.common.RecycleBin"
 			method="POST"
 			param=""
 			client="vcXMLRPC"
 			lang=".*"
 			action="org.innoscript.desktop.XMLRPC.RecycleBin"/>
 	
-	<reg cc="org.innoscript.schemas.security.User"
+	<reg cc="org.innoscript.desktop.schema.security.User"
 			method="POST"
 			param=""
 			client="vcXMLRPC"
@@ -207,7 +207,7 @@
 			action="org.innoscript.desktop.XMLRPC.ItemGeneric"/>
 
 	<!--__________________________BROWSER_NOT_SUPPORTED__________________________-->
-	<reg cc="org.innoscript.schemas.common.RootFolder"
+	<reg cc="org.innoscript.desktop.schema.common.RootFolder"
 		method="GET"
 		param="login"
 		client=".*"

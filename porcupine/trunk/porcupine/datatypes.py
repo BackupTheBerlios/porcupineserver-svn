@@ -19,7 +19,7 @@ Porcupine datatypes
 ===================
 Base classes for custom data types and schema properties.
 
-See also the L{org.innoscript.schemas.properties} module as a usage guideline.
+See also the L{org.innoscript.desktop.schema.properties} module as a usage guideline.
 """
 
 import copy, md5

@@ -17,14 +17,14 @@
 "Porcupine common objects"
 
 from porcupine import systemObjects as system
-from org.innoscript.schemas import properties
+from org.innoscript.desktop.schema import properties
 from porcupine import datatypes
 
 class File(system.Item):
     """Simple file object
 
     @ivar file: The file data type
-    @type file: L{file<org.innoscript.schemas.properties.file>}
+    @type file: L{file<org.innoscript.desktop.schema.properties.RequiredFile>}
     """
     __image__ = "desktop/images/document.gif"
     __slots__ = ('file',)
@@ -32,7 +32,7 @@ class File(system.Item):
     
     def __init__(self):
         system.Item.__init__(self)
-        self.file = properties.file()
+        self.file = properties.RequiredFile()
 
     def getSize(self):
         "Getter for L{size} property"
@@ -62,8 +62,8 @@ class RootFolder(system.Container):
     """
     __slots__ = ()
     containment = (
-        'org.innoscript.schemas.common.Folder',
-        'org.innoscript.schemas.collab.ContactsFolder',
+        'org.innoscript.desktop.schema.common.Folder',
+        'org.innoscript.desktop.schema.collab.ContactsFolder',
     )
     
     def getParent(self):
@@ -85,17 +85,17 @@ class AppsFolder(system.Container):
     """
     __image__ = "desktop/images/appsfolder.gif"
     __slots__ = ()
-    containment = ('org.innoscript.schemas.common.Application',)
+    containment = ('org.innoscript.desktop.schema.common.Application',)
 
 class Application(system.Item):
     """B{QuiX} Application Object
     
     @ivar launchUrl: The application's startup URL. This URL should point to
                      a valid QuiX definition file.
-    @type launchUrl: L{launchUrl<org.innoscript.schemas.properties.launchUrl>}
+    @type launchUrl: L{launchUrl<org.innoscript.desktop.schema.properties.LaunchUrl>}
 
     @ivar icon: The icon to appear on the desktop menus.
-    @type icon: L{icon<org.innoscript.schemas.properties.icon>}
+    @type icon: L{icon<porcupine.datatypes.String>}
     """
     __image__ = "desktop/images/app.gif"
     __slots__ = (
@@ -106,7 +106,7 @@ class Application(system.Item):
     
     def __init__(self):
         system.Item.__init__(self)
-        self.launchUrl = properties.launchUrl()
+        self.launchUrl = properties.LaunchUrl()
         self.icon = datatypes.String()
 
 class Folder(system.Container):
@@ -117,35 +117,35 @@ class Folder(system.Container):
     """
     __slots__ = ()
     containment = (
-        'org.innoscript.schemas.common.Folder',
-        'org.innoscript.schemas.common.Document'
+        'org.innoscript.desktop.schema.common.Folder',
+        'org.innoscript.desktop.schema.common.Document'
     )
 
 class Category(system.Container):
     """Category
 
     @ivar category_objects: The objects contained in this category
-    @type category_objects: L{category_objects<org.innoscript.schemas.properties.
+    @type category_objects: L{category_objects<org.innoscript.desktop.schema.properties.
                             category_objects>}
     """
     __image__ = "desktop/images/category.gif"
     __slots__ = ('category_objects',)
     __props__ = system.Container.__props__ + __slots__
-    containment = ('org.innoscript.schemas.common.Category',)
+    containment = ('org.innoscript.desktop.schema.common.Category',)
     
     def __init__(self):
         system.Container.__init__(self)
-        self.category_objects = properties.category_objects()
+        self.category_objects = properties.CategoryObjects()
 
 class Document(File):
     """Document with categorization capabilities
     
     @ivar categories: The document's categories
-    @type categories: L{categories<org.innoscript.schemas.properties.categories>}
+    @type categories: L{categories<org.innoscript.desktop.schema.properties.categories>}
     """
     __slots__ = ('categories',)
     __props__ = File.__props__ + __slots__
     
     def __init__(self):
         File.__init__(self)
-        self.categories = properties.categories()
+        self.categories = properties.Categories()

@@ -43,7 +43,7 @@ OPT: Disabled selection on disabled ListViews.
 OPT: Remove editing widget upon disabling a DataGrid.
 OPT: Optimized QuiX's XMLRPC array and member serialization.
 OPT: The "setExpiration" Response method apart from setting the
-     'Cache-Control' header it also sets the 'Expires' header.
+     "Cache-Control" header it also sets the "Expires" header.
 
 FIX: Fixed QuiX dataSet sorting by attributes that contain undefined
      values.

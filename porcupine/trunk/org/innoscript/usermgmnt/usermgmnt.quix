@@ -32,10 +32,10 @@
 		        <a:tbbutton width="38" id="filter" img="usermgmnt/images/colorpicker22.gif" type="menu">
 		                <a:menuoption id="fv" type="radio" caption="Show all" selected="true" onclick="usermgmnt.applyFilter"></a:menuoption>
 		                <a:menuoption id="fv" type="radio" caption="Show users" onclick="usermgmnt.applyFilter">
-		                    <a:prop name="CC" value="org.innoscript.schemas.security.User"></a:prop>
+		                    <a:prop name="CC" value="org.innoscript.desktop.schema.security.User"></a:prop>
 		                </a:menuoption>
 		                <a:menuoption id="fv" type="radio" caption="Show groups" onclick="usermgmnt.applyFilter">
-		                    <a:prop name="CC" value="org.innoscript.schemas.security.Group"></a:prop>
+		                    <a:prop name="CC" value="org.innoscript.desktop.schema.security.Group"></a:prop>
 		                </a:menuoption>
 		        </a:tbbutton>
 		    </a:toolbar>

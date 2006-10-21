@@ -16,123 +16,119 @@
 #===============================================================================
 """
 This module defines all the custom properties used
-by the L{org.innoscript.schemas} module custom objects.
+by the L{org.innoscript.desktop.schema} module custom objects.
 """
 
 from porcupine.datatypes import *
 
-class file(File):
+class RequiredFile(File):
     """
     Simple file attribute.
     
     Added in:
-        1. L{File<org.innoscript.schemas.common.File>}
+        1. L{File<org.innoscript.desktop.schema.common.File>}
     """
     __slots__ = ()
     isRequired = True
 
-class launchUrl(String):
+class LaunchUrl(String):
     """
     A Url to valid QuiX file.
     
     Added in:
-        1. L{Application<org.innoscript.schemas.common.Application>}
+        1. L{Application<org.innoscript.desktop.schema.common.Application>}
     """
     __slots__ = ()
     isRequired = True
 
-class category_objects(RelatorN):
+class CategoryObjects(RelatorN):
     """
     The objects that a category has.
     
     Added in:
-        1. L{Category<org.innoscript.schemas.common.Category>}
+        1. L{Category<org.innoscript.desktop.schema.common.Category>}
     """
     __slots__ = ()
     relCc = (
-        'org.innoscript.schemas.common.Document', 
-        'org.innoscript.schemas.collab.Contact', 
+        'org.innoscript.desktop.schema.common.Document', 
+        'org.innoscript.desktop.schema.collab.Contact', 
     )
     relAttr = 'categories'
     
-class categories(RelatorN):
+class Categories(RelatorN):
     """
     The categories that an object belongs to.
     
     Added in:
-        1. L{Document<org.innoscript.schemas.common.Document>}
-        2. L{Contact<org.innoscript.schemas.collab.Contact>}
+        1. L{Document<org.innoscript.desktop.schema.common.Document>}
+        2. L{Contact<org.innoscript.desktop.schema.collab.Contact>}
     """
     __slots__ = ()
     relCc = (
-        'org.innoscript.schemas.common.Category',
+        'org.innoscript.desktop.schema.common.Category',
     )
     relAttr = 'category_objects'
         
-class memberof(RelatorN):
+class MemberOf(RelatorN):
     """
     The groups that a user is member of.
     
     Added in:
-        1. L{GenericUser<org.innoscript.schemas.security.GenericUser>}
-        2. L{GuestUser<org.innoscript.schemas.security.GuestUser>}
+        1. L{GenericUser<org.innoscript.desktop.schema.security.GenericUser>}
     """
     __slots__ = ()
-    relCc = ('org.innoscript.schemas.security.Group', )
+    relCc = ('org.innoscript.desktop.schema.security.Group', )
     relAttr = 'members'
 
-class password(Password):
+class RequiredPassword(Password):
     """
     The user's password.
     
     Added in:
-        1. L{User<org.innoscript.schemas.security.User>}
+        1. L{User<org.innoscript.desktop.schema.security.User>}
     """
     __slots__ = ()
     isRequired = True
 
-class members(RelatorN):
+class Members(RelatorN):
     """
     A group's members.
     
     Added in:
-        1. L{Group<org.innoscript.schemas.security.Group>}
+        1. L{Group<org.innoscript.desktop.schema.security.Group>}
     """
     __slots__ = ()
     relCc = (
-        'org.innoscript.schemas.security.User',
-        'org.innoscript.schemas.security.GuestUser'
+        'org.innoscript.desktop.schema.security.User',
+        'org.innoscript.desktop.schema.security.GuestUser'
     )
     relAttr = 'memberof'
     
-class policies(RelatorN):
+class Policies(RelatorN):
     """
     List of policies assigned to an object.
     
     Added in:
-        1. L{GuestUser<org.innoscript.schemas.security.GuestUser>}
-        2. L{User<org.innoscript.schemas.security.User>}
-        3. L{Group<org.innoscript.schemas.security.Group>}
-        4. L{EveryoneGroup<org.innoscript.schemas.security.EveryoneGroup>}
-        5. L{AuthUsersGroup<org.innoscript.schemas.security.AuthUsersGroup>}
+        1. L{GuestUser<org.innoscript.desktop.schema.security.GenericUser>}
+        2. L{Group<org.innoscript.desktop.schema.security.GenericGroup>}
     """
     __slots__ = ()
-    relCc = ('org.innoscript.schemas.security.Policy', )
+    relCc = ('org.innoscript.desktop.schema.security.Policy', )
     relAttr = 'policyGranted'
 
-class policyGranted(RelatorN):
+class PolicyGranted(RelatorN):
     """
     List of objects that a policy is assigned to.
     
     Added in:
-        1. L{Policy<org.innoscript.schemas.security.Policy>}
+        1. L{Policy<org.innoscript.desktop.schema.security.Policy>}
     """
     __slots__ = ()
     relCc = (
-        'org.innoscript.schemas.security.GuestUser',
-        'org.innoscript.schemas.security.User',
-        'org.innoscript.schemas.security.Group',
-        'org.innoscript.schemas.security.EveryoneGroup',
-        'org.innoscript.schemas.security.AuthUsersGroup'
+        'org.innoscript.desktop.schema.security.GuestUser',
+        'org.innoscript.desktop.schema.security.User',
+        'org.innoscript.desktop.schema.security.Group',
+        'org.innoscript.desktop.schema.security.EveryoneGroup',
+        'org.innoscript.desktop.schema.security.AuthUsersGroup'
     )
     relAttr = 'policies'

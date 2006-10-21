@@ -17,16 +17,17 @@
 "Porcupine collaboration objects"
 
 from porcupine import systemObjects as system
-from org.innoscript.schemas import properties
 from porcupine import datatypes
+
+from org.innoscript.desktop.schema import properties
 
 class ContactsFolder(system.Container):
     "Contacts Folder"
     __image__ = "desktop/images/contact_folder.gif"
     __slots__ = ()
     containment = (
-        'org.innoscript.schemas.collab.ContactsFolder',
-        'org.innoscript.schemas.collab.Contact',
+        'org.innoscript.desktop.schema.collab.ContactsFolder',
+        'org.innoscript.desktop.schema.collab.Contact',
     )
 
 class Contact(system.Item):
@@ -39,7 +40,7 @@ class Contact(system.Item):
     @type email: L{email<porcupine.datatypes.String>}
     
     @ivar categories: The contact's categories
-    @type categories: L{categories<org.innoscript.schemas.properties.categories>}
+    @type categories: L{categories<org.innoscript.desktop.schema.properties.Categories>}
     """
     __image__ = "images/contact.gif"
     __slots__ = ('company', 'email', 'categories')
@@ -49,4 +50,4 @@ class Contact(system.Item):
         system.Item.__init__(self)
         self.company = datatypes.String()
         self.email = datatypes.String()
-        self.categories = properties.categories()
+        self.categories = properties.Categories()

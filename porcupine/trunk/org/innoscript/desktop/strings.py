@@ -17,15 +17,15 @@ resources = ResourceStrings({
         'PM' : 'PM',
 
         # classes
-        'org.innoscript.schemas.common.Folder' : 'Folder',
-        'org.innoscript.schemas.collab.ContactsFolder' : 'Contacts folder',
-        'org.innoscript.schemas.collab.Contact' : 'Contact',
-        'org.innoscript.schemas.common.Document' : 'File',
-        'org.innoscript.schemas.common.Category' : 'Category',
-        'org.innoscript.schemas.security.User' : 'User',
-        'org.innoscript.schemas.security.Group' : 'Group',
-        'org.innoscript.schemas.security.Policy' : 'Policy',
-        'org.innoscript.schemas.common.Application' : 'Application',
+        'org.innoscript.desktop.schema.common.Folder' : 'Folder',
+        'org.innoscript.desktop.schema.collab.ContactsFolder' : 'Contacts folder',
+        'org.innoscript.desktop.schema.collab.Contact' : 'Contact',
+        'org.innoscript.desktop.schema.common.Document' : 'File',
+        'org.innoscript.desktop.schema.common.Category' : 'Category',
+        'org.innoscript.desktop.schema.security.User' : 'User',
+        'org.innoscript.desktop.schema.security.Group' : 'Group',
+        'org.innoscript.desktop.schema.security.Policy' : 'Policy',
+        'org.innoscript.desktop.schema.common.Application' : 'Application',
 
         # schema attributes
         'displayName' : 'Name',
@@ -148,15 +148,15 @@ resources = ResourceStrings({
         'PM' : 'μμ',
         
         # classes 
-        'org.innoscript.schemas.common.Folder' : 'Φάκελος',
-        'org.innoscript.schemas.collab.ContactsFolder' : 'Φάκελος επαφών',
-        'org.innoscript.schemas.collab.Contact' : 'Επαφή',
-        'org.innoscript.schemas.common.Document' : 'Έγγραφο',
-        'org.innoscript.schemas.common.Category' : 'Κατηγορία',
-        'org.innoscript.schemas.security.User' : 'Χρήστης',
-        'org.innoscript.schemas.security.Group' : 'Ομάδα',
-        'org.innoscript.schemas.security.Policy' : 'Πολιτική Ασφάλειας',
-        'org.innoscript.schemas.common.Application' : 'Εφαρμογή',
+        'org.innoscript.desktop.schema.common.Folder' : 'Φάκελος',
+        'org.innoscript.desktop.schema.collab.ContactsFolder' : 'Φάκελος επαφών',
+        'org.innoscript.desktop.schema.collab.Contact' : 'Επαφή',
+        'org.innoscript.desktop.schema.common.Document' : 'Έγγραφο',
+        'org.innoscript.desktop.schema.common.Category' : 'Κατηγορία',
+        'org.innoscript.desktop.schema.security.User' : 'Χρήστης',
+        'org.innoscript.desktop.schema.security.Group' : 'Ομάδα',
+        'org.innoscript.desktop.schema.security.Policy' : 'Πολιτική Ασφάλειας',
+        'org.innoscript.desktop.schema.common.Application' : 'Εφαρμογή',
         
         #schema attributes
         'displayName' : 'Όνομα',
