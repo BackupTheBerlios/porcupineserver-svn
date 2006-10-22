@@ -101,6 +101,10 @@ function Field(params) {
 	}
 
 	this._adjustFieldSize();
+	if (this._isDisabled) {
+		e.disabled = true;
+		e.backgroundColor = 'menu';
+	}
 }
 
 Field.prototype = new Widget;
@@ -179,7 +183,7 @@ Field.prototype.setCaption = function(caption) {
 Field.prototype.enable = function() {
 	if (this.div.firstChild) {
 		this.div.firstChild.disabled = false;
-		//this.div.firstChild.style.backgroundColor = this.getBgColor();
+		this.div.firstChild.style.backgroundColor = this.getBgColor();
 	}
 	Widget.prototype.enable(this);
 }
@@ -187,7 +191,7 @@ Field.prototype.enable = function() {
 Field.prototype.disable = function() {
 	if (this.div.firstChild) {
 		this.div.firstChild.disabled = true;
-		//this.div.firstChild.style.backgroundColor = 'menu';
+		this.div.firstChild.style.backgroundColor = 'menu';
 	}
 	Widget.prototype.disable(this);
 }

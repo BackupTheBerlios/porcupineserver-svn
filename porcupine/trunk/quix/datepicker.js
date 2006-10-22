@@ -58,6 +58,12 @@ function Datepicker(params) {
 			oDatepicker.fill();
 		}
 	);
+
+	if (this._isDisabled) {
+		this.div.firstChild.disabled = true;
+		this.div.firstChild.style.backgroundColor = 'menu';
+		if (!this.readonly) this.div.firstChild.onclick = null;
+	}
 }
 
 Datepicker.prototype = new Combo;
