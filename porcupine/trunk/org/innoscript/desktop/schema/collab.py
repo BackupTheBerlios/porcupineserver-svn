@@ -42,7 +42,7 @@ class Contact(system.Item):
     @ivar categories: The contact's categories
     @type categories: L{categories<org.innoscript.desktop.schema.properties.Categories>}
     """
-    __image__ = "images/contact.gif"
+    __image__ = "desktop/images/contact.gif"
     __slots__ = ('company', 'email', 'categories')
     __props__ = system.Item.__props__ + __slots__
     

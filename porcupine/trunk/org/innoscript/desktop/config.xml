@@ -39,6 +39,7 @@
 	<context path="images/policies.gif" method="GET" client=".*" lang=".*" action="images/policies.gif"/>
 	<context path="images/policy.gif" method="GET" client=".*" lang=".*" action="images/policy.gif"/>
 	<context path="images/powered.gif" method="GET" client=".*" lang=".*" action="images/powered.gif"/>
+	<context path="images/reload16.gif" method="GET" client=".*" lang=".*" action="images/reload16.gif"/>
 	<context path="images/reload22.gif" method="GET" client=".*" lang=".*" action="images/reload22.gif"/>
 	<context path="images/search16.gif" method="GET" client=".*" lang=".*" action="images/search16.gif"/>
 	<context path="images/search22.gif" method="GET" client=".*" lang=".*" action="images/search22.gif"/>
