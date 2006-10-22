@@ -79,6 +79,9 @@ resources = ResourceStrings({
         'OK' : 'OK',
         'CANCEL' : 'Cancel',
         'CLOSE' : 'Close',
+        'FROM' : 'from',
+        'TO' : 'to',
+        
         'LOGIN_FAILED' : 'Invalid login parameters. Please try again.',
         'LOGIN' : 'Login',
         'LOGOFF' : 'Logoff',
@@ -208,6 +211,9 @@ resources = ResourceStrings({
         'OK' : 'Εντάξει',
         'CANCEL' : 'Άκυρο',
         'CLOSE' : 'Κλείσιμο',
+        'FROM' : 'από',
+        'TO' : 'έως',
+
         'LOGIN_FAILED' : 'Μη έγκυρα στοιχεία εισόδου. Προσπαθείστε ξανά.',
         'LOGIN' : 'Είσοδος',
         'LOGOFF' : 'Αποσύνδεση',
