@@ -21,8 +21,8 @@ Box.prototype.appendChild = function(w) {
 		w.height = w.height || '100%';
 	else
 		w.width = w.width || '100%';
-	Widget.prototype.appendChild(w, this);
-//	this.redraw(true);
+	Widget.prototype.appendChild(w, this, true);
+	this.redraw(true);
 }
 
 Box.prototype.redraw = function(bForceAll) {
