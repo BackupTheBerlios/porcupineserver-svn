@@ -36,6 +36,10 @@ class BaseResponse(object):
     
     @ivar charset: Sets the response's character encoding
     @type charset: str
+
+    @ivar cookies: Using this variable you can set cookies
+                   to be accepted by the client (if they are allowed)
+    @type cookies: Cookie.SimpleCookie
     """
     def __init__(self):
         self.__headers = {}

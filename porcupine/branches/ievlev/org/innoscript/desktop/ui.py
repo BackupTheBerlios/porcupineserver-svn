@@ -23,7 +23,7 @@ from porcupine.utils import date, xmlUtils, misc
 from porcupine import datatypes
 
 from org.innoscript.desktop.strings import resources
-from org.innoscript.schemas import common, security
+from org.innoscript.desktop.schema import common, security
 
 AUTO_CONTROLS = {
     datatypes.String:
@@ -549,10 +549,10 @@ class Frm_UserGroupNew(XULServlet):
     def setParams(self):
         sCC = self.request.queryString['cc'][0]
         self.params['FORM'] = ''
-        if sCC == 'org.innoscript.schemas.security.User':
+        if sCC == 'org.innoscript.desktop.schema.security.User':
             servlet = Frm_UserNew(self.server, self.session, self.request)
             self.params['FORM'] = servlet.execute()
-        elif sCC == 'org.innoscript.schemas.security.Group':
+        elif sCC == 'org.innoscript.desktop.schema.security.Group':
             servlet = Frm_GroupNew(self.server, self.session, self.request)
             self.params['FORM'] = servlet.execute()
 

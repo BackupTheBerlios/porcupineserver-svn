@@ -18,7 +18,7 @@
 System top-level Porcupine Objects.
 Use these as base classes to create you own custom objects.
 
-@see: L{org.innoscript.schemas} module as a usage guideline.
+@see: L{org.innoscript.desktop.schema} module as a usage guideline.
 """
 
 import time, copy

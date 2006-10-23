@@ -19,7 +19,7 @@
 import md5
 
 from porcupine import systemObjects as system
-from org.innoscript.schemas import properties
+from org.innoscript.desktop.schema import properties
 from porcupine import datatypes
 
 class PoliciesFolder(system.Container):
@@ -30,7 +30,7 @@ class PoliciesFolder(system.Container):
     """
     __image__ = "desktop/images/policies.gif"
     __slots__ = ()
-    containment = ('org.innoscript.schemas.security.Policy',)
+    containment = ('org.innoscript.desktop.schema.security.Policy',)
     
 class Policy(system.Item):
     """
@@ -60,7 +60,7 @@ class Policy(system.Item):
     exception is raised.
 
     @ivar policyGranted: The list of users that have been granted this policy.
-    @type policyGranted: L{policyGranted<org.innoscript.schemas.properties.policyGranted>}
+    @type policyGranted: L{policyGranted<org.innoscript.desktop.schema.properties.PolicyGranted>}
     """
     __image__ = "desktop/images/policy.gif"
     __slots__ = ('policyGranted', )
@@ -68,7 +68,7 @@ class Policy(system.Item):
     
     def __init__(self):
         system.Item.__init__(self)
-        self.policyGranted = properties.policyGranted()
+        self.policyGranted = properties.PolicyGranted()
 
 class UsersFolder(system.Container):
     """
@@ -79,21 +79,21 @@ class UsersFolder(system.Container):
     __image__ = "desktop/images/userfolder.gif"
     __slots__ = ()
     containment = (
-        'org.innoscript.schemas.security.User',
-        'org.innoscript.schemas.security.Group'
+        'org.innoscript.desktop.schema.security.User',
+        'org.innoscript.desktop.schema.security.Group'
     )
 
 class GenericUser(system.Item):
     """Generic User object
 
     @ivar fullName: The user's full name.
-    @type fullName: L{fullName<org.innoscript.schemas.properties.fullName>}
+    @type fullName: L{fullName<porcupine.datatypes.String>}
 
     @ivar memberof: The list of groups that this user belongs to.
-    @type memberof: L{memberof<org.innoscript.schemas.properties.memberof>}
+    @type memberof: L{memberof<org.innoscript.desktop.schema.properties.MemberOf>}
 
     @ivar policies: The list of policies assigned to this user.
-    @type policies: L{policies<org.innoscript.schemas.properties.policies>}
+    @type policies: L{policies<org.innoscript.desktop.schema.properties.Policies>}
 
     """
     __image__ = "desktop/images/user.gif"
@@ -103,8 +103,8 @@ class GenericUser(system.Item):
     def __init__(self):
         system.Item.__init__(self)
         self.fullName = datatypes.String()
-        self.memberof = properties.memberof()
-        self.policies = properties.policies()
+        self.memberof = properties.MemberOf()
+        self.policies = properties.Policies()
 
     def isMemberOf(self, group):
         """
@@ -129,10 +129,10 @@ class User(GenericUser):
     """Porcupine User object
 
     @ivar password: The user's password.
-    @type password: L{password<org.innoscript.schemas.properties.password>}
+    @type password: L{password<org.innoscript.desktop.schema.properties.RequiredPassword>}
 
     @ivar email: The user's email.
-    @type email: L{email<org.innoscript.schemas.properties.email>}
+    @type email: L{email<porcupine.datatypes.String>}
 
     @ivar settings: User specific preferences.
     @type settings: L{Dictionary<porcupine.datatypes.Dictionary>}
@@ -142,7 +142,7 @@ class User(GenericUser):
     
     def __init__(self):
         GenericUser.__init__(self)
-        self.password = properties.password()
+        self.password = properties.RequiredPassword()
         self.email = datatypes.String()
         self.settings = datatypes.Dictionary()
 
@@ -193,14 +193,14 @@ class GenericGroup(system.Item):
     """Generic Group class
 
     @ivar policies: The list of policies have been asigned to this group.
-    @type policies: L{policies<org.innoscript.schemas.properties.policies>}
+    @type policies: L{policies<org.innoscript.desktop.schema.properties.Policies>}
     """
     __slots__ = ('policies', )
     __props__ = system.Item.__props__ + __slots__
     
     def __init__(self):
         system.Item.__init__(self)
-        self.policies = properties.policies()
+        self.policies = properties.Policies()
     
     def hasMember(self, user):
         """
@@ -213,7 +213,7 @@ class Group(GenericGroup):
     """Porcupine Group
 
     @ivar members: The group's members.
-    @type members: L{members<org.innoscript.schemas.properties.members>}
+    @type members: L{members<org.innoscript.desktop.schema.properties.Members>}
     """
     __image__ = "desktop/images/group.gif"
     __slots__ = ('members', )
@@ -221,7 +221,7 @@ class Group(GenericGroup):
     
     def __init__(self):
         GenericGroup.__init__(self)
-        self.members = properties.members()
+        self.members = properties.Members()
 
     def hasMember(self, user):
         """
@@ -258,9 +258,8 @@ class AuthUsersGroup(GenericGroup):
     
     def hasMember(self, user):
         """
-        This method returns C{True} only if the user has the
-        L{password<org.innoscript.schemas.properties.password>}
-        attribute else it returns C{False}.
+        This method returns C{True} only if the user object has
+        an attribute named C{password} else it returns C{False}.
         
         @param user: the user object
         @type user: L{GenericUser}

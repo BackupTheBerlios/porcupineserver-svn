@@ -23,6 +23,8 @@
 	sLastMonth = resources.getResource('LAST_MONTH', sLang)
 	sSpecifyDates = resources.getResource('SPECIFY_DATES', sLang)
 	sSearch = resources.getResource('SEARCH', sLang)
+	sFrom = resources.getResource('FROM', sLang)
+	sTo = resources.getResource('TO', sLang)
 	
 	sName = resources.getResource('displayName', sLang)
 	sSize = resources.getResource('SIZE', sLang)
@@ -60,11 +62,11 @@
 					<qx:field id="modified" type="radio" onclick="hypersearch.updateModifiedMode" value="2" caption="<%response.write(sLastMonth)%>"/>
 					<qx:field id="modified" type="radio" onclick="hypersearch.updateModifiedMode" value="3" caption="<%response.write(sSpecifyDates)%>"/>
 					<qx:box id="date_from_box" height="24" padding="8,0,0,0" disabled="true">
-						<qx:label caption="from" width="40"/>
+						<qx:label caption="<%response.write(sFrom)%>" width="40"/>
 						<qx:datepicker id="from"/>
 					</qx:box>
 					<qx:box id="date_to_box" height="24" padding="8,0,0,0" disabled="true">
-						<qx:label caption="to" width="40"/>
+						<qx:label caption="<%response.write(sTo)%>" width="40"/>
 						<qx:datepicker id="to"/>
 					</qx:box>
 					<qx:box padding="0,0,8,0" orientation="v" childrenalign="right">

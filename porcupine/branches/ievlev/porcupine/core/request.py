@@ -34,11 +34,14 @@ class Request(object):
     
     @ivar queryString: The query string parameters as lists.
     @type queryString: dict
+
+    @ivar cookies: Contains the cookies sent by the client
+    @type queryString: Cookie.SimpleCookie
     
     @ivar input: The raw request input
     @type input: StringIO
 
-    @ivar interface: The request's interface, i.e. 'CGI' or 'MOD_PYTHON'
+    @ivar interface: The request's interface, i.e. 'CGI' or 'MOD_PYTHON' or 'WSGI'
     @type interface: str
     """
     def __init__(self, rawRequest):
