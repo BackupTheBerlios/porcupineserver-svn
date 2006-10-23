@@ -268,6 +268,7 @@ XULParser.prototype.parse = function(oDom, parentW) {
 XULParser.prototype.beginRender = function() {
 	var widget = this.render();
 	if (this.oncomplete) this.oncomplete(widget);
+	widget.redraw(true);
 }
 
 XULParser.prototype.render = function() {
@@ -652,8 +653,8 @@ Widget.prototype.appendChild = function(w, p, ommitRedraw) {
 		w._addIdRef();
 	p.div.appendChild(w.div);
 	
-	if (!ommitRedraw)
-		w.redraw();
+//	if (!ommitRedraw)
+//		w.redraw();
 	
 	w.bringToFront();
 	if (p._isDisabled)

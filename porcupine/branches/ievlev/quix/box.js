@@ -22,7 +22,7 @@ Box.prototype.appendChild = function(w) {
 	else
 		w.width = w.width || '100%';
 	Widget.prototype.appendChild(w, this, true);
-	this.redraw(true);
+//	this.redraw(true);
 }
 
 Box.prototype.redraw = function(bForceAll) {
