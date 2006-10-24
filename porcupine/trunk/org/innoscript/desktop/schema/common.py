@@ -126,7 +126,7 @@ class Category(system.Container):
 
     @ivar category_objects: The objects contained in this category
     @type category_objects: L{category_objects<org.innoscript.desktop.schema.properties.
-                            category_objects>}
+                            CategoryObjects>}
     """
     __image__ = "desktop/images/category.gif"
     __slots__ = ('category_objects',)
@@ -141,7 +141,7 @@ class Document(File):
     """Document with categorization capabilities
     
     @ivar categories: The document's categories
-    @type categories: L{categories<org.innoscript.desktop.schema.properties.categories>}
+    @type categories: L{categories<org.innoscript.desktop.schema.properties.Categories>}
     """
     __slots__ = ('categories',)
     __props__ = File.__props__ + __slots__

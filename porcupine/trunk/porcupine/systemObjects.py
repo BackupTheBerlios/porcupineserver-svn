@@ -371,7 +371,7 @@ class GenericItem(object):
                     keys are the users' IDs and the values are the roles.
     @type security: dict
     
-    @ivar inheritRoles: Indicates if the object's security.
+    @ivar inheritRoles: Indicates if the object's security
                         descriptor is identical to this of its parent
     @type inheritRoles: bool
     
