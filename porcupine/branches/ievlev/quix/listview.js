@@ -220,7 +220,8 @@ ListView.prototype.addColumn = function(params, w) {
 		if (params.width.slice(params.width.length-1) == '%') {
 			header_width = oListView.header.getWidth();
 			perc = parseInt(params.width) / 100;
-			oCol.style.width = parseInt(header_width * perc) - 2*this.cellPadding - 2 + 'px';
+			var wi = parseInt(header_width * perc) - 2*this.cellPadding - 2;
+			oCol.style.width = (wi>0?wi:0) + 'px';
 			oCol.proportion = perc;
 		}
 		else

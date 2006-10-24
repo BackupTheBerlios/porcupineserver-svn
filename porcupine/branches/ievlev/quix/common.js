@@ -49,7 +49,7 @@ function GroupBox(params) {
 		top: 8,
 		width:"100%",
 		padding:"12,12,12,12",
-		height: "this.parent.getHeight()-this.getTop()",
+		height: "this.parent.getHeight()-this.top",
 		border: params.border || 2
 	});
 	this.border.div.className = "groupboxframe";
