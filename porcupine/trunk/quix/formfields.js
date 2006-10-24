@@ -103,7 +103,7 @@ function Field(params) {
 	this._adjustFieldSize();
 	if (this._isDisabled) {
 		e.disabled = true;
-		e.backgroundColor = 'menu';
+		e.style.backgroundColor = 'menu';
 	}
 }
 
