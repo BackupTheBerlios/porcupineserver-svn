@@ -26,7 +26,7 @@ class PoliciesFolder(system.Container):
     """
     Server Policies Folder
     ======================
-    This container contains all the security policies
+    A container type for all the security policies
     """
     __image__ = "desktop/images/policies.gif"
     __slots__ = ()
@@ -60,7 +60,7 @@ class Policy(system.Item):
     exception is raised.
 
     @ivar policyGranted: The list of users that have been granted this policy.
-    @type policyGranted: L{policyGranted<org.innoscript.desktop.schema.properties.PolicyGranted>}
+    @type policyGranted: L{PolicyGranted<org.innoscript.desktop.schema.properties.PolicyGranted>}
     """
     __image__ = "desktop/images/policy.gif"
     __slots__ = ('policyGranted', )
@@ -87,13 +87,13 @@ class GenericUser(system.Item):
     """Generic User object
 
     @ivar fullName: The user's full name.
-    @type fullName: L{fullName<porcupine.datatypes.String>}
+    @type fullName: L{String<porcupine.datatypes.String>}
 
     @ivar memberof: The list of groups that this user belongs to.
-    @type memberof: L{memberof<org.innoscript.desktop.schema.properties.MemberOf>}
+    @type memberof: L{MemberOf<org.innoscript.desktop.schema.properties.MemberOf>}
 
     @ivar policies: The list of policies assigned to this user.
-    @type policies: L{policies<org.innoscript.desktop.schema.properties.Policies>}
+    @type policies: L{Policies<org.innoscript.desktop.schema.properties.Policies>}
 
     """
     __image__ = "desktop/images/user.gif"
@@ -129,10 +129,10 @@ class User(GenericUser):
     """Porcupine User object
 
     @ivar password: The user's password.
-    @type password: L{password<org.innoscript.desktop.schema.properties.RequiredPassword>}
+    @type password: L{RequiredPassword<org.innoscript.desktop.schema.properties.RequiredPassword>}
 
     @ivar email: The user's email.
-    @type email: L{email<porcupine.datatypes.String>}
+    @type email: L{String<porcupine.datatypes.String>}
 
     @ivar settings: User specific preferences.
     @type settings: L{Dictionary<porcupine.datatypes.Dictionary>}
@@ -193,7 +193,7 @@ class GenericGroup(system.Item):
     """Generic Group class
 
     @ivar policies: The list of policies have been asigned to this group.
-    @type policies: L{policies<org.innoscript.desktop.schema.properties.Policies>}
+    @type policies: L{Policies<org.innoscript.desktop.schema.properties.Policies>}
     """
     __slots__ = ('policies', )
     __props__ = system.Item.__props__ + __slots__
@@ -213,7 +213,7 @@ class Group(GenericGroup):
     """Porcupine Group
 
     @ivar members: The group's members.
-    @type members: L{members<org.innoscript.desktop.schema.properties.Members>}
+    @type members: L{Members<org.innoscript.desktop.schema.properties.Members>}
     """
     __image__ = "desktop/images/group.gif"
     __slots__ = ('members', )

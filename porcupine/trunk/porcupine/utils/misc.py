@@ -80,7 +80,7 @@ def getClassByName(name):
 def getAddressFromString(address):
     """
     Accepts a string of the form
-    C{address:port} and returns a C{(address, port)} tuple.
+    C{address:port} and returns an C{(address, port)} tuple.
     
     @param address: string of the form C{address:port}
     @type address: str

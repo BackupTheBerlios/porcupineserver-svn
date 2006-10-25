@@ -18,6 +18,6 @@
 Porcupine Desktop Objects schema
 ================================
 
-This package contains all the classes' definitions of the Porcupine Objects
+Contains all the classes' definitions of the Porcupine Objects
 used by the desktop environment.
 """
