@@ -29,7 +29,7 @@ class Session(object):
     """
     Porcupine server session type.
     
-    @ivar sessionid: a unique identifier for the session
+    @ivar sessionid: A unique identifier for the session
     @type sessionid: str
     
     @type user: L{GenericItem<porcupine.systemObjects.GenericItem>}
@@ -43,7 +43,7 @@ class Session(object):
     def keepAlive(self):
         """
         Called by the application server. Updates the session's
-        last accessed time, thus the session does not expires.
+        last accessed time, thus the session does not expire.
         
         @return: None
         """
@@ -94,6 +94,9 @@ class Session(object):
     def getTempFile(self):
         """
         Creates a temporary file bound to the session.
+        Returns a tuple containing an OS-level handle to an open
+        file (as would be returned by os.open()) and the absolute
+        pathname of that file, in that order.
         
         @rtype: tuple
         """

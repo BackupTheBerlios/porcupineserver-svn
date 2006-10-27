@@ -36,7 +36,7 @@ class Request(object):
     @type queryString: dict
 
     @ivar cookies: Contains the cookies sent by the client
-    @type queryString: Cookie.SimpleCookie
+    @type cookies: Cookie.SimpleCookie
     
     @ivar input: The raw request input
     @type input: StringIO

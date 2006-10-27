@@ -214,7 +214,7 @@ class XMLRPCResponse(BaseResponse):
             return(''.join(self._body))
         else:
             return('<?xml version="1.0"?><methodResponse>%s</methodResponse>' %
-                                                        self.params.serialize())
+                    self.params.serialize())
 
     def _writeError(self, exc):
         self._reset()

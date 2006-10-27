@@ -326,10 +326,14 @@ class Composite(object):
     the security attribute of the object that embeds this object.
     Moreover they do not have parent containers the way
     instances of L{GenericItem} have.
-    
+
+    @type contentclass: str
+    @type id: str
+    @type security: dict
+
     @see: L{porcupine.datatypes.Composition}.
     """
-    __image__ = "images/object.gif"
+    __image__ = "desktop/images/object.gif"
     __slots__ = ('_id', '_containerid', '_isDeleted', 'displayName')
     __props__ = ()
 
@@ -341,17 +345,26 @@ class Composite(object):
         self.displayName = displayName()
 
     def getSecurity(self):
-        "Getter of L{security} property"
+        """Getter of L{security} property
+        
+        @rtype: dict
+        """
         return(db.getItem(self._containerid).security)
     security = property(getSecurity)
 
     def getId(self):
-        "Getter of L{id} property"
+        """Getter of L{id} property
+        
+        @rtype: str
+        """
         return self._id
     id = property(getId)
 
     def getContentclass(self):
-        "Getter of L{contentclass} property"
+        """Getter of L{contentclass} property
+        
+        @rtype: str
+        """
         return(self.__class__.__module__ + '.' + self.__class__.__name__)
     contentclass = property(getContentclass)
 
@@ -371,7 +384,7 @@ class GenericItem(object):
                     keys are the users' IDs and the values are the roles.
     @type security: dict
     
-    @ivar inheritRoles: Indicates if the object's security.
+    @ivar inheritRoles: Indicates if the object's security
                         descriptor is identical to this of its parent
     @type inheritRoles: bool
     
@@ -389,7 +402,7 @@ class GenericItem(object):
     @type owner: type
     @type parentid: str
     """
-    __image__ = "images/object.gif"
+    __image__ = "desktop/images/object.gif"
     __slots__ = (
         '_id', '_parentid', '_owner', '_isSystem', '_isDeleted',
         '_created', 'modifiedBy', 'modified', 'security', 'inheritRoles',
@@ -818,6 +831,8 @@ class Container(Item):
     @cvar containment: a tuple of strings with all the content types of
         Porcupine objects that this class instance can accept.
     @type containment: tuple
+    
+    @type isCollection: bool
     """
     __image__ = "desktop/images/folder.gif"
     __slots__ = ('_subfolders','_items')
@@ -961,7 +976,7 @@ class RecycleBin(Container):
     By default every I{RecycleBin} class instance is a system item.
     It cannot be deleted, copied, moved or recycled.
     """
-    __image__ = "images/trashcan_empty8.gif"
+    __image__ = "desktop/images/trashcan_empty8.gif"
     __slots__ = ()
     containment = ('porcupine.systemObjects.DeletedItem', )
 

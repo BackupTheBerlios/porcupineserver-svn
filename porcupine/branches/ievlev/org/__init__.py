@@ -15,9 +15,5 @@
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #===============================================================================
 """
-Porcupine Custom Objects package
-================================
-
-This package contains all the classes of the Porcupine Objects stored in
-the database.
+Package container for custom Porcupine applications
 """

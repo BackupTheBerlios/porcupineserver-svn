@@ -24,7 +24,7 @@ class File(system.Item):
     """Simple file object
 
     @ivar file: The file data type
-    @type file: L{file<org.innoscript.desktop.schema.properties.RequiredFile>}
+    @type file: L{RequiredFile<org.innoscript.desktop.schema.properties.RequiredFile>}
     """
     __image__ = "desktop/images/document.gif"
     __slots__ = ('file',)
@@ -95,7 +95,7 @@ class Application(system.Item):
     @type launchUrl: L{launchUrl<org.innoscript.desktop.schema.properties.LaunchUrl>}
 
     @ivar icon: The icon to appear on the desktop menus.
-    @type icon: L{icon<porcupine.datatypes.String>}
+    @type icon: L{String<porcupine.datatypes.String>}
     """
     __image__ = "desktop/images/app.gif"
     __slots__ = (
@@ -125,8 +125,8 @@ class Category(system.Container):
     """Category
 
     @ivar category_objects: The objects contained in this category
-    @type category_objects: L{category_objects<org.innoscript.desktop.schema.properties.
-                            category_objects>}
+    @type category_objects: L{CategoryObjects<org.innoscript.desktop.schema.properties.
+                            CategoryObjects>}
     """
     __image__ = "desktop/images/category.gif"
     __slots__ = ('category_objects',)
@@ -141,7 +141,7 @@ class Document(File):
     """Document with categorization capabilities
     
     @ivar categories: The document's categories
-    @type categories: L{categories<org.innoscript.desktop.schema.properties.categories>}
+    @type categories: L{Categories<org.innoscript.desktop.schema.properties.Categories>}
     """
     __slots__ = ('categories',)
     __props__ = File.__props__ + __slots__

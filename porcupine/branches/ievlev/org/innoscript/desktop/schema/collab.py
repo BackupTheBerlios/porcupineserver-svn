@@ -40,7 +40,7 @@ class Contact(system.Item):
     @type email: L{email<porcupine.datatypes.String>}
     
     @ivar categories: The contact's categories
-    @type categories: L{categories<org.innoscript.desktop.schema.properties.Categories>}
+    @type categories: L{Categories<org.innoscript.desktop.schema.properties.Categories>}
     """
     __image__ = "desktop/images/contact.gif"
     __slots__ = ('company', 'email', 'categories')
