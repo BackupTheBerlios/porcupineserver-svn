@@ -1,0 +1,32 @@
+<a:window xmlns:a="http://www.innoscript.org/quix"
+    width="480" height="300" status="true"
+    resizable="true" close="true" minimize="true" maximize="true">
+    <a:wbody>
+        <a:box orientation="v" spacing="0" width="100%" height="100%">
+            <a:toolbar height="34">
+                <a:tbbutton width="30" img="queryperformer/images/save22.gif" onclick="queryPerformer.saveQuery"/>
+                <a:tbbutton width="30" img="queryperformer/images/execute22.gif" onclick="queryPerformer.executeQuery"/>
+            </a:toolbar>
+            <a:splitter bgcolor="white" orientation="h" interactive="true" height="-1">
+                <a:pane length="100">
+                    <a:field id="oqlquery" type="textarea" width="100%" height="100%" border="0">
+                    </a:field>
+                </a:pane>
+                <a:pane length="-1">
+                    <a:splitter orientation="v" interactive="true" width="100%" height="100%">
+                        <a:pane id="resultsarea" length="50%" overflow="auto" padding="4,4,4,4"></a:pane>
+                        <a:pane length="-1">
+                            <a:listview id="proplist" width="100%" height="100%" cellborder="1">
+                                <a:listheader>
+                                    <a:column width="100" caption="Name" name="name"></a:column>
+                                    <a:column width="80" caption="Type" name="type"></a:column>
+                                    <a:column width="120" caption="Value" name="value"></a:column>
+                                </a:listheader>
+                            </a:listview>
+                        </a:pane>
+                    </a:splitter>
+                </a:pane>
+            </a:splitter>
+        </a:box>
+    </a:wbody>
+</a:window>

@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+<a:dialog xmlns:a="http://www.innoscript.org/quix"
+	title="%(TITLE)s"
+	resizable="true"
+	close="true"
+	align="right"
+	width="400"
+	height="300"
+	left="center"
+	top="center">
+	<a:prop name="ID" value="%(ID)s"></a:prop>
+	<a:wbody>
+		<a:box orientation="v" spacing="0" width="100%%" height="100%%">
+			<a:label height="22" caption="%(SELECT_FOLDER)s"></a:label>
+			<a:rect height="-1" bgcolor="white" padding="2,2,2,2" overflow="auto" border="1" style="border-style:inset">
+				<a:foldertree id="tree" method="getSubtree">
+					<a:treenode
+						id="%(ROOT_ID)s"
+						haschildren="true"
+						img="%(ROOT_IMG)s"
+						caption="%(ROOT_DN)s"
+					></a:treenode>
+				</a:foldertree>
+			</a:rect>
+		</a:box>
+	</a:wbody>
+	<a:dlgbutton onclick="__closeDialog__" width="70" height="22" caption="%(OK)s"></a:dlgbutton>
+	<a:dlgbutton onclick="__closeDialog__"  width="70" height="22" caption="%(CANCEL)s"></a:dlgbutton>
+</a:dialog>
