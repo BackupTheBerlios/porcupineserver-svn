@@ -32,7 +32,6 @@ function Clipboard() {
 	this.items = [];
 }
 
-var QuiX = function() {}
 QuiX.version = '0.6 build 20061015';
 QuiX.namespace = 'http://www.innoscript.org/quix';
 QuiX.browser = 'ie';
@@ -126,42 +125,16 @@ QuiX.createOutline = function(w) {
 		overflow:'hidden'
 	});
 	w.parent.appendChild(oW);
-	oW.minw = w.minw;
-	oW.minh = w.minh;
+	oW.redraw(true);
+	//calculate size because minw/minh procedure can depends on it's children size
+	oW.minw = (typeof w.minw == "function")?w.minw(w):w.minw;
+	oW.minh = (typeof w.minh == "function")?w.minh(w):w.minh;
 	oW.div.className = 'outline';
 	return(oW);
 }
 QuiX.cleanupOverlays = function() {
 	var ovr = document.desktop.overlays;
 	while (ovr.length>0) ovr[0].close();
-}
-
-QuiX.addEvent = function(el, type, proc) {
-	if (el.addEventListener) {
-		el.addEventListener(type.slice(2,type.length), proc, false);
-		return true;
-	} else if (el.attachEvent) {
-		return el.attachEvent(type, proc);
-	}
-}
-
-QuiX.removeEvent = function(el, type, proc) {
-	if (el.removeEventListener) {
-		el.removeEventListener(type.slice(2,type.length), proc, false);
-		return true;
-	} else if (el.detachEvent) {
-		return el.detachEvent(type, proc);
-	}
-}
-
-QuiX.stopPropag = function(evt) {
-	if (evt && evt.stopPropagation) evt.stopPropagation();
-	else if (window.event) window.event.cancelBubble = true;
-}
-
-QuiX.cancelDefault = function(evt) {
-	if (evt && evt.preventDefault) evt.preventDefault();
-	else if (window.event) window.event.returnValue = false;
 }
 
 QuiX.getTarget = function(evt) {
@@ -186,14 +159,6 @@ QuiX.getImage = function(url) {
 		var img = new Image();
 		img.src = url;
 		return img;
-}
-
-// xml document
-function XmlDocument() {}
-XmlDocument.create = function(s) {
-	var dom = new ActiveXObject("msxml2.domdocument");
-	if (s) dom.loadXML(s);
-	return(dom);
 }
 
 // xul parser
@@ -290,6 +255,7 @@ XULParser.prototype.parse = function(oDom, parentW) {
 XULParser.prototype.beginRender = function() {
 	var widget = this.render();
 	if (this.oncomplete) this.oncomplete(widget);
+	widget.redraw(true);
 }
 
 XULParser.prototype.render = function() {
@@ -624,8 +590,8 @@ function Widget(params) {
 	this.top = params.top || 0;
 	this.width = params.width || null;
 	this.height = params.height || null;
-	this.minw = 0;
-	this.minh = 0;
+	this.minw = params.minw || 0;
+	this.minh = params.minh || 0;
 	this.widgets = [];
 	this._id_widgets = {};
 	this.attributes = params.attributes || {};
@@ -683,8 +649,8 @@ Widget.prototype.appendChild = function(w, p, ommitRedraw) {
 	if (w.height=='100%' && w.width=='100%')
 		p.setOverflow('hidden');
 
-	if (!ommitRedraw)
-		w.redraw();
+//	if (!ommitRedraw)
+//		w.redraw();
 
 	w.bringToFront();
 	if (p._isDisabled)
@@ -734,12 +700,11 @@ Widget.prototype.parse = function(dom, callback) {
 }
 
 Widget.prototype.parseFromString = function(s, oncomplete) {
-	var oDom = XmlDocument.create(s);
-	this.parse(oDom, oncomplete);
+	this.parse(QuiX.domFromString(s), oncomplete);
 }
 
 Widget.prototype.parseFromUrl = function(url, oncomplete) {
-	var xmlhttp = new ActiveXObject("microsoft.xmlhttp");
+	var xmlhttp = QuiX.XMLHttpRequest();
 	var oWidget = this;
 	xmlhttp.onreadystatechange = function() {
 		if (xmlhttp != null && xmlhttp.readyState==4) {
@@ -967,6 +932,8 @@ Widget.prototype._calcHeight = function(b) {
 	var offset = 0;
 	if (!b)	offset = parseInt(this.div.style.paddingTop) + parseInt(this.div.style.paddingBottom) + 2*this.getBorderWidth();
 	var s = this._calcSize("height", offset, "getHeight");
+	var ms=((typeof(this.minh)=='function')?this.minh(this):this.minh) - offset;
+	if (s < ms) s = ms;
 	return s>0?s:0;
 }
 
@@ -974,6 +941,8 @@ Widget.prototype._calcWidth = function(b) {
 	var offset = 0;
 	if (!b)	offset = parseInt(this.div.style.paddingLeft) + parseInt(this.div.style.paddingRight) + 2*this.getBorderWidth();
 	var s = this._calcSize("width", offset, "getWidth");
+	var ms=((typeof(this.minw)=='function')?this.minw(this):this.minw) - offset;
+	if (s < ms) s = ms;
 	return s>0?s:0;
 }
 
@@ -1023,7 +992,7 @@ Widget.prototype.bringToFront = function(w) {
 }
 
 Widget.prototype.click = function() {
-	this.div.click();
+	QuiX.sendEvent(this.div,'MouseEvents','onclick');
 }
 
 Widget.prototype.moveTo = function(x,y) {
@@ -1034,8 +1003,10 @@ Widget.prototype.moveTo = function(x,y) {
 }
 
 Widget.prototype.resize = function(x,y) {
-	this.width = (x>this.minw)?x:this.minw;
-	this.height = (y>this.minh)?y:this.minh;
+	var minw = (typeof this.minw == "function")?this.minw(this):this.minw;
+	var minh = (typeof this.minh == "function")?this.minh(this):this.minh;
+	this.width = (x>minw)?x:minw;
+	this.height = (y>minh)?y:minh;
 	this.redraw();
 }
 
