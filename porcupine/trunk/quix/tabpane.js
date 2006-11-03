@@ -10,7 +10,7 @@ function TabPane(params) {
 	this.div.className = 'tabpane';
 	
 	this.tabs = [];
-	this.activeTab = null;
+	this.activeTab = params.active || 0;
 }
 
 TabPane.prototype = new Widget;
@@ -46,7 +46,8 @@ TabPane.prototype.addTab = function(params) {
 	w.onactivate = params.onactivate;
 	
 	this.tabs.push(w);
-	this.activateTab(0);
+	if ((this.tabs.length - 1) >= this.activeTab)
+		this.activateTab(this.activeTab);
 	return(w);
 }
 
