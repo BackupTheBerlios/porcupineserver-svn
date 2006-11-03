@@ -49,21 +49,21 @@ function GroupBox(params) {
 		top: 8,
 		width:"100%",
 		padding:"12,12,12,12",
-		height: "this.parent.getHeight()-this.getTop()",
+		height: "this.parent.getHeight()-this.top",
 		border: params.border || 2
 	});
 	this.border.div.className = "groupboxframe";
 	this.appendChild(this.border);
 
-	var checked = true;
+	var v = true;
 	if (params.checked) {
-		checked = params.checked=='true' || params.checked==true;
+		v = params.value || true;
 		this.caption = new Field({
 			left: 5,
 			bgcolor: params.bgcolor,
 			caption: params.caption,
 			border: "thin",
-			value: checked,
+			value: v,
 			onclick: GroupBox__checkBody,
 			type: "checkbox"
 		});
@@ -81,7 +81,7 @@ function GroupBox(params) {
 	this.body = new Widget({
 		width: "100%",
 		height: "100%",
-		disabled: !checked
+		disabled: !v
 	});
 	this.border.appendChild(this.body);
 }
