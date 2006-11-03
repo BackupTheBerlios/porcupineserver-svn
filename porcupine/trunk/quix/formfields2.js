@@ -206,6 +206,7 @@ Combo.prototype.showDropdown = function(w) {
 	oCombo.dropdown.setBgColor(oCombo.getBgColor());
 
 	document.desktop.appendChild(oCombo.dropdown);
+	oCombo.dropdown.redraw();
 	document.desktop.overlays.push(oCombo.dropdown);
 	oCombo.isExpanded = true;
 }
