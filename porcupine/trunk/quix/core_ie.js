@@ -15,8 +15,6 @@
 //    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //===============================================================================
 
-//QuiX generic functions
-
 function __init__() {
 	window.moveTo(0,0);
 	window.resizeTo(screen.availWidth,screen.availHeight);
@@ -26,28 +24,9 @@ function __init__() {
 	parser.parse(root.XMLDocument);
 }
 
-function Clipboard() {
-	this.contains = '';
-	this.action = '';
-	this.items = [];
-}
-
-QuiX.version = '0.6 build 20061015';
-QuiX.namespace = 'http://www.innoscript.org/quix';
 QuiX.browser = 'ie';
-QuiX.startX = 0;
-QuiX.startY = 0;
-QuiX.clipboard = new Clipboard();
-QuiX.tmpWidget = null;
-QuiX.images = [];
 QuiX.root = (new RegExp("https?://[^/]+(?:/[^/\?]+)?(?:/\{[0-9a-f]{32}\})?", "i")).exec(document.location.href) + '/';
-QuiX.progress = '<a:rect xmlns:a="http://www.innoscript.org/quix" ' +
-		'width="240" height="48" overflow="hidden" top="center" left="center" ' +
-		'border="2" bgcolor="white" style="border-color:#999999;border-style:solid" '+
-		'padding="1,1,1,1"><a:xhtml><center>Please wait...<br/><br/>' +
-		'<span></span></center></a:xhtml>' +
-		'<a:progressbar id="pb" width="150" maxvalue="1" height="4" ' +
-		'top="center" left="center"></a:progressbar></a:rect>';
+
 QuiX.modules = [
 	new Module('Windows and Dialogs', '__quix/windows.js', [3]),
 	new Module('Menus', '__quix/menus.js', [3]),
@@ -66,37 +45,7 @@ QuiX.modules = [
 	new Module('Forms & Fields 2', '__quix/formfields2.js', [3]),
 	new Module('VBox & HBox', '__quix/box.js', []),
 ];
-QuiX.tags = {
-	'desktop':-1,'xhtml':-1,'script':-1,'prop':-1,'rect':-1,'progressbar':-1,
-	'window':0,'dialog':0,
-	'menubar':1,'menu':1,'menuoption':1,'contextmenu':1,
-	'splitter':2,
-	'dlgbutton':3,'button':3,'flatbutton':3,'label':3,'icon':3,
-	'tabpane':4,'tab':4,
-	'listview':5,
-	'tree':6,'treenode':6,'foldertree':6,
-	'toolbar':7,'tbbutton':7,'outlookbar':7,'tool':7,
-	'field':8,'form':8,'spinbutton':8,
-	'hr':9, 'iframe':9, 'groupbox':9,
-	'datagrid':10,
-	'file':11,'multifile':11,
-	'datepicker':12,
-	'timer':13,
-	'combo':14,'selectlist':14,
-	'box':15
-};
-QuiX.Exception = function(name, msg) {
-	this.name = name;
-	this.message = msg;
-}
-QuiX.getWidgetsById = function(w, sid) {
-	var ws = [];
-	if (w._id_widgets[sid]) ws = ws.concat(w._id_widgets[sid]);
-	for (var i=0; i<w.widgets.length; i++) {
-		ws = ws.concat(QuiX.getWidgetsById(w.widgets[i], sid));
-	}
-	return ws;
-}
+
 QuiX.removeWidget = function(w) {
 	while (w.widgets.length>0)
 		QuiX.removeWidget(w.widgets[0]);
@@ -114,51 +63,6 @@ QuiX.removeWidget = function(w) {
 	w._customRegistry = null;
 	w.div = null;
 	w = null;
-}
-QuiX.createOutline = function(w) {
-	var oW = new Widget({
-		left:w.getLeft(),
-		top:w.getTop(),
-		width:w.getWidth(true),
-		height:w.getHeight(true),
-		border:2,
-		overflow:'hidden'
-	});
-	w.parent.appendChild(oW);
-	oW.redraw(true);
-	//calculate size because minw/minh procedure can depends on it's children size
-	oW.minw = (typeof w.minw == "function")?w.minw(w):w.minw;
-	oW.minh = (typeof w.minh == "function")?w.minh(w):w.minh;
-	oW.div.className = 'outline';
-	return(oW);
-}
-QuiX.cleanupOverlays = function() {
-	var ovr = document.desktop.overlays;
-	while (ovr.length>0) ovr[0].close();
-}
-
-QuiX.getTarget = function(evt) {
-	return evt.srcElement;
-}
-QuiX.removeNode = function(node) {
-	node.removeNode(true);
-}
-QuiX.getEventWrapper = function(f1, f2) {
-	var wrapper;
-	f1 = getEventListener(f1);
-	f2 = getEventListener(f2);
-	wrapper = function(evt, w) {
-		var r1, r2 = null;
-		r1 = f1(evt, w);
-		if (f2) r2 = f2(evt, w);
-		return((typeof(r1)!='undefined')?r1:r1||r2);
-	}
-	return(wrapper);
-}
-QuiX.getImage = function(url) {
-		var img = new Image();
-		img.src = url;
-		return img;
 }
 
 // xul parser
