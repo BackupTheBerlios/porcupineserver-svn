@@ -2,13 +2,11 @@
 Windows & Dialogs
 ************************/
 // generic event handlers
-
 function __closeDialog__(evt, w) {
 	w.getParentByType(Window).close();
 }
 
 //Window class
-
 function Window(params) {
 	params = params || {};
 	params.border = 1;
@@ -18,8 +16,8 @@ function Window(params) {
 
 	this.base = Widget;
 	this.base(params);
-	this.minw = params.minw || 140;
-	this.minh = params.minh || 120;
+	this.minw = params.minw || 120;
+	this.minh = params.minh || 26;
 	this.isMinimized = false;
 	this.isMaximized = false;
 	this.childWindows = [];
