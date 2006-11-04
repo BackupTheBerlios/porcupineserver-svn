@@ -27,6 +27,7 @@ TabPane.prototype.addTab = function(params) {
 		onmouseout : Tab__mouseout
 	});
 	this.appendChild(oTab);
+	oTab.redraw();
 	oTab.setDisplay('inline');
 	oTab.setPosition('relative');
 	oTab.div.className = 'tab';
@@ -40,6 +41,7 @@ TabPane.prototype.addTab = function(params) {
 
 	var w = new Widget(params);
 	this.appendChild(w);
+	w.redraw();
 	w.div.className = 'tabpage';
 	w.tabButton = oTab;
 	w.destroy = Tab__destroy;
@@ -48,6 +50,8 @@ TabPane.prototype.addTab = function(params) {
 	this.tabs.push(w);
 	if ((this.tabs.length - 1) >= this.activeTab)
 		this.activateTab(this.activeTab);
+	if (this.activeTab == this.tabs.length - 1)
+		oTab.top = -2;
 	return(w);
 }
 
@@ -56,7 +60,7 @@ TabPane.prototype.activateTab = function(iTab) {
 	var iActive = this.activeTab;
 	var oTab = this.tabs[iTab];
 	oTab.bringToFront();
-	
+
 	oTab.tabButton.bringToFront();
 	oTab.tabButton.div.style.top='-2px';
 	oTab.tabButton.div.className='tab';
@@ -64,8 +68,8 @@ TabPane.prototype.activateTab = function(iTab) {
 	oTab.tabButton.detachEvent('onmouseout');
 	oTab.tabButton.detachEvent('onmouseover');
 	oTab.tabButton.detachEvent('onclick');
-	
-	if (iActive != null && iActive != iTab) {
+
+	if (iActive != iTab) {
 		activeTabButton = this.tabs[iActive].tabButton;
 		activeTabButton.div.style.top=0;
 		activeTabButton.attachEvent('onmouseout');

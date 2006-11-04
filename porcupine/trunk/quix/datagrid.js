@@ -61,6 +61,7 @@ function DataGrid__onclick(evt, w) {
 						height: target.offsetHeight
 					});
 					w.appendChild(w2);
+				
 					var options = w.parent.columns[idx].options;
 					for (var i=0; i<options.length; i++) {
 						if (editValue==options[i].value)
@@ -83,6 +84,7 @@ function DataGrid__onclick(evt, w) {
 					});
 					w.appendChild(w2);
 			}
+			w2.redraw();
 			w.parent.attributes.__editwidget = w2;
 			w.parent.attributes.__rowindex = ridx;
 			w.parent.attributes.__cellindex = idx;
