@@ -611,6 +611,7 @@ function Widget(params) {
 	this.attributes = params.attributes || {};
 	this.maxz = 0;
 	this._isDisabled = false;
+	this._redrawWhenAppending = false;
 	this.contextMenu = null;
 
 	this.div = ce('DIV');
@@ -646,7 +647,7 @@ function Widget(params) {
 		this.disable();
 }
 
-Widget.prototype.appendChild = function(w, p, ommitRedraw) {
+Widget.prototype.appendChild = function(w, p) {
 	p = p || this;
 	p.widgets.push(w);
 	w.parent = p;
@@ -654,8 +655,8 @@ Widget.prototype.appendChild = function(w, p, ommitRedraw) {
 		w._addIdRef();
 	p.div.appendChild(w.div);
 	
-//	if (!ommitRedraw)
-//		w.redraw();
+	if (w._redrawWhenAppending)
+		w.redraw();
 	
 	w.bringToFront();
 	if (p._isDisabled)
