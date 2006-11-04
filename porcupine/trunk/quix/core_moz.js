@@ -29,26 +29,6 @@ function __init__() {
 
 QuiX.browser = 'moz';
 QuiX.root = (new RegExp("https?://[^/]+(?:/[^/\?]+)?(?:/%7B[0-9a-f]{32}%7D)?", "i")).exec(document.location.href) + '/';
-
-QuiX.modules = [
-	new Module('Windows and Dialogs', '__quix/windows.js', [3]),
-	new Module('Menus', '__quix/menus.js', [3]),
-	new Module('Splitter', '__quix/splitter.js', [3]),
-	new Module('Labels & Buttons', '__quix/buttons.js', []),
-	new Module('Tab Pane', '__quix/tabpane.js', []),
-	new Module('List View', '__quix/listview.js', []),
-	new Module('Tree', '__quix/tree.js', []),
-	new Module('Toolbars', '__quix/toolbars.js', [3]),
-	new Module('Forms & Fields', '__quix/formfields.js', [3]),
-	new Module('Common Widgets', '__quix/common.js', [3]),
-	new Module('Datagrid', '__quix/datagrid.js', [5,8]),
-	new Module('File Control', '__quix/file.js', [1,3,8]),
-	new Module('Date Picker', '__quix/datepicker.js', [14]),
-	new Module('Timers', '__quix/timers.js', []),
-	new Module('Forms & Fields 2', '__quix/formfields2.js', [3]),
-	new Module('VBox & HBox', '__quix/box.js', []),
-];
-
 QuiX.removeWidget = function(w) {
 	var parentElement;
 	while (w.widgets.length>0)
@@ -116,7 +96,7 @@ XULParser.prototype.detectModules = function(oNode) {
 	if (sTag == 'script') {
 		params = this.getNodeParams(oNode);
 		if (!document.getElementById(params.src)) {
-			var oMod = new Module(params.name, params.src, []);
+			var oMod = new QModule(params.name, params.src, []);
 			this.__modulesToLoad.push(oMod);
 		}
 	}
@@ -456,49 +436,6 @@ XULParser.prototype.parseXul = function(oNode, parentW) {
 		}
 	}
 	return oWidget;
-}
-
-function Module(sName, sFile, d) {
-	this.isLoaded = false;
-	this.name = sName;
-	this.file = sFile;
-	this.dependencies = d;
-}
-
-Module.prototype.load = function(parser) {
-	this.parser = parser;
-	var oScript = document.createElement('SCRIPT');
-	oScript.type = 'text/javascript';
-	oScript.defer = true;
-	oScript.src = this.file;
-	oScript.resource = this;
-	oScript.id = this.file;
-	oScript.onload = Resource_onstatechange;
-	document.getElementsByTagName('head')[0].appendChild(oScript);
-}
-
-function QImage(url) {
-	this.url = url;
-	this.isLoaded = false;
-}
-
-QImage.prototype.load = function(parser) {
-	this.parser = parser;
-	var img = new Image;
-	QuiX.images.push(this.url);
-	img.resource = this;
-	img.onload = Resource_onstatechange;
-	img.src = this.url;
-	img.style.display = 'none';
-	img.height = 0;
-	img.width = 0;
-	document.body.appendChild(img);
-}
-
-Resource_onstatechange = function() {
-	if (this.tagName=='IMG') document.body.removeChild(this);
-	this.resource.isLoaded = true;
-	this.resource.parser.loadModules();
 }
 
 //Widget class

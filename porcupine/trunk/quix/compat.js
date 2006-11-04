@@ -41,6 +41,25 @@ QuiX.progress = '<a:rect xmlns:a="http://www.innoscript.org/quix" ' +
 		'<a:progressbar id="pb" width="150" maxvalue="1" height="4" ' +
 		'top="center" left="center"></a:progressbar></a:rect>';
 
+QuiX.modules = [
+	new QModule('Windows and Dialogs', '__quix/windows.js', [3]),
+	new QModule('Menus', '__quix/menus.js', [3]),
+	new QModule('Splitter', '__quix/splitter.js', [3]),
+	new QModule('Labels & Buttons', '__quix/buttons.js', []),
+	new QModule('Tab Pane', '__quix/tabpane.js', []),
+	new QModule('List View', '__quix/listview.js', []),
+	new QModule('Tree', '__quix/tree.js', []),
+	new QModule('Toolbars', '__quix/toolbars.js', [3]),
+	new QModule('Forms & Fields', '__quix/formfields.js', [3]),
+	new QModule('Common Widgets', '__quix/common.js', [3]),
+	new QModule('Datagrid', '__quix/datagrid.js', [5,8]),
+	new QModule('File Control', '__quix/file.js', [1,3,8]),
+	new QModule('Date Picker', '__quix/datepicker.js', [14]),
+	new QModule('Timers', '__quix/timers.js', []),
+	new QModule('Forms & Fields 2', '__quix/formfields2.js', [3]),
+	new QModule('VBox & HBox', '__quix/box.js', []),
+];
+
 QuiX.tags = {
 	'desktop':-1,'xhtml':-1,'script':-1,'prop':-1,'rect':-1,'progressbar':-1,
 	'window':0,'dialog':0,
@@ -191,3 +210,58 @@ QuiX.domFromString = function(s)
 
 	return dom;
 }
+
+function QModule(sName, sFile, d) {
+	this.isLoaded = false;
+	this.name = sName;
+	this.file = sFile;
+	this.dependencies = d;
+}
+
+QModule.prototype.load = function(parser) {
+	this.parser = parser;
+	var oScript = document.createElement('SCRIPT');
+	oScript.type = 'text/javascript';
+	oScript.defer = true;
+	oScript.src = this.file;
+	oScript.resource = this;
+	oScript.id = this.file;
+	if (window.event)
+		oScript.onreadystatechange = Resource_onstatechange;
+	else
+		oScript.onload = Resource_onstatechange;
+	document.getElementsByTagName('head')[0].appendChild(oScript);
+}
+
+function QImage(url) {
+	this.url = url;
+	this.isLoaded = false;
+}
+
+QImage.prototype.load = function(parser) {
+	this.parser = parser;
+	var img = new Image;
+	QuiX.images.push(this.url);
+	img.resource = this;
+	img.onload = Resource_onstatechange;
+	img.src = this.url;
+	img.style.display = 'none';
+	img.height = 0;
+	img.width = 0;
+	document.body.appendChild(img);
+}
+
+Resource_onstatechange = function() {
+	if (this.readyState) {
+		if (this.readyState=='loaded' || this.readyState=='complete') {
+			this.resource.isLoaded = true;
+			this.resource.parser.loadModules();
+		}
+	}
+	else {
+		if (this.tagName=='IMG') document.body.removeChild(this);
+		this.resource.isLoaded = true;
+		this.resource.parser.loadModules();
+	}
+}
+
