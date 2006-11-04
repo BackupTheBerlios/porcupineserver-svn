@@ -9,7 +9,6 @@ function Splitter(params) {
 	this.div.className = 'splitter';
 	
 	this.orientation = params.orientation || "v";
-	this.interactive = (params.interactive=="true"||params.interactive==true)?true:false;
 	var iSpacing = params.spacing || 4;
 	this.spacing = parseInt(iSpacing);
 	this.panes = [];
@@ -24,7 +23,7 @@ Splitter.prototype.addPane = function(params) {
 	params.overflow = params.overflow || 'hidden';
 	var on_off = (params.onoff=='true' || params.onoff==true)?true:false;
 
-	if (this.panes.length>0 && this.interactive) {
+	if (this.panes.length>0) {
 		this._addHandle();
 	}
 	
@@ -48,7 +47,6 @@ Splitter.prototype.addPane = function(params) {
 	this.appendChild(ow2);
 	ow2.div.className = 'pane';
 	this.panes.push(ow2);
-	this.redraw(true);
 	
 	return(ow2);
 }
@@ -119,23 +117,14 @@ Splitter.prototype.redraw = function(bForceAll) {
 			}
 		}
 		
-		if (this.interactive) {
-			if (this._handles.length == 0) {
-				//we need to create all the resizing handles
-				for (i=1; i<this.panes.length; i++)
-					this._addHandle();
-			}
-			for (i=0; i<this._handles.length; i++) {
-				this._handles[i][length_var] = this.spacing;
-				this._handles[i][offset_var] = 'this.parent._getPaneOffset(' + (i + 1) + ')-this.parent.spacing';
-			}
+		if (this._handles.length == 0) {
+			//we need to create all the resizing handles
+			for (i=1; i<this.panes.length; i++)
+				this._addHandle();
 		}
-		else {
-			//remove all handles
-			while (this._handles.length > 0) {
-				this._handles[0].destroy();
-				this._handles.splice(0, 1)
-			}
+		for (i=0; i<this._handles.length; i++) {
+			this._handles[i][length_var] = this.spacing;
+			this._handles[i][offset_var] = 'this.parent._getPaneOffset(' + (i + 1) + ')-this.parent.spacing';
 		}
 	}
 	Widget.prototype.redraw(bForceAll, this);
@@ -268,7 +257,8 @@ function SplitterPane__destroy() {
 		else
 			oSplitter.panes[idx-1].length = '-1';
 	}
-	if (oSplitter.interactive && oSplitter.panes.length > 1) {
+	//if (oSplitter.interactive && oSplitter.panes.length > 1) {
+	if (oSplitter.panes.length > 1) {
 		if (idx == 0) {
 			oSplitter._handles[0].destroy();
 			oSplitter._handles.splice(0, 1);			
