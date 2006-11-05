@@ -103,10 +103,10 @@ class PorcupineServer(asyncBaseServer.BaseServer):
                     if db.db_handle.supports_replication and \
                             not(sessionManager.sm.supports_replication):
                         sError = 'Database supports replication but the ' + \
-                                    'session manager does not.'
+                                 'session manager does not.'
                     else:
                         sError = 'Session manager supports replication but ' + \
-                                    'the store does not.'
+                                 'the store does not.'
                     raise serverExceptions.ConfigurationError, \
                         'Mismatched interfaces.\n%s' % sError
 

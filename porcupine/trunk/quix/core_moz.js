@@ -484,7 +484,7 @@ Widget.prototype.appendChild = function(w, p) {
 }
 
 Widget.prototype.disable = function(w) {
-	var w = w || this;
+	w = w || this;
 	if (!w._isDisabled) {
 		w._statecolor = w.div.style.color;
 		w.div.style.color = 'GrayText';
@@ -577,7 +577,7 @@ Widget.prototype._setAbsProps = function () {
 }
 
 Widget.prototype._setCommonProps = function (w) {
-	var w = w || this;
+	w = w || this;
 	if (w.height!=null)
 		w.div.style.height = w._calcHeight() + 'px';
 	if (w.width!=null)
@@ -614,7 +614,7 @@ Widget.prototype.getId = function() {
 
 // bgColor attribute
 Widget.prototype.setBgColor = function(color,w) {
-	var w = w || this;
+	w = w || this;
 	w.div.style.backgroundColor = color;
 }
 Widget.prototype.getBgColor = function() {
@@ -725,7 +725,7 @@ Widget.prototype.getTop = function() {
 }
 
 Widget.prototype._calcSize = function(height, offset, getHeight) {
-	var height=(typeof(this[height])=='function')?this[height](this):this[height];
+	height=(typeof(this[height])=='function')?this[height](this):this[height];
 	if (height == null)
 		return height;
 	if (!isNaN(height))
@@ -739,7 +739,7 @@ Widget.prototype._calcSize = function(height, offset, getHeight) {
 }
 
 Widget.prototype._calcPos = function(left, offset, getWidth) {
-	var left = (typeof(this[left])=='function')?this[left](this):this[left];
+	left = (typeof(this[left])=='function')?this[left](this):this[left];
 	if (!isNaN(left))
 		return parseInt(left) + offset;
 	else if (left.slice(left.length-1)=='%') {
@@ -825,7 +825,7 @@ Widget.prototype.bringToFront = function(w) {
 }
 
 Widget.prototype.click = function() {
-	QuiX.sendEvent(this.div,'MouseEvents','onclick');
+	QuiX.sendEvent(this.div, 'MouseEvents', 'onclick');
 }
 
 Widget.prototype.moveTo = function(x,y) {
@@ -867,7 +867,7 @@ Widget.prototype.isHidden = function() {
 
 Widget.prototype._startResize = function (evt) {
 	var oWidget = this;
-	var evt = evt || event;
+	evt = evt || event;
 	QuiX.startX = evt.clientX;
 	QuiX.startY = evt.clientY;
 
@@ -880,7 +880,7 @@ Widget.prototype._startResize = function (evt) {
 }
 
 Widget.prototype._resizing = function(evt) {
-	var evt = evt || event;
+	evt = evt || event;
 	offsetX = evt.clientX - QuiX.startX;
 	offsetY = evt.clientY - QuiX.startY;
 	QuiX.tmpWidget.resize(this.getWidth(true) + offsetX,
@@ -888,7 +888,7 @@ Widget.prototype._resizing = function(evt) {
 }
 
 Widget.prototype._endResize = function(evt) {
-	var evt = evt || event;
+	evt = evt || event;
 	offsetX = evt.clientX - QuiX.startX;
 	offsetY = evt.clientY - QuiX.startY;
 	this.resize(this.getWidth(true) + offsetX,
@@ -902,7 +902,7 @@ Widget.prototype._endResize = function(evt) {
 
 Widget.prototype._startMove = function(evt) {
 	var oWidget = this;
-	var evt = evt || event;
+	evt = evt || event;
 	QuiX.startX = evt.clientX;
 	QuiX.startY = evt.clientY;
 
@@ -915,7 +915,7 @@ Widget.prototype._startMove = function(evt) {
 }
 
 Widget.prototype._moving = function(evt) {
-	var evt = evt || event;
+	evt = evt || event;
 	offsetX = evt.clientX - QuiX.startX;
 	offsetY = evt.clientY - QuiX.startY;
 	QuiX.tmpWidget.moveTo(this.getLeft() + offsetX,
@@ -923,7 +923,7 @@ Widget.prototype._moving = function(evt) {
 }
 
 Widget.prototype._endMove = function(evt) {
-	var evt = evt || event;
+	evt = evt || event;
 	QuiX.tmpWidget.destroy();
 	document.desktop.detachEvent('onmouseup');
 	document.desktop.detachEvent('onmousemove');
@@ -948,7 +948,7 @@ Widget.prototype._detach = function() {
 }
 
 Widget.prototype.redraw = function(bForceAll, w) {
-	var w = w || this;
+	w = w || this;
 	var container = w.div.parentNode;
 	if (container) {
 		var frag = document.createDocumentFragment();
@@ -1014,7 +1014,7 @@ Widget.prototype.supportedEvents = [
 Widget.prototype.customEvents = ['onload'];
 
 Widget.prototype._registerHandler = function(evt_type, handler, isCustom, w) {
-	var w = w || this;
+	w = w || this;
 	var chr = (w._isDisabled)?'*':'';
 	if (!isCustom)
 		w._registry[chr + evt_type] = function(evt){return handler(evt || event, w)};
@@ -1050,7 +1050,7 @@ Widget.prototype._attachEvents = function() {
 }
 
 Widget.prototype._detachEvents = function(w) {
-	var w = w || this;
+	w = w || this;
 	var first_char;
 	for (var evt_type in w._registry) {
 		first_char = evt_type.slice(0,1);
@@ -1060,7 +1060,7 @@ Widget.prototype._detachEvents = function(w) {
 }
 
 Widget.prototype._getHandler = function(eventType, f) {
-	var f = getEventListener(f);
+	f = getEventListener(f);
 	if (!f) {//restore from registry
 		f = this._registry[eventType] ||
 			this._registry['_' + eventType] ||
@@ -1073,10 +1073,10 @@ Widget.prototype._getHandler = function(eventType, f) {
 }
 
 Widget.prototype.attachEvent = function(eventType, f, w) {
-	var w = w || this;
+	w = w || this;
 	var isCustom = w.customEvents.hasItem(eventType);
 	var registry = (isCustom)?w._customRegistry:w._registry;
-	var f = w._getHandler(eventType, f);
+	f = w._getHandler(eventType, f);
 	
 	if (f) {
 		if (!w._isDisabled && !isCustom)
@@ -1097,7 +1097,7 @@ Widget.prototype.attachEvent = function(eventType, f, w) {
 
 Widget.prototype.detachEvent = function(eventType, chr) {
 	var registry = null;
-	var chr = chr || '_';
+	chr = chr || '_';
 	if (this._registry[eventType]) {
 		QuiX.removeEvent(this.div, eventType, this._registry[eventType]);
 		registry = this._registry;
