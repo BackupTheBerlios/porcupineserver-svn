@@ -105,12 +105,12 @@ Box.prototype._calcWidgetLength = function() {
 Box.prototype._calcWidgetWidth = function() {
 	var w;
 	var tl = 0;
-	var min_var = (this.orientation=='h')?'minh':'minw';
+	var min_var = (this.orientation=='h')?'_calcMinHeight':'_calcMinWidth';
 	
 	for (var i=0; i<this.widgets.length; i++) {
 		w = this.widgets[i];
 		if (w.isHidden()) continue;
-		var min = (typeof w[min_var] == 'function')?w[min_var](w):w[min_var];
+		var min = w[min_var]();
 		tl = Math.max(tl,min);
 	}
 	return tl;

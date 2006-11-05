@@ -15,7 +15,7 @@
 //    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //===============================================================================
 
-//QuiX generic functions
+//QuiX compatibility layer
 
 function Clipboard() {
 	this.contains = '';
@@ -24,7 +24,6 @@ function Clipboard() {
 }
 
 var QuiX = {};
-
 QuiX.version = '0.6 build 20061015';
 QuiX.namespace = 'http://www.innoscript.org/quix';
 QuiX.startX = 0;
@@ -34,12 +33,12 @@ QuiX.tmpWidget = null;
 QuiX.images = [];
 
 QuiX.progress = '<a:rect xmlns:a="http://www.innoscript.org/quix" ' +
-		'width="240" height="48" overflow="hidden" top="center" left="center" ' +
-		'border="2" bgcolor="white" style="border-color:#999999;border-style:solid" '+
-		'padding="1,1,1,1"><a:xhtml><center>Please wait...<br/><br/>' +
-		'<span></span></center></a:xhtml>' +
-		'<a:progressbar id="pb" width="150" maxvalue="1" height="4" ' +
-		'top="center" left="center"></a:progressbar></a:rect>';
+	'width="240" height="48" overflow="hidden" top="center" left="center" ' +
+	'border="2" bgcolor="white" style="border-color:#999999;border-style:solid" '+
+	'padding="1,1,1,1"><a:xhtml><center>Please wait...<br/><br/>' +
+	'<span></span></center></a:xhtml>' +
+	'<a:progressbar id="pb" width="150" maxvalue="1" height="4" ' +
+	'top="center" left="center"></a:progressbar></a:rect>';
 
 QuiX.modules = [
 	new QModule('Windows and Dialogs', '__quix/windows.js', [3]),
@@ -142,9 +141,9 @@ QuiX.getEventWrapper = function(f1, f2) {
 }
 
 QuiX.getImage = function(url) {
-		var img = new Image();
-		img.src = url;
-		return img;
+	var img = new Image();
+	img.src = url;
+	return img;
 }
 
 QuiX.addEvent = function(el, type, proc) {
@@ -209,6 +208,28 @@ QuiX.domFromString = function(s)
 	}
 
 	return dom;
+}
+
+QuiX.removeWidget = function(w) {
+	var parentElement;
+	while (w.widgets.length>0)
+		QuiX.removeWidget(w.widgets[0]);
+	if (w.parent) {
+		w.parent.widgets.removeItem(w);
+		if (w._id)
+			w._removeIdRef();
+	}
+
+	w._detachEvents();
+	
+	parentElement = w.div.parentNode || w.div.parentElement;
+	if (parentElement)
+		QuiX.removeNode(w.div);
+
+	w._registry = null;
+	w._customRegistry = null;
+	w.div = null;
+	w = null;
 }
 
 function QModule(sName, sFile, d) {

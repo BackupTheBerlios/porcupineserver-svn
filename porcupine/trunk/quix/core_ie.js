@@ -26,24 +26,6 @@ function __init__() {
 
 QuiX.browser = 'ie';
 QuiX.root = (new RegExp("https?://[^/]+(?:/[^/\?]+)?(?:/\{[0-9a-f]{32}\})?", "i")).exec(document.location.href) + '/';
-QuiX.removeWidget = function(w) {
-	while (w.widgets.length>0)
-		QuiX.removeWidget(w.widgets[0]);
-	
-	if (w.parent) {
-		w.parent.widgets.removeItem(w);
-		if (w._id)
-			w._removeIdRef();
-	}
-	
-	w._detachEvents();
-	w.div.removeNode(true);
-
-	w._registry = null;
-	w._customRegistry = null;
-	w.div = null;
-	w = null;
-}
 
 // xul parser
 function XULParser() {
@@ -173,7 +155,7 @@ XULParser.prototype.parseXul = function(oNode, parentW) {
 	if (oNode.nodeType!=1) return;
 	var checkForChilds = true;
 	var appendIt = true;
-	var oWidget=null;
+	var oWidget = null;
 	var params = this.getNodeParams(oNode);
 	var fparams = {};
 	var sLocalName;
@@ -450,7 +432,7 @@ function Widget(params) {
 	else
 		this.div = ce('DIV');
 	this.div.style.visibility = params.hidden?'hidden':'';
-
+	
 	this.div.widget = this;
 
 	this._id = undefined;
@@ -771,7 +753,7 @@ Widget.prototype._calcHeight = function(b) {
 	var offset = 0;
 	if (!b)	offset = parseInt(this.div.style.paddingTop) + parseInt(this.div.style.paddingBottom) + 2*this.getBorderWidth();
 	var s = this._calcSize("height", offset, "getHeight");
-	var ms=((typeof(this.minh)=='function')?this.minh(this):this.minh) - offset;
+	var ms = this._calcMinHeight() - offset;
 	if (s < ms) s = ms;
 	return s>0?s:0;
 }
@@ -780,7 +762,7 @@ Widget.prototype._calcWidth = function(b) {
 	var offset = 0;
 	if (!b)	offset = parseInt(this.div.style.paddingLeft) + parseInt(this.div.style.paddingRight) + 2*this.getBorderWidth();
 	var s = this._calcSize("width", offset, "getWidth");
-	var ms=((typeof(this.minw)=='function')?this.minw(this):this.minw) - offset;
+	var ms = this._calcMinWidth() - offset;
 	if (s < ms) s = ms;
 	return s>0?s:0;
 }
@@ -791,6 +773,14 @@ Widget.prototype._calcLeft = function() {
 
 Widget.prototype._calcTop = function() {
 	return this._calcPos("top", (this.parent?this.parent.getPadding()[2]:0), "getHeight");
+}
+
+Widget.prototype._calcMinWidth = function() {
+	return (typeof(this.minw)=='function')?this.minw(this):this.minw;
+}
+
+Widget.prototype._calcMinHeight = function() {
+	return (typeof(this.minh)=='function')?this.minh(this):this.minh;
 }
 
 Widget.prototype.getScreenLeft = function() {
@@ -842,8 +832,8 @@ Widget.prototype.moveTo = function(x,y) {
 }
 
 Widget.prototype.resize = function(x,y) {
-	var minw = (typeof this.minw == "function")?this.minw(this):this.minw;
-	var minh = (typeof this.minh == "function")?this.minh(this):this.minh;
+	var minw = this._calcMinWidth();
+	var minh = this._calcMinHeight();
 	this.width = (x>minw)?x:minw;
 	this.height = (y>minh)?y:minh;
 	this.redraw();
