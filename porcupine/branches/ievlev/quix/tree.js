@@ -212,6 +212,7 @@ FolderTree.prototype.load_oncomplete = function(req) {
 	for (var i=0; i<oFolders.length; i++) {
 		newNode = new TreeNode(oFolders[i]);
 		treeNode.appendChild(newNode);
+		newNode.redraw();
 	}
 	if (this._onexpand)
 		this._onexpand(treeNode);

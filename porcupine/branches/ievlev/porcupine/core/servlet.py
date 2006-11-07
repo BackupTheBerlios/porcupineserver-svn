@@ -177,13 +177,14 @@ class XULServlet(HTTPServlet):
 <html>
     <head>
         <script type="text/javascript" defer="defer" src="%s/__quix/quixextensions.js"></script>
+        <script type="text/javascript" defer="defer" src="%s/__quix/compat.js"></script>
         <script type="text/javascript" defer="defer" src="%s/__quix/xul_core.js"></script>
         <script type="text/javascript" defer="defer" src="%s/__quix/xmlrpc.js"></script>
         <link type="text/css" rel="stylesheet" href="%s/__quix/quix.css"></link>
     </head>
     <body onload="__init__()">
         <xml id="xul" style="display:none">
-''' % ((self.request.serverVariables["SCRIPT_NAME"],) * 4) )
+''' % ((self.request.serverVariables["SCRIPT_NAME"],) * 5) )
         else:
             self.response.content_type = 'text/xml'
             

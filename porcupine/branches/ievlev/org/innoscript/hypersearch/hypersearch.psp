@@ -39,7 +39,7 @@
 		minimize="true" maximize="true" resizable="true">
 	<qx:script name="Hypersearch script" src="hypersearch/hypersearch.js"/>
 	<qx:wbody overflow="auto">
-        <qx:splitter width="100%" height="100%" orientation="v" spacing="0">
+		<qx:splitter width="100%" height="100%" orientation="v" spacing="0">
 			<qx:pane overflow="hidden" length="220" onoff="true">
 				<qx:box orientation="v" padding="8,8,8,8" width="100%" height="100%"
 						id="search_criteria" overflow="auto">

@@ -206,7 +206,7 @@ ContextMenu.prototype.show = function(w, x, y) {
 		this.left = x;
 		this.top = y;
 		w.appendChild(this);
-		this.bringToFront();
+		this.redraw();
 
 		if (w==document.desktop)
 			document.desktop.overlays.push(this);
@@ -245,6 +245,8 @@ ContextMenu.prototype.addOption = function(params) {
 		oOption.setPosition('relative');
 	}
 	this.appendChild(oOption);
+	oOption.redraw();
+	
 	this.options.push(oOption);
 	return oOption;
 }
