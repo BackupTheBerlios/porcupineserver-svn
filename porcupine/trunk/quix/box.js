@@ -49,16 +49,16 @@ Box.prototype.redraw = function(bForceAll) {
 Box.prototype._getWidgetPos = function(iPane) {
 	var oWidget = this.widgets[iPane];
 	var boxalign =  oWidget.boxAlign || this.childrenAlign;
-	var w1 = (this.orientation=='h')?this.parent.getHeight():this.parent.getWidth();
+	var w1 = (this.orientation=='h')?this.getHeight():this.getWidth();
 	var w2 = (this.orientation=='h')?oWidget.getHeight(true):oWidget.getWidth(true);
 	switch (boxalign) {
 		case 'center':
-				return (w1 - w2)/2;
+			return (w1 - w2)/2;
 		case 'right':
 		case 'bottom':
-				return (w1 - w2);
+			return (w1 - w2);
 		default: 	
-				return 0;
+			return 0;
 	}
 }
 
