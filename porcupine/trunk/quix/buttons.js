@@ -138,6 +138,7 @@ function XButton(params) {
 		minh: params.minh,
 		top: params.top,
 		left: params.left,
+		disabled: params.disabled,
 		bgcolor: params.bgcolor || 'buttonface',
 		padding: '0,0,0,0',
 		overflow: 'hidden',
