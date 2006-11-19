@@ -96,6 +96,9 @@ function Combo(params) {
 		e.style.cursor = 'default';
 		if (!this.readonly) e.onclick = ComboBtn__onclick;
 	}
+	
+	if (this._isDisabled)
+		this.disable();
 }
 
 Combo.prototype = new Widget;
