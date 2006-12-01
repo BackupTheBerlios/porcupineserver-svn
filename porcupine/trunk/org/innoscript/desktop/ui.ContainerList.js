@@ -73,7 +73,8 @@ containerList.getContainerInfo = function(w, bAddPath) {
 			newOption1.disable();
 			newOption2.disable();
 		}
-		w.attributes.history.push(w.attributes.FolderID);
+		if (w.attributes.history[w.attributes.history.length-1] != w.attributes.FolderID)
+			w.attributes.history.push(w.attributes.FolderID);
 	}
 	xmlrpc.callmethod('getInfo');
 }
