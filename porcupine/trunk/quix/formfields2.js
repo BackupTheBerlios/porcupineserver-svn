@@ -298,6 +298,7 @@ SelectList.prototype.addOption = function(params) {
 	params.onclick = QuiX.getEventWrapper(SelectOption__onclick, params.onclick);
 	var w = new Icon(params);
 	this.appendChild(w);
+	w.redraw();
 	w.selected = false;
 	w.value = params.value;
 	if (params.selected == 'true' || params.selected == true) {
