@@ -23,10 +23,6 @@ Splitter.prototype.addPane = function(params) {
 	params.overflow = params.overflow || 'hidden';
 	var on_off = (params.onoff=='true' || params.onoff==true)?true:false;
 
-	if (this.panes.length>0) {
-		this._addHandle();
-	}
-	
 	ow2 = new Widget(params);
 	
 	ow2.onoff = on_off;
@@ -45,6 +41,7 @@ Splitter.prototype.addPane = function(params) {
 	}
 	
 	this.appendChild(ow2);
+	
 	ow2.div.className = 'pane';
 	this.panes.push(ow2);
 	
@@ -117,7 +114,7 @@ Splitter.prototype.redraw = function(bForceAll) {
 			}
 		}
 		
-		if (this._handles.length == 0) {
+		if (this._handles.length == 0 && this.spacing > 0) {
 			//we need to create all the resizing handles
 			for (i=1; i<this.panes.length; i++)
 				this._addHandle();

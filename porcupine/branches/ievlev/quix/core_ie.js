@@ -448,7 +448,7 @@ function Widget(params) {
 		this.setPadding(padding);
 	}
 	else
-		this.setPadding([0,0,0,0]);
+		this.div.style.padding = '0px 0px 0px 0px';
 
 	if (params.display)
 		this.setDisplay(params.display);
