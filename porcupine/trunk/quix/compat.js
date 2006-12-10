@@ -118,6 +118,12 @@ QuiX.createOutline = function(w) {
 		border:2,
 		overflow:'hidden'
 	});
+	
+	var t = QuiX.getImage('__quix/images/transp.gif');
+	t.style.width = '100%';
+	t.style.height = '100%';
+	oW.div.appendChild(t);
+	
 	w.parent.appendChild(oW);
 	oW.redraw(true);
 	//calculate size because minw/minh procedure can depends on it's children size
@@ -247,7 +253,7 @@ QModule.prototype.load = function(parser) {
 	oScript.src = this.file;
 	oScript.resource = this;
 	oScript.id = this.file;
-	if (window.event)
+	if (typeof(window.event) != 'undefined')
 		oScript.onreadystatechange = Resource_onstatechange;
 	else
 		oScript.onload = Resource_onstatechange;
