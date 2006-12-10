@@ -305,6 +305,7 @@ class Dlg_SelectContainer(PorcupineDesktopServlet):
         
 class Dlg_Rename(PorcupineDesktopServlet):
     def setParams(self):
+        self.response.setHeader('cache-control', 'no-cache')
         sLang = self.request.getLang()
         sRename = resources.getResource('RENAME', sLang)
         self.params = {

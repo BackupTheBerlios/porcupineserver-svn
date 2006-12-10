@@ -9,11 +9,11 @@
 	height="100"
 	left="40%%"
 	top="40%%">
-	<a:prop name="ID" value="%(ID)s"></a:prop>
+	<a:prop name="ID" value="%(ID)s"/>
 	<a:wbody>
-		<a:label align="right" top="14" width="120" height="20" caption="%(ENTER_NEW_NAME)s:"></a:label>
-		<a:field id="new_name" left="125" top="12" width="50%%" value="%(DN)s"></a:field>
+		<a:label align="right" top="14" width="120" height="20" caption="%(ENTER_NEW_NAME)s:"/>
+		<a:field id="new_name" left="125" top="12" width="50%%" value="%(DN)s"/>
 	</a:wbody>
-	<a:dlgbutton onclick="__closeDialog__" width="80" height="22" caption="%(RENAME)s"></a:dlgbutton>
-	<a:dlgbutton onclick="__closeDialog__" width="80" height="22" caption="%(CANCEL)s"></a:dlgbutton>
+	<a:dlgbutton default="true" onclick="__closeDialog__" width="80" height="22" caption="%(RENAME)s"/>
+	<a:dlgbutton onclick="__closeDialog__" width="80" height="22" caption="%(CANCEL)s"/>
 </a:dialog>
