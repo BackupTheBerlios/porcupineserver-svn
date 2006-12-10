@@ -10,7 +10,7 @@ function TreeNode(params) {
 	this.base(params);
 
 	this.isExpanded = false;
-	this.hasChildren = (params.haschildren=='true' || params.haschildren==true)? true:false;
+	this.hasChildren = (params.haschildren=='true' || params.haschildren==true)?true:false;
 	this.img = params.img || null;
 	this._expandImg = null;
 	this._imgElement = null;
@@ -31,25 +31,9 @@ TreeNode.prototype = new Widget;
 
 TreeNode.prototype.redraw = function(bForceAll) {
 	this.tree = this.parent.tree || this.parent;
-	if (this.parent instanceof TreeNode) {
-		//sub node
-		if (!this.parent.hasChildren)
-			this.parent._addExpandImg();
-		this.div.style.marginLeft = this.tree.levelpadding + 'px';
-		this.div.style.marginTop = '2px';
-		if (this.parent.isExpanded)
-			this.setDisplay();
-	}
-	else {
-		// root node
-		this.setDisplay();
-	}
-
-	if (this.hasChildren && this.childNodes.length == 0)
-		this._addExpandImg();
 
 	if (this.img) {
-		if (this._imgElement!==null)
+		if (this._imgElement != null)
 			this._imgElement.src = this.img;
 		else {
 			var nm = QuiX.getImage(this.img);
@@ -66,6 +50,24 @@ TreeNode.prototype.redraw = function(bForceAll) {
 			this._imgElement = null;
 		}
 	}
+	
+	if (this.hasChildren && this.childNodes.length == 0)
+		this._addExpandImg();
+		
+	if (this.parent instanceof TreeNode) {
+		//sub node
+		if (!this.parent.hasChildren)
+			this.parent._addExpandImg();
+		this.div.style.marginLeft = this.tree.levelpadding + 'px';
+		this.div.style.marginTop = '2px';
+		if (this.parent.isExpanded)
+			this.setDisplay();
+	}
+	else {
+		// root node
+		this.setDisplay();
+	}
+	
 	if (this._isDisabled)
 		this.disable();
 	else
