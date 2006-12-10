@@ -21,35 +21,41 @@ import types
 from porcupine.db import db
 from porcupine import serverExceptions
 
-class policymethod(object):
-    def __init__(self, function, policyid):
-        self.func = function
-        self.name = function.func_name
-        self.__doc__ = function.func_doc
-        self.policyid = policyid
-        
-    def __get__(self, servlet, servlet_class):
-        policy = db.getItem(self.policyid)
-        user = servlet.session.user
-        
-        if self.userHasPolicy(user, policy):
-            return types.MethodType(self.func, servlet, servlet_class)
-        else:
-            raise serverExceptions.PolicyViolation, "This action is restricted due to policy '%s'" % policy.displayName.value
+def policymethod(policyid):
+    class PolicyMethod(object):
+        def __init__(self, function):
+            self.func = function
+            self.name = function.func_name
+            self.__doc__ = function.func_doc
             
-    def userHasPolicy(self, user, policy):
-        policyGranted = policy.policyGranted.value
-        
-        userID = user._id
-        if userID in policyGranted or user.isAdmin():
-            return True
-        
-        memberOf = ['everyone']
-        memberOf.extend(user.memberof.value)
-        if hasattr(user, 'authenticate'):
-            memberOf.extend(['authusers']) 
-        
-        for groupid in memberOf:
-            if groupid in policyGranted: return True
+        def __get__(self, servlet, servlet_class):
+            policy = db.getItem(policyid)
+            user = servlet.session.user
             
-        return False
+            if self.userHasPolicy(user, policy):
+                return types.MethodType(self.func, servlet, servlet_class)
+            else:
+                raise serverExceptions.PolicyViolation, "This action is restricted due to policy '%s'" % policy.displayName.value
+                
+        def userHasPolicy(self, user, policy):
+            policyGranted = policy.policyGranted.value
+            
+            userID = user._id
+            if userID in policyGranted or user.isAdmin():
+                return True
+            
+            memberOf = ['everyone']
+            memberOf.extend(user.memberof.value)
+            if hasattr(user, 'authenticate'):
+                memberOf.extend(['authusers']) 
+            
+            for groupid in memberOf:
+                if groupid in policyGranted: return True
+                
+            return False
+    
+    return PolicyMethod
+    
+
+
+        

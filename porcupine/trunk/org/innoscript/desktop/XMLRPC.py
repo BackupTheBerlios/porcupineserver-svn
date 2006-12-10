@@ -204,6 +204,7 @@ class RootFolder(ContainerGeneric):
             slice = [ rec for rec in oRes[range[0]:range[1]] ]
             return [ slice,total_recs ]
 
+    @policymethod('uploadpolicy')
     def upload(self, chunk, fname):
         chunk = base64.decodestring(chunk)
         if not fname:
@@ -216,7 +217,6 @@ class RootFolder(ContainerGeneric):
             tmpfile.write( chunk )
             tmpfile.close()
         return fname
-    upload = policymethod(upload, 'uploadpolicy')
     
     def logoff(self):
         self.session.terminate()
