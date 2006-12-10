@@ -403,6 +403,9 @@ ListView.prototype._renderCell = function(cell, cellIndex, value, obj) {
 				return;
 			case 'bool':
 				if (value) {
+					while (cell.childNodes.length > 0) {
+						QuiX.removeNode(cell.childNodes[0]);					
+					}
 					elem = QuiX.getImage(column.trueImg)
 					elem.align = 'absmiddle';
 					cell.appendChild(elem);
