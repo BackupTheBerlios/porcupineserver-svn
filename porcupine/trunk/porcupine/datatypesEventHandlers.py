@@ -22,13 +22,14 @@ from porcupine.db import db, dbEnv
 
 class CompositionEventHandler(eventHandlers.DatatypeEventHandler):
     "Composition datatype event handler"
+    
+    @staticmethod
     def on_create(item, attr, trans):
         if item._isDeleted:
             attr.value = [db.getDeletedItem(sID, trans) for sID in attr.value]
         CompositionEventHandler.on_update(item, attr, None, trans)
         
-    on_create = staticmethod(on_create)
-    
+    @staticmethod
     def on_update(item, new_attr, old_attr, trans):
         # check containment
         if [obj for obj in new_attr.value
@@ -69,8 +70,7 @@ class CompositionEventHandler(eventHandlers.DatatypeEventHandler):
             
         new_attr.value = list(new_ids)
     
-    on_update = staticmethod(on_update)
-    
+    @staticmethod
     def on_delete(item, attr, trans, bPermanent):
         if bPermanent:
             if item._isDeleted:
@@ -87,21 +87,19 @@ class CompositionEventHandler(eventHandlers.DatatypeEventHandler):
                 composite._isDeleted = True
                 db.putItem(composite, trans)
     
-    on_delete = staticmethod(on_delete)
-    
+    @staticmethod
     def removeComposite(composite, trans):
         db.handle_delete(composite, trans, True)
         db.deleteItem(composite, trans)
         
-    removeComposite = staticmethod(removeComposite)
-
 class RelatorNEventHandler(eventHandlers.DatatypeEventHandler):
     "RelatorN datatype event handler"
+    
+    @staticmethod
     def on_create(item, attr, trans):
         RelatorNEventHandler.on_update(item, attr, None, trans)
-        
-    on_create = staticmethod(on_create)
     
+    @staticmethod
     def on_update(item, new_attr, old_attr, trans):
         from porcupine import datatypes
         # remove duplicates
@@ -147,8 +145,7 @@ class RelatorNEventHandler(eventHandlers.DatatypeEventHandler):
                     oAttrRef.value = ''
                 db.putItem(oItemRef, trans)
     
-    on_update = staticmethod(on_update)
-    
+    @staticmethod
     def on_delete(item, attr, trans, bPermanent):
         if not item._isDeleted:
             from porcupine import datatypes
@@ -173,8 +170,7 @@ class RelatorNEventHandler(eventHandlers.DatatypeEventHandler):
                 else:
                     attr.value.remove(sID)
     
-    on_delete = staticmethod(on_delete)
-    
+    @staticmethod
     def getNoAccessIds(attr, trans):
         lstNoAccess = []
         for sID in attr.value:
@@ -186,15 +182,14 @@ class RelatorNEventHandler(eventHandlers.DatatypeEventHandler):
                 lstNoAccess.append(sID)
         return lstNoAccess
     
-    getNoAccessIds = staticmethod(getNoAccessIds)
-    
 class Relator1EventHandler(eventHandlers.DatatypeEventHandler):
     "Relator1 datatype event handler"
+
+    @staticmethod
     def on_create(item, attr, trans):
         Relator1EventHandler.on_update(item, attr, None, trans)
-        
-    on_create = staticmethod(on_create)
-
+ 
+    @staticmethod
     def on_update(item, new_attr, old_attr, trans):
         from porcupine import datatypes
         
@@ -227,9 +222,8 @@ class Relator1EventHandler(eventHandlers.DatatypeEventHandler):
                 elif isinstance(oAttrRef, datatypes.Relator1):
                     oAttrRef.value = ''
                 db.putItem(oItemRef, trans)
-                            
-    on_update = staticmethod(on_update)
-    
+
+    @staticmethod
     def on_delete(item, attr, trans, bPermanent):
         if not item._isDeleted:
             from porcupine import datatypes
@@ -248,24 +242,21 @@ class Relator1EventHandler(eventHandlers.DatatypeEventHandler):
                     oAttrRef.value = ''
                 db.putItem(oItemRef, trans)
 
-    on_delete = staticmethod(on_delete)
-    
 class ExternalAttributeEventHandler(eventHandlers.DatatypeEventHandler):
     "External attribute event handler"
+
+    @staticmethod
     def on_create(item, attr, trans):
         ExternalAttributeEventHandler.on_update(item, attr, None, trans)
-        
-    on_create = staticmethod(on_create)
-
+    
+    @staticmethod
     def on_update(item, new_attr, old_attr, trans):
         if new_attr.isDirty:
             db.db_handle._putExternalAttribute(new_attr._id, new_attr.value, trans)
         new_attr._reset()
     
-    on_update = staticmethod(on_update)
-    
+    @staticmethod
     def on_delete(item, attr, trans, bPermanent):
         if bPermanent:
             db.db_handle._deleteExternalAttribute(attr._id, trans)
-        
-    on_delete = staticmethod(on_delete)
+

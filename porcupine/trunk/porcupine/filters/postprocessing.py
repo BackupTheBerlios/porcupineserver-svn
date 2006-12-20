@@ -27,12 +27,13 @@ class Gzip(PostProcessingFilter):
     staticLevel = 9
     dynamicLevel = 3
     
+    @staticmethod
     def compress(zbuf, stream, level):
         zfile = gzip.GzipFile(mode='wb', fileobj = zbuf, compresslevel = level)
         zfile.write(stream)
         zfile.close()
-    compress = staticmethod(compress)
-    
+
+    @staticmethod
     def apply(response, request, registration):
         if not Gzip.cacheFolder:
             config = Gzip.loadConfig()
@@ -80,4 +81,3 @@ class Gzip(PostProcessingFilter):
             Gzip.compress(zBuf, response._getBody(), Gzip.dynamicLevel)
             response._body = [zBuf.getvalue()]
             zBuf.close()
-    apply = staticmethod(apply)

@@ -1,5 +1,5 @@
 #===============================================================================
-#    Copyright 2005, Tassos Koutsovassilis
+#    Copyright 2005, 2006 Tassos Koutsovassilis
 #
 #    This file is part of Porcupine.
 #    Porcupine is free software; you can redistribute it and/or modify
@@ -17,15 +17,16 @@
 "Porcupine server event handlers base classes"
 
 class DatatypeEventHandler(object):
+
+    @staticmethod
     def on_create(item, attr, trans):
         pass
-    on_create = staticmethod(on_create)
 
+    @staticmethod
     def on_update(item, new_attr, old_attr, trans):
         pass
-    on_update = staticmethod(on_update)
     
+    @staticmethod
     def on_delete(item, attr, trans, bPermanent):
         pass
-    on_delete = staticmethod(on_delete)
-    
+  

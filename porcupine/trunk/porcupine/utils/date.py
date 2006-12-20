@@ -116,6 +116,7 @@ class Date(object):
         tupTime = time.localtime(self.value)
         return('%04i-%02i-%02iT%02i:%02i:%02i' % tupTime[:6])
 
+    @staticmethod
     def fromIso8601(s):
         """
         Convert an Iso8601 string to a L{Date} object.
@@ -127,4 +128,3 @@ class Date(object):
         """
         tupTime = time.strptime(s, "%Y-%m-%dT%H:%M:%S")
         return Date( time.mktime(tupTime) )
-    fromIso8601 = staticmethod(fromIso8601)

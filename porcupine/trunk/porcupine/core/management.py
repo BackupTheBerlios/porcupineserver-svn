@@ -1,5 +1,5 @@
 #===============================================================================
-#    Copyright 2005, Tassos Koutsovassilis
+#    Copyright 2005, 2006 Tassos Koutsovassilis
 #
 #    This file is part of Porcupine.
 #    Porcupine is free software; you can redistribute it and/or modify
@@ -38,12 +38,11 @@ REP_COMMANDS = (
 MAX_HOSTS = 2
 
 class Mgt(object):
-	mgtServer = None
-	
-	def open(address, worker_threads):
+    mgtServer = None
+    
+    @staticmethod
+    def open(address, worker_threads):
 		Mgt.mgtServer = ManagementServer(address, worker_threads)
-
-	open = staticmethod(open)
 
 class Site(object):
     "Site info class"

@@ -22,6 +22,7 @@ Currently, only post-processing filters are supported.
 import ConfigParser
 
 class PostProcessingFilter(object):
+    @classmethod
     def loadConfig(cls):
         config_file = ConfigParser.RawConfigParser()
         config_file.readfp(open('conf/filters.ini'))
@@ -31,9 +32,8 @@ class PostProcessingFilter(object):
         for setting in settings:
             config[setting[0]] = setting[1]
         return(config)
-    loadConfig = classmethod(loadConfig)
 
+    @staticmethod
     def apply(response, request, registration):
         raise NotImplementedError
-    apply = staticmethod(apply)
     
