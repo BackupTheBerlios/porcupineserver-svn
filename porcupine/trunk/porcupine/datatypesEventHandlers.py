@@ -1,5 +1,5 @@
 #===============================================================================
-#    Copyright 2005, Tassos Koutsovassilis
+#    Copyright 2005, 2006 Tassos Koutsovassilis
 #
 #    This file is part of Porcupine.
 #    Porcupine is free software; you can redistribute it and/or modify
@@ -15,8 +15,6 @@
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #===============================================================================
 "Porcupine server built-in datatypes event handlers"
-
-import sets
 
 from porcupine import serverExceptions
 from porcupine.core import eventHandlers
@@ -42,13 +40,13 @@ class CompositionEventHandler(eventHandlers.DatatypeEventHandler):
             obj._containerid = item._id
             dctObjects[obj._id] = obj
             
-        new_ids = sets.Set([obj._id for obj in new_attr.value])
+        new_ids = set([obj._id for obj in new_attr.value])
         
         # get previous value
         if old_attr:
-            old_ids = sets.Set(old_attr.value)
+            old_ids = set(old_attr.value)
         else:
-            old_ids = sets.Set()
+            old_ids = set()
 
         # calculate added composites
         lstAdded = list(new_ids - old_ids)
@@ -107,22 +105,22 @@ class RelatorNEventHandler(eventHandlers.DatatypeEventHandler):
     def on_update(item, new_attr, old_attr, trans):
         from porcupine import datatypes
         # remove duplicates
-        new_attr.value = list(sets.Set(new_attr.value))
+        new_attr.value = list(set(new_attr.value))
         
         # get previous value
         if old_attr:
-            prvValue = sets.Set(old_attr.value)
+            prvValue = set(old_attr.value)
             noAccessList = RelatorNEventHandler.getNoAccessIds(old_attr, trans)
         else:
-            prvValue = sets.Set()
+            prvValue = set()
             noAccessList = []
 
         # get current value
-        currentValue = sets.Set(new_attr.value + noAccessList)
+        currentValue = set(new_attr.value + noAccessList)
 
         if currentValue != prvValue:
             # calculate added references
-            lstAdded = list(currentValue-prvValue)
+            lstAdded = list(currentValue - prvValue)
             for sID in lstAdded:
                 oItemRef = db.getItem(sID, trans)
                 if oItemRef.getContentclass() in new_attr.relCc:
@@ -136,7 +134,7 @@ class RelatorNEventHandler(eventHandlers.DatatypeEventHandler):
                     new_attr.value.remove(sID)
     
             # calculate removed references
-            lstRemoved = list(prvValue-currentValue)
+            lstRemoved = list(prvValue - currentValue)
             for sID in lstRemoved:
                 oItemRef = db.getItem(sID, trans)
                 oAttrRef = getattr(oItemRef, new_attr.relAttr)
