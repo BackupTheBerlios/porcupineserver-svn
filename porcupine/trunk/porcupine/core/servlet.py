@@ -18,6 +18,7 @@
 
 import sys, os.path
 from threading import currentThread
+from string import Template
 
 from porcupine.db import db
 from porcupine.security import objectAccess
@@ -49,7 +50,8 @@ class BaseServlet(object):
         self.item = request.item
         
         if self.item:
-            if objectAccess.getAccess(self.item, self.session.user) == objectAccess.NO_ACCESS:
+            if objectAccess.getAccess(self.item, self.session.user) == \
+            objectAccess.NO_ACCESS:
                 raise serverExceptions.PermissionDenied
 
     def runAsSystem(self):
@@ -82,8 +84,10 @@ class HTTPServlet(BaseServlet):
     """
     def __init__(self, server, session, request):
         BaseServlet.__init__(self, server, session, request)
-        self.request = request = porcupine.core.request.HTTPRequest(self.request)
-        self.response = currentThread().response = porcupine.core.response.HTTPResponse()
+        self.request = request = \
+            porcupine.core.request.HTTPRequest(self.request)
+        self.response = currentThread().response = \
+            porcupine.core.response.HTTPResponse()
 
     def include(self, func):
         """Executes the given function inside the servlet's context.
@@ -109,8 +113,10 @@ class XMLRPCServlet(BaseServlet):
     """
     def __init__(self, server, session, request):
         BaseServlet.__init__(self, server, session, request)
-        self.request = request = porcupine.core.request.XMLRPCRequest(self.request)
-        self.response = currentThread().response = porcupine.core.response.XMLRPCResponse()
+        self.request = request = \
+            porcupine.core.request.XMLRPCRequest(self.request)
+        self.response = currentThread().response = \
+            porcupine.core.response.XMLRPCResponse()
 
     def execute(self):
         """This method deserializes the request, calls the requested method
@@ -122,13 +128,15 @@ class XMLRPCServlet(BaseServlet):
         try:
             method = getattr(self, self.request.params.method)
         except AttributeError:
-            raise serverExceptions.XMLRPCError, 'Invalid remote method "%s"' % self.request.params.method
+            raise serverExceptions.XMLRPCError, \
+            'Invalid remote method "%s"' % self.request.params.method
         args = tuple(self.request.params)
         output = method(*args)
         if output is not None:
             self.response.params = porcupine.core.xmlrpc.XMLRPCParams((output,))
         else:
-            raise serverExceptions.XMLRPCError, 'Remote method "%s" returns no parameters' % self.request.params.method
+            raise serverExceptions.XMLRPCError, \
+            'Remote method "%s" returns no parameters' % self.request.params.method
 
 class XULServlet(HTTPServlet):
     """
@@ -138,17 +146,18 @@ class XULServlet(HTTPServlet):
     
     @ivar isPage: Indicates if the response is an HTML page.
         If set to C{True} the servlet adds the required boilerplate
-        required to initialize the QuiX engine. This is normally required for
-        the first request.
+        required to initialize the QuiX engine. For single-page enviroments
+        such as the Porcupine desktop, this is only required for the
+        first request of each new session.
     @type isPage: bool
     
     @ivar params: Parameter values. The QuiX XUL interface is written to the
         response using the '%' formatting operator.
     @type params: dict
 
-    @ivar xul_file: The path to the QuiX XUL file. This is automatically set to
+    @ivar xul_file: The QuiX XUL template file. This is automatically set to
         C{[module_name].[class_name].xul}, but this can be overriden.
-    @type xul_file: str
+    @type xul_file: file
     """
     def __init__(self, server, session, request):
         HTTPServlet.__init__(self, server, session, request)
@@ -157,22 +166,20 @@ class XULServlet(HTTPServlet):
         #sPath = os.path.sep.join(self.__class__.__module__.split('.'))
         #self.xul_file = '%s.%s.xul' % (sPath, self.__class__.__name__)
         class_dir = os.path.dirname(sys.modules[self.__class__.__module__].__file__)
-        self.xul_file = '%s%s%s.%s.quix' % (class_dir, os.path.sep, self.__module__.split('.')[-1], self.__class__.__name__)
-        
-    def execute(self):
-        """This method opens the QuiX XUL definition and writes it to
-        the response buffer using the parameters provided.
-        
-        @warning: do not override
-        """
-        self.setParams()
+        xul_filename = '%s%s%s.%s.quix' % (class_dir,
+                                           os.path.sep,
+                                           self.__module__.split('.')[-1],
+                                           self.__class__.__name__)
         # open XUL file
         try:
-            oFile = file(self.xul_file)
+            self.xul_file = file(xul_filename)
         except IOError:
-            raise serverExceptions.InvalidRegistration, 'XUL file "%s" is missing' % self.xul_file
-
-        if self.isPage:
+            raise serverExceptions.InvalidRegistration, \
+            'XUL file "%s" is missing' % self.xul_file
+        
+        
+    def _getPageBoilerplate(self, start):
+        if start:
             self.response.write('''<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0//EN" "http://www.w3.org/TR/REC-html40/strict.dtd">
 <html>
     <head>
@@ -184,21 +191,33 @@ class XULServlet(HTTPServlet):
     </head>
     <body onload="__init__()">
         <xml id="xul" style="display:none">
-''' % ((self.request.serverVariables["SCRIPT_NAME"],) * 5) )
+                ''' % ((self.request.serverVariables["SCRIPT_NAME"],) * 5) )
+        else:
+            self.response.write('</xml></body></html>')
+            
+    def _writeContent(self):
+        self.response.write(self.xul_file.read() % self.params)
+        
+    def execute(self):
+        """This method writes the QuiX XUL template file to
+        the response buffer using the parameters provided.
+        
+        @warning: do not override
+        """
+        self.setParams()
+
+        if self.isPage:
+            self._getPageBoilerplate(True)
         else:
             self.response.content_type = 'text/xml'
             
         try:
-            self.response.write(oFile.read() % self.params)
+            self._writeContent()
         finally:
-            oFile.close()
+            self.xul_file.close()
 
         if self.isPage:
-            self.response.write('''
-        </xml>
-    </body>
-</html>
-''')
+            self._getPageBoilerplate(False)
         
     def setParams(self):
         """This is where you should set the parameters found
@@ -206,3 +225,15 @@ class XULServlet(HTTPServlet):
         C{self.params} dictionary.
         """
         pass
+    
+class XULSimpleTemplateServlet(XULServlet):
+    """
+    XML-RPC template Servlet
+    ========================
+    This servlet uses the C{string.Template} module
+    for easier string substitutions.
+    """
+    def _writeContent(self):
+        template = Template( self.xul_file.read() )
+        self.response.write( template.substitute(self.params) )
+        
