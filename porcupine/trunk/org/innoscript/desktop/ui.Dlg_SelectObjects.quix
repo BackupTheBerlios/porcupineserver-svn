@@ -1,19 +1,21 @@
 <?xml version="1.0"?>
 <a:dialog xmlns:a="http://www.innoscript.org/quix"
-	title="Select Objects"
-	resizable="true"
-	close="true"
-	bgcolor="menu"
-	align="right"
-	width="380"
-	height="400"
-	left="30%%"
-	top="30%%">
-	<a:script name="Select Objects Dialog Script" src="desktop/ui.Dlg_SelectObjects.js"></a:script>
-	<a:prop name="CC" value="%(CC)s"></a:prop>
+title="Select Objects"
+resizable="true"
+close="true"
+bgcolor="menu"
+align="right"
+width="380"
+height="400"
+left="30%"
+top="30%">
+	<a:script name="Select Objects Dialog Script" src="desktop/ui.Dlg_SelectObjects.js"/>
+
+	<a:prop name="CC" value="$CC"></a:prop>
+
 	<a:wbody>
-		<a:box width="100%%" height="100%%" spacing="1" orientation="v">
-			<a:toolbar width="100%%" height="34">
+		<a:box width="100%" height="100%" spacing="1" orientation="v">
+			<a:toolbar width="100%" height="34">
 				<a:tbbutton id="btn_folders" width="72" type="toggle" caption="Folders" img="desktop/images/view_tree22.gif" onclick="selectObjectsDialog.showFolders"></a:tbbutton>
 				<a:tbbutton id="btn_search" width="72" type="toggle" caption="Search" img="desktop/images/search22.gif" onclick="selectObjectsDialog.showSearch"></a:tbbutton>
 			</a:toolbar>
@@ -21,29 +23,28 @@
 				<a:rect overflow="auto" bgcolor="white" height="0">
 					<a:foldertree id="tree" padding="2,2,2,2" method="getSubtree" onselect="selectObjectsDialog.refreshList">
 						<a:treenode
-							id="%(ID)s"
-							haschildren="%(HAS_SUBFOLDERS)s"
-							img="%(IMG)s"
-							caption="%(DN)s"
-						></a:treenode>
+						id="$ID"
+						haschildren="$HAS_SUBFOLDERS"
+						img="$IMG"
+						caption="$DN"/>
 					</a:foldertree>
 				</a:rect>
 				<a:rect overflow="auto" height="0" padding="8,8,8,8">
-					<a:label top="2" left="5" width="120" height="20" caption="Name contains:"></a:label>
-					<a:field id="displayName" left="125" top="0" width="200" value=""></a:field>
-					<a:label top="29" left="5" width="120" height="20" caption="Description contains:"></a:label>
-					<a:field id="description" top="27" left="125" width="200" value=""></a:field>
-					<a:label top="56" left="5" width="120" height="20" caption="Include subfolders:"></a:label>
-					<a:field id="deep" type="checkbox" top="54" left="125"></a:field>
+					<a:label top="2" left="5" width="120" height="20" caption="Name contains:"/>
+					<a:field id="displayName" left="125" top="0" width="200" value=""/>
+					<a:label top="29" left="5" width="120" height="20" caption="Description contains:"/>
+					<a:field id="description" top="27" left="125" width="200" value=""/>
+					<a:label top="56" left="5" width="120" height="20" caption="Include subfolders:"/>
+					<a:field id="deep" type="checkbox" top="54" left="125"/>
 
-					<a:button top="84" left="180" width="70" height="22" caption="Search" onclick="selectObjectsDialog.search"></a:button>
+					<a:button top="84" left="180" width="70" height="22" caption="Search" onclick="selectObjectsDialog.search"/>
 				</a:rect>
 			</a:box>
-			<a:selectlist id="selection" multiple="%(MULTIPLE)s" border="0" posts="selected" height="-1">
-				%(OPTIONS)s
+			<a:selectlist id="selection" multiple="$MULTIPLE" border="0" posts="selected" height="-1">
+				$OPTIONS
 			</a:selectlist>
 		</a:box>
 	</a:wbody>
-	<a:dlgbutton onclick="selectObjectsDialog.select" width="70" height="22" caption="Select"></a:dlgbutton>
-	<a:dlgbutton onclick="__closeDialog__" width="70" height="22" caption="Close"></a:dlgbutton>
+	<a:dlgbutton onclick="selectObjectsDialog.select" width="70" height="22" caption="Select"/>
+	<a:dlgbutton onclick="__closeDialog__" width="70" height="22" caption="Close"/>
 </a:dialog>

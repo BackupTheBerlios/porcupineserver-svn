@@ -11,46 +11,46 @@
 	top="center"
 	onload="recycleBin.getContainerInfo">
 	<a:script name="Recycle Bin Script" src="desktop/ui.RecycleList.js"></a:script>
-	<a:prop name="FolderID" value="%(ID)s"></a:prop>
+	<a:prop name="FolderID" value="$ID"></a:prop>
 	<a:wbody>
-		<a:box orientation="v" spacing="0" width="100%%" height="100%%">
-			<a:toolbar width="100%%" height="34">
+		<a:box orientation="v" spacing="0" width="100%" height="100%">
+			<a:toolbar width="100%" height="34">
 				<a:tbbutton width="90"
 					img="desktop/images/reload22.gif"
-					caption="%(REFRESH)s" onclick="recycleBin.refresh">
+					caption="$REFRESH" onclick="recycleBin.refresh">
 				</a:tbbutton>
 				<a:tbbutton width="120"
 					img="desktop/images/trashcan_empty22.gif"
-					caption="%(EMPTY_BIN)s" onclick="recycleBin.empty">
-					<a:prop name="confirmString" value="%(EMPTY_BIN?)s"/>
+					caption="$EMPTY_BIN" onclick="recycleBin.empty">
+					<a:prop name="confirmString" value="${EMPTY_BIN_Q}"/>
 				</a:tbbutton>
 			</a:toolbar>
 			<a:rect length="-1">
 				<a:contextmenu id="contextmenu" onshow="recycleBin.listMenu_show">
-					<a:menuoption caption="%(RESTORE)s" onclick="recycleBin.restoreItem">
+					<a:menuoption caption="$RESTORE" onclick="recycleBin.restoreItem">
 					</a:menuoption>
-					<a:menuoption caption="%(RESTORE_TO)s..." onclick="recycleBin.restoreTo">
+					<a:menuoption caption="$RESTORE_TO..." onclick="recycleBin.restoreTo">
 						<a:prop name="action" value="restore"></a:prop>
 					</a:menuoption>
-					<a:menuoption caption="%(DELETE)s" img="desktop/images/editdelete.gif" onclick="recycleBin.deleteItem">
+					<a:menuoption caption="$DELETE" img="desktop/images/editdelete.gif" onclick="recycleBin.deleteItem">
 					</a:menuoption>
 					<a:sep></a:sep>
-					<a:menuoption caption="%(EMPTY_BIN)s" img="desktop/images/trashcan_empty8.gif" onclick="recycleBin.empty">
+					<a:menuoption caption="$EMPTY_BIN" img="desktop/images/trashcan_empty8.gif" onclick="recycleBin.empty">
 					</a:menuoption>
 					<a:sep></a:sep>
-					<a:menuoption caption="%(PROPERTIES)s" onclick="recycleBin.showProperties"></a:menuoption>
+					<a:menuoption caption="$PROPERTIES" onclick="recycleBin.showProperties"></a:menuoption>
 				</a:contextmenu>
 				<a:listview id="itemslist"
 							multiple="true"
-							width="100%%"
-							height="100%%"
+							width="100%"
+							height="100%"
 							ondblclick="recycleBin.loadItem">
 					<a:listheader>
 						<a:column width="24" caption="" type="img" name="image" resizable="false"></a:column>
-						<a:column width="140" caption="%(NAME)s" name="displayName" bgcolor="#EFEFEF" sortable="true"></a:column>
-						<a:column width="140" caption="%(ORIGINAL_LOC)s" name="origloc" bgcolor="#EFEFEF" sortable="true"></a:column>
-						<a:column width="160" caption="%(DATEDEL)s" type="date" name="modified" sortable="true"></a:column>
-						<a:column width="80" caption="%(SIZE)s" name="size" xform="generic.computeSize" sortable="true"></a:column>
+						<a:column width="140" caption="$NAME" name="displayName" bgcolor="#EFEFEF" sortable="true"></a:column>
+						<a:column width="140" caption="$ORIGINAL_LOC" name="origloc" bgcolor="#EFEFEF" sortable="true"></a:column>
+						<a:column width="160" caption="$DATEDEL" type="date" name="modified" sortable="true"></a:column>
+						<a:column width="80" caption="$SIZE" name="size" xform="generic.computeSize" sortable="true"></a:column>
 					</a:listheader>
 				</a:listview>
 			</a:rect>

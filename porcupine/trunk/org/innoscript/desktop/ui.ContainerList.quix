@@ -1,33 +1,33 @@
 <?xml version="1.0"?>
 <a:window xmlns:a="http://www.innoscript.org/quix"
-		title="Please wait..." resizable="true"
-		close="true" minimize="true"
-		maximize="true" width="600"
-		height="400" left="center"
-		top="center" onload="containerList.getContainerInfo">
+title="Please wait..." resizable="true"
+close="true" minimize="true"
+maximize="true" width="600"
+height="400" left="center"
+top="center" onload="containerList.getContainerInfo">
 	<a:script name="Container List" src="desktop/ui.ContainerList.js"/>
-	<a:prop name="FolderID" value="%(ID)s"/>
-	<a:prop name="ParentID" value="%(PARENT_ID)s"/>
+	<a:prop name="FolderID" value="$ID"/>
+	<a:prop name="ParentID" value="$PARENT_ID"/>
 	<a:prop name="history" value="" type="strlist"/>
 	<a:wbody>
-		<a:box orientation="v" spacing="0" width="100%%" height="100%%">
+		<a:box orientation="v" spacing="0" width="100%" height="100%">
 			<a:menubar id="menubar" width="100%%" height="24">
-				<a:menu caption="%(FILE)s">
-					<a:menuoption img="desktop/images/filenew.gif" caption="%(CREATE)s"/>
+				<a:menu caption="$FILE">
+					<a:menuoption img="desktop/images/filenew.gif" caption="$CREATE"/>
 					<a:sep/>
-					<a:menuoption caption="%(CLOSE)s" img="desktop/images/exit.gif" onclick="containerList.closeWindow"/>
+					<a:menuoption caption="$CLOSE" img="desktop/images/exit.gif" onclick="containerList.closeWindow"/>
 				</a:menu>
-				<a:menu caption="%(EDIT)s">
-					<a:menuoption img="desktop/images/cut.gif" caption="%(CUT)s" onclick="containerList.updateCliboard">
+				<a:menu caption="$EDIT">
+					<a:menuoption img="desktop/images/cut.gif" caption="$CUT" onclick="containerList.updateCliboard">
 						<a:prop name="action" value="cut"/>
 					</a:menuoption>
-					<a:menuoption img="desktop/images/copy.gif" caption="%(COPY)s" onclick="containerList.updateCliboard">
+					<a:menuoption img="desktop/images/copy.gif" caption="$COPY" onclick="containerList.updateCliboard">
 						<a:prop name="action" value="copy"/>
 					</a:menuoption>
-					<a:menuoption img="desktop/images/paste.gif" caption="%(PASTE)s" onclick="containerList.paste"/>
+					<a:menuoption img="desktop/images/paste.gif" caption="$PASTE" onclick="containerList.paste"/>
 				</a:menu>
 			</a:menubar>
-			<a:toolbar width="100%%" height="34">
+			<a:toolbar width="100%" height="34">
 				<a:tbbutton width="30"
 					img="desktop/images/go_back22.gif"
 					onclick="containerList.goBack"/>
@@ -42,44 +42,44 @@
 					img="desktop/images/search22.gif"
 					onclick="desktop.launchHyperSearch"/>
 			</a:toolbar>
-			<a:box width="100%%" height="26" border="1" style="border-style:solid;border-color:ThreeDHighlight ThreeDShadow ThreeDShadow ThreeDHighlight">
+			<a:box width="100%" height="26" border="1" style="border-style:solid;border-color:ThreeDHighlight ThreeDShadow ThreeDShadow ThreeDHighlight">
 				<a:label height="16" top="center" width="32" align="center" caption="Path"/>
 				<a:combo id="path" editable="true" width="-1"/>
 				<a:flatbutton width="28" caption="Go" onclick="containerList.navigateTo"/>
 			</a:box>
 			<a:rect length="-1">
 				<a:contextmenu id="contextmenu" onshow="containerList.listMenu_show">
-					<a:menuoption caption="%(CREATE)s" img="desktop/images/filenew.gif"/>
+					<a:menuoption caption="$CREATE" img="desktop/images/filenew.gif"/>
 					<a:sep/>
-					<a:menuoption img="desktop/images/cut.gif" caption="%(CUT)s" onclick="containerList.updateCliboard">
+					<a:menuoption img="desktop/images/cut.gif" caption="$CUT" onclick="containerList.updateCliboard">
 						<a:prop name="action" value="cut"/>
 					</a:menuoption>
-					<a:menuoption img="desktop/images/copy.gif" caption="%(COPY)s" onclick="containerList.updateCliboard">
+					<a:menuoption img="desktop/images/copy.gif" caption="$COPY" onclick="containerList.updateCliboard">
 						<a:prop name="action" value="copy"/>
 					</a:menuoption>
-					<a:menuoption img="desktop/images/paste.gif" caption="%(PASTE)s" onclick="containerList.paste"/>
-					<a:menuoption img="desktop/images/editdelete.gif" caption="%(DELETE)s" onclick="containerList.deleteItem"/>
+					<a:menuoption img="desktop/images/paste.gif" caption="$PASTE" onclick="containerList.paste"/>
+					<a:menuoption img="desktop/images/editdelete.gif" caption="$DELETE" onclick="containerList.deleteItem"/>
 					<a:sep/>
-					<a:menuoption caption="%(MOVE)s..." onclick="containerList.copyMove">
+					<a:menuoption caption="$MOVE..." onclick="containerList.copyMove">
 						<a:prop name="action" value="move"/>
 					</a:menuoption>
-					<a:menuoption caption="%(COPYTO)s..." onclick="containerList.copyMove">
+					<a:menuoption caption="$COPYTO..." onclick="containerList.copyMove">
 						<a:prop name="action" value="copy"/>
 					</a:menuoption>
-					<a:menuoption caption="%(RENAME)s" onclick="containerList.rename"/>
+					<a:menuoption caption="$RENAME" onclick="containerList.rename"/>
 					<a:sep/>
-					<a:menuoption caption="%(PROPERTIES)s" onclick="containerList.showProperties"/>
+					<a:menuoption caption="$PROPERTIES" onclick="containerList.showProperties"/>
 				</a:contextmenu>
 				<a:listview id="itemslist"
 				multiple="true"
-				width="100%%"
-				height="100%%"
+				width="100%"
+				height="100%"
 				ondblclick="containerList.loadItem">
 					<a:listheader>
 						<a:column width="24" caption="" type="img" name="image"/>
-						<a:column width="140" caption="%(NAME)s" name="displayName" bgcolor="#EFEFEF" sortable="true"/>
-						<a:column width="80" caption="%(SIZE)s" name="size" xform="generic.computeSize" sortable="true"/>
-						<a:column width="160" caption="%(DATEMOD)s" type="date" name="modified" sortable="true"/>
+						<a:column width="140" caption="$NAME" name="displayName" bgcolor="#EFEFEF" sortable="true"/>
+						<a:column width="80" caption="$SIZE" name="size" xform="generic.computeSize" sortable="true"/>
+						<a:column width="160" caption="$DATEMOD" type="date" name="modified" sortable="true"/>
 					</a:listheader>
 				</a:listview>
 			</a:rect>

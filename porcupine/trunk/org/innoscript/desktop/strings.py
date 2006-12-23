@@ -72,7 +72,7 @@ resources = ResourceStrings({
         
         'RECYCLE_BIN' : 'Recycle Bin',
         'EMPTY_BIN' : 'Empty Bin',
-        'EMPTY_BIN?' : 'Are you sure you want to empty the recycle bin?',
+        'EMPTY_BIN_Q' : 'Are you sure you want to empty the recycle bin?',
         'ORIGINAL_LOC' : 'Original location',
         'SIZE' : 'Size',
 
@@ -85,7 +85,7 @@ resources = ResourceStrings({
         'LOGIN_FAILED' : 'Invalid login parameters. Please try again.',
         'LOGIN' : 'Login',
         'LOGOFF' : 'Logoff',
-        'LOGOFF?' : 'Are you sure you want to logoff?',
+        'LOGOFF_Q' : 'Are you sure you want to logoff?',
         'YES' : 'Yes',
         'NO' : 'No',
         'MOVE' : 'Move',
@@ -205,7 +205,7 @@ resources = ResourceStrings({
         
         'RECYCLE_BIN' : 'Κάδος Ανακύκλωσης',
         'EMPTY_BIN' : 'Άδειασμα Κάδου',
-        'EMPTY_BIN?' : 'Είστε σίγουροι ότι θέλετε να αδειάσετε τον κάδο ανακύκλωσης;',
+        'EMPTY_BIN_Q' : 'Είστε σίγουροι ότι θέλετε να αδειάσετε τον κάδο ανακύκλωσης;',
         'ORIGINAL_LOC' : 'Αρχική τοποθεσία',
         'SIZE' : 'Μέγεθος',
         'OK' : 'Εντάξει',
@@ -217,7 +217,7 @@ resources = ResourceStrings({
         'LOGIN_FAILED' : 'Μη έγκυρα στοιχεία εισόδου. Προσπαθείστε ξανά.',
         'LOGIN' : 'Είσοδος',
         'LOGOFF' : 'Αποσύνδεση',
-        'LOGOFF?' : 'Είστε σίγουροι ότι θέλετε να αποσυνδεθείτε;',
+        'LOGOFF_Q' : 'Είστε σίγουροι ότι θέλετε να αποσυνδεθείτε;',
         'YES' : 'Ναι',
         'NO' : 'Όχι',
         'MOVE' : 'Μετακίνηση',

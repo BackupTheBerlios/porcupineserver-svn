@@ -16,7 +16,7 @@
 #===============================================================================
 "QuiX UIs"
 
-from porcupine.core.servlet import XULServlet, HTTPServlet
+from porcupine.core.servlet import XULServlet, HTTPServlet, XULSimpleTemplateServlet
 from porcupine.oql.command import OqlCommand
 from porcupine.security import objectAccess
 from porcupine.utils import date, xmlUtils, misc
@@ -124,7 +124,7 @@ DESKSTOP_PANE = '''<a:rect height="-1" overflow="hidden">
 #================================================================================
 # Generic functions
 #================================================================================
-class PorcupineDesktopServlet(XULServlet):        
+class PorcupineDesktopServlet(XULSimpleTemplateServlet):        
     def getSecurity(self, forItem, rolesInherited=None):
         sLang = self.request.getLang()
         user = self.session.user
@@ -404,7 +404,7 @@ class Desktop(PorcupineDesktopServlet):
         sLang = self.request.getLang()        
         self.params = {
             'LOGOFF': resources.getResource('LOGOFF', sLang),
-            'LOGOFF?': resources.getResource('LOGOFF?', sLang),
+            'LOGOFF_Q': resources.getResource('LOGOFF_Q', sLang),
             'START': resources.getResource('START', sLang),
             'APPLICATIONS': resources.getResource('APPLICATIONS', sLang),
             'SETTINGS': resources.getResource('SETTINGS', sLang),
@@ -448,7 +448,7 @@ class Desktop(PorcupineDesktopServlet):
         else:
             self.params['APPS'] = '<a:menuoption caption="%s" disabled="true"></a:menuoption>' % resources.getResource('EMPTY', sLang)
 
-class LoginPage(PorcupineDesktopServlet):
+class LoginPage(XULSimpleTemplateServlet):
     def setParams(self):
         self.isPage = True
         
@@ -464,13 +464,13 @@ class LoginPage(PorcupineDesktopServlet):
             'NO': resources.getResource('NO', sLang)
         }
 
-class AboutDialog(XULServlet):
+class AboutDialog(XULSimpleTemplateServlet):
     def setParams(self):
         self.response.setHeader('cache-control', 'no-cache')
         self.response.setExpiration(1200)
         self.params = {'VERSION': self.server.version}
 
-class Dlg_UserSettings(XULServlet):
+class Dlg_UserSettings(XULSimpleTemplateServlet):
     def setParams(self):
         self.response.setHeader('cache-control', 'no-cache')
         sLang = self.request.getLang()
@@ -514,7 +514,7 @@ class Dlg_UserSettings(XULServlet):
 # Recycle Bin
 #================================================================================
 
-class RecycleList(PorcupineDesktopServlet):
+class RecycleList(XULSimpleTemplateServlet):
     def setParams(self):
         sLang = self.request.getLang()
         self.response.setHeader('cache-control', 'no-cache')
@@ -629,7 +629,7 @@ class Frm_GroupProperties(PorcupineDesktopServlet):
 # Deleted Item
 #================================================================================
 
-class Frm_DeletedItem(PorcupineDesktopServlet):
+class Frm_DeletedItem(XULSimpleTemplateServlet):
     def setParams(self):
         sLang = self.request.getLang()
         self.params = {
@@ -646,7 +646,7 @@ class Frm_DeletedItem(PorcupineDesktopServlet):
 # User     
 #================================================================================
     
-class Frm_UserResetPassword(PorcupineDesktopServlet):
+class Frm_UserResetPassword(XULSimpleTemplateServlet):
     def setParams(self):
         sLang = self.request.getLang()
         self.params = {
