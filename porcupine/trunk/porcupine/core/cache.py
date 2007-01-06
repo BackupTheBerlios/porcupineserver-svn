@@ -17,7 +17,7 @@
 """
 Porcupine server cache implementation.
 Used by OQL parser to cache ASTs of most commonly used queries
-It should be used as object cache also
+It could be used as object cache also...
 """
 
 class Cache(dict):
@@ -29,7 +29,7 @@ class Cache(dict):
         self.__accesslist.append(key)
         self.__accesslist.remove(key)
         return self[key]
-            
+        
     def __putitem__(self, key, value):
         if len(self.__accesslist) >= self.size:
             del self[self.__accesslist[0]]

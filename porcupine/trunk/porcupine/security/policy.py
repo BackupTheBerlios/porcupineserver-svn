@@ -50,8 +50,9 @@ def policymethod(policyid):
                 memberOf.extend(['authusers']) 
             
             for groupid in memberOf:
-                if groupid in policyGranted: return True
-                
+                if groupid in policyGranted:
+                    return True
+            
             return False
     
     return PolicyMethod

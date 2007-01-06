@@ -51,7 +51,6 @@ def getItem(sPath, trans=None):
     else:
         return(None)
 
-        
 def getTransaction():
     """
     Creates a transaction required for database updates. Currently, nested

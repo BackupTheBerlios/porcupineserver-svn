@@ -492,7 +492,7 @@ class GenericItem(object):
     def isContainedIn(self, itemId):
         """
         Checks if the item is contained in the specified container.
-                
+        
         @param itemId: The id of the container
         @type itemId: str
         

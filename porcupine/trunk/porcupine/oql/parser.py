@@ -210,9 +210,9 @@ class OqlParser:
         else:
             my_lexer = lex.lex(optimize=1, debug=self.debug)
             my_yacc = yacc.yacc(module=self,
-                                  debug=self.debug,
-                                  debugfile=self.debugfile,
-                                  tabmodule=self.tabmodule)
+                                debug=self.debug,
+                                debugfile=self.debugfile,
+                                tabmodule=self.tabmodule)
             my_lexer.input(command)
             ast = my_yacc.parse(lexer=my_lexer)
             QUERY_CACHE[command] = ast
