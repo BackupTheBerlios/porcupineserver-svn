@@ -35,8 +35,8 @@ top="30%">
 				<a:tab caption="Member of">
 					<a:box width="100%" height="100%" orientation="v">
 						<a:selectlist id="memberof" name="memberof" multiple="true" posts="all" height="-1">
-							<a:prop name="SelectFrom" value="$URI">
-							<a:prop name="RelatedCC" value="$REL_CC">
+							<a:prop name="SelectFrom" value="$URI"/>
+							<a:prop name="RelatedCC" value="$REL_CC"/>
 						</a:selectlist>
 						<a:rect height="24">
 							<a:flatbutton width="60" height="22" caption="Add..." onclick="generic.selectItems"/>

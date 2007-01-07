@@ -244,7 +244,7 @@ class Removeable(object):
             for sID in lstChildren:
                 oChild = db.getItem(sID, trans)
                 oChild._recycle(trans)
-
+        
         db.putItem(self, trans)
 
     @transactional
