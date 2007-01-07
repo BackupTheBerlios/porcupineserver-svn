@@ -1,5 +1,5 @@
 #===============================================================================
-#    Copyright 2005, 2006 Tassos Koutsovassilis
+#    Copyright 2005-2007 Tassos Koutsovassilis
 #
 #    This file is part of Porcupine.
 #    Porcupine is free software; you can redistribute it and/or modify
@@ -35,7 +35,9 @@ def policymethod(policyid):
             if self.userHasPolicy(user, policy):
                 return types.MethodType(self.func, servlet, servlet_class)
             else:
-                raise serverExceptions.PolicyViolation, "This action is restricted due to policy '%s'" % policy.displayName.value
+                raise serverExceptions.PolicyViolation, \
+                "This action is restricted due to policy '%s'" \
+                % policy.displayName.value
                 
         def userHasPolicy(self, user, policy):
             policyGranted = policy.policyGranted.value
