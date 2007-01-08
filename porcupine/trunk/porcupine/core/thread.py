@@ -135,7 +135,7 @@ class PorcupineThread(BaseServerThread):
                     self.response.setExpiration(registration.max_age)
                 # apply post-processing filters
                 dummy = [
-                    filter.apply(self.response, self.request, registration)
+                    filter[0].apply(self.response, self.request, registration, **filter[1])
                     for filter in registration.filters
                 ]
 

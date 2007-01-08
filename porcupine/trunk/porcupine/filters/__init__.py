@@ -34,6 +34,6 @@ class PostProcessingFilter(object):
         return(config)
 
     @staticmethod
-    def apply(response, request, registration):
+    def apply(response, request, registration, **kwargs):
         raise NotImplementedError
     
