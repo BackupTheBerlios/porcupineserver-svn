@@ -10,7 +10,7 @@
 	<context path="ReadFile.jar" method="GET" client=".*" lang=".*" action="ReadFile.jar"/>
 
 	<!-- QuiX Stylesheets -->
-	<context path="quix.css" method="GET" client=".*" lang=".*" action="quix.psp"/>
+	<context path="quix.css" method="GET" client=".*" lang=".*" action="quix.css.psp"/>
 
 	<!-- QuiX Modules -->
 	<context path="box.js" method="GET" client=".*" lang=".*" action="box.js"/>

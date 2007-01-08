@@ -14,13 +14,22 @@
 #    along with Porcupine; if not, write to the Free Software
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #===============================================================================
-"Porcupine transactional method"
+"The Porcupine transactional method descriptor."
 
 import types
 
 from porcupine import serverExceptions
 
 class transactional(object):
+    """
+    This is the descriptor class of a Porcupine object's
+    transactional method.
+    
+    It just records the corresponding method call
+    to the transaction's actions, so that the transaction
+    can be re-played in case of failure. This is triggered
+    from here.
+    """
     def __init__(self, function):
         self.func = function
         self.name = function.func_name
