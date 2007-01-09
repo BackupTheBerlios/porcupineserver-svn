@@ -24,8 +24,7 @@ from porcupine import serverExceptions
 PSP_TAGS = re.compile('(<%.*?%>)', re.DOTALL)
 PSP_DECREASE_INDENT = re.compile('else|elif|except|finally')
 PSP_REMOVE_EXTENSION = re.compile('(.*)\.(.*)')
-TRANS_REQUIRED = re.compile('<!--\s*transaction:(\S*)\s*-->')
-NT_UTF_8_IDENTIFIER = chr(239)+chr(187)+chr(191)
+NT_UTF_8_IDENTIFIER = chr(239) + chr(187) + chr(191)
 
 class PspExecutor(HTTPServlet):
     def execute(self, fileName):
@@ -33,9 +32,8 @@ class PspExecutor(HTTPServlet):
             # get modification date
             sMod = os.stat(fileName)[8]
         except OSError:
-            # TODO: What is fn?????
-            fn = fileName.split('/')[-1]
-            raise serverExceptions.InvalidRegistration
+            raise serverExceptions.InvalidRegistration('The file "' + \
+                                                    fileName + '" is missing.')
         sMod = hex(sMod)[2:]
 
         sFileWithoutExtension = re.search(PSP_REMOVE_EXTENSION, fileName).groups()[0]
@@ -54,14 +52,10 @@ class PspExecutor(HTTPServlet):
             pspCode = oFile.read()
 
             # truncate utf-8 file encoding identifier for NT            
-            if pspCode[:3]==NT_UTF_8_IDENTIFIER:
+            if pspCode[:3] == NT_UTF_8_IDENTIFIER:
                 pspCode = pspCode[3:]
             
             execCode=''
-            # see if is transactional
-            oMatch = re.search(TRANS_REQUIRED, pspCode)
-            if oMatch and bool(oMatch.group()):
-                execCode += 'servlet.requiresTransaction = True\n'
 
             pspCode = re.split(PSP_TAGS, pspCode)
             intend = ''
@@ -95,11 +89,7 @@ class PspExecutor(HTTPServlet):
                                 else:
                                     intend = intend[0:len(intend)-1]
                         execCode += formattedCode
-
-#            pspSourceFile = open(sFileWithoutExtension + '.py', 'w')
-#            pspSourceFile.write(execCode)
-#            pspSourceFile.close()
-
+            
             oCode = compile(execCode, '<string>', 'exec')
             pspBinaryFile = open(compiledFileName, 'w+b')
             marshal.dump(oCode, pspBinaryFile)
