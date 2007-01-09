@@ -34,7 +34,7 @@ class Gzip(PostProcessingFilter):
         zfile.close()
 
     @staticmethod
-    def apply(response, request, registration, **kwargs):
+    def apply(response, request, registration, args):
         if not Gzip.cacheFolder:
             config = Gzip.loadConfig()
             Gzip.cacheFolder = config['cache']
