@@ -2,7 +2,7 @@
     <context path="compat.js" method="GET" client=".*" lang=".*" action="compat.js"/>
     <context path="xul_core.js" method="GET" client="MSIE [6-7]" lang=".*" action="core_ie.js"/>
     <context path="xul_core.js" method="GET" client="Netscape/7|Mozilla/5.0" lang=".*" action="core_moz.js">
-        <filter type="porcupine.filters.postprocessing.Gzip"/>
+        <filter type="porcupine.filters.postProcessing.gzip.Gzip"/>
     </context>
 
 	<context path="quixextensions.js" method="GET" client=".*" lang=".*" action="quixextensions.psp"/>

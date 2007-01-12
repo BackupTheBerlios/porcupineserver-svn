@@ -1,13 +1,13 @@
 <a:desktop xmlns:a="http://www.innoscript.org/quix" bgcolor="#a18e70">
-	<a:prop name="CLOSE" value="$CLOSE"></a:prop>
-	<a:prop name="CANCEL" value="$CANCEL"></a:prop>
-	<a:prop name="YES" value="$YES"></a:prop>
-	<a:prop name="NO" value="$NO"></a:prop>
+	<a:prop name="CLOSE" value="==CLOSE=="></a:prop>
+	<a:prop name="CANCEL" value="==CANCEL=="></a:prop>
+	<a:prop name="YES" value="==YES=="></a:prop>
+	<a:prop name="NO" value="==NO=="></a:prop>
 
 	<a:script name="Login Script" src="desktop/ui.LoginPage.js"></a:script>
 	<a:dialog
 		id="logindialog"
-		title="$LOGIN"
+		title="==LOGIN=="
 		align="center"
 		width="280"
 		height="155"
@@ -15,7 +15,7 @@
 		left="center"
 		top="center">
 		<a:prop name="ServiceURI" value="$URI"></a:prop>
-		<a:prop name="FailMsg" value="$LOGIN_FAILED"></a:prop>
+		<a:prop name="FailMsg" value="==LOGIN_FAILED=="></a:prop>
 		<a:wbody>
 			<a:box width="100%" height="100%">
 				<a:rect width="70">
@@ -29,6 +29,6 @@
 				</a:rect>
 			</a:box>
 		</a:wbody>
-		<a:dlgbutton width="80" height="24" onclick="login.login" caption="$LOGIN" default="true"></a:dlgbutton>
+		<a:dlgbutton width="80" height="24" onclick="login.login" caption="==LOGIN==" default="true"></a:dlgbutton>
 	</a:dialog>
 </a:desktop>

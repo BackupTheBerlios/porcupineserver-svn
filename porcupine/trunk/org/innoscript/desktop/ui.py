@@ -451,17 +451,8 @@ class Desktop(PorcupineDesktopServlet):
 class LoginPage(XULSimpleTemplateServlet):
     def setParams(self):
         self.isPage = True
-        
-        sLang = self.request.getLang()
         self.params = {
-            'URI': self.request.serverVariables['SCRIPT_NAME'] + '?cmd=login',
-            'LOGIN_FAILED': resources.getResource('LOGIN_FAILED', sLang),
-            'LOGIN': resources.getResource('LOGIN', sLang),
-    
-            'CLOSE': resources.getResource('CLOSE', sLang),
-            'CANCEL': resources.getResource('CANCEL', sLang),
-            'YES': resources.getResource('YES', sLang),
-            'NO': resources.getResource('NO', sLang)
+            'URI': self.request.serverVariables['SCRIPT_NAME'] + '?cmd=login'
         }
 
 class AboutDialog(XULSimpleTemplateServlet):

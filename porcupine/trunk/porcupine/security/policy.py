@@ -58,7 +58,3 @@ def policymethod(policyid):
             return False
     
     return PolicyMethod
-    
-
-
-        

@@ -17,12 +17,20 @@
 """
 Porcupine multi-lingual post processing filter
 """
-
-import os, os.path, glob, gzip, cStringIO
+import re
 
 from porcupine.filters import PostProcessingFilter
+from porcupine.utils import misc
+
+TOKEN = re.compile('(==(\w+)==)')
 
 class Multilingual(PostProcessingFilter):
     @staticmethod
     def apply(response, request, registration, args):
-        pass
+        language = request.getLang()
+        resources = misc.getClassByName( args['using'] )
+        output = response._getBody()
+        tokens = frozenset(re.findall(TOKEN, output, re.DOTALL))
+        for token, key in tokens:
+            output = output.replace(token, resources.getResource(key, language))
+        response._body = [output]
