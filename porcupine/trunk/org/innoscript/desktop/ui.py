@@ -385,12 +385,7 @@ class Dlg_SelectObjects(PorcupineDesktopServlet):
         
 class ContainerList(PorcupineDesktopServlet):
     def setParams(self):
-        sLang = self.request.getLang()
-        self.response.setHeader('cache-control', 'no-cache')
         self.response.setExpiration(1200)
-        
-        self.params = resources.getLocale(sLang).copy()
-        
         self.params['ID'] = self.item.id
         self.params['PARENT_ID'] = self.item.parentid
         
@@ -401,17 +396,12 @@ class ContainerList(PorcupineDesktopServlet):
 class Desktop(PorcupineDesktopServlet):
     def setParams(self):
         self.response.setHeader('cache-control', 'no-cache')
-        sLang = self.request.getLang()        
+        sLang = self.request.getLang()
+        oUser = self.session.user
         self.params = {
-            'LOGOFF': resources.getResource('LOGOFF', sLang),
-            'LOGOFF_Q': resources.getResource('LOGOFF_Q', sLang),
-            'START': resources.getResource('START', sLang),
-            'APPLICATIONS': resources.getResource('APPLICATIONS', sLang),
-            'SETTINGS': resources.getResource('SETTINGS', sLang),
-            'INFO': resources.getResource('INFO', sLang),
-            'USER': self.session.user.displayName.value,
-            'AUTO_RUN' : self.session.user.settings.value.setdefault('AUTO_RUN', ''),
-            'RUN_MAXIMIZED' : int(self.session.user.settings.value.setdefault('RUN_MAXIMIZED', False)),
+            'USER': oUser.displayName.value,
+            'AUTO_RUN' : oUser.settings.value.setdefault('AUTO_RUN', ''),
+            'RUN_MAXIMIZED' : int(oUser.settings.value.setdefault('RUN_MAXIMIZED', False)),
         }
         # has the user access to recycle bin?
         rb_icon = ''
@@ -457,7 +447,6 @@ class LoginPage(XULSimpleTemplateServlet):
 
 class AboutDialog(XULSimpleTemplateServlet):
     def setParams(self):
-        self.response.setHeader('cache-control', 'no-cache')
         self.response.setExpiration(1200)
         self.params = {'VERSION': self.server.version}
 
@@ -466,7 +455,6 @@ class Dlg_UserSettings(XULSimpleTemplateServlet):
         self.response.setHeader('cache-control', 'no-cache')
         sLang = self.request.getLang()
         
-        self.params = resources.getLocale(sLang).copy()
         if self.session.user.settings.value['TASK_BAR_POS'] == 'bottom':
             self.params['CHECKED_TOP'] = 'false'
             self.params['CHECKED_BOTTOM'] = 'true'
@@ -498,7 +486,6 @@ class Dlg_UserSettings(XULSimpleTemplateServlet):
                 else:
                     sSelected = 'false'
                 sApps += '<a:option img="%s" caption="%s" value="%s" selected="%s"/>' % (app['icon'], app['displayName'], app['launchUrl'], sSelected)
-
             self.params['APPS'] = sApps
 
 #================================================================================
@@ -507,11 +494,7 @@ class Dlg_UserSettings(XULSimpleTemplateServlet):
 
 class RecycleList(XULSimpleTemplateServlet):
     def setParams(self):
-        sLang = self.request.getLang()
-        self.response.setHeader('cache-control', 'no-cache')
         self.response.setExpiration(1200)
-        
-        self.params = resources.getLocale(sLang).copy()
         self.params['ID'] = self.item.id
 
 
@@ -521,10 +504,7 @@ class RecycleList(XULSimpleTemplateServlet):
 
 class Frm_AppNew(PorcupineDesktopServlet):
     def setParams(self):
-        self.response.setHeader('cache-control', 'no-cache')
         self.response.setExpiration(1200)
-        
-        sLang = self.request.getLang()
         oApp = common.Application()
         self.params = {
             'CC': oApp.contentclass,

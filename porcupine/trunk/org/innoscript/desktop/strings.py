@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"Porcupine System String Resources"
+"Porcupine Desktop String Resources"
 from porcupine.config.resources import ResourceStrings, Locale
 
 resources = ResourceStrings({
@@ -56,7 +56,7 @@ resources = ResourceStrings({
         'FILTER' : 'Filter',
         'CREATE' : 'Create',
         'UPDATE' : 'Update',
-
+        
         'APPLICATIONS' : 'Applications',
         'SETTINGS' : 'Settings',
         'START' : 'Start',
@@ -125,7 +125,13 @@ resources = ResourceStrings({
         'ADD' : 'Add',
         'REMOVE' : 'Remove',
         'SEARCH' : 'Search',
-
+        
+        'NEW_APP' : 'New Application',
+        'ICON' : 'Icon',
+        'LAUNCH_URL' : 'Launch URL',
+        'SELECT_OBJECTS' : 'Select objects',
+        'SELECT' : 'Select',
+        
         #HyperSearch
         'SEARCH_IN' : 'Search in',
         'ALL_OR_PART_OF_THE_NAME': 'All or part of the name',
@@ -255,7 +261,13 @@ resources = ResourceStrings({
         'ADD' : 'Προσθήκη',
         'REMOVE' : 'Αφαίρεση',
         'SEARCH' : 'Αναζήτηση',
-
+        
+        'NEW_APP' : 'Νέα εφαρμογή',
+        'ICON' : 'Εικονίδιο',
+        'LAUNCH_URL' : 'URL εκκίνησης',
+        'SELECT_OBJECTS' : 'Επιλογή αντικειμένων',
+        'SELECT' : 'Επιλογή',
+        
         #HyperSearch
         'SEARCH_IN' : 'Αναζήτηση μέσα στο',
         'ALL_OR_PART_OF_THE_NAME': 'Όλο ή μέρος του ονόματος',

@@ -20,7 +20,11 @@
         param=""
         client="(MSIE [6-7])|(Mozilla/5.0.+rv:1.[7-9])"
         lang=".*"
-        action="org.innoscript.desktop.ui.Desktop"/>
+        action="org.innoscript.desktop.ui.Desktop">
+            <filter
+                type="porcupine.filters.postProcessing.multilingual.Multilingual"
+                using="org.innoscript.desktop.strings.resources"/>
+    </reg>
 
 	<reg cc="org.innoscript.desktop.schema.common.RootFolder"
         method="GET"
@@ -38,49 +42,77 @@
         param="about"
         client="(MSIE [6-7])|(Mozilla/5.0.+rv:1.[7-9])"
         lang=".*"
-        action="org.innoscript.desktop.ui.AboutDialog"/>
-
+        action="org.innoscript.desktop.ui.AboutDialog">
+            <filter
+                type="porcupine.filters.postProcessing.multilingual.Multilingual"
+                using="org.innoscript.desktop.strings.resources"/>
+    </reg>
+    
 	<reg cc="org.innoscript.desktop.schema.common.RootFolder"
         method="GET"
         param="user_settings"
         client="(MSIE [6-7])|(Mozilla/5.0.+rv:1.[7-9])"
         lang=".*"
-        action="org.innoscript.desktop.ui.Dlg_UserSettings"/>
+        action="org.innoscript.desktop.ui.Dlg_UserSettings">
+            <filter
+                type="porcupine.filters.postProcessing.multilingual.Multilingual"
+                using="org.innoscript.desktop.strings.resources"/>
+    </reg>
 
 	<reg cc="org\.innoscript\.desktop\.schema\..+\..*Folder|schemas\.org\.innoscript\.common\.AdminTools"
         method="GET"
         param="list"
         client="(MSIE [6-7])|(Mozilla/5.0.+rv:1.[7-9])"
         lang=".*"
-        action="org.innoscript.desktop.ui.ContainerList"/>
+        action="org.innoscript.desktop.ui.ContainerList">
+            <filter
+                type="porcupine.filters.postProcessing.multilingual.Multilingual"
+                using="org.innoscript.desktop.strings.resources"/>
+    </reg>
 
 	<reg cc="org.innoscript.desktop.schema.common.RecycleBin"
         method="GET"
         param="list"
         client="(MSIE [6-7])|(Mozilla/5.0.+rv:1.[7-9])"
         lang=".*"
-        action="org.innoscript.desktop.ui.RecycleList"/>
+        action="org.innoscript.desktop.ui.RecycleList">
+            <filter
+                type="porcupine.filters.postProcessing.multilingual.Multilingual"
+                using="org.innoscript.desktop.strings.resources"/>
+    </reg>
 
 	<reg cc="org.innoscript.desktop.schema.security.UsersFolder"
         method="GET"
         param="new"
         client="(MSIE [6-7])|(Mozilla/5.0.+rv:1.[7-9])"
         lang=".*"
-        action="org.innoscript.desktop.ui.Frm_UserGroupNew"/>
+        action="org.innoscript.desktop.ui.Frm_UserGroupNew">
+            <filter
+                type="porcupine.filters.postProcessing.multilingual.Multilingual"
+                using="org.innoscript.desktop.strings.resources"/>
+    </reg>
 
 	<reg cc="org.innoscript.desktop.schema.common.AppsFolder"
         method="GET"
         param="new"
         client="(MSIE [6-7])|(Mozilla/5.0.+rv:1.[7-9])"
         lang=".*"
-        action="org.innoscript.desktop.ui.Frm_AppNew"/>
+        action="org.innoscript.desktop.ui.Frm_AppNew">
+            <filter
+                type="porcupine.filters.postProcessing.multilingual.Multilingual"
+                using="org.innoscript.desktop.strings.resources"/>
+    </reg>
 	
 	<reg cc="org.innoscript.desktop.schema.\w+.(\w*Folder|Category)|org.innoscript.desktop.schema.common.AdminTools"
         method="GET"
         param="selectobjects"
         client="(MSIE [6-7])|(Mozilla/5.0.+rv:1.[7-9])"
         lang=".*"
-        action="org.innoscript.desktop.ui.Dlg_SelectObjects"/>
+        action="org.innoscript.desktop.ui.Dlg_SelectObjects">
+            <filter
+                type="porcupine.filters.postProcessing.multilingual.Multilingual"
+                using="org.innoscript.desktop.strings.resources"/>
+    </reg>
 
 	<reg cc="org.innoscript.desktop.schema.\w+.(\w*Folder|Category)"
         method="GET"

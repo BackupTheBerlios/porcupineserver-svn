@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <a:dialog xmlns:a="http://www.innoscript.org/quix"
-title="About"
+title="@@INFO@@"
 resizable="false"
 close="true"
 align="center"
@@ -27,9 +27,9 @@ top="40%">
 				</a:xhtml>
 			</a:rect>
 			<a:rect width="58" >
-				<a:icon top="140" img="desktop/images/powered.gif"></a:icon>
+				<a:icon top="140" img="desktop/images/powered.gif"/>
 			</a:rect>
 		</a:box>
 	</a:wbody>
-	<a:dlgbutton onclick="__closeDialog__" width="60" height="22" caption="Close"></a:dlgbutton>
+	<a:dlgbutton onclick="__closeDialog__" width="60" height="22" caption="@@CLOSE@@"/>
 </a:dialog>

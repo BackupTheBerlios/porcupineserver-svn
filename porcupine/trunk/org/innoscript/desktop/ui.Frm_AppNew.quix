@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <a:dialog xmlns:a="http://www.innoscript.org/quix"
-title="New Application"
+title="@@NEW_APP@@"
 img="$ICON"
 resizable="true"
 maximize="true"
@@ -8,18 +8,18 @@ minimize="true"
 close="true"
 bgcolor="menu"
 width="380"
-height="225"
+height="235"
 left="30%"
 top="30%">
 	<a:wbody>
 		<a:form action="$URI" method="create">
 			<a:tabpane top="0" left="0" width="100%" height="100%">
-				<a:tab caption="General">
+				<a:tab caption="@@GENERAL@@">
 					<a:field name="CC" type="hidden" value="$CC"></a:field>
 					<a:box height="55" width="100%">
-						<a:rect width="70">
-							<a:label top="2" width="100%" height="20" caption="Name:"/>
-							<a:label top="27" width="100%" height="20" caption="Description:"/>
+						<a:rect width="80">
+							<a:label top="2" width="100%" height="20" caption="@@displayName@@:"/>
+							<a:label top="27" width="100%" height="20" caption="@@description@@:"/>
 						</a:rect>
 						<a:rect width="-1">
 							<a:field name="displayName" width="100%" value=""/>
@@ -29,16 +29,21 @@ top="30%">
 					
 					<a:hr top="57" width="100%"/>
 
-					<a:label top="67" left="5" width="60" height="20" caption="Icon:"/>
-					<a:field name="icon" top="65" left="75" width="180" value=""/>
-					
-					<a:label top="92" left="5" width="60" height="20" caption="Launch URL:"/>
-					<a:field name="launchUrl" top="90" left="75" width="180" value=""/>
+					<a:box top="67" height="67" width="100%">
+						<a:rect width="80">
+							<a:label top="2" width="100%" height="20" caption="@@ICON@@:"/>
+							<a:label top="27" width="100%" height="20" caption="@@LAUNCH_URL@@:"/>
+						</a:rect>
+						<a:rect width="-1">
+							<a:field name="icon" width="100%" value=""/>
+							<a:field name="launchUrl" top="25" width="100%" value=""/>
+						</a:rect>
+					</a:box>
 				</a:tab>
 				$SECURITY_TAB
 			</a:tabpane>
 		</a:form>
 	</a:wbody>
-	<a:dlgbutton onclick="generic.updateItem" width="70" height="22" caption="Create"/>
-	<a:dlgbutton onclick="__closeDialog__" width="70" height="22" caption="Close"/>
+	<a:dlgbutton onclick="generic.updateItem" width="70" height="22" default="true" caption="@@CREATE@@"/>
+	<a:dlgbutton onclick="__closeDialog__" width="70" height="22" caption="@@CLOSE@@"/>
 </a:dialog>
