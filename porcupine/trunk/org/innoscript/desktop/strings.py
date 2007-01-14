@@ -43,7 +43,8 @@ resources = ResourceStrings({
         'email' : 'e-mail',
         'policies' : 'Policies',
         'policyGranted' : 'Granted to',
-
+        'fullName' : 'Full name',
+        
         # strings
         'FILE' : 'File',
         'EDIT' : 'Edit',
@@ -121,6 +122,7 @@ resources = ResourceStrings({
         'DATEMOD' : 'Date modified',
         'DATEDEL' : 'Date deleted',
         'MODIFIEDBY' : 'Modified by',
+        'DELETEDBY' : 'Deleted by',
         'INCLUDESUBS' : 'Include subfolders',
         'ADD' : 'Add',
         'REMOVE' : 'Remove',
@@ -131,6 +133,9 @@ resources = ResourceStrings({
         'LAUNCH_URL' : 'Launch URL',
         'SELECT_OBJECTS' : 'Select objects',
         'SELECT' : 'Select',
+        'RESET_PASSWORD_FOR_USER' : 'Reset password for user',
+        'ENTER_NEW_PASSWORD' : 'Enter new password',
+        'REENTER_PASSWORD' : 'Re-enter password',
         
         #HyperSearch
         'SEARCH_IN' : 'Search in',
@@ -183,6 +188,7 @@ resources = ResourceStrings({
         'email' : 'e-mail',
         'policies' : 'Πολιτικές ασφαλείας',
         'policyGranted' : 'Αποδόθηκε στους',
+        'fullName' : 'Ονοματεπώνυμο',
         
         # strings
         'FILE' : 'Αρχείο',
@@ -257,6 +263,7 @@ resources = ResourceStrings({
         'DATEMOD' : 'Ημ/νία τροποποίησης',
         'DATEDEL' : 'Ημ/νία διαγραφής',
         'MODIFIEDBY' : 'Τροποποιήθηκε από',
+        'DELETEDBY' : 'Διαγράφηκε από',
         'INCLUDESUBS' : 'Να συμπεριληφθούν οι υποφάκελοι',
         'ADD' : 'Προσθήκη',
         'REMOVE' : 'Αφαίρεση',
@@ -267,6 +274,10 @@ resources = ResourceStrings({
         'LAUNCH_URL' : 'URL εκκίνησης',
         'SELECT_OBJECTS' : 'Επιλογή αντικειμένων',
         'SELECT' : 'Επιλογή',
+        'RESET_PASSWORD_FOR_USER' : 'Αλλαγή κωδικού για τον χρήστη',
+        'ENTER_NEW_PASSWORD' : 'Νέος κωδικός',
+        'REENTER_PASSWORD' : 'Επαλήθευση κωδικού',
+        
         
         #HyperSearch
         'SEARCH_IN' : 'Αναζήτηση μέσα στο',

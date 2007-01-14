@@ -1,17 +1,17 @@
 <?xml version="1.0"?>
 <a:dialog xmlns:a="http://www.innoscript.org/quix"
-	title="$TITLE"
-	img="$ICON"
-	resizable="true"
-	close="true"
-	width="400"
-	height="420"
-	left="30%"
-	top="10%">
-	<a:script name="Generic Form Script" src="desktop/ui.Frm_Auto.js"></a:script>
+title="@@CREATE@@ &quot;$TITLE&quot;"
+img="$ICON"
+resizable="true"
+close="true"
+width="400"
+height="420"
+left="30%"
+top="10%">
+	<a:script name="Generic Form Script" src="desktop/ui.Frm_Auto.js"/>
 	<a:wbody>
 		<a:form action="$URI" method="create">
-			<a:field name="CC" type="hidden" value="$CC"></a:field>
+			<a:field name="CC" type="hidden" value="$CC"/>
 			<a:tabpane top="0" left="0" width="100%" height="100%">
 				$PROPERTIES_TAB
 				$EXTRA_TABS
@@ -19,6 +19,6 @@
 			</a:tabpane>
 		</a:form>
 	</a:wbody>
-	<a:dlgbutton onclick="autoform.submit" width="70" height="22" caption="$CREATE" default="true"></a:dlgbutton>
-	<a:dlgbutton onclick="__closeDialog__" width="70" height="22" caption="$CANCEL"></a:dlgbutton>
+	<a:dlgbutton onclick="autoform.submit" width="70" height="22" caption="@@CREATE@@" default="true"/>
+	<a:dlgbutton onclick="__closeDialog__" width="70" height="22" caption="@@CANCEL@@"/>
 </a:dialog>

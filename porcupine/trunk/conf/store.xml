@@ -119,63 +119,99 @@
         param="new"
         client="(MSIE [6-7])|(Mozilla/5.0.+rv:1.[7-9])"
         lang=".*"
-        action="org.innoscript.desktop.ui.Frm_AutoNew"/>
+        action="org.innoscript.desktop.ui.Frm_AutoNew">
+            <filter
+                type="porcupine.filters.postProcessing.multilingual.Multilingual"
+                using="org.innoscript.desktop.strings.resources"/>
+    </reg>
 
 	<reg cc="org.innoscript.desktop.schema.common.Application"
         method="GET"
         param="properties"
         client="(MSIE [6-7])|(Mozilla/5.0.+rv:1.[7-9])"
         lang=".*"
-        action="org.innoscript.desktop.ui.Frm_AppProperties"/>
+        action="org.innoscript.desktop.ui.Frm_AppProperties">
+            <filter
+                type="porcupine.filters.postProcessing.multilingual.Multilingual"
+                using="org.innoscript.desktop.strings.resources"/>
+    </reg>
 
 	<reg cc="org.innoscript.desktop.schema.security.User$"
         method="GET"
         param="resetpsw"
         client="(MSIE [6-7])|(Mozilla/5.0.+rv:1.[7-9])"
         lang=".*"
-        action="org.innoscript.desktop.ui.Frm_UserResetPassword"/>
+        action="org.innoscript.desktop.ui.Frm_UserResetPassword">
+            <filter
+                type="porcupine.filters.postProcessing.multilingual.Multilingual"
+                using="org.innoscript.desktop.strings.resources"/>
+    </reg>
 
 	<reg cc="org.innoscript.desktop.schema.security.User$"
         method="GET"
         param="properties"
         client="(MSIE [6-7])|(Mozilla/5.0.+rv:1.[7-9])"
         lang=".*"
-        action="org.innoscript.desktop.ui.Frm_UserProperties"/>
+        action="org.innoscript.desktop.ui.Frm_UserProperties">
+            <filter
+                type="porcupine.filters.postProcessing.multilingual.Multilingual"
+                using="org.innoscript.desktop.strings.resources"/>
+    </reg>
 
 	<reg cc="org.innoscript.desktop.schema.security.Group"
         method="GET"
         param="properties"
         client="(MSIE [6-7])|(Mozilla/5.0.+rv:1.[7-9])"
         lang=".*"
-        action="org.innoscript.desktop.ui.Frm_GroupProperties"/>
+        action="org.innoscript.desktop.ui.Frm_GroupProperties">
+            <filter
+                type="porcupine.filters.postProcessing.multilingual.Multilingual"
+                using="org.innoscript.desktop.strings.resources"/>
+    </reg>
 
 	<reg cc="porcupine.systemObjects.DeletedItem"
         method="GET"
         param="properties"
         client="(MSIE [6-7])|(Mozilla/5.0.+rv:1.[7-9])"
         lang=".*"
-        action="org.innoscript.desktop.ui.Frm_DeletedItem"/>
+        action="org.innoscript.desktop.ui.Frm_DeletedItem">
+            <filter
+                type="porcupine.filters.postProcessing.multilingual.Multilingual"
+                using="org.innoscript.desktop.strings.resources"/>
+    </reg>
 
 	<reg cc=".*"
         method="GET"
         param="rename"
         client="(MSIE [6-7])|(Mozilla/5.0.+rv:1.[7-9])"
         lang=".*"
-        action="org.innoscript.desktop.ui.Dlg_Rename"/>
+        action="org.innoscript.desktop.ui.Dlg_Rename">
+            <filter
+                type="porcupine.filters.postProcessing.multilingual.Multilingual"
+                using="org.innoscript.desktop.strings.resources"/>
+    </reg>
 
 	<reg cc=".*"
         method="GET"
         param="selectcontainer"
         client="(MSIE [6-7])|(Mozilla/5.0.+rv:1.[7-9])"
         lang=".*"
-        action="org.innoscript.desktop.ui.Dlg_SelectContainer"/>
+        action="org.innoscript.desktop.ui.Dlg_SelectContainer">
+            <filter
+                type="porcupine.filters.postProcessing.multilingual.Multilingual"
+                using="org.innoscript.desktop.strings.resources"/>
+    </reg>
     
 	<reg cc=".*"
         method="GET"
         param="properties"
         client="(MSIE [6-7])|(Mozilla/5.0.+rv:1.[7-9])"
         lang=".*"
-        action="org.innoscript.desktop.ui.Frm_AutoProperties"/>
+        action="org.innoscript.desktop.ui.Frm_AutoProperties">
+            <filter
+                type="porcupine.filters.postProcessing.multilingual.Multilingual"
+                using="org.innoscript.desktop.strings.resources"/>
+    </reg>
 
 	<!--_________________________________XML_RPC_________________________________-->
 	<reg cc="org.innoscript.desktop.schema.common.RootFolder"

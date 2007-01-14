@@ -293,28 +293,20 @@ class Dlg_SelectContainer(PorcupineDesktopServlet):
             'ROOT_IMG': rootFolder.__image__,
             'ROOT_DN': rootFolder.displayName.value,
             'ID': self.item.id,
-            'SELECT_FOLDER': resources.getResource('SELECT_FOLDER', sLang),
-            'CANCEL': resources.getResource('CANCEL', sLang),
-            'OK': resources.getResource('OK', sLang)
         }
         sAction = self.request.queryString['action'][0]
         self.params['TITLE'] = resources.getResource(sAction.upper(), sLang)
         
-        if sAction!='select_folder':
+        if sAction != 'select_folder':
             self.params['TITLE'] += ' &quot;' + self.item.displayName.value + '&quot;'
         
 class Dlg_Rename(PorcupineDesktopServlet):
     def setParams(self):
         self.response.setHeader('cache-control', 'no-cache')
-        sLang = self.request.getLang()
-        sRename = resources.getResource('RENAME', sLang)
         self.params = {
-            'TITLE': sRename + ' &quot;' + self.item.displayName.value + '&quot;',
-            'ENTER_NEW_NAME': resources.getResource('ENTER_NEW_NAME', sLang),
+            'TITLE': self.item.displayName.value,
             'ID': self.item.id,
             'DN': self.item.displayName.value,
-            'RENAME': sRename,
-            'CANCEL': resources.getResource('CANCEL', sLang)
         }
 
 #================================================================================
@@ -331,11 +323,7 @@ class Frm_AutoNew(Frm_Auto):
         oNewItem = misc.getClassByName(sCC)()
         
         self.params = {
-            'TITLE': '%s &quot;%s&quot;' % (self.getResource('CREATE', sLang),
-                    self.getResource(oNewItem.contentclass, sLang)),
-            'CREATE': self.getResource('CREATE', sLang),
-            'CANCEL': self.getResource('CANCEL', sLang),
-        
+            'TITLE': self.getResource(oNewItem.contentclass, sLang),
             'CC': sCC,
             'URI': self.request.serverVariables['SCRIPT_NAME'] + '/' + self.item.id,
             'ICON': oNewItem.__image__,
@@ -353,7 +341,7 @@ class Frm_AutoNew(Frm_Auto):
                 sProperties += control
                 self.params['EXTRA_TABS'] += tab
         
-        self.params['PROPERTIES_TAB'] = '<a:tab caption="%s">%s</a:tab>' % (resources.getResource('PROPERTIES', sLang), sProperties)
+        self.params['PROPERTIES_TAB'] = '<a:tab caption="@@PROPERTIES@@">%s</a:tab>' % sProperties
 
 class Dlg_SelectObjects(PorcupineDesktopServlet):
     def setParams(self):
@@ -619,12 +607,9 @@ class Frm_DeletedItem(XULSimpleTemplateServlet):
     
 class Frm_UserResetPassword(XULSimpleTemplateServlet):
     def setParams(self):
-        sLang = self.request.getLang()
         self.params = {
             'URI': self.request.serverVariables['SCRIPT_NAME'] + '/' + self.item.id,
-            'TITLE': 'Reset password for user \'%s\'' % self.item.displayName.value,
-            'OK': resources.getResource('OK', sLang),
-            'CANCEL': resources.getResource('CANCEL', sLang)
+            'TITLE': self.item.displayName.value
         }
         
 class Frm_UserProperties(PorcupineDesktopServlet):
