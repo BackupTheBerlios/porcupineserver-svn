@@ -19,7 +19,7 @@ BODY {
 	height : 100%;
 	position : fixed;
 	font-family : Geneva, sans-serif;
-	font-size : 8.5pt;
+	font-size : 11px;
 }
 
 .desktop {
@@ -313,7 +313,7 @@ BODY {
 
 .listview TABLE {
 	table-layout: fixed;
-	font-size : 8.5pt;
+	font-size : 11px;
 }
 
 .listview .list TABLE .selected {

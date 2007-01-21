@@ -24,7 +24,7 @@ login.login_oncomplete = function (req) {
 	else {
 		req.callback_info.enable();
 		var oDialog = req.callback_info.getParentByType(Dialog);
-		document.desktop.msgbox("Login failed", 
+		document.desktop.msgbox(oDialog.attributes.FailMsgTitle, 
 			oDialog.attributes.FailMsg,
 			document.desktop.attributes.CLOSE,
 			'desktop/images/error32.gif', 'center', 'center', 260, 120);

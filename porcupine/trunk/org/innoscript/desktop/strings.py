@@ -84,6 +84,7 @@ resources = ResourceStrings({
         'TO' : 'to',
         
         'LOGIN_FAILED' : 'Invalid login parameters. Please try again.',
+        'LOGIN_FAILED_TITLE' : 'Login failed',
         'LOGIN' : 'Login',
         'LOGOFF' : 'Logoff',
         'LOGOFF_Q' : 'Are you sure you want to logoff?',
@@ -136,6 +137,8 @@ resources = ResourceStrings({
         'RESET_PASSWORD_FOR_USER' : 'Reset password for user',
         'ENTER_NEW_PASSWORD' : 'Enter new password',
         'REENTER_PASSWORD' : 'Re-enter password',
+        'USER' : 'User',
+        'PASSWORD' : 'Password',
         
         #HyperSearch
         'SEARCH_IN' : 'Search in',
@@ -227,6 +230,7 @@ resources = ResourceStrings({
         'TO' : 'έως',
 
         'LOGIN_FAILED' : 'Μη έγκυρα στοιχεία εισόδου. Προσπαθείστε ξανά.',
+        'LOGIN_FAILED_TITLE' : 'Αποτυχημένη προσπάθεια σύνδεσης',
         'LOGIN' : 'Είσοδος',
         'LOGOFF' : 'Αποσύνδεση',
         'LOGOFF_Q' : 'Είστε σίγουροι ότι θέλετε να αποσυνδεθείτε;',
@@ -277,7 +281,8 @@ resources = ResourceStrings({
         'RESET_PASSWORD_FOR_USER' : 'Αλλαγή κωδικού για τον χρήστη',
         'ENTER_NEW_PASSWORD' : 'Νέος κωδικός',
         'REENTER_PASSWORD' : 'Επαλήθευση κωδικού',
-        
+        'USER' : 'Χρήστης',
+        'PASSWORD' : 'Κωδικός',
         
         #HyperSearch
         'SEARCH_IN' : 'Αναζήτηση μέσα στο',
