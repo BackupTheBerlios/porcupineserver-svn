@@ -31,6 +31,6 @@ top="10%">
 			</a:tabpane>
 		</a:form>
 	</a:wbody>
-	<a:dlgbutton onclick="generic.updateItem" width="70" height="22" caption="@@UPDATE@@" default="true" disabled="%(UPDATE_DISABLED)s"/>
+	<a:dlgbutton onclick="generic.submitForm" width="70" height="22" caption="@@UPDATE@@" default="true" disabled="%(UPDATE_DISABLED)s"/>
 	<a:dlgbutton onclick="__closeDialog__" width="70" height="22" caption="@@CLOSE@@"/>
 </a:dialog>

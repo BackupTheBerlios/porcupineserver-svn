@@ -1,15 +1,15 @@
 <?xml version="1.0"?>
 <a:window xmlns:a="http://www.innoscript.org/quix"
-	title="Please wait..."
-	resizable="true"
-	close="true"
-	minimize="true"
-	maximize="true"
-	width="600"
-	height="400"
-	left="center"
-	top="center"
-	onload="recycleBin.getContainerInfo">
+title="Please wait..."
+resizable="true"
+close="true"
+minimize="true"
+maximize="true"
+width="600"
+height="400"
+left="center"
+top="center"
+onload="recycleBin.getContainerInfo">
 	<a:script name="Recycle Bin Script" src="desktop/ui.RecycleList.js"/>
 	<a:prop name="FolderID" value="$ID"/>
 	<a:wbody>
@@ -40,7 +40,7 @@
                 multiple="true"
                 width="100%"
                 height="100%"
-                ondblclick="recycleBin.loadItem">
+                ondblclick="recycleBin.showProperties">
 					<a:listheader>
 						<a:column width="24" caption="" type="img" name="image" resizable="false"/>
 						<a:column width="140" caption="@@NAME@@" name="displayName" bgcolor="#EFEFEF" sortable="true"/>

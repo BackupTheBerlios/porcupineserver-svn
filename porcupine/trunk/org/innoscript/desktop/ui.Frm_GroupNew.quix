@@ -9,7 +9,7 @@ width="380"
 height="300"
 left="30%"
 top="30%">
-	<a:script name="Group Form Script" src="desktop/ui.Frm_Group.js"/>
+	<a:script name="Generic Functions" src="desktop/generic.js"/>
 	<a:wbody>
 		<a:form action="$URI" method="create">
 			<a:tabpane top="0" left="0" width="100%" height="100%">
@@ -50,6 +50,6 @@ top="30%">
 			</a:tabpane>
 		</a:form>
 	</a:wbody>
-	<a:dlgbutton onclick="formGroup.createGroup" width="70" height="22" caption="Create" default="true"/>
+	<a:dlgbutton onclick="generic.submitForm" width="70" height="22" caption="Create" default="true"/>
 	<a:dlgbutton onclick="__closeDialog__" width="70" height="22" caption="Close"/>
 </a:dialog>

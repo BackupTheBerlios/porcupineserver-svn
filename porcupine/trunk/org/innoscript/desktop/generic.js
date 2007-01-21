@@ -1,11 +1,28 @@
 function generic() {}
 
-generic.showObjectProperties = function(evt, w, o, refresh_func) {
-	document.desktop.parseFromUrl(QuiX.root	+ (o.id || o) + '?cmd=properties',
-		function(w) {
-			if (refresh_func) w.attributes.refreshlist = refresh_func;
+generic.showObjectProperties = function(evt, w, o, onclose_func) {
+	var oWin = w.getParentByType(Window) || w.parent.owner.getParentByType(Window);
+	oWin.showWindow(QuiX.root + (o.id || o) + '?cmd=properties',
+		function(dialog) {
+			if (onclose_func)
+				dialog.attachEvent("onclose", onclose_func);
 		}
 	);
+}
+
+generic.submitForm = function(evt, w) {
+	var oDialog = w.getParentByType(Dialog);
+	var oForm = oDialog.getWidgetsByType(Form)[0];
+	oForm.submit(__closeDialog__);
+}
+
+generic.openContainer = function(evt, w) {
+	document.desktop.parseFromUrl(QuiX.root	+ w.attributes.folderID + '?cmd=list');
+}
+
+generic.runApp = function(evt,w) {
+	var appUrl = w.attributes.url;
+	document.desktop.parseFromUrl(QuiX.root	+ appUrl);
 }
 
 generic.selectItems = function(evt, w) {
@@ -68,26 +85,6 @@ generic.clearReference1 = function(evt, w) {
 	var fields = w.parent.getWidgetsByType(Field);
 	fields[0].setValue('');
 	fields[1].setValue('');
-}
-
-generic.updateItem = function(evt, w) {
-	var oDialog = w.getParentByType(Dialog);
-	var oForm = oDialog.getWidgetsByType(Form)[0];
-	oForm.submit(
-		function() {
-			if (oDialog.attributes.refreshlist) oDialog.attributes.refreshlist();
-			oDialog.close();
-		}
-	);
-}
-
-generic.openContainer = function(evt, w) {
-	document.desktop.parseFromUrl(QuiX.root	+ w.attributes.folderID + '?cmd=list');
-}
-
-generic.runApp = function(evt,w) {
-	var appUrl = w.attributes.url;
-	document.desktop.parseFromUrl(QuiX.root	+ appUrl);
 }
 
 generic.addSelectionToAclDataGrid = function(evt, w, source, target) {

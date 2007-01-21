@@ -31,7 +31,7 @@ usermgmnt.newUser = function(evt, w) {
     var sFolder = QuiX.root + oUserList.attributes.FolderID;
     oWin.showWindow(sFolder + '?cmd=new&cc=org.innoscript.desktop.schema.security.User',
         function(win) {
-            win.attributes.refreshlist = function(){usermgmnt.getUsers(oUserList)}
+            win.attachEvent("onclose", usermgmnt.refreshWindow);
         }
     );
 }
@@ -84,7 +84,7 @@ usermgmnt.newGroup = function(evt, w) {
     var sFolder = QuiX.root + oUserList.attributes.FolderID;
     oWin.showWindow(sFolder + '?cmd=new&cc=org.innoscript.desktop.schema.security.Group',
         function(win) {
-            win.attributes.refreshlist = function(){usermgmnt.getUsers(oUserList)}
+            win.attachEvent("onclose", usermgmnt.refreshWindow);
         }
     );
 }
@@ -119,16 +119,19 @@ usermgmnt.usersListMenu_show = function(menu) {
 
 usermgmnt.showProperties = function(evt, w) {
     var oUserList = w.parent.owner.getWidgetsByType(ListView)[0];
-    generic.showObjectProperties(null, null, oUserList.getSelection(),
-        function(){usermgmnt.getUsers(oUserList);}
-    );
+    generic.showObjectProperties(evt, w, oUserList.getSelection(), usermgmnt.refreshWindow);
+}
+
+usermgmnt.refreshWindow = function(w) {
+	if (w.buttonIndex == 0) {
+        var oUserList = w.opener.getWidgetsByType(ListView)[0];
+        usermgmnt.getUsers(oUserList);
+	}
 }
 
 usermgmnt.loadItem = function(evt, w) {
     var oUserList = w;
-    generic.showObjectProperties(null, null, oUserList.getSelection(),
-        function(){usermgmnt.getUsers(oUserList);}
-    );
+    generic.showObjectProperties(evt, w, oUserList.getSelection(), usermgmnt.refreshWindow);
 }
 
 usermgmnt.showResetPasswordDialog = function(evt, w) {

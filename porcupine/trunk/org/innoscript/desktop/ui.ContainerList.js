@@ -1,5 +1,15 @@
 var containerList = function() {}
 
+containerList.closeWindow = function(evt, w) {
+	w.parent.owner.getParentByType(Window).close();
+}
+
+containerList.refreshWindow = function(w) {
+	if (w.buttonIndex == 0) {
+		containerList.getContainerInfo(w.opener);
+	}
+}
+
 containerList.loadItem = function(evt, w, o) {
 	var oWin = w.getParentByType(Window);
 	if (o.isCollection) {
@@ -7,16 +17,24 @@ containerList.loadItem = function(evt, w, o) {
 		containerList.getContainerInfo(oWin);
 	}
 	else {
-		generic.showObjectProperties(null, null, o,
-			function() {
-				containerList.getContainerInfo(oWin);
-			}
-		);
+		generic.showObjectProperties(evt, w, o, containerList.refreshWindow);
 	}
 }
 
-containerList.closeWindow = function (evt, w) {
-	w.parent.owner.getParentByType(Window).close();
+containerList.createItem = function(evt, w) {
+	var cc = w.attributes.cc;
+	var oWin = w.parent.owner.parent.owner.getParentByType(Window);
+	oWin.showWindow(QuiX.root + oWin.attributes.FolderID + '?cmd=new&cc=' + cc,
+		function(w) {
+			w.attachEvent("onclose", containerList.refreshWindow);
+		}
+	);
+}
+
+containerList.showProperties = function(evt, w) {
+	var oWindow = w.parent.owner.getParentByType(Window);
+	var oItemList = w.parent.owner.getWidgetsByType(ListView)[0];
+	generic.showObjectProperties(evt, w, oItemList.getSelection(), containerList.refreshWindow);
 }
 
 containerList.getContainerInfo = function(w, bAddPath) {
@@ -79,18 +97,6 @@ containerList.getContainerInfo = function(w, bAddPath) {
 	xmlrpc.callmethod('getInfo');
 }
 
-containerList.createItem = function(evt, w) {
-	var cc = w.attributes.cc;
-	var owin = w.parent.owner.parent.owner.getParentByType(Window);
-	document.desktop.parseFromUrl(QuiX.root + owin.attributes.FolderID + '?cmd=new&cc=' + cc,
-		function(w) {
-			w.attributes.refreshlist = function() {
-				containerList.getContainerInfo(owin);
-			}
-		}
-	);
-}
-
 containerList.upOneFolder = function(evt, w) {
 	var win = w.getParentByType(Window);
 	win.attributes.FolderID = win.attributes.ParentID;
@@ -143,16 +149,6 @@ containerList.listMenu_show = function(menu) {
 		menu.options[4].enable();//paste
 	else
 		menu.options[4].disable();//paste
-}
-
-containerList.showProperties = function(evt, w) {
-	var oWindow = w.parent.owner.getParentByType(Window);
-	var oItemList = w.parent.owner.getWidgetsByType(ListView)[0];
-	generic.showObjectProperties(null, null, oItemList.getSelection(),
-		function() {
-			containerList.getContainerInfo(oWindow);
-		}
-	);
 }
 
 containerList.updateCliboard = function(evt, w) {

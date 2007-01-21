@@ -65,8 +65,8 @@ AUTO_CONTROLS = {
                     %s
                 </a:selectlist>
                 <a:rect height="24" disabled="%s">
-                    <a:flatbutton width="70" height="22" caption="%s..." onclick="generic.selectItems"></a:flatbutton>
-                    <a:flatbutton left="80" width="70" height="22" caption="%s" onclick="generic.removeSelectedItems"></a:flatbutton>
+                    <a:flatbutton width="70" height="22" caption="@@ADD@@..." onclick="generic.selectItems"></a:flatbutton>
+                    <a:flatbutton left="80" width="70" height="22" caption="@@REMOVE@@" onclick="generic.removeSelectedItems"></a:flatbutton>
                 </a:rect>
             </a:box>
         </a:tab>
@@ -74,7 +74,7 @@ AUTO_CONTROLS = {
 }
 
 SECURITY_TAB = '''
-<a:tab caption="%s" onactivate="generic.getSecurity">
+<a:tab caption="@@SECURITY@@" onactivate="generic.getSecurity">
     <a:box orientation="v" spacing="0" width="100%%" height="100%%">
         <a:field id="__rolesinherited"
             height="24"
@@ -82,22 +82,22 @@ SECURITY_TAB = '''
             type="checkbox"
             value="%s"
             onclick="generic.rolesInherited_onclick"
-            caption="%s"/>
+            caption="@@ROLES_INHERITED@@"/>
         <a:box spacing="0" disabled="%s" height="-1">
             <a:datagrid id="__acl" name="__acl" width="-1">
                 <a:listheader>
-                    <a:column width="140" caption="%s" name="displayName" editable="false" sortable="true"></a:column>
-                    <a:column width="140" caption="%s" name="role" type="optionlist" sortable="true">
-                        <a:option value="1" caption="%s"></a:option>
-                        <a:option value="2" caption="%s"></a:option>
-                        <a:option value="4" caption="%s"></a:option>
-                        <a:option value="8" caption="%s"></a:option>
+                    <a:column width="140" caption="@@displayName@@" name="displayName" editable="false" sortable="true"></a:column>
+                    <a:column width="140" caption="@@ROLE@@" name="role" type="optionlist" sortable="true">
+                        <a:option value="1" caption="@@ROLE_1@@"></a:option>
+                        <a:option value="2" caption="@@ROLE_2@@"></a:option>
+                        <a:option value="4" caption="@@ROLE_4@@"></a:option>
+                        <a:option value="8" caption="@@ROLE_8@@"></a:option>
                     </a:column>
                 </a:listheader>
             </a:datagrid>
             <a:rect width="60">
-                <a:flatbutton left="center" width="56" height="22" caption="%s" onclick="generic.addACLEntry"></a:flatbutton>
-                <a:flatbutton top="24" left="center" width="56" height="22" caption="%s" onclick="generic.removeACLEntry"></a:flatbutton>
+                <a:flatbutton left="center" width="56" height="22" caption="@@ADD@@" onclick="generic.addACLEntry"></a:flatbutton>
+                <a:flatbutton top="24" left="center" width="56" height="22" caption="@@REMOVE@@" onclick="generic.removeACLEntry"></a:flatbutton>
             </a:rect>
         </a:box>
     </a:box>
@@ -136,20 +136,7 @@ class PorcupineDesktopServlet(XULSimpleTemplateServlet):
                 sChecked = 'true'
             else:
                 sChecked = 'false'
-            return SECURITY_TAB % (
-                resources.getResource('SECURITY', sLang),
-                sChecked,
-                resources.getResource('ROLES_INHERITED', sLang),
-                sChecked,
-                resources.getResource('NAME', sLang),
-                resources.getResource('ROLE', sLang),
-                resources.getResource('ROLE_1', sLang),
-                resources.getResource('ROLE_2', sLang),
-                resources.getResource('ROLE_4', sLang),
-                resources.getResource('ROLE_8', sLang),
-                resources.getResource('ADD', sLang),
-                resources.getResource('REMOVE', sLang)
-            )
+            return SECURITY_TAB % (sChecked, sChecked)
         else:
             return ''
             
@@ -233,9 +220,7 @@ class Frm_Auto(PorcupineDesktopServlet):
             sTab = AUTO_CONTROLS[datatypes.ReferenceN] % (
                 attrlabel, attrname,
                 self.request.serverVariables['SCRIPT_NAME'] + '/',
-                '|'.join(attr.relCc), options, self.getStringFromBoolean(readonly),
-                resources.getResource('ADD', sLang),
-                resources.getResource('REMOVE', sLang)
+                '|'.join(attr.relCc), options, self.getStringFromBoolean(readonly)
             )
         
         return (sControl, sTab)
@@ -592,7 +577,6 @@ class Frm_DeletedItem(XULSimpleTemplateServlet):
     def setParams(self):
         sLang = self.request.getLang()
         self.params = {
-            'URI': self.request.serverVariables['SCRIPT_NAME'] + '/' + self.item.id,
             'ICON': self.item.__image__,
             'NAME': self.item.originalName,
             'LOC': self.item.originalLocation,

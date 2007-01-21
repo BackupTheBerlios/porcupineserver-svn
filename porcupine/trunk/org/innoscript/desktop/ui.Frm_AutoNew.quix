@@ -19,6 +19,6 @@ top="10%">
 			</a:tabpane>
 		</a:form>
 	</a:wbody>
-	<a:dlgbutton onclick="autoform.submit" width="70" height="22" caption="@@CREATE@@" default="true"/>
+	<a:dlgbutton onclick="generic.submitForm" width="70" height="22" caption="@@CREATE@@" default="true"/>
 	<a:dlgbutton onclick="__closeDialog__" width="70" height="22" caption="@@CANCEL@@"/>
 </a:dialog>

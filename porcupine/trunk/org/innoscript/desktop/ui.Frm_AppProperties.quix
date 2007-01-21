@@ -44,7 +44,7 @@ top="30%">
 					<a:label top="130" left="5" width="100" height="20" caption="@@DATEMOD@@:"/>
 					<a:label top="130" left="105" width="55%" height="20" caption="$MODIFIED"/>
                     
-					<a:label top="150" left="5" width="100" height="20" caption="MODIFIEDBY:"/>
+					<a:label top="150" left="5" width="100" height="20" caption="@@MODIFIEDBY@@:"/>
 					<a:label top="150" left="105" width="55%" height="20" caption="$MODIFIED_BY"/>
                     
 					<a:label top="170" left="5" width="100" height="20" caption="@@ID@@:"/>

@@ -11,11 +11,5 @@ formUser.createUser = function(evt, w) {
 			"desktop/images/error32.gif", 'center', 'center', 260, 112);
 	}
 	else
-		oForm.submit(formUser.update);
-}
-
-formUser.update = function(response, form) {
-	var dlg = form.getParentByType(Dialog);
-	dlg.attributes.refreshlist();
-	dlg.close();
+		oForm.submit(__closeDialog__);
 }

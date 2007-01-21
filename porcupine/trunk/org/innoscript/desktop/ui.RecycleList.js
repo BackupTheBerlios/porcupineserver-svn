@@ -1,17 +1,5 @@
 var recycleBin= function() {}
 
-recycleBin.loadItem = function(evt, w, o) {
-	var oWin;
-	if (o.isCollection) {
-		oWin = w.getParentByType(Window);
-		oWin.attributes.FolderID = o.id;
-		containerList.getContainerInfo(oWin);
-	}
-	else {
-		generic.showObjectProperties(null, null, o);
-	}
-}
-
 recycleBin.listMenu_show = function(menu) {
 	var oItemList = menu.owner.getWidgetsByType(ListView)[0];
 	if (oItemList.selection.length == 0) {
@@ -23,10 +11,16 @@ recycleBin.listMenu_show = function(menu) {
 	}
 	else {
 		menu.options[0].enable();//restore
-		menu.options[1].enable();//restore to
+		if (oItemList.selection.length == 1)
+			menu.options[1].enable();//restore to
+		else
+			menu.options[1].disable();//restore to
 		menu.options[2].enable();//delete
 		menu.options[4].enable();//empty
-		menu.options[6].enable();//properties
+		if (oItemList.selection.length == 1)
+			menu.options[6].enable();//properties
+		else
+			menu.options[6].disable();//properties
 	}
 }
 
@@ -47,9 +41,23 @@ recycleBin.getContainerInfo = function(w) {
 }
 
 recycleBin.showProperties = function(evt, w) {
-	var oWindow = w.parent.owner.getParentByType(Window);
-	var oItemList = w.parent.owner.getWidgetsByType(ListView)[0];
-	generic.showObjectProperties(null, null, oItemList.getSelection());
+	var win_elem = (w.parent.owner)?w.parent.owner:w;
+	var win = win_elem.getParentByType(Window);
+	var oList = win.getWidgetsByType(ListView)[0];
+	var oItem = oList.getSelection();
+	
+	win.showWindow(QuiX.root + 
+		oItem.id + '?cmd=properties',
+		function(w) {
+			w.attributes.Item = oItem;
+			w.attachEvent("onclose",
+				function(dlg){
+					if (dlg.buttonIndex == 0)
+						recycleBin.restoreItem(null, dlg);
+				}
+			);
+		}
+	);
 }
 
 recycleBin.refresh = function(evt, w) {
@@ -61,16 +69,16 @@ recycleBin.restoreTo = function(evt, w) {
 	var win = w.parent.owner.getParentByType(Window);
 	var oList = win.getWidgetById("itemslist");
 	var action = w.attributes.action;
+	
 	win.showWindow(QuiX.root + 
 		oList.getSelection().id  + '?cmd=selectcontainer&action=' + action,
-		function(w) {
-			w.attachEvent("onclose", recycleBin.doRestore);
-			w.attributes.method = action;
+		function(dlg) {
+			dlg.attachEvent("onclose", recycleBin.doRestoreTo);
 		}
 	);
 }
 
-recycleBin.doRestore = function(dlg) {
+recycleBin.doRestoreTo = function(dlg) {
 	if (dlg.buttonIndex == 0) {
 		var targetid = dlg.getWidgetById('tree').getSelection().getId();
 		
@@ -82,36 +90,22 @@ recycleBin.doRestore = function(dlg) {
 	}
 }
 
-recycleBin.empty = function(evt, w) {
-	var desktop = document.desktop;
-	var win;
-	var win_elem = (w.parent.owner)?w.parent.owner:w;
-	win = win_elem.getParentByType(Window);
-	var rbid = win.attributes.FolderID;
-	
-	var _empty = function(evt, w) {
-		w.getParentByType(Dialog).close();
-		var xmlrpc = new XMLRPCRequest(QuiX.root + rbid);
-		xmlrpc.oncomplete = function(req) {
-			recycleBin.getContainerInfo(win);
-		}
-		xmlrpc.callmethod('empty');
+recycleBin.restoreItem = function(evt, w) {
+	var win, items, title;
+	if (w.parent.owner) {
+		win = w.parent.owner.getParentByType(Window);
+		items = win.getWidgetById("itemslist").getSelection();
+		title = w.getCaption();
+	}
+	else {
+		win = w.opener;
+		items = w.attributes.Item;
+		title = w.buttons[0].getCaption();
 	}
 	
-	desktop.msgbox(w.getCaption(), 
-		w.attributes.confirmString,
-		[
-			[desktop.attributes['YES'], 60, _empty],
-			[desktop.attributes['NO'], 60]
-		],
-		'desktop/images/messagebox_warning.gif', 'center', 'center', 260, 112);
-}
-
-recycleBin.restoreItem = function(evt, w) {
-	var win = w.parent.owner.getParentByType(Window);
-	var items = win.getWidgetById("itemslist").getSelection();
 	if (!(items instanceof Array)) items = [items];
 	items.reverse();
+	
 	var _startRestoring = function(w) {
 		w = w.callback_info || w;
 		if (items.length > 0) {
@@ -129,7 +123,7 @@ recycleBin.restoreItem = function(evt, w) {
 			recycleBin.getContainerInfo(win);
 		}
 	}
-	var dlg = generic.getProcessDialog(w.getCaption(), items.length, _startRestoring);
+	var dlg = generic.getProcessDialog(title, items.length, _startRestoring);
 }
 
 recycleBin.deleteItem = function(evt, w) {
@@ -172,4 +166,28 @@ recycleBin.deleteItem = function(evt, w) {
 			[desktop.attributes['NO'], 60]
 		],
 		'desktop/images/messagebox_warning.gif', 'center', 'center', 280, 112);
+}
+
+recycleBin.empty = function(evt, w) {
+	var desktop = document.desktop;
+	var win_elem = (w.parent.owner)?w.parent.owner:w;
+	var win = win_elem.getParentByType(Window);
+	var rbid = win.attributes.FolderID;
+	
+	var _empty = function(evt, w) {
+		w.getParentByType(Dialog).close();
+		var xmlrpc = new XMLRPCRequest(QuiX.root + rbid);
+		xmlrpc.oncomplete = function(req) {
+			recycleBin.getContainerInfo(win);
+		}
+		xmlrpc.callmethod('empty');
+	}
+	
+	desktop.msgbox(w.getCaption(), 
+		w.attributes.confirmString,
+		[
+			[desktop.attributes['YES'], 60, _empty],
+			[desktop.attributes['NO'], 60]
+		],
+		'desktop/images/messagebox_warning.gif', 'center', 'center', 260, 112);
 }
