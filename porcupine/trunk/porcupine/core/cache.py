@@ -28,11 +28,18 @@ class Cache(dict):
     def __getitem__(self, key):
         self.__accesslist.append(key)
         self.__accesslist.remove(key)
-        return self[key]
+        #print self.__accesslist
+        return dict.__getitem__(self, key)
         
-    def __putitem__(self, key, value):
-        if len(self.__accesslist) >= self.size:
-            del self[self.__accesslist[0]]
-            del self.__accesslist[0]
-        self[key] = value
+    def __setitem__(self, key, value):
+        if key in self:
+            self.__accesslist.remove(key)
+        else:
+            if len(self) >= self.size:
+                del self[self.__accesslist[0]]
+        dict.__setitem__(self, key, value)
         self.__accesslist.append(key)
+        
+    def __delitem__(self, key):
+        self.__accesslist.remove(key)
+        dict.__delitem__(self, key)

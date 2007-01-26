@@ -205,8 +205,8 @@ class OqlParser:
         self.tokens = tokens
 
     def parse(self, command):
-        if QUERY_CACHE.has_key(command):
-            return QUERY_CACHE.get(command)
+        if command in QUERY_CACHE:
+            return QUERY_CACHE[command]
         else:
             my_lexer = lex.lex(optimize=1, debug=self.debug)
             my_yacc = yacc.yacc(module=self,

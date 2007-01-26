@@ -52,6 +52,13 @@ try:
 except AttributeError:
     raise serverExceptions.ConfigurationError, (('login_page', 'server'),)
 
+try:
+    object_cache_size = int(settings.server.object_cache_size)
+except AttributeError:
+    raise serverExceptions.ConfigurationError, (('object_cache_size', 'server'),)
+except ValueError:
+    raise serverExceptions.ConfigurationError, 'Invalid object_cache_size setting: %s' % settings.server.object_cache_size
+
 # [sessionmanager] section
 try:
     guest_account = settings.sessionmanager.guest

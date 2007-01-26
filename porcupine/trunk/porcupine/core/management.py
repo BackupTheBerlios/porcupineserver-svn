@@ -21,7 +21,6 @@ from threading import Thread
 from cPickle import dumps, loads, PicklingError
 
 from porcupine.core import asyncBaseServer
-from porcupine.config import serverSettings
 from porcupine import serverExceptions, errors
 from porcupine.db import db
 from porcupine.security import sessionManager
@@ -42,7 +41,7 @@ class Mgt(object):
     
     @staticmethod
     def open(address, worker_threads):
-		Mgt.mgtServer = ManagementServer(address, worker_threads)
+        Mgt.mgtServer = ManagementServer(address, worker_threads)
 
 class Site(object):
     "Site info class"
@@ -141,6 +140,7 @@ class ManagementServer(asyncBaseServer.BaseServer):
         self.lastUpdate = 0
 
     def sync(self, host_priority, hostaddr):
+        from porcupine.config import serverSettings
         if hostaddr:
             logger.info('Initiating store replication with master')
 
