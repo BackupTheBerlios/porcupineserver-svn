@@ -54,6 +54,7 @@ XULParser.prototype.detectModules = function(oNode) {
 			this.__modulesToLoad.push(oMod);
 		}
 	}
+	
 	if (iMod && oNode.getAttribute('img')) {
 		src = oNode.getAttribute('img');
 		if (src!='' && !QuiX.images.hasItem(src)) {

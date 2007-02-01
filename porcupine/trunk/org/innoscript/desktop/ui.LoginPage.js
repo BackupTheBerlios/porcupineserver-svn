@@ -17,9 +17,7 @@ login.login = function (evt, w) {
 
 login.login_oncomplete = function (req) {
 	if (req.response) {
-		var root_ui = QuiX.root;
-		document.desktop.clear();
-		document.desktop.parseFromUrl(root_ui);
+		document.location.href = QuiX.root;
 	}
 	else {
 		req.callback_info.enable();

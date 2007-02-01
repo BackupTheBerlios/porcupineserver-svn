@@ -368,6 +368,7 @@ class ContainerList(PorcupineDesktopServlet):
 
 class Desktop(PorcupineDesktopServlet):
     def setParams(self):
+        self.isPage = True
         self.response.setHeader('cache-control', 'no-cache')
         sLang = self.request.getLang()
         oUser = self.session.user

@@ -5,6 +5,7 @@
 	<a:prop name="NO" value="@@NO@@"></a:prop>
 
 	<a:script name="Login Script" src="desktop/ui.LoginPage.js"></a:script>
+
 	<a:dialog
 		id="logindialog"
 		title="@@LOGIN@@"

@@ -78,8 +78,8 @@ desktop.applyUserSettings = function(evt ,w) {
 }
 
 desktop.runApplication = function(w) {
-	var autoRun = w.attributes.AUTO_RUN;
-	var runMaximized = w.attributes.RUN_MAXIMIZED;
+	var autoRun = w.parent.attributes.AUTO_RUN;
+	var runMaximized = w.parent.attributes.RUN_MAXIMIZED;
 	if (autoRun != '' && desktop.autoRun) {
 		document.desktop.parseFromUrl(QuiX.root	+ autoRun,
 			function(w) {
@@ -93,7 +93,11 @@ desktop.runApplication = function(w) {
 
 desktop.launchHyperSearch = function(evt, w) {
 	var query_string = '';
-	var win = w.getParentByType(Window);
+	var win;
+	try {
+		win = w.getParentByType(Window);
+	}
+	catch(e) {}
 	if (win)
 		query_string = '?id=' + win.attributes.FolderID;
 	document.desktop.parseFromUrl('hypersearch/hypersearch.quix' + query_string);
