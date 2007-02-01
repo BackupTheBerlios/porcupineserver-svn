@@ -1,13 +1,16 @@
 <config>
 	<context path="hypersearch.quix"
-			 method="GET"
-			 client=".*"
-			 lang=".*"
-			 action="hypersearch.psp"/>
+		method="GET"
+		client=".*"
+		lang=".*"
+		action="hypersearch.psp">
+		<filter
+			type="porcupine.filters.postProcessing.multilingual.Multilingual"
+			using="org.innoscript.desktop.strings.resources"/>
+	</context>
 	<context path="hypersearch.js"
-			 method="GET"
-			 client=".*"
-			 lang=".*"
-			 action="hypersearch.js"/>
-
+		method="GET"
+		client=".*"
+		lang=".*"
+		action="hypersearch.js"/>
 </config>
