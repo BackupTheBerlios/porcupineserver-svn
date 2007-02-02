@@ -429,7 +429,9 @@ class Dlg_UserSettings(XULSimpleTemplateServlet):
         self.response.setHeader('cache-control', 'no-cache')
         sLang = self.request.getLang()
         
-        if self.session.user.settings.value['TASK_BAR_POS'] == 'bottom':
+        self.params['TASK_BAR_POS'] = self.session.user.settings.value.setdefault('TASK_BAR_POS', 'bottom')
+        
+        if self.params['TASK_BAR_POS'] == 'bottom':
             self.params['CHECKED_TOP'] = 'false'
             self.params['CHECKED_BOTTOM'] = 'true'
         else:

@@ -67,12 +67,13 @@ desktop.displayTime = function(timer) {
 
 desktop.applyUserSettings = function(evt ,w) {
 	var oDialog = w.getParentByType(Dialog);
-	oDialog.getWidgetsByType(Form)[0].submit(
+	var oForm = oDialog.getWidgetsByType(Form)[0];
+	oForm.submit(
 		function(){
-			oDialog.close();
-			document.desktop.clear();
-			desktop.autoRun = false;
-			document.desktop.parseFromUrl(QuiX.root);
+			if (oForm.elements[0].getValue() != oDialog.attributes.ORIGINAL_TASK_POS)
+				document.location.reload();
+			else
+				oDialog.close();
 		}
 	);
 }
