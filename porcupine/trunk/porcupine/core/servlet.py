@@ -175,7 +175,7 @@ class XULServlet(HTTPServlet):
             self.xul_file = file(xul_filename)
         except IOError:
             raise serverExceptions.InvalidRegistration, \
-            'XUL file "%s" is missing' % self.xul_file
+            'XUL file "%s" is missing' % xul_filename
         
         
     def _getPageBoilerplate(self, start):
