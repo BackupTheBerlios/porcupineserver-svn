@@ -163,20 +163,13 @@ class XULServlet(HTTPServlet):
         HTTPServlet.__init__(self, server, session, request)
         self.params = {}
         self.isPage = False
-        #sPath = os.path.sep.join(self.__class__.__module__.split('.'))
-        #self.xul_file = '%s.%s.xul' % (sPath, self.__class__.__name__)
         class_dir = os.path.dirname(sys.modules[self.__class__.__module__].__file__)
-        xul_filename = '%s%s%s.%s.quix' % (class_dir,
+        self.xul_file = '%s%s%s.%s.quix' % (class_dir,
                                            os.path.sep,
                                            self.__module__.split('.')[-1],
                                            self.__class__.__name__)
-        # open XUL file
-        try:
-            self.xul_file = file(xul_filename)
-        except IOError:
-            raise serverExceptions.InvalidRegistration, \
-            'XUL file "%s" is missing' % xul_filename
         
+        # TODO: Open the QuiX file here (see rev 419)...
         
     def _getPageBoilerplate(self, start):
         if start:
@@ -196,7 +189,17 @@ class XULServlet(HTTPServlet):
             self.response.write('</xml></body></html>')
             
     def _writeContent(self):
-        self.response.write(self.xul_file.read() % self.params)
+        # open QuiX file
+        try:
+            quix_file = file(self.xul_file)
+        except IOError:
+            raise serverExceptions.InvalidRegistration, \
+            'QuiX file "%s" is missing' % self.xul_file
+
+        try:
+            self.response.write(quix_file.read() % self.params)
+        finally:
+            quix_file.close()
         
     def execute(self):
         """This method writes the QuiX XUL template file to
@@ -210,11 +213,9 @@ class XULServlet(HTTPServlet):
             self._getPageBoilerplate(True)
         else:
             self.response.content_type = 'text/xml'
-            
-        try:
-            self._writeContent()
-        finally:
-            self.xul_file.close()
+        
+        # TODO: Put try...finally here for closing the QuiX template
+        self._writeContent()
 
         if self.isPage:
             self._getPageBoilerplate(False)
@@ -234,6 +235,15 @@ class XULSimpleTemplateServlet(XULServlet):
     for easier string substitutions.
     """
     def _writeContent(self):
-        template = Template( self.xul_file.read() )
-        self.response.write( template.substitute(self.params) )
-        
+        # open QuiX file
+        try:
+            quix_file = file(self.xul_file)
+        except IOError:
+            raise serverExceptions.InvalidRegistration, \
+            'QuiX file "%s" is missing' % self.xul_file
+
+        try:
+            template = Template( quix_file.read() )
+            self.response.write( template.substitute(self.params) )
+        finally:
+            quix_file.close()
