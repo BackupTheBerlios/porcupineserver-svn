@@ -1,4 +1,58 @@
 -------------
+Version 0.0.9
+-------------
+NEW: Object cache with configuarable size.
+NEW: New XULSimpleTemplateServlet class using the simple string.Template
+     class for simpler more readable QuiX templates.
+NEW: Policy methods can noe be declared with decorators using
+     "@policymethod(policyid)".
+NEW: New multilingual post processing filter used for easy output
+     internationalization.
+
+OPT: Optimized QuiX's performance by minimizing the number of
+     redraws performed when rendering a new UI.
+OPT: Post processing filters are now declared as child nodes inside
+     the configuration files.
+OPT: Post processing filters can accept named arguments deriving
+     from the filter's node attributes.
+OPT: After sucessful login, the page reloads in order to support
+     themes.
+OPT: On the server side, the faster built in C sets are used.
+OPT: Ability to define the active tab of a tab pane.
+OPT: All of the QuiX functions are moved inside compat.js and made
+     portable.
+OPT: XMLHttp object is created using a portable function.
+OPT: Added improved support for each widget's minimum width and
+     height whose values are assigned inside the Widget constructor.
+     Accepted values can be integers or functions.
+OPT: Optimized render time for QuiX box layout widget.
+OPT: "-1" for a box layout widget width/height resizes the current
+     widget to the maximum size of the minimum widths/heights of
+     box children.
+OPT: Added transparent image to QuiX outlines. This way the background
+     widgets do not raise event while dragging.
+OPT: The "generic.showObjectProperties" JavaScript function was
+     simplified.
+
+FIX: Distinguish between the "checked" and "value" attributes of
+     a checked group box.
+FIX: Added protection for negative column widths in a list view.
+FIX: Fixed the behavior and appearance of an initialy disabled Combo.
+FIX: When hitting the refresh button of window that displays a folder's
+     contents the history is not updated.
+FIX: The splitter does not include resizing handles if spacing its is
+     set to 0.
+FIX: Fixed tree nodes offset for Internet Explorer 7.
+FIX: Hiding a Frame widget now works properly for Internet Explorer 7.
+FIX: Fixed boolean image replication when editing a data grid.
+FIX: Added no-cache directive to the rename dialog and the "Rename"
+     button is made the default one.
+FIX: Fixed the deleted item's restoration from its properties dialog.
+
+DEP: Non-interactive splitters are no longer allowed. Use the Box
+     widget instead.
+
+-------------
 Version 0.0.8
 -------------
 NEW: QuiX is now IE7 compatible.
