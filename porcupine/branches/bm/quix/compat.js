@@ -103,10 +103,12 @@ QuiX.getTarget = function(evt) {
 }
 
 QuiX.removeNode = function(node) {
+	var oNode;
 	if (node.removeNode)
-		node.removeNode(true);
+		oNode = node.removeNode(true);
 	else
-		node.parentNode.removeChild(node);
+		oNode = node.parentNode.removeChild(node);
+	return oNode;
 }
 
 QuiX.createOutline = function(w) {
