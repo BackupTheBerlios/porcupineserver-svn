@@ -62,7 +62,7 @@ XULParser.prototype.detectModules = function(oNode) {
 		}
 	}
 
-	if (sTag == 'script') {
+	if (sTag == 'script' || sTag == 'module') {
 		params = this.getNodeParams(oNode);
 		if (!document.getElementById(params.src)) {
 			var oMod = new QModule(params.name, params.src, []);
@@ -355,6 +355,9 @@ XULParser.prototype.parseXul = function(oNode, parentW) {
 				break;
 			case 'box':
 				oWidget = new Box(params);
+				break;
+			case 'custom':
+				oWidget = eval('new ' + params.classname + '(params)');
 				break;
 			case 'prop':
 				var attr_value = params['value'] || '';

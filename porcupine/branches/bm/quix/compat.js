@@ -60,7 +60,8 @@ QuiX.modules = [
 ];
 
 QuiX.tags = {
-	'desktop':-1,'xhtml':-1,'script':-1,'prop':-1,'rect':-1,'progressbar':-1,
+	'desktop':-1,'xhtml':-1,'script':-1,'prop':-1,
+	'rect':-1,'progressbar':-1,'module':-1,'custom':-1,
 	'window':0,'dialog':0,
 	'menubar':1,'menu':1,'menuoption':1,'contextmenu':1,
 	'splitter':2,
