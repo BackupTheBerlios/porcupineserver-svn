@@ -36,7 +36,7 @@ desktop.getWindows = function(menu) {
 	while (menu.options.length > 2)
 		menu.options[2].destroy();
 	for (var i=0; i<oWindows.length; i++) {
-		if (oWindows[i].parent == document.desktop) {
+		if (oWindows[i].parent == document.desktop && !oWindows[i].opener) {
 			menu_option = menu.addOption({
 				caption: oWindows[i].getTitle(),
 				img: oWindows[i].getIcon(),
