@@ -861,7 +861,7 @@ Widget.prototype.hide = function() {
 
 Widget.prototype.show = function() {
 	this.div.style.visibility = '';
-	this.redraw();
+	//this.redraw();
 }
 
 Widget.prototype.isHidden = function() {
@@ -968,12 +968,18 @@ Widget.prototype.redraw = function(bForceAll, w) {
 
 Widget.prototype._redraw = function(bForceAll) {
 	if (this.div.style.visibility == '') {
+		var w = this.div.style.width;
+		var h = this.div.style.height;
 		this._setCommonProps();
 		if (this.getPosition()!='')
 			this._setAbsProps();
 		for (var i=0; i<this.widgets.length; i++) {
 			if (bForceAll || this.widgets[i]._mustRedraw())
 				this.widgets[i].redraw(bForceAll);
+		}
+		if (w && (w != this.div.style.width || h != this.div.style.height)) {
+			if (this._customRegistry.onresize)
+				this._customRegistry.onresize(this);
 		}
 	}
 }
@@ -1014,7 +1020,7 @@ Widget.prototype.supportedEvents = [
 	'oncontextmenu', 'onscroll'
 ];
 
-Widget.prototype.customEvents = ['onload'];
+Widget.prototype.customEvents = ['onload', 'onresize'];
 
 Widget.prototype._registerHandler = function(evt_type, handler, isCustom, w) {
 	w = w || this;

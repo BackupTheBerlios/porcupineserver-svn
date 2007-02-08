@@ -868,7 +868,7 @@ Widget.prototype.show = function() {
 		for (var i=0; i<frames.length; i++)
 			frames[i].frame.style.display = '';
 	}
-	this.redraw();
+	//this.redraw();
 }
 
 Widget.prototype.isHidden = function() {
@@ -947,17 +947,27 @@ Widget.prototype._endMove = function(evt) {
 
 Widget.prototype.redraw = function(bForceAll, w) {
 	w = w || this;
-	var sOverflow;
+	var sOverflow, wdth, hght;
 	if (w.div.parentElement) {
 		if (w.div.style.visibility == '') {
+			wdth = w.div.style.width;
+			hght = w.div.style.height;
 			sOverflow = w.getOverflow();
-			if (sOverflow != 'hidden') w.setOverflow('hidden');
+			if (sOverflow != 'hidden')
+				w.setOverflow('hidden');
 			w._setCommonProps();
-			if (w.getPosition()!='') w._setAbsProps();
+			if (w.getPosition()!='')
+				w._setAbsProps();
 			for (var i=0; i<w.widgets.length; i++) {
-				if (bForceAll || w.widgets[i]._mustRedraw()) w.widgets[i].redraw(bForceAll);
+				if (bForceAll || w.widgets[i]._mustRedraw())
+					w.widgets[i].redraw(bForceAll);
 			}
-			if (sOverflow != 'hidden') w.setOverflow(sOverflow);
+			if (sOverflow != 'hidden')
+				w.setOverflow(sOverflow);
+			if (wdth && (wdth != w.div.style.width || hght != w.div.style.height)) {
+				if (w._customRegistry.onresize)
+					w._customRegistry.onresize(this);
+			}
 		}
 	}
 }
@@ -1001,7 +1011,7 @@ Widget.prototype.supportedEvents = [
 	'oncontextmenu', 'onscroll'
 ];
 
-Widget.prototype.customEvents = ['onload'];
+Widget.prototype.customEvents = ['onload','onresize'];
 
 Widget.prototype._registerHandler = function(evt_type, handler, isCustom, w) {
 	w = w || this;
