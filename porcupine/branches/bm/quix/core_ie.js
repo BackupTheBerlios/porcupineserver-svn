@@ -998,7 +998,7 @@ Widget.prototype.supportedEvents = [
 	'onmousemove','onmouseover','onmouseout',
 	'onkeypress','onkeyup',
 	'onclick','ondblclick',
-	'oncontextmenu'
+	'oncontextmenu', 'onscroll'
 ];
 
 Widget.prototype.customEvents = ['onload'];
