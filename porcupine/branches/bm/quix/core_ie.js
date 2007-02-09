@@ -420,6 +420,7 @@ function Widget(params) {
 	this.height = params.height || null;
 	this.minw = params.minw || 0;
 	this.minh = params.minh || 0;
+	this.tooltip = params.tooltip;
 	this.widgets = [];
 	this._id_widgets = {};
 	this.attributes = params.attributes || {};
@@ -1016,8 +1017,38 @@ Widget.prototype.customEvents = ['onload','onresize'];
 Widget.prototype._registerHandler = function(evt_type, handler, isCustom, w) {
 	w = w || this;
 	var chr = (w._isDisabled)?'*':'';
-	if (!isCustom)
-		w._registry[chr + evt_type] = function(evt){return handler(evt || event, w)};
+	if (!isCustom) {
+		var func;
+		if (evt_type=='onmouseover' && w.tooltip) {
+			func = function(evt){
+				var evt = evt || event;
+				var x1 = evt.clientX;
+				var y1 = evt.clientY + 18;
+				if (!w.__tooltipID) {
+					w.__tooltipID = window.setTimeout(
+						function _tooltiphandler() {
+							Widget__showtooltip(w, x1, y1);
+						}, 1000);
+				}
+				return handler(evt, w);
+			}
+		}
+		else if (evt_type=='onmouseout' && w.tooltip) {
+			func = function(evt){
+				window.clearTimeout(w.__tooltipID);
+				w.__tooltipID = 0;
+				if (w.__tooltip) {
+					w.__tooltip.destroy();
+					w.__tooltip = null;
+				}
+				return handler(evt || event, w);
+			}
+		}
+		else {
+			func = function(evt){return handler(evt || event, w)}
+		}
+		w._registry[chr + evt_type] = func;
+	}
 	else
 		w._customRegistry[chr + evt_type] = handler;
 }
@@ -1043,7 +1074,8 @@ Widget.prototype._buildEventRegistry = function(params) {
 Widget.prototype._attachEvents = function() {
 	for (var evt_type in this._registry) {
 		if (evt_type!='toXMLRPC' && evt_type.slice(0,1)!='_') {
-			if (evt_type.slice(0,1)=='*') evt_type=evt_type.slice(1, evt_type.length);
+			if (evt_type.slice(0,1)=='*')
+				evt_type=evt_type.slice(1, evt_type.length);
 			this.attachEvent(evt_type, null);//restore events directly from registry
 		}
 	}
@@ -1113,6 +1145,20 @@ Widget.prototype.detachEvent = function(eventType, chr) {
 
 function Widget__contextmenu(evt, w) {
 	w.contextMenu.show(document.desktop, evt.clientX, evt.clientY);
+}
+
+function Widget__showtooltip(w, x, y) {
+	var tooltip = new Label({
+		left : x,
+		top : y,
+		caption : w.tooltip,
+		border : 1,
+		bgcolor : 'lightyellow',
+		style : 'border-style:shadowed'
+	});
+	document.desktop.appendChild(tooltip);
+	tooltip.redraw();
+	w.__tooltip  = tooltip;
 }
 
 //Desktop class

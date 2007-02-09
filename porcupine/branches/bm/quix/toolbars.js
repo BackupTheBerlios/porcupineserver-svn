@@ -5,7 +5,7 @@ Toolbars
 function Toolbar(params) {
 	params = params || {};
 	this.base = Widget;
-	params.padding = '2,4,0,0';
+	params.padding = params.padding || '2,4,0,0';
 	params.border = params.border || 1;
 	params.overflow = 'hidden';
 	this.base(params);
