@@ -394,3 +394,8 @@ BODY {
      border-color: lightgray;
      border-style: groove;
 }
+
+.tooltip {
+	border-style: dashed;
+	
+}

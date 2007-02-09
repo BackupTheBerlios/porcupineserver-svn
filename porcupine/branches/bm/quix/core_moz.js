@@ -1162,9 +1162,9 @@ function Widget__showtooltip(w, x, y) {
 		top : y,
 		caption : w.tooltip,
 		border : 1,
-		bgcolor : 'lightyellow',
-		style : 'border-style:shadowed'
+		bgcolor : 'lightyellow'
 	});
+	tooltip.div.className = 'tooltip';
 	document.desktop.appendChild(tooltip);
 	tooltip.redraw();
 	w.__tooltip  = tooltip;
