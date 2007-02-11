@@ -853,7 +853,7 @@ Widget.prototype.hide = function() {
 	if (QuiX.modules[9].isLoaded) {
 		var frames = this.getWidgetsByType(IFrame);
 		for (var i=0; i<frames.length; i++)
-			frames[i].frame.style.display = 'none';
+			frames[i].div.firstChild.style.display = 'none';
 	}
 	this.div.style.visibility = 'hidden';
 }
@@ -863,7 +863,7 @@ Widget.prototype.show = function() {
 	if (QuiX.modules[9].isLoaded) {
 		var frames = this.getWidgetsByType(IFrame);
 		for (var i=0; i<frames.length; i++)
-			frames[i].frame.style.display = '';
+			frames[i].div.firstChild.style.display = '';
 	}
 	this.redraw();
 }
