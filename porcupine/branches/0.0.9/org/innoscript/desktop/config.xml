@@ -1,0 +1,56 @@
+<config>
+	<context path="generic.js" method="GET" client=".*" lang=".*" action="generic.js"/>
+	<context path="ui.ContainerList.js" method="GET" client=".*" lang=".*" action="ui.ContainerList.js"/>
+	<context path="ui.Desktop.js" method="GET" client=".*" lang=".*" action="ui.Desktop.js"/>
+	<context path="ui.Dlg_SelectObjects.js" method="GET" client=".*" lang=".*" action="ui.Dlg_SelectObjects.js"/>
+	<context path="ui.Frm_Auto.js" method="GET" client=".*" lang=".*" action="ui.Frm_Auto.js"/>
+	<context path="ui.Frm_Group.js" method="GET" client=".*" lang=".*" action="ui.Frm_Group.js"/>
+	<context path="ui.Frm_User.js" method="GET" client=".*" lang=".*" action="ui.Frm_User.js"/>
+	<context path="ui.LoginPage.js" method="GET" client=".*" lang=".*" action="ui.LoginPage.js"/>
+	<context path="ui.RecycleList.js" method="GET" client=".*" lang=".*" action="ui.RecycleList.js"/>
+
+	<!-- Desktop images-->
+	<context path="images/about16.gif" method="GET" client=".*" lang=".*" action="images/about16.gif"/>
+	<context path="images/admintools.gif" method="GET" client=".*" lang=".*" action="images/admintools.gif"/>
+	<context path="images/app.gif" method="GET" client=".*" lang=".*" action="images/app.gif"/>
+	<context path="images/appsfolder.gif" method="GET" client=".*" lang=".*" action="images/appsfolder.gif"/>
+	<context path="images/cancel8.gif" method="GET" client=".*" lang=".*" action="images/cancel8.gif"/>
+	<context path="images/category.gif" method="GET" client=".*" lang=".*" action="images/category.gif"/>
+	<context path="images/contact.gif" method="GET" client=".*" lang=".*" action="images/contact.gif"/>
+	<context path="images/contact_folder.gif" method="GET" client=".*" lang=".*" action="images/contact_folder.gif"/>
+	<context path="images/copy.gif" method="GET" client=".*" lang=".*" action="images/copy.gif"/>
+	<context path="images/cut.gif" method="GET" client=".*" lang=".*" action="images/cut.gif"/>
+	<context path="images/document.gif" method="GET" client=".*" lang=".*" action="images/document.gif"/>
+	<context path="images/editdelete.gif" method="GET" client=".*" lang=".*" action="images/editdelete.gif"/>
+	<context path="images/error32.gif" method="GET" client=".*" lang=".*" action="images/error32.gif"/>
+	<context path="images/exit.gif" method="GET" client=".*" lang=".*" action="images/exit.gif"/>
+	<context path="images/filenew.gif" method="GET" client=".*" lang=".*" action="images/filenew.gif"/>
+	<context path="images/folder.gif" method="GET" client=".*" lang=".*" action="images/folder.gif"/>
+	<context path="images/go_back22.gif" method="GET" client=".*" lang=".*" action="images/go_back22.gif"/>
+	<context path="images/go_up22.gif" method="GET" client=".*" lang=".*" action="images/go_up22.gif"/>
+	<context path="images/group.gif" method="GET" client=".*" lang=".*" action="images/group.gif"/>
+	<context path="images/kgpg.gif" method="GET" client=".*" lang=".*" action="images/kgpg.gif"/>
+	<context path="images/messagebox_info.gif" method="GET" client=".*" lang=".*" action="images/messagebox_info.gif"/>
+	<context path="images/messagebox_question.gif" method="GET" client=".*" lang=".*" action="images/messagebox_question.gif"/>
+	<context path="images/messagebox_warning.gif" method="GET" client=".*" lang=".*" action="images/messagebox_warning.gif"/>
+	<context path="images/mini_all.gif" method="GET" client=".*" lang=".*" action="images/mini_all.gif"/>
+	<context path="images/object.gif" method="GET" client=".*" lang=".*" action="images/object.gif"/>
+	<context path="images/paste.gif" method="GET" client=".*" lang=".*" action="images/paste.gif"/>
+	<context path="images/policies.gif" method="GET" client=".*" lang=".*" action="images/policies.gif"/>
+	<context path="images/policy.gif" method="GET" client=".*" lang=".*" action="images/policy.gif"/>
+	<context path="images/powered.gif" method="GET" client=".*" lang=".*" action="images/powered.gif"/>
+	<context path="images/reload16.gif" method="GET" client=".*" lang=".*" action="images/reload16.gif"/>
+	<context path="images/reload22.gif" method="GET" client=".*" lang=".*" action="images/reload22.gif"/>
+	<context path="images/search16.gif" method="GET" client=".*" lang=".*" action="images/search16.gif"/>
+	<context path="images/search22.gif" method="GET" client=".*" lang=".*" action="images/search22.gif"/>
+	<context path="images/shutdown.gif" method="GET" client=".*" lang=".*" action="images/shutdown.gif"/>
+	<context path="images/store.gif" method="GET" client=".*" lang=".*" action="images/store.gif"/>
+	<context path="images/taskbar_top.gif" method="GET" client=".*" lang=".*" action="images/taskbar_top.gif"/>
+	<context path="images/taskbar_bottom.gif" method="GET" client=".*" lang=".*" action="images/taskbar_bottom.gif"/>
+	<context path="images/trashcan_empty22.gif" method="GET" client=".*" lang=".*" action="images/trashcan_empty22.gif"/>
+	<context path="images/trashcan_empty8.gif" method="GET" client=".*" lang=".*" action="images/trashcan_empty8.gif"/>
+	<context path="images/trashcan_full.gif" method="GET" client=".*" lang=".*" action="images/trashcan_full.gif"/>
+	<context path="images/user.gif" method="GET" client=".*" lang=".*" action="images/user.gif"/>
+	<context path="images/userfolder.gif" method="GET" client=".*" lang=".*" action="images/userfolder.gif"/>
+	<context path="images/view_tree22.gif" method="GET" client=".*" lang=".*" action="images/view_tree22.gif"/>
+</config>

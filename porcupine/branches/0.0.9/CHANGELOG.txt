@@ -1,0 +1,316 @@
+-------------
+Version 0.0.9
+-------------
+NEW: Object cache with configuarable size.
+NEW: New XULSimpleTemplateServlet class using the simple string.Template
+     class for simpler more readable QuiX templates.
+NEW: Policy methods can noe be declared with decorators using
+     "@policymethod(policyid)".
+NEW: New multilingual post processing filter used for easy output
+     internationalization.
+
+OPT: Optimized QuiX's performance by minimizing the number of
+     redraws performed when rendering a new UI.
+OPT: Post processing filters are now declared as child nodes inside
+     the configuration files.
+OPT: Post processing filters can accept named arguments deriving
+     from the filter's node attributes.
+OPT: After sucessful login, the page reloads in order to support
+     themes.
+OPT: On the server side, the faster built in C sets are used.
+OPT: Ability to define the active tab of a tab pane.
+OPT: All of the QuiX functions are moved inside compat.js and made
+     portable.
+OPT: XMLHttp object is created using a portable function.
+OPT: Added improved support for each widget's minimum width and
+     height whose values are assigned inside the Widget constructor.
+     Accepted values can be integers or functions.
+OPT: Optimized render time for QuiX box layout widget.
+OPT: "-1" for a box layout widget width/height resizes the current
+     widget to the maximum size of the minimum widths/heights of
+     box children.
+OPT: Added transparent image to QuiX outlines. This way the background
+     widgets do not raise event while dragging.
+OPT: The "generic.showObjectProperties" JavaScript function was
+     simplified.
+
+FIX: Distinguish between the "checked" and "value" attributes of
+     a checked group box.
+FIX: Added protection for negative column widths in a list view.
+FIX: Fixed the behavior and appearance of an initialy disabled Combo.
+FIX: When hitting the refresh button of window that displays a folder's
+     contents the history is not updated.
+FIX: The splitter does not include resizing handles if spacing its is
+     set to 0.
+FIX: Fixed tree nodes offset for Internet Explorer 7.
+FIX: Hiding a Frame widget now works properly for Internet Explorer 7.
+FIX: Fixed boolean image replication when editing a data grid.
+FIX: Added no-cache directive to the rename dialog and the "Rename"
+     button is made the default one.
+FIX: Fixed the deleted item's restoration from its properties dialog.
+
+DEP: Non-interactive splitters are no longer allowed. Use the Box
+     widget instead.
+
+-------------
+Version 0.0.8
+-------------
+NEW: QuiX is now IE7 compatible.
+NEW: New desktop utility named "HyperSearch", used for searching the Porcupine
+     database.
+NEW: New IFrame QuiX widget.
+NEW: Box children can be right or bottom aligned for vertical and horizontal
+     boxes respectively.
+NEW: New GroupBox QuiX widget.
+NEW: New method "getIcon" for the Window widget.
+NEW: Added support for QuiX ListView columns of functional type.
+NEW: ListView columns accept widths expressed as percentages.
+NEW: Added ability to create a ListView with hidden header.
+NEW: Added the media type (text/xml) for quix static files.
+NEW: Added background image to QuiX desktop.
+NEW: The event subsystem of the QuiX base Widget is completely rewritten
+     from scratch. Added global support of "attachEvent" and "detachEvent",
+     even for "custom" events such as "onselect", "onexpand" etc.
+NEW: New "buttonIndex" property added to QuiX Dialogs. This property contains
+     the index of the dialog button that was last pressed.
+
+OPT: Removed the "schemas", "pubdir" and "resources" folders. Each resource
+     now can be freely placed inside any directory. This way, it is now
+     possible to have one folder per Porcupine application, simplifying
+     the development process.
+OPT: Simplified the application object. Instead of having the UI
+     and the script embedded within the objects, an external "launchUrl"
+     is used for launching the application.
+OPT: The "getItem" and "getItems" methods of "Relator1" and "RelatatorN"
+     datatypes no longer raise an DBItemNotFound excpetion if the
+     referenced object is deleted. "None" is returned instead.
+OPT: Added support for synchrounous QuiX XMLRPC calls.
+OPT: XMLRPC requests are multi-shot.
+OPT: Removed the "isHidden" property from the QuiX base Widget class.
+     Use the "isHidden()" method instead.
+OPT: Hidden widgets contained inside boxes are excluded from
+     calculations.
+OPT: Changed the extension of QuiX files from ".xul" to ".quix".
+OPT: Boxes can have their overflow attribute set.
+OPT: Box children offsets are calculated faster.
+OPT: Disabled selection on disabled ListViews.
+OPT: Remove editing widget upon disabling a DataGrid.
+OPT: Optimized QuiX's XMLRPC array and member serialization.
+OPT: The "setExpiration" Response method apart from setting the
+     "Cache-Control" header it also sets the "Expires" header.
+
+FIX: Fixed QuiX dataSet sorting by attributes that contain undefined
+     values.
+FIX: Enabling or disabling a widget twice, without restoring its
+     previous state, does not restore its color properly.
+FIX: Fixed on-off Splitter button positioning when contained
+     inside a pane with padding other than 0,0,0,0.
+FIX: When enabling or disabling a Combo the onclick handler set on the
+     INPUT element is attached/detached accordingly.
+
+-------------
+Version 0.0.7
+-------------
+NEW: Added WSGI support.
+NEW: Each user can select an application to be launched automatically
+     immediately after successfull login (requested by Jonny).
+NEW: New box layout widget (contributed by Stanislav Ievlev).
+NEW: Added the "max-age" attribute to Porcupine's registrations, for
+     having control over caching of the static files.
+NEW: Added support for cookies to the Response and Request
+     objects.
+NEW: Added new "window.onclose" event to QuiX windows.
+NEW: Added new methods to Window widget: "addControlButton",
+     "removeControlButton", "setIcon", "setResizable", "addStatusBar",
+     "removeStatusBar" and "getStatus".
+NEW: Added new method to Dialog widget: "setButtonsAlign".
+
+OPT: Unified XMLRPC QuiX module (contributed by Stanislav Ievlev).
+OPT: Replaced non-interactive splitters with bax layout controls
+     (more efficient).
+OPT: The session ID is no longer injected in the URL, if the browser
+     accepts cookies.
+OPT: The browser window gets maximized automatically.
+OPT: Most of the QuiX widgets are now fully editable at run-time (thanks
+     to Quill). Optimized widgets include: window, tree, flat button, 
+     tab pane, menu bar, splitter.
+OPT: Assigning an invalid QuiX event handler is no longer blocking (no
+     exception is thrown). Instead, null is returned. 
+
+FIX: The "selected" attribute of an option in a select list was ignored.
+FIX: The context menu displayed when you right-click on the desktop task bar
+     is updated correctly (Hotfix 20060313).
+FIX: The state of the menu options of the context menu inside the
+     "User and Groups Management" application is updated as expected
+     (Hotfix 20060313).
+
+-------------
+Version 0.0.6
+-------------
+NEW: New "db_init" utility, which initializes a blank Porcupine
+     database.
+
+OPT: The "stringresources.xml" resource file is discarded.
+     String resources are held inside utf-8 encoded python script files.
+OPT: Moved all system servlets, Python server pages and string resources
+     inside the "resources/system" folder.
+     Removed the "resources/servlets" and "resources/PSP" folders.
+OPT: Extended the application object by adding a "resourcesImportPath" attribute.
+     This is the full import path to a module variable of type
+     "porcupine.config.resources.ResourceStrings" used for keeping the application's
+     localized strings.
+OPT: QuiX now supports off-line widgets. The "detach" method brings a widget
+     offline. The detached widget can be attached at a later time by using
+     the "appendChild" method
+OPT: The QuiX base widget class has been gone under heavy refactoring:
+        - Added new methods "setId" and "getId"
+        - Added new method named "detach"
+        - QuiX widgets no longer have a "borderWidth" attribute.
+          Use "setBorderWidth" and "getBorderWidth" instead.
+        - Removed the "style" attribute
+        - QuiX widgets no longer have a "bgColor" attribute.
+          Use "setBgColor" and "getBgColor" instead.
+        - QuiX widgets no longer have an "overflow" attribute.
+          Use "setOverflow" and "getOverflow" instead.
+        - QuiX widgets no longer have a "padding" attribute.
+          Use "setPadding" and "getPadding" instead.
+        - Removed the "isAbs" attribute
+        - QuiX widgets no longer have a "display" attribute.
+          Use "setDisplay" and "getDisplay" instead.
+        - Added "setPosition" and "getPosition" methods
+        - Removed the "repad" method from the QuiX Widget class
+        - New method "addPaddingOffset"
+        - Changed the "redraw" method in a way that can be overidden
+OPT: QuiX now supports offline widgets. The "detach" method brings a widget
+     offline. This widget can be attached at a later time by using
+     the "appendChild" method.
+OPT: Six QuiX modules have been optimized using offline widgets
+     (buttons, datepicker, formfields, formfields2, menus, toolbars)
+OPT: Added two new methods to the QuiX Combo widget class ("reset" and
+     "selectOption")
+OPT: Added two new methods to the QuiX SelectList widget class ("selectOption"
+     and "deSelectOption")
+OPT: QuiX Combo dropdown widgets accept an initial width. If no width is given,
+     then the dropdown width is automatically adjusted to the width of the
+     combo.
+OPT: Removed unused classes and CSS attributes from "quix.css"
+OPT: In IE, QuiX preloaded images are not removed from the document. They remain on
+     the document with their "display" CSS attribute set to "none".
+OPT: Icons with left or right aligned images are vertically centered
+OPT: The button widget became lighter. Using two DIVs instead of three.
+OPT: QuiX labels no longer have a "caption" attribute.
+     Use "getCaption" and "setCaption" methods instead.
+OPT: QuiX icons' "changeImage" method is renamed to "setImageURL"
+OPT: Added "setCaption" and "getCaption" methods to QuiX buttons
+OPT: QuiX checkboxes and radio buttons support captions.
+OPT: The Datepicker control is faster (it is using fragments).
+
+
+FIX: Fixed the seconds formatting ('ss') inside the "format" method of the
+     JavaScript Date object.
+FIX: The published directories are removed when removing a package with
+     the pakager.
+FIX: Fixed bug inside the Berkeley db maintenance thread. The deadlock detector
+     could not subtract the number of aborted transactions from the total number
+     of ongoing transactions.
+FIX: Fixed duplicate session in the URL, when hitting "porcupine.py", on Apache 1.3.
+FIX: Eliminated errors reported by invalid CSS attribute assignments on Mozilla 1.8.
+FIX: Fixed bug that caused the image preloading procedure to freeze on the
+     latest Mozilla builds (1.8).
+FIX: Script errors generated by negative sizes to QuiX input fields.
+FIX: Fixed "getLeft" and "getTop" widget methods and use them while dragging a widget.
+     Negative "x" and "y" widget coordinates are allowed.
+FIX: Fixed the object permanent deletion when this resides inside the recycle
+     bin.
+FIX: Fixed the image URL on the recycle bin "Delete" confirmation message box.
+FIX: Fixed bad "toXMLRPC" event handler assignment attempt caused by the protected
+     "_attachEvents" QuiX Widget method.
+
+-------------
+Version 0.0.5
+-------------
+NEW: QuiX timers
+NEW: QuiX radio buttons
+NEW: Task bar context menu
+NEW: Clock displayed on the right of the task bar
+NEW: User is able to choose the task bar position (settings dialog)
+NEW: User object now has a "settings" attribute for storing user preferences
+NEW: Added Python version to porcupineserver.py output
+NEW: "instanceof" OQL function
+NEW: "Dictionary" data type
+NEW: New module named "configfiles" in the administration package.
+     It is used for the managing the Porcupine configuration files at runtime.
+     It also contains a function for merging configuration files.
+
+OPT: Did some code cleanup on the "pakager" and added some minor optimizations
+OPT: No caching to user and group property dialogs
+
+FIX: Fixed QuiX bug on IE that causes one of the two interfaces loading
+     simultaneously not to load (the "onload" event of the images
+     was not fired)
+
+-------------
+Version 0.0.4
+-------------
+OPT: Removed the limitation that requires the data type class name and the Porcupine
+     object attribute to be identical.
+OPT: ItemNotFound exception displays info about the missing resource.
+OPT: The "pakager" utility is update ready.
+
+FIX: Fixed image positioning of QuiX menu options of type "check" or "radio".
+FIX: Added "formfields.js" to QuiX data grid dependencies.
+FIX: QuiX flat buttons of type menu, if not inside a toolbar, are now displayed.
+FIX: Added "menu_check.gif" missing image.
+FIX: Fixed "Add" and "Remove" buttons on user and group forms.
+FIX: It is now possible to assign "onclick" event handlers to the options of select
+     lists.
+FIX: QuiX Images with an empty "src" attribute are not loaded.
+FIX: Reference1 attributes are displayed in the OQL Query Performer.
+FIX: The "pakager" utility when uninstalling a package, removes published directories.
+
+-------------
+Version 0.0.3
+-------------
+OPT: QuiX interface images are treated as script modules. They are preloaded and
+     displayed inside the preload progress widget.
+OPT: "webApps" directory is renamed to "pubdir". The old name was misleading.
+     This directoty actually contains published directories.
+OPT: All scripts, QuiX modules, images and stylesheets are moved inside Porcupine,
+     under the "pubdir" directory. This completely separates the connectors files
+     from the server files, so that if adding a new QuiX module does not require
+     a new release of the web connectors.
+
+FIX: QuiX multiple file upload progress bar is displayed behind the active window
+FIX: Pakager temporary files cleanup when creating a package
+FIX: QuiX CSS font sizes, in order to have the same look under Windows and
+     Linux
+
+-------------
+Version 0.0.2
+-------------
+NEW: OQL subqueries
+NEW: QuiX List View now has global default date format
+     and default text displayed for "undefined" values
+NEW: XML-RPC lib now serializes object sets and Porcupine objects
+NEW: File control supports saving text files locally
+
+OPT: QuiX modules are loaded asynchronously, allowing debugging
+OPT: QuiX progress bar widget appears while loading interfaces
+OPT: QuiX synchronous image preloading (Patch 0.0.1-20050619)
+
+FIX: Enabling and disabling tree nodes
+FIX: Line numbers of JavaScript errors inside QuiX modules are
+     now reported correctly
+FIX: OQL Performer save query
+FIX: Users and Groups Management "Delete" menu option
+FIX: Desktop back button
+FIX: Login after logout now works
+FIX: Fixed OQL division
+FIX: Enabling and disabling a widget causes the browser to
+     request the URL "http://SERVER_NAME/porcupine.py/undefined"
+     (Patch 0.0.1-20050619)
+
+-------------
+Version 0.0.1
+-------------
+Initial release

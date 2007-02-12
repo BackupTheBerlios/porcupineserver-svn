@@ -1,0 +1,46 @@
+<?xml version="1.0"?>
+<a:desktop xmlns:a="http://www.innoscript.org/quix" bgcolor="#888888">
+	<a:prop name="CLOSE" value="@@CLOSE@@"></a:prop>
+	<a:prop name="CANCEL" value="@@CANCEL@@"></a:prop>
+	<a:prop name="YES" value="@@YES@@"></a:prop>
+	<a:prop name="NO" value="@@NO@@"></a:prop>
+	<a:prop name="AUTO_RUN" value="$AUTO_RUN"></a:prop>
+	<a:prop name="RUN_MAXIMIZED" type="bool" value="$RUN_MAXIMIZED"></a:prop>
+	
+	<a:script name="Desktop Script" src="desktop/ui.Desktop.js"></a:script>
+	<a:script name="Generic Functions" src="desktop/generic.js"></a:script>
+	
+	<a:box orientation="v" spacing="0"
+		width="100%" height="100%" onload="desktop.runApplication">
+
+        $TOP
+		<a:rect height="24" overflow="hidden">
+			<a:contextmenu onshow="desktop.getWindows">
+				<a:menuoption img="desktop/images/mini_all.gif" caption="Minimize all" onclick="desktop.minimizeAll"></a:menuoption>
+				<a:sep></a:sep>
+			</a:contextmenu>
+			<a:menubar width="100%" height="100%" bgcolor="menu" style="font-weight:bolder">
+				<a:menu caption=">@@START@@">
+					<a:menuoption caption="@@APPLICATIONS@@" img="desktop/images/appsfolder.gif">
+						$APPS
+					</a:menuoption>
+					<a:menuoption caption="HyperSearch" img="desktop/images/search16.gif" onclick="desktop.launchHyperSearch"></a:menuoption>
+					<a:menuoption caption="@@SETTINGS@@" img="desktop/images/admintools.gif" onclick="desktop.showSettings"></a:menuoption>
+					<a:sep></a:sep>
+					<a:menuoption caption="@@INFO@@" img="desktop/images/about16.gif" onclick="desktop.showAbout"></a:menuoption>
+					<a:menuoption caption="@@LOGOFF@@ $USER" img="desktop/images/exit.gif" onclick="desktop.logoff">
+						<a:prop name="logoff" value="@@LOGOFF@@"></a:prop>
+						<a:prop name="ask_logoff" value="@@LOGOFF_Q@@"></a:prop>
+					</a:menuoption>
+				</a:menu>
+			</a:menubar>
+			<a:timer interval="60000"
+				left="this.parent.getWidth()-50"
+				top="5" width="46"
+				handler="desktop.displayTime"
+				auto="true"></a:timer>
+		</a:rect>
+		$BOTTOM
+		
+	</a:box>
+</a:desktop>
