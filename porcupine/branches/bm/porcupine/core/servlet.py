@@ -156,7 +156,7 @@ class XULServlet(HTTPServlet):
     @type params: dict
 
     @ivar xul_file: The QuiX XUL template file. This is automatically set to
-        C{[module_name].[class_name].xul}, but this can be overriden.
+        C{[module_name].[class_name].quix}, but this can be overriden.
     @type xul_file: file
     """
     def __init__(self, server, session, request):

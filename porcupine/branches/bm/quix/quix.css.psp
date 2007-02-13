@@ -396,6 +396,6 @@ BODY {
 }
 
 .tooltip {
-	border-style: dashed;
+	border-style: solid;
 	
 }
