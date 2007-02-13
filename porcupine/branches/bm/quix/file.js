@@ -32,12 +32,21 @@ function File(params) {
 	
 	var oFile = this;
 	
-	this.contextMenu.addOption({ img:'__quix/images/upload.gif', caption:'Upload file', onclick: function(evt, w){oFile.showUploadDialog()} });
-	this.contextMenu.addOption({ img:'__quix/images/download.gif', caption:'Download file', onclick: function(evt, w){oFile.openDocument()} });
+	this.contextMenu.addOption({
+		img:'__quix/images/upload.gif',
+		caption:'Upload file',
+		onclick: function(evt, w){oFile.showUploadDialog()}
+	});
+	this.contextMenu.addOption({
+		img:'__quix/images/download.gif',
+		caption:'Download file',
+		onclick: function(evt, w){oFile.openDocument()}
+	});
 	
-	if (!this.href) this.contextMenu.options[1].disabled = true;
+	if (!this.href)
+		this.contextMenu.options[1].disable();
 	if (this.readonly)
-		this.contextMenu.options[0].disabled = true;
+		this.contextMenu.options[0].disable();
 	else {
 		//TODO: applet is depreciated. use object instead
 		var applet = document.getElementById('_uploaderapplet');
