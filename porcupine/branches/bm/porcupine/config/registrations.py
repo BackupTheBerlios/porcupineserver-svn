@@ -104,6 +104,7 @@ class StoreConfiguration(object):
             sCC = regNode.getAttribute('cc')
             sMethod = regNode.getAttribute('method')
             sParam = regNode.getAttribute('param')
+            sQS = regNode.getAttribute('qs') or ''
             sBrowser = regNode.getAttribute('client')
             sLang = regNode.getAttribute('lang')
             sAction = regNode.getAttribute('action')
@@ -111,20 +112,22 @@ class StoreConfiguration(object):
             max_age = regNode.getAttribute('max-age') or 0
             
             self.__config.append((
-                 (sCC, sMethod, sParam, sBrowser, sLang),
+                 (sCC, sMethod, sParam, sQS, sBrowser, sLang),
                  Registration(sAction, encoding, getFiltersList(regNode), max_age)
             ))
             
         configXML.unlink()
 
-    def getRegistration(self, sCC, sHttpMethod, sParam, sBrowser, sLang):
-        if self.__cache.has_key((sCC, sHttpMethod, sParam, sBrowser, sLang)):
-            return self.__cache[(sCC, sHttpMethod, sParam, sBrowser, sLang)]
+    def getRegistration(self, sCC, sHttpMethod, sParam, sQS, sBrowser, sLang):
+        if self.__cache.has_key((sCC, sHttpMethod, sParam, sQS, sBrowser, sLang)):
+            return self.__cache[(sCC, sHttpMethod, sParam, sQS, sBrowser, sLang)]
         else:
             for paramList in self.__config:
-                CC, HttpMethod, Param, Browser, Lang = paramList[0]
+                CC, HttpMethod, Param, QS, Browser, Lang = paramList[0]
                 #print CC, HttpMethod, Param, Browser, Lang
-                if re.search(CC, sCC) and re.search(HttpMethod, sHttpMethod) and Param == sParam and re.search(Browser, sBrowser) and re.search(Lang, sLang):
+                if re.search(CC, sCC) and re.search(HttpMethod, sHttpMethod) and \
+                   Param == sParam and re.search(QS, sQS) and \
+                   re.search(Browser, sBrowser) and re.search(Lang, sLang):
                     registration = paramList[1]
                     self.__cache[(sCC, sHttpMethod, sParam, sBrowser, sLang)] = registration
                     return registration
