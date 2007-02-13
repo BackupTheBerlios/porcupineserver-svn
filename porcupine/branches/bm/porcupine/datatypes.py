@@ -410,6 +410,8 @@ class ExternalFile(String):
     """Datatype for linking external files. Its value
     is a string which contains the path to the file.
     """
+    _eventHandler = datatypesEventHandlers.ExternalFileEventHandler
+    removeFileOnDeletion = True
     isRequired = True
     
     def getFile(self, mode='r'):
