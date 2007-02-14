@@ -11,7 +11,13 @@ function Label(params) {
 
 	this.div.className = 'label';
 	this.align = params.align || 'left';
-	this.div.style.color = params.color || '';
+	
+	if (params.color) {
+		if (!this._isDisabled)
+			this.div.style.color = params.color;
+		else
+			this._statecolor = params.color;
+	}
 
 	this.canSelect = (params.canselect=="true" || params.canselect==true)?true:false;
 	if (this.canSelect) {
