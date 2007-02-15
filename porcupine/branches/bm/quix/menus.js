@@ -201,17 +201,20 @@ ContextMenu.prototype.redraw = function(bForceAll) {
 
 ContextMenu.prototype.show = function(w, x, y) {
 	if (!this.isOpen) {
-		if (this._customRegistry.onshow)
-			this._customRegistry.onshow(this);
-		this.left = x;
-		this.top = y;
-		w.appendChild(this);
-		this.redraw();
-
-		if (w==document.desktop)
-			document.desktop.overlays.push(this);
-		
-		this.isOpen = true;
+		var bShow = true;
+		if (this._customRegistry.onshow) {
+			var r = this._customRegistry.onshow(this);
+			bShow == (r==false)?false:true;
+		}
+		if (bShow) {
+			this.left = x;
+			this.top = y;
+			w.appendChild(this);
+			this.redraw();
+			if (w==document.desktop)
+				document.desktop.overlays.push(this);
+			this.isOpen = true;
+		}
 	}
 }
 
