@@ -62,10 +62,11 @@ XULParser.prototype.detectModules = function(oNode) {
 		}
 	}
 
-	if (sTag == 'script' || sTag == 'module') {
+	if (sTag == 'script' || sTag == 'module' || sTag == 'stylesheet') {
 		params = this.getNodeParams(oNode);
 		if (!document.getElementById(params.src)) {
 			var oMod = new QModule(params.name, params.src, []);
+			if (sTag == 'stylesheet') oMod.type = 'stylesheet';
 			this.__modulesToLoad.push(oMod);
 		}
 	}
