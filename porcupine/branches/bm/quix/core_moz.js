@@ -1200,8 +1200,10 @@ Desktop.prototype.msgbox = function(mtitle, message, buttons, image, mleft, mtop
 	
 	mwidth = mwidth || 240;
 	mheight = mheight || 120;
-	if (image)
+	if (image) {
+		QuiX.getImage(image);
 		innHTML = '<td><img src="' + image + '"></img></td><td>' + message + '</td>';
+	}
 	else
 		innHTML = '<td>' + message + '</td>';
 		
