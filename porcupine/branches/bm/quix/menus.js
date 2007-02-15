@@ -204,7 +204,7 @@ ContextMenu.prototype.show = function(w, x, y) {
 		var bShow = true;
 		if (this._customRegistry.onshow) {
 			var r = this._customRegistry.onshow(this);
-			bShow == (r==false)?false:true;
+			bShow = (r==false)?false:true;
 		}
 		if (bShow) {
 			this.left = x;
