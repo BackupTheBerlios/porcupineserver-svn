@@ -833,8 +833,10 @@ Widget.prototype.click = function() {
 Widget.prototype.moveTo = function(x,y) {
 	this.left = x;
 	this.top = y;
-	this.div.style.left = this._calcLeft() + 'px';
-	this.div.style.top = this._calcTop() + 'px';
+	x = (isNaN(x))?this._calcLeft():x;
+	y = (isNaN(y))?this._calcTop():y;
+	this.div.style.left = x + 'px';
+	this.div.style.top = y + 'px';
 }
 
 Widget.prototype.resize = function(x,y) {
@@ -954,18 +956,18 @@ Widget.prototype.redraw = function(bForceAll, w) {
 		if (w.div.style.visibility == '') {
 			wdth = w.div.style.width;
 			hght = w.div.style.height;
-			sOverflow = w.getOverflow();
+			sOverflow = w.div.style.overflow;
 			if (sOverflow != 'hidden')
-				w.setOverflow('hidden');
+				w.div.style.overflow = 'hidden';
 			w._setCommonProps();
-			if (w.getPosition()!='')
+			if (w.div.style.position != '')
 				w._setAbsProps();
 			for (var i=0; i<w.widgets.length; i++) {
 				if (bForceAll || w.widgets[i]._mustRedraw())
 					w.widgets[i].redraw(bForceAll);
 			}
 			if (sOverflow != 'hidden')
-				w.setOverflow(sOverflow);
+				w.div.style.overflow = sOverflow;
 			if (wdth && (wdth != w.div.style.width || hght != w.div.style.height)) {
 				if (w._customRegistry.onresize)
 					w._customRegistry.onresize(this);
