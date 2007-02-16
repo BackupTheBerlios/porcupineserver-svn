@@ -82,9 +82,12 @@ QuiX.tags = {
 
 QuiX.getWidgetsById = function(w, sid) {
 	var ws = [];
-	if (w._id_widgets[sid]) ws = ws.concat(w._id_widgets[sid]);
+	if (w._id_widgets[sid])
+		ws = ws.concat(w._id_widgets[sid]);
 	for (var i=0; i<w.widgets.length; i++) {
-		ws = ws.concat(QuiX.getWidgetsById(w.widgets[i], sid));
+		if (w.widgets[i].widgets.length > 0) {
+			ws = ws.concat(QuiX.getWidgetsById(w.widgets[i], sid));
+		}
 	}
 	return ws;
 }
