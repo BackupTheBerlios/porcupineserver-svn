@@ -1,7 +1,8 @@
 function generic() {}
 
 generic.showObjectProperties = function(evt, w, o, onclose_func) {
-	document.desktop.parseFromUrl(QuiX.root + (o.id || o) + '?cmd=properties',
+	var oWin = w.getParentByType(Window) || w.parent.owner.getParentByType(Window);
+	oWin.showWindow(QuiX.root + (o.id || o) + '?cmd=properties',
 		function(dialog) {
 			if (onclose_func)
 				dialog.attachEvent("onclose", onclose_func);
