@@ -23,6 +23,7 @@ See also the L{org.innoscript.desktop.schema.properties} module as a usage guide
 """
 
 import copy, md5
+import os.path
 from threading import currentThread
 
 from porcupine.db import db, dbEnv
@@ -404,3 +405,16 @@ class File(Text):
         oFile = file(fname, 'rb')
         self.value = oFile.read()
         oFile.close()
+        
+class ExternalFile(String):
+    """Datatype for linking external files. Its value
+    is a string which contains the path to the file.
+    """
+    _eventHandler = datatypesEventHandlers.ExternalFileEventHandler
+    removeFileOnDeletion = True
+    isRequired = True
+    
+    def getFile(self, mode='r'):
+        return file(self.value, mode)
+    
+

@@ -16,6 +16,8 @@
 #===============================================================================
 "Porcupine server built-in datatypes event handlers"
 
+import os
+
 from porcupine import serverExceptions
 from porcupine.core import eventHandlers
 from porcupine.db import db, dbEnv
@@ -260,3 +262,10 @@ class ExternalAttributeEventHandler(eventHandlers.DatatypeEventHandler):
         if bPermanent:
             db.db_handle._deleteExternalAttribute(attr._id, trans)
 
+class ExternalFileEventHandler(eventHandlers.DatatypeEventHandler):
+    "External file event handler"
+    
+    @staticmethod
+    def on_delete(item, attr, trans, bPermanent):
+        if bPermanent and attr.removeFileOnDeletion:
+            os.remove(attr.value)
