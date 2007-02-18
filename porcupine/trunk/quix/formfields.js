@@ -86,10 +86,9 @@ function Field(params) {
 			//e.style.height = '100%';
 			if (this.type!='textarea') e.type = this.type;
 			e.value = (params.value)?params.value:'';
-			this.textPadding = params.textPadding || 0;
+			this.textPadding = params.textpadding || 0;
 			if (this.type=='hidden') this.hide();
 			this.div.appendChild(e);
-			//this.setPadding( params.padding.split(',') );
 	}
 
 	e.onmousedown = QuiX.stopPropag;
