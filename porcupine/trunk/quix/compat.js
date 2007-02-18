@@ -60,7 +60,8 @@ QuiX.modules = [
 ];
 
 QuiX.tags = {
-	'desktop':-1,'xhtml':-1,'script':-1,'prop':-1,'rect':-1,'progressbar':-1,
+	'desktop':-1,'xhtml':-1,'script':-1,'prop':-1,'stylesheet':-1,
+	'rect':-1,'progressbar':-1,'module':-1,'custom':-1,
 	'window':0,'dialog':0,
 	'menubar':1,'menu':1,'menuoption':1,'contextmenu':1,
 	'splitter':2,
@@ -81,9 +82,12 @@ QuiX.tags = {
 
 QuiX.getWidgetsById = function(w, sid) {
 	var ws = [];
-	if (w._id_widgets[sid]) ws = ws.concat(w._id_widgets[sid]);
+	if (w._id_widgets[sid])
+		ws = ws.concat(w._id_widgets[sid]);
 	for (var i=0; i<w.widgets.length; i++) {
-		ws = ws.concat(QuiX.getWidgetsById(w.widgets[i], sid));
+		if (w.widgets[i].widgets.length > 0) {
+			ws = ws.concat(QuiX.getWidgetsById(w.widgets[i], sid));
+		}
 	}
 	return ws;
 }
@@ -103,10 +107,12 @@ QuiX.getTarget = function(evt) {
 }
 
 QuiX.removeNode = function(node) {
+	var oNode;
 	if (node.removeNode)
-		node.removeNode(true);
+		oNode = node.removeNode(true);
 	else
-		node.parentNode.removeChild(node);
+		oNode = node.parentNode.removeChild(node);
+	return oNode;
 }
 
 QuiX.createOutline = function(w) {
@@ -243,21 +249,37 @@ function QModule(sName, sFile, d) {
 	this.name = sName;
 	this.file = sFile;
 	this.dependencies = d;
+	this.type = 'script';
 }
 
 QModule.prototype.load = function(parser) {
 	this.parser = parser;
-	var oScript = document.createElement('SCRIPT');
-	oScript.type = 'text/javascript';
-	oScript.defer = true;
-	oScript.src = this.file;
-	oScript.resource = this;
-	oScript.id = this.file;
-	if (typeof(window.event) != 'undefined')
-		oScript.onreadystatechange = Resource_onstatechange;
-	else
-		oScript.onload = Resource_onstatechange;
-	document.getElementsByTagName('head')[0].appendChild(oScript);
+	var oElement;
+	if (this.type == 'script') {
+		oElement = ce('SCRIPT');
+		oElement.type = 'text/javascript';
+		oElement.defer = true;
+		oElement.src = this.file;
+	}
+	else {
+		oElement = ce('LINK');
+		oElement.type = 'text/css';
+		oElement.href = this.file;
+		oElement.rel = 'stylesheet';
+	}
+	oElement.resource = this;
+	oElement.id = this.file;
+	document.getElementsByTagName('head')[0].appendChild(oElement);
+	if (this.type=='stylesheet') {
+		this.isLoaded = true;
+		parser.loadModules();
+	}
+	else {
+		if (typeof(window.event) != 'undefined')
+			oElement.onreadystatechange = Resource_onstatechange;
+		else
+			oElement.onload = Resource_onstatechange;
+	}
 }
 
 function QImage(url) {

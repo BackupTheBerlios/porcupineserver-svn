@@ -86,7 +86,10 @@ function dateFormat(format) {
    dateString = dateString.replace( new RegExp("month", "gi"), this.Months[this.getMonth()] );
    dateString = dateString.replace( new RegExp("mon", "gi"), new String( this.Months[this.getMonth()] ).substring(0,3) );
    dateString = dateString.replace( new RegExp("mmm", "gi"), (this.getMonth() + 1) );   
-   dateString = dateString.replace( new RegExp("hh", "gi"), this.getHours() );
+
+   var hh = new String( this.getHours() );
+   if (hh.length == 1) hh = "0" + hh;
+   dateString = dateString.replace( new RegExp("hh", "gi"),  hh );
 
    var mm = new String( this.getMinutes() );
    if (mm.length == 1) mm = "0" + mm;

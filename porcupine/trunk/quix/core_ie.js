@@ -62,10 +62,11 @@ XULParser.prototype.detectModules = function(oNode) {
 		}
 	}
 
-	if (sTag == 'script') {
+	if (sTag == 'script' || sTag == 'module' || sTag == 'stylesheet') {
 		params = this.getNodeParams(oNode);
 		if (!document.getElementById(params.src)) {
 			var oMod = new QModule(params.name, params.src, []);
+			if (sTag == 'stylesheet') oMod.type = 'stylesheet';
 			this.__modulesToLoad.push(oMod);
 		}
 	}
@@ -356,6 +357,9 @@ XULParser.prototype.parseXul = function(oNode, parentW) {
 			case 'box':
 				oWidget = new Box(params);
 				break;
+			case 'custom':
+				oWidget = eval('new ' + params.classname + '(params)');
+				break;
 			case 'prop':
 				var attr_value = params['value'] || '';
 				checkForChilds = false;
@@ -417,6 +421,7 @@ function Widget(params) {
 	this.height = params.height || null;
 	this.minw = params.minw || 0;
 	this.minh = params.minh || 0;
+	this.tooltip = params.tooltip;
 	this.widgets = [];
 	this._id_widgets = {};
 	this.attributes = params.attributes || {};
@@ -828,8 +833,10 @@ Widget.prototype.click = function() {
 Widget.prototype.moveTo = function(x,y) {
 	this.left = x;
 	this.top = y;
-	this.div.style.left = this._calcLeft() + 'px';
-	this.div.style.top = this._calcTop() + 'px';
+	x = (isNaN(x))?this._calcLeft():x;
+	y = (isNaN(y))?this._calcTop():y;
+	this.div.style.left = x + 'px';
+	this.div.style.top = y + 'px';
 }
 
 Widget.prototype.resize = function(x,y) {
@@ -865,7 +872,7 @@ Widget.prototype.show = function() {
 		for (var i=0; i<frames.length; i++)
 			frames[i].div.firstChild.style.display = '';
 	}
-	this.redraw();
+	//this.redraw();
 }
 
 Widget.prototype.isHidden = function() {
@@ -944,17 +951,27 @@ Widget.prototype._endMove = function(evt) {
 
 Widget.prototype.redraw = function(bForceAll, w) {
 	w = w || this;
-	var sOverflow;
+	var sOverflow, wdth, hght;
 	if (w.div.parentElement) {
 		if (w.div.style.visibility == '') {
-			sOverflow = w.getOverflow();
-			if (sOverflow != 'hidden') w.setOverflow('hidden');
+			wdth = w.div.style.width;
+			hght = w.div.style.height;
+			sOverflow = w.div.style.overflow;
+			if (sOverflow != 'hidden')
+				w.div.style.overflow = 'hidden';
 			w._setCommonProps();
-			if (w.getPosition()!='') w._setAbsProps();
+			if (w.div.style.position != '')
+				w._setAbsProps();
 			for (var i=0; i<w.widgets.length; i++) {
-				if (bForceAll || w.widgets[i]._mustRedraw()) w.widgets[i].redraw(bForceAll);
+				if (bForceAll || w.widgets[i]._mustRedraw())
+					w.widgets[i].redraw(bForceAll);
 			}
-			if (sOverflow != 'hidden') w.setOverflow(sOverflow);
+			if (sOverflow != 'hidden')
+				w.div.style.overflow = sOverflow;
+			if (wdth && (wdth != w.div.style.width || hght != w.div.style.height)) {
+				if (w._customRegistry.onresize)
+					w._customRegistry.onresize(this);
+			}
 		}
 	}
 }
@@ -995,16 +1012,46 @@ Widget.prototype.supportedEvents = [
 	'onmousemove','onmouseover','onmouseout',
 	'onkeypress','onkeyup',
 	'onclick','ondblclick',
-	'oncontextmenu'
+	'oncontextmenu', 'onscroll'
 ];
 
-Widget.prototype.customEvents = ['onload'];
+Widget.prototype.customEvents = ['onload','onresize'];
 
 Widget.prototype._registerHandler = function(evt_type, handler, isCustom, w) {
 	w = w || this;
 	var chr = (w._isDisabled)?'*':'';
-	if (!isCustom)
-		w._registry[chr + evt_type] = function(evt){return handler(evt || event, w)};
+	if (!isCustom) {
+		var func;
+		if (evt_type=='onmouseover' && w.tooltip) {
+			func = function(evt){
+				var evt = evt || event;
+				var x1 = evt.clientX;
+				var y1 = evt.clientY + 18;
+				if (!w.__tooltipID) {
+					w.__tooltipID = window.setTimeout(
+						function _tooltiphandler() {
+							Widget__showtooltip(w, x1, y1);
+						}, 1000);
+				}
+				return handler(evt, w);
+			}
+		}
+		else if (evt_type=='onmouseout' && w.tooltip) {
+			func = function(evt){
+				window.clearTimeout(w.__tooltipID);
+				w.__tooltipID = 0;
+				if (w.__tooltip) {
+					w.__tooltip.destroy();
+					w.__tooltip = null;
+				}
+				return handler(evt || event, w);
+			}
+		}
+		else {
+			func = function(evt){return handler(evt || event, w)}
+		}
+		w._registry[chr + evt_type] = func;
+	}
 	else
 		w._customRegistry[chr + evt_type] = handler;
 }
@@ -1030,7 +1077,8 @@ Widget.prototype._buildEventRegistry = function(params) {
 Widget.prototype._attachEvents = function() {
 	for (var evt_type in this._registry) {
 		if (evt_type!='toXMLRPC' && evt_type.slice(0,1)!='_') {
-			if (evt_type.slice(0,1)=='*') evt_type=evt_type.slice(1, evt_type.length);
+			if (evt_type.slice(0,1)=='*')
+				evt_type=evt_type.slice(1, evt_type.length);
 			this.attachEvent(evt_type, null);//restore events directly from registry
 		}
 	}
@@ -1102,6 +1150,20 @@ function Widget__contextmenu(evt, w) {
 	w.contextMenu.show(document.desktop, evt.clientX, evt.clientY);
 }
 
+function Widget__showtooltip(w, x, y) {
+	var tooltip = new Label({
+		left : x,
+		top : y,
+		caption : w.tooltip,
+		border : 1,
+		bgcolor : 'lightyellow'
+	});
+	tooltip.div.className = 'tooltip';
+	document.desktop.appendChild(tooltip);
+	tooltip.redraw();
+	w.__tooltip  = tooltip;
+}
+
 //Desktop class
 function Desktop(params, root) {
 	this.base = Widget;
@@ -1132,8 +1194,10 @@ Desktop.prototype.msgbox = function(mtitle, message, buttons, image, mleft, mtop
 	
 	mwidth = mwidth || 240;
 	mheight = mheight || 120;
-	if (image)
+	if (image) {
+		QuiX.getImage(image);
 		innHTML = '<td><img src="' + image + '"></img></td><td>' + message + '</td>';
+	}
 	else
 		innHTML = '<td>' + message + '</td>';
 		
