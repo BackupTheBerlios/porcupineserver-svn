@@ -55,6 +55,7 @@ function Combo(params) {
 		onmousedown : QuiX.cancelDefault
 	});
 	this.dropdown.appendChild(cont);
+	cont.div.style.overflowX = 'hidden';
 	this.options = cont.widgets;
 
 	var resizer = new Widget({
@@ -282,6 +283,7 @@ function SelectList(params) {
 	this.base(params);
 	this.name = params.name;
 	this.div.className = 'field';
+	this.div.style.overflowX = 'hidden';
 	this.multiple = (params.multiple=="true")?true:false;
 	this.posts = params.posts || "selected";
 	this.options = [];
