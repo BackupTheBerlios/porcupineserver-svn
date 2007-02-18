@@ -26,6 +26,7 @@ function Window(params) {
 	this._statey = 0;
 	this._statew = 0;
 	this._stateh = 0;
+	this._childwindows = [];
 	this.div.className = 'window';
 
 	//title
@@ -248,6 +249,8 @@ Window.prototype.minimize = function(w) {
 	w = w || this;
 	var maxControl = w.title.getWidgetById('1');
 	var minControl = w.title.getWidgetById('2');
+	var childWindow;
+	
 	if (minControl) {
 		if (!w.isMinimized) {
 			var padding = w.getPadding();
@@ -256,10 +259,17 @@ Window.prototype.minimize = function(w) {
 				w.statusBar.hide();
 			if (w.resizeHandle)
 				w.resizeHandle.hide();
-			w.stateh = w.getHeight(true);
+			w._stateh = w.getHeight(true);
 			w.height = w.title.getHeight(true) + 2*w.getBorderWidth() + padding[2] + padding[3];
 			if (maxControl)
 				maxControl.disable();
+			for (var i=0; i<this.childWindows.length; i++) {
+				childWindow = this.childWindows[i];
+				if (!childWindow.isHidden()) {
+					childWindow.hide();
+					this._childwindows.push(childWindow);
+				}
+			}
 			w.isMinimized = true;
 		}
 		else {
@@ -268,9 +278,14 @@ Window.prototype.minimize = function(w) {
 				w.statusBar.show();
 			if (w.resizeHandle)
 				w.resizeHandle.show();
-			w.height = w.stateh;
+			w.height = w._stateh;
 			if (maxControl)
 				maxControl.enable();
+				
+			while (this._childwindows.length > 0) {
+				childWindow = this._childwindows.pop();
+				childWindow.show();
+			}
 			w.isMinimized = false;
 		}
 		w.redraw();
@@ -311,6 +326,12 @@ Window.prototype.maximize = function(w) {
 		}
 		w.redraw();
 	}
+}
+
+Window.prototype.bringToFront = function() {
+	Widget.prototype.bringToFront(this);
+	for (var i=0; i<this.childWindows.length; i++)
+		this.childWindows[i].bringToFront();
 }
 
 Window.prototype.showWindow = function(sUrl, oncomplete) {
