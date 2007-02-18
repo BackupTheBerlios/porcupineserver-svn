@@ -84,15 +84,18 @@ class PorcupineThread(BaseServerThread):
                     self.request.item = db.getItem(sPath)
                     # db request
                     sItemCC = self.request.item.getContentclass()
+                    # get the query string
+                    sQS = self.request.serverVariables['QUERY_STRING']
                     # get cmd parameter
                     sCmd = self.request.queryString.setdefault('cmd',[''])[0]
+                    
                     registration = registrations.storeConfig.getRegistration(
-                        sItemCC, sMethod, sCmd, sBrowser, sLang)
+                        sItemCC, sMethod, sCmd, sQS, sBrowser, sLang)
     
                     if not(serverSettings.allow_guests or \
-                            hasattr(oUser, 'authenticate')) and \
-                            serverSettings.login_page != (sPath + \
-                            self.request.getQueryString())[:len(serverSettings.login_page)]:
+                       hasattr(oUser, 'authenticate')) and \
+                       serverSettings.login_page != (sPath + \
+                       self.request.getQueryString())[:len(serverSettings.login_page)]:
                         sLoginUrl = self.request.getRootUrl() + serverSettings.login_page
                         self.response.redirect(sLoginUrl)
 
