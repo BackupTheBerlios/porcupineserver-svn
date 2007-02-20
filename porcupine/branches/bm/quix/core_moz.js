@@ -841,8 +841,10 @@ Widget.prototype.click = function() {
 Widget.prototype.moveTo = function(x,y) {
 	this.left = x;
 	this.top = y;
-	this.div.style.left = this._calcLeft() + 'px';
-	this.div.style.top = this._calcTop() + 'px';
+	x = (isNaN(x))?this._calcLeft():x;
+	y = (isNaN(y))?this._calcTop():y;
+	this.div.style.left = x + 'px';
+	this.div.style.top = y + 'px';
 }
 
 Widget.prototype.resize = function(x,y) {

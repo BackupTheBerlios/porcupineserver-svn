@@ -88,15 +88,15 @@ File.prototype.showUploadDialog = function() {
 File.prototype.onbeginupload = function(filecontrol) {
 	var oWin = filecontrol.getParentByType(Window);
 	oWin.showWindowFromString('<a:dialog xmlns:a="http://www.innoscript.org/quix"'+
-		' title="' + filecontrol.contextMenu.options[0].caption + '"' +
-		' width="240" height="100" left="center" top="center">' +
+		' title="' + filecontrol.contextMenu.options[0].getCaption() + '"' +
+		' width="240" height="90" left="center" top="center">' +
 		'<a:wbody>' +
-		'<a:progressbar width="90%" height="24" left="center" top="center" ' +
+		'<a:progressbar width="90%" height="20" left="center" top="center" ' +
 		'maxvalue="' + filecontrol.size + '">' +
-		'<a:label align="center" width="100%" height="100%" caption="0%">' +
-		'</a:label></a:progressbar>' +
+		'<a:label align="center" width="100%" height="100%" caption="0%"/>' +
+		'</a:progressbar>' +
 		'</a:wbody>' +
-		'<a:dlgbutton width="70" height="22" caption="CANCEL"></a:dlgbutton>' +
+		'<a:dlgbutton width="70" height="22" caption="' + document.desktop.attributes.CANCEL + '"/>' +
 		'</a:dialog>',
 		function(w) {
 			var progressDialog = w;
