@@ -268,4 +268,7 @@ class ExternalFileEventHandler(eventHandlers.DatatypeEventHandler):
     @staticmethod
     def on_delete(item, attr, trans, bPermanent):
         if bPermanent and attr.removeFileOnDeletion:
-            os.remove(attr.value)
+            try:
+                os.remove(attr.value)
+            except OSError:
+                pass
