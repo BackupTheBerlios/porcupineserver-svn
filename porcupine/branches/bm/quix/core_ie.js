@@ -462,6 +462,11 @@ function Widget(params) {
 		this.setOverflow(params.overflow);
 	this.setPosition('absolute');
 
+	if (params.tooltip) {
+		params.onmouseover = QuiX.getEventWrapper(Widget__tooltipover, params.onmouseover);
+		params.onmouseout = QuiX.getEventWrapper(Widget__tooltipout, params.onmouseout);
+	}
+
 	this._buildEventRegistry(params);
 	this._attachEvents();
 
@@ -1020,55 +1025,25 @@ Widget.prototype.customEvents = ['onload','onresize'];
 Widget.prototype._registerHandler = function(evt_type, handler, isCustom, w) {
 	w = w || this;
 	var chr = (w._isDisabled)?'*':'';
-	if (!isCustom) {
-		var func;
-		if (evt_type=='onmouseover' && w.tooltip) {
-			func = function(evt){
-				var evt = evt || event;
-				var x1 = evt.clientX;
-				var y1 = evt.clientY + 18;
-				if (!w.__tooltipID) {
-					w.__tooltipID = window.setTimeout(
-						function _tooltiphandler() {
-							Widget__showtooltip(w, x1, y1);
-						}, 1000);
-				}
-				return handler(evt, w);
-			}
-		}
-		else if (evt_type=='onmouseout' && w.tooltip) {
-			func = function(evt){
-				window.clearTimeout(w.__tooltipID);
-				w.__tooltipID = 0;
-				if (w.__tooltip) {
-					w.__tooltip.destroy();
-					w.__tooltip = null;
-				}
-				return handler(evt || event, w);
-			}
-		}
-		else {
-			func = function(evt){return handler(evt || event, w)}
-		}
-		w._registry[chr + evt_type] = func;
-	}
+	if (!isCustom)
+		w._registry[chr + evt_type] = function(evt){return handler(evt || event, w)};
 	else
 		w._customRegistry[chr + evt_type] = handler;
 }
 
 Widget.prototype._buildEventRegistry = function(params) {
+	var i, evt_type;
 	this._registry = {};
 	this._customRegistry = {};
-	var i;
 	// register DOM events
 	for (i=0; i<this.supportedEvents.length; i++) {
-		var evt_type = this.supportedEvents[i];
+		evt_type = this.supportedEvents[i];
 		if (params[evt_type])
 			this._registerHandler(evt_type, getEventListener(params[evt_type]), false);
 	}
 	//register custom events
 	for (i=0; i<this.customEvents.length; i++) {
-		var evt_type = this.customEvents[i];
+		evt_type = this.customEvents[i];
 		if (params[evt_type])
 			this._registerHandler(evt_type, getEventListener(params[evt_type]), true);
 	}
@@ -1148,6 +1123,26 @@ Widget.prototype.detachEvent = function(eventType, chr) {
 
 function Widget__contextmenu(evt, w) {
 	w.contextMenu.show(document.desktop, evt.clientX, evt.clientY);
+}
+
+function Widget__tooltipover(evt, w) {
+	var x1 = evt.clientX;
+	var y1 = evt.clientY + 18;
+	if (!w.__tooltipID) {
+		w.__tooltipID = window.setTimeout(
+			function _tooltiphandler() {
+				Widget__showtooltip(w, x1, y1);
+			}, 1000);
+	}
+}
+
+function Widget__tooltipout(evt, w) {
+	window.clearTimeout(w.__tooltipID);
+	w.__tooltipID = 0;
+	if (w.__tooltip) {
+		w.__tooltip.destroy();
+		w.__tooltip = null;
+	}	
 }
 
 function Widget__showtooltip(w, x, y) {
