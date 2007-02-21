@@ -96,7 +96,8 @@ function Field(params) {
 	
 	var oField = this;
 	e.onchange = function() {
-		if (oField.onchange) getEventListener(oField.onchange)(oField);
+		if (oField.onchange)
+			getEventListener(oField.onchange)(oField);
 	}
 
 	this._adjustFieldSize();
@@ -258,7 +259,6 @@ function Spin(params) {
 	this.min = params.min || 0;
 	this.max = params.max;
 	this.div.className = 'field';
-	this.onchange = params.onchange;
 
 	var e = ce('INPUT');
 	e.style.borderWidth = '1px';
@@ -298,6 +298,13 @@ function Spin(params) {
 	
 	if (params.value)
 		this.setValue(params.value);
+
+	this.onchange = params.onchange;
+	var oField = this;
+	e.onchange = function() {
+		if (oField.onchange)
+			getEventListener(oField.onchange)(oField);
+	}
 }
 
 Spin.prototype = new Widget;
