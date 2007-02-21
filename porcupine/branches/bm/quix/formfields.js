@@ -368,7 +368,6 @@ function Spin__onkeypress(evt, w) {
 function SpinUp__onclick(evt, w) {
 	var oSpin = w.parent;
 	var val = oSpin.getValue() + oSpin.step;
-	alert(val)
 	if (!isNaN(val)) {
 		if (oSpin.validate(val)==0)
 			oSpin.setValue(val);
