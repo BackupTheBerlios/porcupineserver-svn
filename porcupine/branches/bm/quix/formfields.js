@@ -258,6 +258,7 @@ function Spin(params) {
 	this.editable = (params.editable=='true' || params.editable==true)?true:false;
 	this.min = params.min || 0;
 	this.max = params.max;
+	this.step = parseInt(params.step) || 1;
 	this.div.className = 'field';
 
 	var e = ce('INPUT');
@@ -302,8 +303,15 @@ function Spin(params) {
 	this.onchange = params.onchange;
 	var oField = this;
 	e.onchange = function() {
-		if (oField.onchange)
-			getEventListener(oField.onchange)(oField);
+		var v = oField.validate( oField.getValue() );
+		if (v==0) {
+			if (oField.onchange)
+				getEventListener(oField.onchange)(oField);
+		}
+		else if (v==1)
+			oField.setValue(oField.max);
+		else if (v==-1)
+			oField.setValue(oField.min);
 	}
 }
 
@@ -323,12 +331,14 @@ Spin.prototype._setCommonProps = function() {
 	this._adjustFieldSize();
 }
 
-Spin.prototype.validate = function() {
+Spin.prototype.validate = function(val) {
 	var min = this.min;
 	var max = this.max;
-	var val = this.getValue();
-	if (max && val > max ) this.setValue(max);
-	if (val < min) this.setValue(min);
+	if (max && val > max )
+		return 1;
+	if (val < min)
+		return -1;
+	return 0;
 }
 
 Spin.prototype.setBgColor = function(color) {
@@ -357,18 +367,19 @@ function Spin__onkeypress(evt, w) {
 
 function SpinUp__onclick(evt, w) {
 	var oSpin = w.parent;
-	var val = oSpin.getValue() + 1;
+	var val = oSpin.getValue() + oSpin.step;
+	alert(val)
 	if (!isNaN(val)) {
-		oSpin.setValue(val);
-		oSpin.validate();
+		if (oSpin.validate(val)==0)
+			oSpin.setValue(val);
 	}
 }
 
 function SpinDown__onclick(evt, w) {
 	var oSpin = w.parent;
-	var val = oSpin.getValue() - 1;
-	if ( !isNaN(val)) {
-		oSpin.setValue(val);
-		oSpin.validate();
+	var val = oSpin.getValue() - oSpin.step;
+	if (!isNaN(val)) {
+		if (oSpin.validate(val)==0)
+			oSpin.setValue(val);
 	}
 }
