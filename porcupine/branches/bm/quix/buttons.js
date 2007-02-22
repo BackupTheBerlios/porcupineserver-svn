@@ -99,6 +99,7 @@ Icon.prototype.redraw = function(bForceAll, w) {
 		if (w.img) {
 			img = QuiX.getImage(w.img);
 			img.style.verticalAlign = 'middle';
+			img.ondragstart = QuiX.cancelDefault;
 			
 			if (w.getCaption()!='') {
 				switch(w.imgAlign) {
