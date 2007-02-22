@@ -760,7 +760,7 @@ Widget.prototype._calcPos = function(left, offset, getWidth) {
 		if (left!='center')
 			return( (eval(left) + offset) || 0 );
 		else 
-			return parseInt((this.parent[getWidth]()/2) - (this[getWidth](true)/2)) || 0;
+			return parseInt((this.parent[getWidth]()/2) - (this[getWidth](true)/2)) + offset || 0;
 	}
 }
 
