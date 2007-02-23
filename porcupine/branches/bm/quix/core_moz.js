@@ -963,6 +963,8 @@ Widget.prototype.redraw = function(bForceAll, w) {
 	w = w || this;
 	var container = w.div.parentNode;
 	if (container) {
+		var wd = w.div.style.width;
+		var ht = w.div.style.height;
 		var frag = document.createDocumentFragment();
 		var root = w._detach();
 		frag.appendChild(root);
@@ -972,23 +974,22 @@ Widget.prototype.redraw = function(bForceAll, w) {
 		finally {
 			container.appendChild(frag);
 		}
+		if (wd && (wd != w.div.style.width || ht != w.div.style.height)) {
+			if (w._customRegistry.onresize)
+				w._customRegistry.onresize(w);
+		}
+
 	}
 }
 
 Widget.prototype._redraw = function(bForceAll) {
 	if (this.div.style.visibility == '') {
-		var w = this.div.style.width;
-		var h = this.div.style.height;
 		this._setCommonProps();
 		if (this.getPosition()!='')
 			this._setAbsProps();
 		for (var i=0; i<this.widgets.length; i++) {
 			if (bForceAll || this.widgets[i]._mustRedraw())
 				this.widgets[i].redraw(bForceAll);
-		}
-		if (w && (w != this.div.style.width || h != this.div.style.height)) {
-			if (this._customRegistry.onresize)
-				this._customRegistry.onresize(this);
 		}
 	}
 }
