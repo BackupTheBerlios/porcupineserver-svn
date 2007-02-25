@@ -760,7 +760,7 @@ Widget.prototype._calcPos = function(left, offset, getWidth) {
 		if (left!='center')
 			return( (eval(left) + offset) || 0 );
 		else 
-			return parseInt((this.parent[getWidth]()/2) - (this[getWidth](true)/2)) || 0;
+			return parseInt((this.parent[getWidth]()/2) - (this[getWidth](true)/2)) + offset || 0;
 	}
 }
 
@@ -841,8 +841,10 @@ Widget.prototype.click = function() {
 Widget.prototype.moveTo = function(x,y) {
 	this.left = x;
 	this.top = y;
-	this.div.style.left = this._calcLeft() + 'px';
-	this.div.style.top = this._calcTop() + 'px';
+	x = (isNaN(x))?this._calcLeft():x;
+	y = (isNaN(y))?this._calcTop():y;
+	this.div.style.left = x + 'px';
+	this.div.style.top = y + 'px';
 }
 
 Widget.prototype.resize = function(x,y) {
@@ -961,6 +963,8 @@ Widget.prototype.redraw = function(bForceAll, w) {
 	w = w || this;
 	var container = w.div.parentNode;
 	if (container) {
+		var wd = w.div.style.width;
+		var ht = w.div.style.height;
 		var frag = document.createDocumentFragment();
 		var root = w._detach();
 		frag.appendChild(root);
@@ -970,23 +974,22 @@ Widget.prototype.redraw = function(bForceAll, w) {
 		finally {
 			container.appendChild(frag);
 		}
+		if (wd && (wd != w.div.style.width || ht != w.div.style.height)) {
+			if (w._customRegistry.onresize)
+				w._customRegistry.onresize(w);
+		}
+
 	}
 }
 
 Widget.prototype._redraw = function(bForceAll) {
 	if (this.div.style.visibility == '') {
-		var w = this.div.style.width;
-		var h = this.div.style.height;
 		this._setCommonProps();
 		if (this.getPosition()!='')
 			this._setAbsProps();
 		for (var i=0; i<this.widgets.length; i++) {
 			if (bForceAll || this.widgets[i]._mustRedraw())
 				this.widgets[i].redraw(bForceAll);
-		}
-		if (w && (w != this.div.style.width || h != this.div.style.height)) {
-			if (this._customRegistry.onresize)
-				this._customRegistry.onresize(this);
 		}
 	}
 }
