@@ -300,8 +300,8 @@ Window.prototype.maximize = function(w) {
 		if (!w.isMaximized) {
 			w._statex = w._calcLeft();
 			w._statey = w._calcTop();
-			w._statew = w.getWidth(true);
-			w._stateh = w.getHeight(true);
+			w._statew = w._calcWidth(true);
+			w._stateh = w._calcHeight(true);
 			w.top = 0; w.left = 0;
 			w.height = '100%';
 			w.width = '100%';
