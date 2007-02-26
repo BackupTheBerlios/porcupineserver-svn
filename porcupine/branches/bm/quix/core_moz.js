@@ -42,6 +42,7 @@ function getNodeXml(oNode) {
 function XULParser() {
 	this.__modulesToLoad = [];
 	this.__imagesToLoad = [];
+	this.__onload = [];
 	this.activeForm = null;
 	this.dom = null;
 	this.progressWidget = null;
@@ -132,17 +133,24 @@ XULParser.prototype.parse = function(oDom, parentW) {
 
 XULParser.prototype.beginRender = function() {
 	var widget = this.render();
-	if (this.oncomplete) this.oncomplete(widget);
+
 	widget.redraw(true);
+	
+	while (this.__onload.length > 0) {
+		on_load = this.__onload.pop();
+		on_load[0](on_load[1]);
+	}
+	
+	if (this.oncomplete)
+		this.oncomplete(widget);
 }
 
 XULParser.prototype.render = function() {
-	window.status = '';
 	var parentW = this.parentWidget;
 	var frag = document.createDocumentFragment();
 	if (parentW) {
 		var root = parentW.div;
-		frag.appendChild(root.cloneNode(true));
+		frag.appendChild(root.cloneNode(false));
 		parentW.div = frag.firstChild;
 		widget = this.parseXul(this.dom.documentElement, parentW);
 		root.appendChild(widget.div);
@@ -151,8 +159,8 @@ XULParser.prototype.render = function() {
 	else {
 		widget = this.parseXul(this.dom.documentElement, frag);
 		document.body.appendChild(frag);
-		widget.redraw();
 	}
+	frag = null;
 	return(widget);
 }
 
@@ -415,7 +423,7 @@ XULParser.prototype.parseXul = function(oNode, parentW) {
 		
 		if (oWidget) { 
 			if (oWidget._customRegistry.onload)
-				oWidget._customRegistry.onload(oWidget);
+				this.__onload.push([oWidget._customRegistry.onload, oWidget]);
 		}
 	}
 	return oWidget;
@@ -526,7 +534,8 @@ Widget.prototype.detach = function() {
 	if (this._id)
 		this._removeIdRef();
 	this.parent = null;
-	this.div = this._detach();
+	this.div = QuiX.removeNode(this.div);
+	
 }
 
 Widget.prototype.parse = function(dom, callback) {
@@ -962,34 +971,27 @@ Widget.prototype._detach = function() {
 Widget.prototype.redraw = function(bForceAll, w) {
 	w = w || this;
 	var container = w.div.parentNode;
-	if (container) {
+	if (container && w.div.style.visibility == '') {
 		var wd = w.div.style.width;
 		var ht = w.div.style.height;
 		var frag = document.createDocumentFragment();
-		var root = w._detach();
-		frag.appendChild(root);
+		//var root = w._detach();
+		frag.appendChild(QuiX.removeNode(w.div));
 		try {
-			w._redraw(bForceAll);
+			w._setCommonProps();
+			if (w.getPosition() != '')
+				w._setAbsProps();
+			for (var i=0; i<w.widgets.length; i++) {
+				if (bForceAll || w.widgets[i]._mustRedraw())
+					w.widgets[i].redraw(bForceAll);
+			}
 		}
 		finally {
-			container.appendChild(frag);
+			container.appendChild(frag.firstChild);
 		}
 		if (wd && (wd != w.div.style.width || ht != w.div.style.height)) {
 			if (w._customRegistry.onresize)
 				w._customRegistry.onresize(w);
-		}
-
-	}
-}
-
-Widget.prototype._redraw = function(bForceAll) {
-	if (this.div.style.visibility == '') {
-		this._setCommonProps();
-		if (this.getPosition()!='')
-			this._setAbsProps();
-		for (var i=0; i<this.widgets.length; i++) {
-			if (bForceAll || this.widgets[i]._mustRedraw())
-				this.widgets[i].redraw(bForceAll);
 		}
 	}
 }
