@@ -11,53 +11,16 @@ function Datepicker(params) {
 	this.base(params);
 	this.setValue(params.value || '');
 	
-	var oDatepicker = this;
-	var oDropdown = this.dropdown;
-	oDropdown.parseFromString(
+	this.dropdown.parseFromString(
 		'<a:box orientation="v" bgcolor="menu" xmlns:a="http://www.innoscript.org/quix" width="100%" height="100%" spacing="4" childrenalign="center">' +
 			'<a:rect width="195" height="22">' + 
-				'<a:flatbutton width="22" height="100%" caption="&lt;&lt;"></a:flatbutton>' +
-				'<a:combo id="month" left="24" width="100" height="100%" editable="false"></a:combo>' +
-				'<a:spinbutton id="year" maxlength="4" left="123" width="50" height="100%" editable="true"></a:spinbutton>' +
-				'<a:flatbutton left="173" width="22" height="100%" caption="&gt;&gt;"></a:flatbutton>' +
+				'<a:flatbutton width="22" height="100%" caption="&lt;&lt;"/>' +
+				'<a:combo id="month" left="24" width="100" height="100%" editable="false"/>' +
+				'<a:spinbutton id="year" maxlength="4" left="123" width="50" height="100%" editable="true"/>' +
+				'<a:flatbutton left="173" width="22" height="100%" caption="&gt;&gt;"/>' +
 			'</a:rect>' +
 			'<a:rect length="-1"/>' +
-		'</a:box>',
-		function(w) {
-			var spl = w;
-			oDropdown.minw = oDropdown.width = 200;
-			oDropdown.minh = oDropdown.height = 160;
-			oDropdown.widgets[1].bringToFront();
-			
-			oDropdown.close = function() {
-				document.desktop.overlays.removeItem(this);
-				if (oDatepicker.month.isExpanded)
-					oDatepicker.month.dropdown.close();
-				oDatepicker.isExpanded = false;
-				this.detach();
-			}
-			
-			spl.widgets[0].attachEvent('onclick', QuiX.stopPropag);
-		
-			oDatepicker.year = spl.getWidgetById('year');
-			oDatepicker.year.onchange = function() { oDatepicker.onYear(); }
-			oDatepicker.year.attachEvent('onkeyup', function() { oDatepicker.onYear(); });
-		
-			oDatepicker.month = spl.getWidgetById('month');
-			for (var i=0; i<oDatepicker.dt.Months.length; i++)
-				oDatepicker.month.addOption({caption:oDatepicker.dt.Months[i], value:i});
-			oDatepicker.month.onchange = DatepickerMonth__change;
-			
-			oDatepicker.month.div.firstChild.onclick = DatepickerMonth__click;
-			oDatepicker.month.button.attachEvent('onclick', DatepickerMonth__click);
-			
-			spl.getWidgetsByType(FlatButton)[0].attachEvent('onclick', DatepickerPrev__click);
-			spl.getWidgetsByType(FlatButton)[1].attachEvent('onclick', DatepickerNext__click);
-			
-			oDatepicker.render(spl.widgets[1].div);
-			oDatepicker.fill();
-		}
-	);
+		'</a:box>', Datepicker__fill);
 
 	if (this._isDisabled) {
 		this.div.firstChild.disabled = true;
@@ -208,6 +171,11 @@ function DatepickerMonth__change(w) {
 	oDatepicker.onMonth();
 }
 
+function DatepickerYear__change(x, w) {
+	var oDatepicker = (w || x).parent.parent.parent.combo;
+	oDatepicker.onYear();
+}
+
 function DatepickerNext__click(evt, w) {
 	var oDatepicker = w.parent.parent.parent.combo;
 	oDatepicker.onNext();
@@ -225,4 +193,41 @@ function DatepickerCell__click() {
 	else
 		oDatepicker = this.parentElement.parentElement.parentElement.datepicker;
 	oDatepicker.onDay(this);
+}
+
+function Datepicker__fill(box) {
+	var oDropdown = box.parent;
+	var oDatepicker = oDropdown.combo;
+	
+	oDropdown.minw = oDropdown.width = 200;
+	oDropdown.minh = oDropdown.height = 160;
+	oDropdown.widgets[1].bringToFront();
+	
+	oDropdown.close = function() {
+		document.desktop.overlays.removeItem(this);
+		if (oDatepicker.month.isExpanded)
+			oDatepicker.month.dropdown.close();
+		oDatepicker.isExpanded = false;
+		this.detach();
+	}
+	
+	box.widgets[0].attachEvent('onclick', QuiX.stopPropag);
+
+	oDatepicker.year = box.getWidgetById('year');
+	oDatepicker.year.attachEvent('onchange', DatepickerYear__change);
+	oDatepicker.year.attachEvent('onkeyup', DatepickerYear__change);
+
+	oDatepicker.month = box.getWidgetById('month');
+	for (var i=0; i<oDatepicker.dt.Months.length; i++)
+		oDatepicker.month.addOption({caption:oDatepicker.dt.Months[i], value:i});
+	oDatepicker.month.attachEvent('onchange', DatepickerMonth__change);
+	
+	oDatepicker.month.div.firstChild.onclick = DatepickerMonth__click;
+	oDatepicker.month.button.attachEvent('onclick', DatepickerMonth__click);
+	
+	box.getWidgetsByType(FlatButton)[0].attachEvent('onclick', DatepickerPrev__click);
+	box.getWidgetsByType(FlatButton)[1].attachEvent('onclick', DatepickerNext__click);
+	
+	oDatepicker.render(box.widgets[1].div);
+	oDatepicker.fill();
 }
