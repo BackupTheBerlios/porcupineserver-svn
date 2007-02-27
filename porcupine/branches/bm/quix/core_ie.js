@@ -978,7 +978,8 @@ Widget.prototype.redraw = function(bForceAll, w) {
 		}
 		if (sOverflow != 'hidden')
 			w.div.style.overflow = sOverflow;
-		if (wdth && (wdth != w.div.style.width || hght != w.div.style.height)) {
+		if ((wdth && wdth != w.div.style.width) ||
+			(hght && hght != w.div.style.height)) {
 			if (w._customRegistry.onresize)
 				w._customRegistry.onresize(this);
 		}
@@ -1203,11 +1204,11 @@ Desktop.prototype.msgbox = function(mtitle, message, buttons, image, mleft, mtop
 	if (typeof buttons=='object') {
 		for (var i=0; i<buttons.length; i++) {
 			oButton = buttons[i];
-			sButtons += '<a:dlgbutton width="' + oButton[1] + '" height="22" caption="' + oButton[0] + '"></a:dlgbutton>';
+			sButtons += '<a:dlgbutton width="' + oButton[1] + '" height="22" caption="' + oButton[0] + '"/>';
 		}
 	}
 	else
-		sButtons = '<a:dlgbutton onclick="__closeDialog__" caption="' + buttons + '" width="80" height="22"></a:dlgbutton>';
+		sButtons = '<a:dlgbutton onclick="__closeDialog__" caption="' + buttons + '" width="80" height="22"/>';
 
 	this.parseFromString('<a:dialog xmlns:a="http://www.innoscript.org/quix"' +
 		' title="' + mtitle + '" resizable="false" close="true"' +
