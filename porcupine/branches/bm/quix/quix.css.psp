@@ -377,7 +377,7 @@ BODY {
 }
 
 .DatePicker {
-     background-color: #e0ffe0;
+     background-color: #EDEDED;
 }
 
 .DatePickerBtn {

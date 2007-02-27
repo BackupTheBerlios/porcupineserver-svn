@@ -12,14 +12,14 @@ function Datepicker(params) {
 	this.setValue(params.value || '');
 	
 	this.dropdown.parseFromString(
-		'<a:box orientation="v" bgcolor="menu" xmlns:a="http://www.innoscript.org/quix" width="100%" height="100%" spacing="4" childrenalign="center">' +
-			'<a:rect width="195" height="22">' + 
+		'<a:box orientation="v" xmlns:a="http://www.innoscript.org/quix" width="100%" height="100%" spacing="4" childrenalign="center">' +
+			'<a:rect height="26" width="195" padding="2,2,2,2">' + 
 				'<a:flatbutton width="22" height="100%" caption="&lt;&lt;"/>' +
 				'<a:combo id="month" left="24" width="100" height="100%" editable="false"/>' +
 				'<a:spinbutton id="year" maxlength="4" left="123" width="50" height="100%" editable="true"/>' +
 				'<a:flatbutton left="173" width="22" height="100%" caption="&gt;&gt;"/>' +
 			'</a:rect>' +
-			'<a:rect length="-1"/>' +
+			'<a:rect/>' +
 		'</a:box>', Datepicker__fill);
 
 	if (this._isDisabled) {
@@ -77,6 +77,7 @@ Datepicker.prototype.render = function(container) {
 	for ( var j = 0; j < 6; j++ ) {
 	    this.aCells.push(new Array);
 	    oTR1 = oT1.insertRow(oT1.rows.length);
+	    oTR1.align = 'center';
 	    for ( i = 0; i < 7; i++ ) {
 			this.aCells[j][i] = oTR1.insertCell(oTR1.cells.length);
 			this.aCells[j][i].onclick = DatepickerCell__click;
