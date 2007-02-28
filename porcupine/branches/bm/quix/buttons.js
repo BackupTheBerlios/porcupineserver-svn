@@ -245,7 +245,6 @@ function FlatButton(params) {
 	this.div.className = 'flat';
 	
 	this.type = params.type || 'normal';
-	this.value = (this.type=='toggle')?'off':'';
 	
 	this._ispressed = false;
 	
@@ -255,6 +254,14 @@ function FlatButton(params) {
 		var oCMenu = new ContextMenu(params, this);
 		this.contextMenu = oCMenu;
 		this._menuImg = null;
+	}
+	
+	if (this.type=='toggle') {
+		this.value = params.value || 'off';
+		if (this.value == 'on') {
+			this.value = 'off';
+			this.toggle();
+		}
 	}
 }
 
