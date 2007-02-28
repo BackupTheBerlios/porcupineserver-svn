@@ -1219,7 +1219,7 @@ Desktop.prototype.msgbox = function(mtitle, message, buttons, image, mleft, mtop
 		sButtons = '<a:dlgbutton onclick="__closeDialog__" caption="' + buttons + '" width="80" height="22"/>';
 
 	this.parseFromString('<a:dialog xmlns:a="http://www.innoscript.org/quix"' +
-		' title="' + mtitle + '" resizable="false" close="true"' +
+		' title="' + mtitle + '" close="true"' +
 		' width="' + mwidth + '" height="' + mheight + '" left="' + mleft +'" top="' + mtop + '">' +
 		'<a:wbody><a:xhtml><table cellpadding="4"><tr>' + innHTML +
 		'</tr></table></a:xhtml></a:wbody>' + sButtons + '</a:dialog>',
