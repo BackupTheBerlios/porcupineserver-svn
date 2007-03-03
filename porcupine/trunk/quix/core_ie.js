@@ -31,6 +31,7 @@ QuiX.root = (new RegExp("https?://[^/]+(?:/[^/\?]+)?(?:/\{[0-9a-f]{32}\})?", "i"
 function XULParser() {
 	this.__modulesToLoad = [];
 	this.__imagesToLoad = [];
+	this.__onload = [];
 	this.activeForm = null;
 	this.dom = null;
 	this.progressWidget = null;
@@ -121,18 +122,25 @@ XULParser.prototype.parse = function(oDom, parentW) {
 }
 
 XULParser.prototype.beginRender = function() {
+	var on_load;
 	var widget = this.render();
-	if (this.oncomplete) this.oncomplete(widget);
-	widget.redraw(true);
+	widget.redraw(true);	
+
+	while (this.__onload.length > 0) {
+		on_load = this.__onload.pop();
+		on_load[0](on_load[1]);
+	}
+
+	if (this.oncomplete)
+		this.oncomplete(widget);
 }
 
 XULParser.prototype.render = function() {
-	window.status = '';
 	var parentW = this.parentWidget;
 	var frag = document.createDocumentFragment();
 	if (parentW) {
 		var root = parentW.div;
-		frag.appendChild(root.cloneNode(true));
+		frag.appendChild(root.cloneNode(false));
 		parentW.div = frag.firstChild;
 		widget = this.parseXul(this.dom.documentElement, parentW);
 		root.appendChild(widget.div);
@@ -141,8 +149,8 @@ XULParser.prototype.render = function() {
 	else {
 		widget = this.parseXul(this.dom.documentElement, frag);
 		document.body.appendChild(frag);
-		widget.redraw();
 	}
+	frag = null;
 	return(widget);
 }
 
@@ -406,7 +414,7 @@ XULParser.prototype.parseXul = function(oNode, parentW) {
 		
 		if (oWidget) { 
 			if (oWidget._customRegistry.onload)
-				oWidget._customRegistry.onload(oWidget);
+				this.__onload.push([oWidget._customRegistry.onload, oWidget]);
 		}
 	}
 	return oWidget;
@@ -522,7 +530,7 @@ Widget.prototype.detach = function() {
 	if (this._id)
 		this._removeIdRef();
 	this.parent = null;
-	this.div = this.div.removeNode(true);
+	this.div = QuiX.removeNode(this.div);
 }
 
 Widget.prototype.parse = function(dom, callback) {
@@ -545,7 +553,7 @@ Widget.prototype.parseFromUrl = function(url, oncomplete) {
 		}
 	}
 	xmlhttp.open('GET', url, true);
-	xmlhttp.send('');
+	xmlhttp.send();
 }
 
 Widget.prototype.getParentByType = function(wtype) {
@@ -877,7 +885,6 @@ Widget.prototype.show = function() {
 		for (var i=0; i<frames.length; i++)
 			frames[i].div.firstChild.style.display = '';
 	}
-	//this.redraw();
 }
 
 Widget.prototype.isHidden = function() {
@@ -956,27 +963,25 @@ Widget.prototype._endMove = function(evt) {
 
 Widget.prototype.redraw = function(bForceAll, w) {
 	w = w || this;
-	var sOverflow, wdth, hght;
-	if (w.div.parentElement) {
-		if (w.div.style.visibility == '') {
-			wdth = w.div.style.width;
-			hght = w.div.style.height;
-			sOverflow = w.div.style.overflow;
-			if (sOverflow != 'hidden')
-				w.div.style.overflow = 'hidden';
-			w._setCommonProps();
-			if (w.div.style.position != '')
-				w._setAbsProps();
-			for (var i=0; i<w.widgets.length; i++) {
-				if (bForceAll || w.widgets[i]._mustRedraw())
-					w.widgets[i].redraw(bForceAll);
-			}
-			if (sOverflow != 'hidden')
-				w.div.style.overflow = sOverflow;
-			if (wdth && (wdth != w.div.style.width || hght != w.div.style.height)) {
-				if (w._customRegistry.onresize)
-					w._customRegistry.onresize(this);
-			}
+	if (w.div.parentElement &&  w.div.style.visibility == '') {
+		var wdth = w.div.style.width;
+		var hght = w.div.style.height;
+		var sOverflow = w.div.style.overflow;
+		if (sOverflow != 'hidden')
+			w.div.style.overflow = 'hidden';
+		w._setCommonProps();
+		if (w.div.style.position != '')
+			w._setAbsProps();
+		for (var i=0; i<w.widgets.length; i++) {
+			if (bForceAll || w.widgets[i]._mustRedraw())
+				w.widgets[i].redraw(bForceAll);
+		}
+		if (sOverflow != 'hidden')
+			w.div.style.overflow = sOverflow;
+		if ((wdth && wdth != w.div.style.width) ||
+			(hght && hght != w.div.style.height)) {
+			if (w._customRegistry.onresize)
+				w._customRegistry.onresize(this);
 		}
 	}
 }
@@ -1199,14 +1204,14 @@ Desktop.prototype.msgbox = function(mtitle, message, buttons, image, mleft, mtop
 	if (typeof buttons=='object') {
 		for (var i=0; i<buttons.length; i++) {
 			oButton = buttons[i];
-			sButtons += '<a:dlgbutton width="' + oButton[1] + '" height="22" caption="' + oButton[0] + '"></a:dlgbutton>';
+			sButtons += '<a:dlgbutton width="' + oButton[1] + '" height="22" caption="' + oButton[0] + '"/>';
 		}
 	}
 	else
-		sButtons = '<a:dlgbutton onclick="__closeDialog__" caption="' + buttons + '" width="80" height="22"></a:dlgbutton>';
+		sButtons = '<a:dlgbutton onclick="__closeDialog__" caption="' + buttons + '" width="80" height="22"/>';
 
 	this.parseFromString('<a:dialog xmlns:a="http://www.innoscript.org/quix"' +
-		' title="' + mtitle + '" resizable="false" close="true"' +
+		' title="' + mtitle + '" close="true"' +
 		' width="' + mwidth + '" height="' + mheight + '" left="' + mleft +'" top="' + mtop + '">' +
 		'<a:wbody><a:xhtml><table cellpadding="4"><tr>' + innHTML +
 		'</tr></table></a:xhtml></a:wbody>' + sButtons + '</a:dialog>',
