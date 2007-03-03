@@ -21,12 +21,12 @@
 function __displayError__(e) {
 	document.desktop.parseFromString('<a:dialog xmlns:a="http://www.innoscript.org/quix"'+
 		' title="Error: ' + e.name + '" resizable="true" close="true"' +
-		' width="520" height="180" left="center" top="center">' +
-		'<a:wbody><a:splitter orientation="v" spacing="0" width="100%" height="100%">' +
-		'<a:pane length="60"><a:icon left="center" top="10" width="32" height="32" img="__quix/images/error32.gif"></a:icon></a:pane>' +
-		'<a:pane length="-1" padding="4,4,4,4" overflow="auto"><a:xhtml>' +
-		'<pre style="color:red;font-size:12px;font-family:monospace;padding-left:4px">' + e.message.xmlEncode() + '</pre></a:xhtml></a:pane>' +
-		'</a:splitter></a:wbody><a:dlgbutton onclick="__closeDialog__" width="70" height="22" caption="Close"></a:dlgbutton></a:dialog>');
+		' width="560" height="240" left="center" top="center">' +
+		'<a:wbody><a:box spacing="8" width="100%" height="100%">' +
+		'<a:icon width="56" height="56" padding="12,12,12,12" img="__quix/images/error32.gif"/>' +
+		'<a:rect padding="4,4,4,4" overflow="auto"><a:xhtml>' +
+		'<pre style="color:red;font-size:12px;font-family:monospace;padding-left:4px">' + e.message.xmlEncode() + '</pre></a:xhtml>' +
+		'</a:rect></a:box></a:wbody><a:dlgbutton onclick="__closeDialog__" width="70" height="22" caption="Close"></a:dlgbutton></a:dialog>');
 }
 
 Object.prototype.toXMLRPC = function() {
