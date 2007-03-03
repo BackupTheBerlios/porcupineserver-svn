@@ -56,7 +56,7 @@ function Field(params) {
 	this.base(params);
 	this.name = params.name;
 	this.readonly = (params.readonly=='true' || params.readonly==true)?true:false;
-	this.onchange = params.onchange;
+
 	var e;
 	switch (this.type) {
 		case 'checkbox':
@@ -96,8 +96,8 @@ function Field(params) {
 	
 	var oField = this;
 	e.onchange = function() {
-		if (oField.onchange)
-			getEventListener(oField.onchange)(oField);
+		if (oField._customRegistry.onchange)
+			oField._customRegistry.onchange(oField);
 	}
 
 	this._adjustFieldSize();
@@ -108,6 +108,8 @@ function Field(params) {
 }
 
 Field.prototype = new Widget;
+
+Field.prototype.customEvents = Widget.prototype.customEvents.concat(['onchange']);
 
 Field.prototype.getValue = function() {
 	switch (this.type) {
@@ -253,7 +255,7 @@ function Spin(params) {
 	this.base(params);
 
 	this.div.className = 'combo';
-		
+	
 	this.name = params.name;
 	this.editable = (params.editable=='true' || params.editable==true)?true:false;
 	this.min = params.min || 0;
@@ -266,6 +268,7 @@ function Spin(params) {
 	e.style.position='absolute';
 	e.style.textAlign = 'right';
 	this.div.appendChild(e);
+	
 	e.onmousedown = QuiX.stopPropag;
 	e.onselectstart = QuiX.stopPropag;
 	
@@ -298,15 +301,14 @@ function Spin(params) {
 	this.attachEvent('onkeypress', Spin__onkeypress);
 	
 	if (params.value)
-		this.setValue(params.value);
+		e.value = parseInt(params.value);
 
-	this.onchange = params.onchange;
 	var oField = this;
 	e.onchange = function() {
 		var v = oField.validate( oField.getValue() );
 		if (v==0) {
-			if (oField.onchange)
-				getEventListener(oField.onchange)(oField);
+			if (oField._customRegistry.onchange)
+				oField._customRegistry.onchange(oField);
 		}
 		else if (v==1)
 			oField.setValue(oField.max);
@@ -316,6 +318,8 @@ function Spin(params) {
 }
 
 Spin.prototype = new Widget;
+
+Spin.prototype.customEvents = Widget.prototype.customEvents.concat(['onchange']);
 
 Spin.prototype._adjustFieldSize = function() {
 	if (this.div.firstChild) {
@@ -354,8 +358,8 @@ Spin.prototype.getValue = function() {
 Spin.prototype.setValue = function(value) {
 	if (value != this.getValue()) {
 		this.div.firstChild.value = parseInt(value);
-		if (this.onchange)
-			getEventListener(this.onchange)(this);
+		if (this._customRegistry.onchange)
+			this._customRegistry.onchange(this);
 	}
 }
 
