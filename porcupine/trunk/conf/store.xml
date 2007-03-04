@@ -39,6 +39,17 @@
 
 	<reg cc="org.innoscript.desktop.schema.common.RootFolder"
         method="GET"
+        param="loginas"
+        client="(MSIE [6-7])|(Mozilla/5.0.+rv:1.[7-9])"
+        lang=".*"
+        action="org.innoscript.desktop.ui.Dlg_LoginAs">
+            <filter
+                type="porcupine.filters.postProcessing.multilingual.Multilingual"
+                using="org.innoscript.desktop.strings.resources"/>
+    </reg>
+	
+	<reg cc="org.innoscript.desktop.schema.common.RootFolder"
+        method="GET"
         param="about"
         client="(MSIE [6-7])|(Mozilla/5.0.+rv:1.[7-9])"
         lang=".*"
