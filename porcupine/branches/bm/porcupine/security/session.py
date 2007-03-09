@@ -24,6 +24,7 @@ from porcupine.security import sessionManager
 from porcupine.core.management import Mgt
 from porcupine.core import management
 from porcupine.config import serverSettings
+from porcupine.utils import misc
 
 class Session(object):
     """
@@ -101,6 +102,14 @@ class Session(object):
         @rtype: tuple
         """
         return tempfile.mkstemp(prefix=self.sessionid, dir=serverSettings.temp_folder)
+    
+    def getTempFilename(self):
+        """
+        Returns a temporary file name bound to the session.
+                
+        @rtype: string
+        """
+        return  serverSettings.temp_folder + '/' + self.sessionid + '_' + misc.generateOID()
 
     def removeTempFiles(self):
         """
