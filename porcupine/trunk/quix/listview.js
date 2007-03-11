@@ -440,7 +440,7 @@ ListView.prototype._renderCell = function(cell, cellIndex, value, obj) {
 		}
 	} else {
 		cell.innerHTML = '<span style="white-space:nowrap">' + 
-			((value == '')?' ':value) + '</span>';
+			((value == '' && value != 0)?'&nbsp;':value) + '</span>';
 	}
 }
 
