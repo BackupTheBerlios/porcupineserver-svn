@@ -41,20 +41,7 @@ IFrame.prototype.getSource = function() {
 function GroupBox(params) {
 	params = params || {};
 	params.overflow = 'hidden';
-	this.base = Widget;
-	this.base(params);
-	this.div.className = 'groupbox';
 	
-	this.border = new Widget({
-		top: 8,
-		width:"100%",
-		padding:"12,12,12,12",
-		height: "this.parent.getHeight()-this.top",
-		border: params.border || 2
-	});
-	this.border.div.className = "groupboxframe";
-	this.appendChild(this.border);
-
 	var v = true;
 	if (params.checked) {
 		v = params.value || true;
@@ -74,6 +61,20 @@ function GroupBox(params) {
 			bgcolor: params.bgcolor,
 			caption: params.caption
 		});
+	
+	this.base = Widget;
+	this.base(params);
+	this.div.className = 'groupbox';
+	
+	this.border = new Widget({
+		top: 8,
+		width:"100%",
+		padding:"12,12,12,12",
+		height: "this.parent.getHeight()-this.top",
+		border: params.border || 2
+	});
+	this.border.div.className = "groupboxframe";
+	this.appendChild(this.border);
 
 	this.appendChild(this.caption);
 	this.caption.div.className = this.div.className;
