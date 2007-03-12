@@ -505,6 +505,8 @@ Widget.prototype.disable = function(w) {
 		w._statecursor = w.div.style.cursor;
 		w.div.style.cursor = 'default';
 		w._isDisabled = true;
+		if (w.__tooltip || w.__tooltipID)
+			Widget__tooltipout(null, w);
 		w._detachEvents();
 		for (var i=0; i<w.widgets.length; i++) {
 			w.widgets[i].disable();
