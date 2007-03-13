@@ -976,9 +976,11 @@ Widget.prototype.redraw = function(bForceAll, w) {
 	if (container && w.div.style.visibility == '') {
 		var wdth = w.div.style.width;
 		var hght = w.div.style.height;
-		var frag = document.createDocumentFragment();
-		//var root = w._detach();
-		frag.appendChild(QuiX.removeNode(w.div));
+		if (w.div.clientWidth > 0)
+		{
+			var frag = document.createDocumentFragment();
+			frag.appendChild(QuiX.removeNode(w.div));
+		}
 		try {
 			w._setCommonProps();
 			if (w.getPosition() != '')
@@ -989,7 +991,7 @@ Widget.prototype.redraw = function(bForceAll, w) {
 			}
 		}
 		finally {
-			container.appendChild(frag.firstChild);
+			container.appendChild(w.div);
 		}
 		if ((wdth && wdth != w.div.style.width) ||
 			(hght && hght != w.div.style.height)) {
