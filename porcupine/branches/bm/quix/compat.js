@@ -103,7 +103,14 @@ QuiX.Exception = function(name, msg) {
 }
 
 QuiX.getTarget = function(evt) {
-	return (evt.target || evt.srcElement);
+	if (evt.target) {
+		var node = evt.target;
+		while(node.nodeType != node.ELEMENT_NODE)
+			node = node.parentNode;
+		return node;
+	}
+	else
+		return evt.srcElement;
 }
 
 QuiX.removeNode = function(node) {
