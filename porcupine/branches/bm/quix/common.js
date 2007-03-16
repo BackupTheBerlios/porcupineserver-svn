@@ -118,3 +118,97 @@ function GroupBox__checkBody(evt ,w) {
 	if (evt)
 		QuiX.stopPropag(evt);
 }
+
+// slider
+function Slider(params) {
+	params = params || {};
+	
+	params.padding = '0,0,0,0',
+	params.height = params.height || 26;
+	params.overflow = 'hidden';
+
+	this.base = Widget;
+	this.base(params);
+	this.div.className = 'slider';
+
+	this.min = parseInt(params.min) || 0;
+	this.max = parseInt(params.max) || 100;
+	
+	var slot = new Widget({
+		top : 'center',
+		left : 4,
+		width : 'this.parent.getWidth() - 8',
+		height : 2,
+		bgcolor : 'silver',
+		border : 1
+	});
+	slot.div.className = 'slot';
+	this.appendChild(slot);
+	
+	var handle = new Icon({
+		img : '__quix/images/slider.gif',
+		top : 'center',
+		width : 10,
+		height : 18,
+		border : 0,
+		padding : '0,0,0,0'
+	});
+	handle.div.className = 'handle';
+	this.appendChild(handle);
+	this.handle = handle;
+	
+	this.handle.attachEvent('onmousedown', Slider__mousedown)
+	
+	this.setValue(params.value || this.min);
+}
+
+Slider.prototype = new Widget;
+
+Slider.prototype.customEvents = Widget.prototype.customEvents.concat(['onchange']);
+
+Slider.prototype.getValue = function() {
+	return this._value;
+}
+
+Slider.prototype.setValue = function(val) {
+	this._value = parseInt(val);
+	if (this._value > this.max)
+		this._value = this.max;
+	if (this._value < this.min)
+		this._value = this.min;
+	this._update();
+}
+
+Slider.prototype._update = function() {
+	var x = '((this.parent._value - this.parent.min) / (this.parent.max - this.parent.min)) * (this.parent.getWidth() - 8)';
+	this.handle.moveTo(x ,'center');
+}
+
+function Slider__mousedown(evt, handle) {
+	QuiX.startX = evt.clientX;
+	QuiX.tmpWidget = handle;
+	handle.attributes.__startx = handle.getLeft();
+	document.desktop.attachEvent('onmousemove', Slider__mousemove);
+	document.desktop.attachEvent('onmouseup', Slider__mouseup);
+}
+
+function Slider__mousemove(evt, desktop) {
+	var offsetX = evt.clientX - QuiX.startX;
+	var new_x = QuiX.tmpWidget.attributes.__startx + offsetX;
+	new_x = (new_x<0)?0:new_x;
+	new_x = (new_x>QuiX.tmpWidget.parent.getWidth()-8)?QuiX.tmpWidget.parent.getWidth()-8:new_x;
+	QuiX.tmpWidget.moveTo(new_x, 'center');
+}
+
+function Slider__mouseup(evt, desktop) {
+	document.desktop.detachEvent('onmousemove');
+	document.desktop.detachEvent('onmouseup');
+	
+	var slider = QuiX.tmpWidget.parent;
+	var range_length = slider.max - slider.min;
+	var old_value = slider._value;
+	slider._value =  slider.min + (QuiX.tmpWidget.getLeft() / (slider.getWidth() - 8)) * range_length;
+	slider._update();
+	if (slider._customRegistry.onchange && old_value != slider._value)
+		box._customRegistry.onchange(slider);
+}
