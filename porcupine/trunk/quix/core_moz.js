@@ -366,6 +366,9 @@ XULParser.prototype.parseXul = function(oNode, parentW) {
 				oWidget = oWidget.body;
 				appendIt = false;
 				break;
+			case 'slider':
+				oWidget = new Slider(params);
+				break;
 			case 'rect':
 				oWidget = new Widget(params);
 				break;
@@ -509,6 +512,8 @@ Widget.prototype.disable = function(w) {
 		w._statecursor = w.div.style.cursor;
 		w.div.style.cursor = 'default';
 		w._isDisabled = true;
+		if (w.__tooltip || w.__tooltipID)
+			Widget__tooltipout(null, w);
 		w._detachEvents();
 		for (var i=0; i<w.widgets.length; i++) {
 			w.widgets[i].disable();
@@ -974,9 +979,11 @@ Widget.prototype.redraw = function(bForceAll, w) {
 	if (container && w.div.style.visibility == '') {
 		var wdth = w.div.style.width;
 		var hght = w.div.style.height;
-		var frag = document.createDocumentFragment();
-		//var root = w._detach();
-		frag.appendChild(QuiX.removeNode(w.div));
+		if (w.div.clientWidth > 0)
+		{
+			var frag = document.createDocumentFragment();
+			frag.appendChild(QuiX.removeNode(w.div));
+		}
 		try {
 			w._setCommonProps();
 			if (w.getPosition() != '')
@@ -987,7 +994,7 @@ Widget.prototype.redraw = function(bForceAll, w) {
 			}
 		}
 		finally {
-			container.appendChild(frag.firstChild);
+			container.appendChild(w.div);
 		}
 		if ((wdth && wdth != w.div.style.width) ||
 			(hght && hght != w.div.style.height)) {

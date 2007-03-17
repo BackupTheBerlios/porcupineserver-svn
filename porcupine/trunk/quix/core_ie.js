@@ -356,6 +356,9 @@ XULParser.prototype.parseXul = function(oNode, parentW) {
 				oWidget = oWidget.body;
 				appendIt = false;
 				break;
+			case 'slider':
+				oWidget = new Slider(params);
+				break;
 			case 'rect':
 				oWidget = new Widget(params);
 				break;
@@ -505,6 +508,8 @@ Widget.prototype.disable = function(w) {
 		w._statecursor = w.div.style.cursor;
 		w.div.style.cursor = 'default';
 		w._isDisabled = true;
+		if (w.__tooltip || w.__tooltipID)
+			Widget__tooltipout(null, w);
 		w._detachEvents();
 		for (var i=0; i<w.widgets.length; i++) {
 			w.widgets[i].disable();
@@ -963,21 +968,27 @@ Widget.prototype._endMove = function(evt) {
 
 Widget.prototype.redraw = function(bForceAll, w) {
 	w = w || this;
-	if (w.div.parentElement &&  w.div.style.visibility == '') {
+	var container = w.div.parentElement;
+	if (container &&  w.div.style.visibility == '') {
 		var wdth = w.div.style.width;
 		var hght = w.div.style.height;
-		var sOverflow = w.div.style.overflow;
-		if (sOverflow != 'hidden')
-			w.div.style.overflow = 'hidden';
-		w._setCommonProps();
-		if (w.div.style.position != '')
-			w._setAbsProps();
-		for (var i=0; i<w.widgets.length; i++) {
-			if (bForceAll || w.widgets[i]._mustRedraw())
-				w.widgets[i].redraw(bForceAll);
+		if (w.div.clientWidth > 0)
+		{
+			var frag = document.createDocumentFragment();
+			frag.appendChild(QuiX.removeNode(w.div));
 		}
-		if (sOverflow != 'hidden')
-			w.div.style.overflow = sOverflow;
+		try {
+			w._setCommonProps();
+			if (w.div.style.position != '')
+				w._setAbsProps();
+			for (var i=0; i<w.widgets.length; i++) {
+				if (bForceAll || w.widgets[i]._mustRedraw())
+					w.widgets[i].redraw(bForceAll);
+			}
+		}
+		finally {
+			container.appendChild(w.div);
+		}
 		if ((wdth && wdth != w.div.style.width) ||
 			(hght && hght != w.div.style.height)) {
 			if (w._customRegistry.onresize)

@@ -71,6 +71,10 @@ Icon.prototype.setImageURL = function(s) {
 	this.imageElement.src = s;
 }
 
+Icon.prototype.getImageURL = function() {
+	return this.imageElement.src;
+}
+
 Icon.prototype._addDummyImage = function() {
 	var img = QuiX.getImage('__quix/images/transp.gif');
 	img.style.verticalAlign = 'middle';

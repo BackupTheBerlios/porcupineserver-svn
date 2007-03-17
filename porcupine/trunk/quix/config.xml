@@ -55,6 +55,7 @@
 	<context path="images/on_off_up.gif" method="GET" client=".*" lang=".*" action="images/on_off_up.gif" max-age="3600"/>
 	<context path="images/remove16.gif" method="GET" client=".*" lang=".*" action="images/remove16.gif" max-age="3600"/>
 	<context path="images/resize-handle.gif" method="GET" client=".*" lang=".*" action="images/resize-handle.gif" max-age="3600"/>
+	<context path="images/slider.gif" method="GET" client=".*" lang=".*" action="images/slider.gif" max-age="3600"/>
 	<context path="images/spin_up.gif" method="GET" client=".*" lang=".*" action="images/spin_up.gif" max-age="3600"/>
 	<context path="images/submenu.gif" method="GET" client=".*" lang=".*" action="images/submenu.gif" max-age="3600"/>
 	<context path="images/tb_handle.gif" method="GET" client=".*" lang=".*" action="images/tb_handle.gif" max-age="3600"/>

@@ -71,7 +71,7 @@ QuiX.tags = {
 	'tree':6,'treenode':6,'foldertree':6,
 	'toolbar':7,'tbbutton':7,'outlookbar':7,'tool':7,
 	'field':8,'form':8,'spinbutton':8,
-	'hr':9, 'iframe':9, 'groupbox':9,
+	'hr':9, 'iframe':9, 'groupbox':9, 'slider':9,
 	'datagrid':10,
 	'file':11,'multifile':11,
 	'datepicker':12,
@@ -103,7 +103,14 @@ QuiX.Exception = function(name, msg) {
 }
 
 QuiX.getTarget = function(evt) {
-	return (evt.target || evt.srcElement);
+	if (evt.target) {
+		var node = evt.target;
+		while(node.nodeType != node.ELEMENT_NODE)
+			node = node.parentNode;
+		return node;
+	}
+	else
+		return evt.srcElement;
 }
 
 QuiX.removeNode = function(node) {

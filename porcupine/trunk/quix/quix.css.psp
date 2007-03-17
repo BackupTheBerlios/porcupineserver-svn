@@ -399,3 +399,12 @@ BODY {
 	border-style: solid;
 	
 }
+
+.slider .slot {
+     border-color: lightgray;
+     border-style: inset;
+}
+
+.slider .handle {
+	cursor : e-resize;
+}
