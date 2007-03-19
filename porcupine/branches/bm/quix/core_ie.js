@@ -358,6 +358,7 @@ XULParser.prototype.parseXul = function(oNode, parentW) {
 				break;
 			case 'slider':
 				oWidget = new Slider(params);
+				if (this.activeForm) this.activeForm.elements.push(oWidget);
 				break;
 			case 'rect':
 				oWidget = new Widget(params);

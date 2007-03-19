@@ -133,6 +133,7 @@ function Slider(params) {
 
 	this.min = parseInt(params.min) || 0;
 	this.max = parseInt(params.max) || 100;
+	this.name = params.name;
 	
 	var slot = new Widget({
 		top : 'center',
@@ -171,7 +172,7 @@ Slider.prototype.getValue = function() {
 }
 
 Slider.prototype.setValue = function(val) {
-	this._value = parseInt(val);
+	this._value = parseFloat(val);
 	if (this._value > this.max)
 		this._value = this.max;
 	if (this._value < this.min)
