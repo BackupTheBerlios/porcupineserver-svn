@@ -141,7 +141,8 @@ function Slider(params) {
 		width : 'this.parent.getWidth() - 8',
 		height : 2,
 		bgcolor : 'silver',
-		border : 1
+		border : 1,
+		overflow : 'hidden'
 	});
 	slot.div.className = 'slot';
 	this.appendChild(slot);
@@ -211,5 +212,5 @@ function Slider__mouseup(evt, desktop) {
 	slider._value =  slider.min + (QuiX.tmpWidget.getLeft() / (slider.getWidth() - 8)) * range_length;
 	slider._update();
 	if (slider._customRegistry.onchange && old_value != slider._value)
-		box._customRegistry.onchange(slider);
+		slider._customRegistry.onchange(slider);
 }
