@@ -24,20 +24,26 @@ Form.prototype.getElementByName = function(name) {
 Form.prototype.submit = function(f_callback) {
 	function submit_oncomplete(req) {
 		var form = req.callback_info;
-		f_callback(req.response, form);
+		if (f_callback)
+			f_callback(req.response, form);
 	}
 	
+	// send data
+	var xmlrpc = new XMLRPCRequest(this.action);
+	xmlrpc.oncomplete = submit_oncomplete;
+	xmlrpc.callback_info = this;
+	xmlrpc.callmethod(this.method, this.getData());
+}
+
+Form.prototype.getData = function()
+{
 	var formData = {};
 	// build form data
 	for (var i=0; i<this.elements.length; i++) {
 		if (this.elements[i].name && !this.elements[i]._isDisabled)
 			formData[this.elements[i].name] = this.elements[i].getValue();
 	}
-	// send data
-	var xmlrpc = new XMLRPCRequest(this.action);
-	xmlrpc.oncomplete = submit_oncomplete;
-	xmlrpc.callback_info = this;
-	xmlrpc.callmethod(this.method, formData);
+	return formData;	
 }
 
 function Field(params) {
