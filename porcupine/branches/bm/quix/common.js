@@ -125,7 +125,7 @@ function Slider(params) {
 	
 	params.padding = '0,0,0,0',
 	params.height = params.height || 26;
-	params.overflow = 'hidden';
+	params.overflow = 'visible';
 
 	this.base = Widget;
 	this.base(params);
@@ -153,7 +153,8 @@ function Slider(params) {
 		width : 10,
 		height : 18,
 		border : 0,
-		padding : '0,0,0,0'
+		padding : '0,0,0,0',
+		overflow : 'visible'
 	});
 	handle.div.className = 'handle';
 	this.appendChild(handle);
@@ -161,6 +162,13 @@ function Slider(params) {
 	
 	this.handle.attachEvent('onmousedown', Slider__mousedown)
 	
+	var lbl = new Label({
+		top : 10,
+		left : 10
+	});
+	this.handle.appendChild(lbl);
+	this.label = lbl;
+
 	this.setValue(params.value || this.min);
 }
 
@@ -173,7 +181,7 @@ Slider.prototype.getValue = function() {
 }
 
 Slider.prototype.setValue = function(val) {
-	this._value = parseFloat(val);
+	this._value = Math.round(parseFloat(val) * 100) / 100;
 	if (this._value > this.max)
 		this._value = this.max;
 	if (this._value < this.min)
@@ -184,6 +192,7 @@ Slider.prototype.setValue = function(val) {
 Slider.prototype._update = function() {
 	var x = '((this.parent._value - this.parent.min) / (this.parent.max - this.parent.min)) * (this.parent.getWidth() - 8)';
 	this.handle.moveTo(x ,'center');
+	this.label.setCaption(this._value);
 }
 
 function Slider__mousedown(evt, handle) {
@@ -197,8 +206,15 @@ function Slider__mousedown(evt, handle) {
 function Slider__mousemove(evt, desktop) {
 	var offsetX = evt.clientX - QuiX.startX;
 	var new_x = QuiX.tmpWidget.attributes.__startx + offsetX;
+	var slider = QuiX.tmpWidget.parent;
+	var range_length = slider.max - slider.min;
+		
 	new_x = (new_x<0)?0:new_x;
 	new_x = (new_x>QuiX.tmpWidget.parent.getWidth()-8)?QuiX.tmpWidget.parent.getWidth()-8:new_x;
+	
+	var new_value = slider.min + (QuiX.tmpWidget.getLeft() / (slider.getWidth() - 8)) * range_length;
+	slider.label.setCaption(Math.round(new_value * 100) / 100);
+	
 	QuiX.tmpWidget.moveTo(new_x, 'center');
 }
 
@@ -209,7 +225,9 @@ function Slider__mouseup(evt, desktop) {
 	var slider = QuiX.tmpWidget.parent;
 	var range_length = slider.max - slider.min;
 	var old_value = slider._value;
-	slider._value =  slider.min + (QuiX.tmpWidget.getLeft() / (slider.getWidth() - 8)) * range_length;
+	var new_value = slider.min + (QuiX.tmpWidget.getLeft() / (slider.getWidth() - 8)) * range_length;
+	slider._value = Math.round(new_value * 100) / 100;
+	
 	slider._update();
 	if (slider._customRegistry.onchange && old_value != slider._value)
 		slider._customRegistry.onchange(slider);
