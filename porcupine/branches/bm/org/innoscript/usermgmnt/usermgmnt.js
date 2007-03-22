@@ -101,20 +101,21 @@ usermgmnt.exitApp = function(evt, w) {
 
 usermgmnt.usersListMenu_show = function(menu) {
     var oUserList = menu.owner.getWidgetsByType(ListView)[0];
-    if (oUserList.selection.length == 1) {
-        menu.options[1].enable();
+    
+    if (oUserList.selection.length == 1)
         menu.options[4].enable();
-    }
-    else {
-        menu.options[1].disable();
+    else
         menu.options[4].disable();
-    }
-    if (oUserList.selection.length == 1 && oUserList.getSelection().haspsw) {
+    
+    if (oUserList.selection.length > 0)
+    	menu.options[1].enable();
+    else
+    	menu.options[1].disable();
+    
+    if (oUserList.selection.length == 1 && oUserList.getSelection().haspsw)
         menu.options[3].enable();
-    }
-    else {
+    else
         menu.options[3].disable();
-    }
 } 
 
 usermgmnt.showProperties = function(evt, w) {
