@@ -65,7 +65,7 @@
 					<qx:listheader>
 						<qx:column width="24" caption="" type="img" name="image" resizable="false"/>
 						<qx:column width="120" caption="@@displayName@@" name="displayName" bgcolor="#EFEFEF" sortable="true"/>
-						<qx:column width="60" caption="@@size@@" name="size" xform="generic.computeSize" sortable="true"/>
+						<qx:column width="60" caption="@@SIZE@@" name="size" xform="generic.computeSize" sortable="true"/>
 						<qx:column width="120" caption="@@MODIFIEDBY@@" name="modifiedBy" sortable="true"/>
 						<qx:column width="160" caption="@@DATEMOD@@" type="date" name="modified" sortable="true"/>
 					</qx:listheader>
