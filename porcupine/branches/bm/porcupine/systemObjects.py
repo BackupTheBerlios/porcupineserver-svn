@@ -356,6 +356,9 @@ class GenericItem(object):
     The base class of all Poprcupine objects.
     
     @cvar __props__: A tuple containing all the object's custom data types.
+    @type __props__: tuple
+
+    @cvar _eventHandlers: A tuple containing all the object's custom data types.
     
     @ivar modifiedBy: The display name of the last modifier.
     @type modifiedBy: str
@@ -394,6 +397,7 @@ class GenericItem(object):
     __props__ = ('displayName', 'description')
     isCollection = property(lambda x:False, None, None,
                     "Indicates if this object is a container.")
+    _eventHandlers = []
 
     def __init__(self):
         # system props

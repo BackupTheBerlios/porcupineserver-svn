@@ -115,18 +115,26 @@ def handle_update(oItem, oOldItem, trans):
             else:
                 # it is a new object or undeleting
                 oAttr._eventHandler.on_create(oItem, oAttr, trans)
+    if oItem._eventHandlers:
+        if oOldItem:
+            # update
+            dummy = [handler.on_update(oItem, oOldItem, trans)
+                     for handler in oItem._eventHandlers]
+        else:
+            # create
+            dummy = [handler.on_create(oItem, trans)
+                     for handler in oItem._eventHandlers]
 
 def handle_delete(oItem, trans, bPermanent):
-    attrs = [
-        getattr(oItem, attr_name)
-        for attr_name in oItem.__props__
-        if hasattr(oItem, attr_name)
-    ]
-    dummy_list = [
-        attr._eventHandler.on_delete(oItem, attr, trans, bPermanent)
-        for attr in attrs
-        if attr._eventHandler
-    ]
+    attrs = [getattr(oItem, attr_name)
+             for attr_name in oItem.__props__
+             if hasattr(oItem, attr_name)]
+    dummy = [attr._eventHandler.on_delete(oItem, attr, trans, bPermanent)
+             for attr in attrs
+             if attr._eventHandler]
+    if oItem._eventHandlers:
+        dummy = [handler.on_delete(oItem, trans, bPermanent) 
+                 for handler in oItem._eventHandlers]
 
 def lock():
     global _locks

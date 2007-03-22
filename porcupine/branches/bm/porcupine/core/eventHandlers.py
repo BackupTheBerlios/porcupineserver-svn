@@ -1,5 +1,5 @@
 #===============================================================================
-#    Copyright 2005, 2006 Tassos Koutsovassilis
+#    Copyright 2005 - 2007 Tassos Koutsovassilis
 #
 #    This file is part of Porcupine.
 #    Porcupine is free software; you can redistribute it and/or modify
@@ -29,4 +29,17 @@ class DatatypeEventHandler(object):
     @staticmethod
     def on_delete(item, attr, trans, bPermanent):
         pass
-  
+    
+class ContentclassEventHandler(object):
+    
+    @staticmethod
+    def on_create(item, trans):
+        pass
+    
+    @staticmethod
+    def on_update(item, old_item, trans):
+        pass
+    
+    @staticmethod
+    def on_delete(item, trans, bPermanent):
+        pass
