@@ -7,7 +7,7 @@ maximize="true"
 minimize="true"
 close="true"
 bgcolor="menu"
-width="380"
+width="400"
 height="325"
 left="30%"
 top="30%">
@@ -41,17 +41,17 @@ top="30%">
                     
 					<a:hr top="120" width="100%"/>
                     
-					<a:label top="130" left="5" width="100" height="20" caption="@@DATEMOD@@:"/>
-					<a:label top="130" left="105" width="55%" height="20" caption="$MODIFIED"/>
+					<a:label top="130" left="5" width="110" height="20" caption="@@DATEMOD@@:"/>
+					<a:label top="130" left="115" width="55%" height="20" caption="$MODIFIED"/>
                     
-					<a:label top="150" left="5" width="100" height="20" caption="@@MODIFIEDBY@@:"/>
-					<a:label top="150" left="105" width="55%" height="20" caption="$MODIFIED_BY"/>
+					<a:label top="150" left="5" width="110" height="20" caption="@@MODIFIEDBY@@:"/>
+					<a:label top="150" left="115" width="55%" height="20" caption="$MODIFIED_BY"/>
                     
-					<a:label top="170" left="5" width="100" height="20" caption="@@ID@@:"/>
-					<a:label top="170" left="105" width="55%" height="20" canselect="true" caption="$ID"/>
+					<a:label top="170" left="5" width="110" height="20" caption="@@ID@@:"/>
+					<a:label top="170" left="115" width="55%" height="20" canselect="true" caption="$ID"/>
                     
-					<a:label top="190" left="5" width="100" height="20" caption="@@CLASS@@:"/>
-					<a:label top="190" left="105" width="55%" height="20" canselect="true" caption="$CONTENTCLASS"/>
+					<a:label top="190" left="5" width="110" height="20" caption="@@CLASS@@:"/>
+					<a:label top="190" left="115" width="55%" height="20" canselect="true" caption="$CONTENTCLASS"/>
 				</a:tab>
 				$SECURITY_TAB
 			</a:tabpane>
