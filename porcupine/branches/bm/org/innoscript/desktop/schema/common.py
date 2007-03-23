@@ -63,7 +63,7 @@ class RootFolder(system.Container):
     __slots__ = ()
     containment = (
         'org.innoscript.desktop.schema.common.Folder',
-        'org.innoscript.desktop.schema.collab.ContactsFolder',
+        'org.innoscript.desktop.schema.collab.ContactsFolder'
     )
     
     def getParent(self):
@@ -118,8 +118,27 @@ class Folder(system.Container):
     __slots__ = ()
     containment = (
         'org.innoscript.desktop.schema.common.Folder',
-        'org.innoscript.desktop.schema.common.Document'
+        'org.innoscript.desktop.schema.common.Document',
+        'org.innoscript.bmountain.schema.MediaFolder'
     )
+
+class PersonalFolders(system.Container):
+    """
+    Special container for keeping the users' personal folders
+    """
+    __slots__ = ()
+    containment = (
+        'org.innoscript.desktop.schema.common.PersonalFolder',
+    )
+    
+    
+class PersonalFolder(Folder):
+    """
+    Personal Folder
+    ===============
+    Used for storing each user's personal objects.
+    """
+    pass
 
 class Category(system.Container):
     """Category

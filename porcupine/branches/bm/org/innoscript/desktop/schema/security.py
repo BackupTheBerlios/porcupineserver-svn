@@ -14,13 +14,14 @@
 #    along with Porcupine; if not, write to the Free Software
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #===============================================================================
-"Porcupine security objects"
+"Porcupine desktop security objects"
 
 import md5
 
 from porcupine import systemObjects as system
-from org.innoscript.desktop.schema import properties
 from porcupine import datatypes
+from org.innoscript.desktop.schema import properties
+from org.innoscript.desktop.schema import handlers
 
 class PoliciesFolder(system.Container):
     """
@@ -137,14 +138,16 @@ class User(GenericUser):
     @ivar settings: User specific preferences.
     @type settings: L{Dictionary<porcupine.datatypes.Dictionary>}
     """
-    __slots__ = ('password', 'email', 'settings')
+    __slots__ = ('password', 'email', 'settings', 'personalFolder')
     __props__ = GenericUser.__props__ + __slots__
+    _eventHandlers = GenericUser._eventHandlers + [handlers.PersonalFolderHandler]
     
     def __init__(self):
         GenericUser.__init__(self)
         self.password = properties.RequiredPassword()
         self.email = datatypes.String()
         self.settings = datatypes.Dictionary()
+        self.personalFolder = datatypes.Reference1()
 
     def authenticate(self, sPsw):
         """Checks if the given string matches the
