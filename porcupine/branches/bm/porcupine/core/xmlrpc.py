@@ -95,6 +95,8 @@ class XMLRPCParams(list):
     def __serializeParam(self, param):
         if type(param)==str:
             return('<value>%s</value>' % xmlUtils.XMLEncode(param))
+        elif type(param)==unicode:
+            return('<value>%s</value>' % xmlUtils.XMLEncode(param.encode('utf-8')))
         elif type(param)==int or type(param)==long:
             return('<value><i4>%i</i4></value>' % param)
         elif type(param)==bool:
