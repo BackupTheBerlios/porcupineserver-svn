@@ -91,6 +91,7 @@ queryPerformer.expandNode = function(w) {
                     });
                     oNode.attributes.obj = oAttr;
                     w.appendChild(oNode);
+                    oNode.redraw();
                 }
                 else if (oAttr.constructor == Object) {
                     oNode = new TreeNode({
@@ -99,15 +100,17 @@ queryPerformer.expandNode = function(w) {
                     });
                     oNode.attributes.obj = oAttr;
                     w.appendChild(oNode);
+                    oNode.redraw();
                 }
             }
             if (w.childNodes.length == 0) {
                 oNode = new TreeNode ({
-                    haschildren:false,
+                    haschildren: false,
                     caption: 'Empty',
-                    disabled:true
+                    disabled: true
                 });
                 w.appendChild(oNode);
+                oNode.redraw();
             }
         }
     }    
@@ -122,10 +125,12 @@ queryPerformer.expandArray = function(w, array, options) {
         treeNode = new TreeNode({
             haschildren : (array.length>0),
             img : nodeimg,
-            caption : caption, disabled:(array.length==0)
+            caption : caption,
+            disabled:(array.length==0)
         });
         treeNode.attributes.obj = array[i];
         w.appendChild(treeNode);
+        treeNode.redraw();
     }
 }
 
