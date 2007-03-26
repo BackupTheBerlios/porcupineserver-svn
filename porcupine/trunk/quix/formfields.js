@@ -24,20 +24,26 @@ Form.prototype.getElementByName = function(name) {
 Form.prototype.submit = function(f_callback) {
 	function submit_oncomplete(req) {
 		var form = req.callback_info;
-		f_callback(req.response, form);
+		if (f_callback)
+			f_callback(req.response, form);
 	}
 	
+	// send data
+	var xmlrpc = new XMLRPCRequest(this.action);
+	xmlrpc.oncomplete = submit_oncomplete;
+	xmlrpc.callback_info = this;
+	xmlrpc.callmethod(this.method, this.getData());
+}
+
+Form.prototype.getData = function()
+{
 	var formData = {};
 	// build form data
 	for (var i=0; i<this.elements.length; i++) {
 		if (this.elements[i].name && !this.elements[i]._isDisabled)
 			formData[this.elements[i].name] = this.elements[i].getValue();
 	}
-	// send data
-	var xmlrpc = new XMLRPCRequest(this.action);
-	xmlrpc.oncomplete = submit_oncomplete;
-	xmlrpc.callback_info = this;
-	xmlrpc.callmethod(this.method, formData);
+	return formData;	
 }
 
 function Field(params) {
@@ -51,6 +57,8 @@ function Field(params) {
 		params.onclick = QuiX.getEventWrapper(Radio__click, params.onclick);
 		params.overflow = '';
 	}
+	if (this.type == 'checkbox')
+		params.onclick = QuiX.getEventWrapper(Check__click, params.onclick);
 	params.height = params.height || 22;
 	params.padding = '0,0,0,0';
 	this.base(params);
@@ -58,14 +66,14 @@ function Field(params) {
 	this.readonly = (params.readonly=='true' || params.readonly==true)?true:false;
 
 	var e;
+	var oField = this;
+	
 	switch (this.type) {
 		case 'checkbox':
 		case 'radio':
 			var sChecked;
-			if (this.type=='checkbox')
-				sChecked = (params.value==true || params.value == 'true')?'checked':'';
-			else
-				sChecked = (params.checked==true || params.checked == 'true')?'checked':'';
+			var val = (this.type=='checkbox')?'value':'checked';
+			sChecked = (params[val]==true || params[val] == 'true')?'checked':'';
 			this.div.innerHTML = '<input type=' + this.type + ' ' + sChecked +
 				' style="vertical-align:middle">';
 			e = this.div.firstChild;
@@ -89,17 +97,16 @@ function Field(params) {
 			this.textPadding = params.textpadding || 0;
 			if (this.type=='hidden') this.hide();
 			this.div.appendChild(e);
+
+			e.onchange = function() {
+				if (oField._customRegistry.onchange)
+					oField._customRegistry.onchange(oField);
+			}
 	}
 
 	e.onmousedown = QuiX.stopPropag;
 	e.onselectstart = QuiX.stopPropag;
 	
-	var oField = this;
-	e.onchange = function() {
-		if (oField._customRegistry.onchange)
-			oField._customRegistry.onchange(oField);
-	}
-
 	this._adjustFieldSize();
 	if (this._isDisabled) {
 		e.disabled = true;
@@ -230,6 +237,13 @@ Field.prototype._setCommonProps = function() {
 	this._adjustFieldSize();
 }
 
+function Check__click(evt, w) {
+	if (QuiX.getTarget(evt).tagName != 'INPUT')
+		w.div.firstChild.checked = !w.div.firstChild.checked;
+	if (w._customRegistry.onchange)
+		w._customRegistry.onchange(w);
+}
+
 function Radio__click(evt, w) {
 	var id = w.getId();
 	if (id) {
@@ -238,7 +252,10 @@ function Radio__click(evt, w) {
 			radio = radio_group[i].div.firstChild;
 			radio.checked = false;
 		}
+		var checked = w.div.firstChild.checked;
 		w.div.firstChild.checked = true;
+		if (!checked && w._customRegistry.onchange)
+			w._customRegistry.onchange(w);
 	}
 }
 
