@@ -1,5 +1,5 @@
 #===============================================================================
-#    Copyright 2005, 2006 Tassos Koutsovassilis
+#    Copyright 2005 - 2007 Tassos Koutsovassilis
 #
 #    This file is part of Porcupine.
 #    Porcupine is free software; you can redistribute it and/or modify
@@ -15,18 +15,35 @@
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #===============================================================================
 "Porcupine server event handlers base classes"
+from porcupine.db import db, dbEnv
 
 class DatatypeEventHandler(object):
+    db = db
+    store = dbEnv
 
-    @staticmethod
-    def on_create(item, attr, trans):
+    @classmethod
+    def on_create(self, item, attr, trans):
         pass
 
-    @staticmethod
-    def on_update(item, new_attr, old_attr, trans):
+    @classmethod
+    def on_update(self, item, new_attr, old_attr, trans):
         pass
     
-    @staticmethod
-    def on_delete(item, attr, trans, bPermanent):
+    @classmethod
+    def on_delete(self, item, attr, trans, bPermanent):
         pass
-  
+    
+class ContentclassEventHandler(object):
+    store = dbEnv
+    
+    @classmethod
+    def on_create(self, item, trans):
+        pass
+    
+    @classmethod
+    def on_update(self, item, old_item, trans):
+        pass
+    
+    @classmethod
+    def on_delete(self, item, trans, bPermanent):
+        pass
