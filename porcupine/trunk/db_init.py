@@ -48,7 +48,8 @@ if (answer == 'Y'):
     rootFolder.modified = ftime
     rootFolder._subfolders = {
         'Categories':'categories',
-        'Administrative Tools':'admintools'
+        'Administrative Tools':'admintools',
+        'Personal folders':'personal'
     }
     rootFolder.security = {'everyone':1, 'administrators':8}
     db.putItem(rootFolder, None)
@@ -57,7 +58,6 @@ if (answer == 'Y'):
     sys.stdout.write('Creating recycle bin...')
     rb = org.innoscript.desktop.schema.common.RecycleBin()
     rb._id = 'rb'
-    
     rb.description.value = 'Deleted items container'
     rb.displayName.value = 'Recycle Bin'
     rb._isSystem = True
@@ -82,7 +82,38 @@ if (answer == 'Y'):
     catFolder.security = {'everyone':1, 'administrators':8}
     db.putItem(catFolder, None)
     sys.stdout.write('[OK]\n')
+
+    sys.stdout.write('Creating container for users\' personal storage...')
+    perFolder = org.innoscript.desktop.schema.common.PersonalFolders()
+    perFolder._id = 'personal'
+    perFolder.displayName.value = 'Personal folders'
+    perFolder._isSystem = True
+    perFolder._owner = sOwner
+    perFolder.modifiedBy = sOwner
+    perFolder._created = ftime
+    perFolder.modified = ftime
+    perFolder._subfolders = {
+        'admin':'adminstorage',
+    }
+    perFolder.security = {'everyone':1, 'administrators':8}
+    db.putItem(perFolder, None)
+    sys.stdout.write('[OK]\n')
     
+    sys.stdout.write('Creating admin\'s personal storage...')
+    adminFolder = org.innoscript.desktop.schema.common.PersonalFolder()
+    adminFolder._id = 'adminstorage'
+    adminFolder._parentid = 'personal'
+    adminFolder.displayName.value = 'admin'
+    adminFolder._isSystem = True
+    adminFolder._owner = sOwner
+    adminFolder.modifiedBy = sOwner
+    adminFolder._created = ftime
+    adminFolder.modified = ftime
+    adminFolder.inheritRoles = False
+    adminFolder.security = {'admin':2, 'administrators':8}
+    db.putItem(adminFolder, None)
+    sys.stdout.write('[OK]\n')
+
     sys.stdout.write('Creating Administrative Tools folder...')
     adminFolder = org.innoscript.desktop.schema.common.AdminTools()
     adminFolder._id = 'admintools'
@@ -131,6 +162,7 @@ if (answer == 'Y'):
     admin._id = 'admin'
     admin._parentid = 'users'
     admin.displayName.value = 'admin'
+    admin.personalFolder.value = 'adminstorage'
     admin._isSystem = True
     admin._owner = sOwner
     admin.modifiedBy = sOwner
