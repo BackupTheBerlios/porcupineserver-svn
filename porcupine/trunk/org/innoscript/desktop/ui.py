@@ -388,6 +388,12 @@ class Desktop(PorcupineDesktopServlet):
             self.params['SETTINGS_DISABLED'] = 'true'
             self.params['LOGOFF_DISABLED'] = 'true'
         
+        self.params['REPOSITORY_DISABLED'] = 'true'
+        self.params['PERSONAL_FOLDER'] = ''
+        if hasattr(oUser, 'personalFolder'):
+            self.params['REPOSITORY_DISABLED'] = 'false'
+            self.params['PERSONAL_FOLDER'] = oUser.personalFolder.value
+        
         # has the user access to recycle bin?
         rb_icon = ''
         rb = self.server.store.getItem('rb')

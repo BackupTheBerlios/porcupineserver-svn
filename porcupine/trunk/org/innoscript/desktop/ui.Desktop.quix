@@ -21,6 +21,10 @@
 			</a:contextmenu>
 			<a:menubar width="100%" height="100%" bgcolor="menu" style="font-weight:bolder">
 				<a:menu caption=">@@START@@">
+					<a:menuoption caption="@@MY_REPOSITORY@@" img="desktop/images/repository.gif" onclick="generic.openContainer" disabled="$REPOSITORY_DISABLED">
+						<a:prop name="folderID" value="$PERSONAL_FOLDER"></a:prop>
+					</a:menuoption>
+					<a:sep></a:sep>
 					<a:menuoption caption="@@APPLICATIONS@@" img="desktop/images/appsfolder.gif">
 						$APPS
 					</a:menuoption>

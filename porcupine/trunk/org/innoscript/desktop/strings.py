@@ -21,6 +21,7 @@ resources = ResourceStrings({
         'org.innoscript.desktop.schema.collab.ContactsFolder' : 'Contacts folder',
         'org.innoscript.desktop.schema.collab.Contact' : 'Contact',
         'org.innoscript.desktop.schema.common.Document' : 'File',
+        'org.innoscript.desktop.schema.common.PersonalFolder' : 'User\'s folder',
         'org.innoscript.desktop.schema.common.Category' : 'Category',
         'org.innoscript.desktop.schema.security.User' : 'User',
         'org.innoscript.desktop.schema.security.Group' : 'Group',
@@ -58,6 +59,7 @@ resources = ResourceStrings({
         'CREATE' : 'Create',
         'UPDATE' : 'Update',
         
+        'MY_REPOSITORY' : 'My Repository',
         'APPLICATIONS' : 'Applications',
         'SETTINGS' : 'Settings',
         'START' : 'Start',
@@ -169,6 +171,7 @@ resources = ResourceStrings({
         'org.innoscript.desktop.schema.collab.ContactsFolder' : 'Φάκελος επαφών',
         'org.innoscript.desktop.schema.collab.Contact' : 'Επαφή',
         'org.innoscript.desktop.schema.common.Document' : 'Έγγραφο',
+        'org.innoscript.desktop.schema.common.PersonalFolder' : 'Φάκελος χρήστη',
         'org.innoscript.desktop.schema.common.Category' : 'Κατηγορία',
         'org.innoscript.desktop.schema.security.User' : 'Χρήστης',
         'org.innoscript.desktop.schema.security.Group' : 'Ομάδα',
@@ -205,6 +208,8 @@ resources = ResourceStrings({
         'FILTER' : 'Φίλτρο',
         'CREATE' : 'Δημιουργία',
         'UPDATE' : 'Ενημέρωση',
+        
+        'MY_REPOSITORY' : 'Ο αποθηκευτικός μου χώρος',
         'APPLICATIONS' : 'Εφαρμογές',
         'SETTINGS' : 'Ρυθμίσεις',
         'START' : 'Έναρξη',
