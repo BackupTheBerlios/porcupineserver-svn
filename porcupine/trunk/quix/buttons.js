@@ -142,6 +142,7 @@ function XButton(params) {
 	this.icon = null;
 	this.base = Widget;
 	this.base({
+		id: params.id,
 		border: 1,
 		width: params.width,
 		height: params.height,
@@ -162,6 +163,11 @@ function XButton(params) {
 	this.div.className = 'btn';
 	this.div.style.cursor = 'pointer';
 	
+	delete params.id;
+	delete params.top;
+	delete params.left;
+	delete params.minw,
+	delete params.minh,
 	delete params.onclick;
 	delete params.onmouseover;
 	delete params.onmousedown;
