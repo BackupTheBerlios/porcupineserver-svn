@@ -119,7 +119,6 @@ class Folder(system.Container):
     containment = (
         'org.innoscript.desktop.schema.common.Folder',
         'org.innoscript.desktop.schema.common.Document',
-        'org.innoscript.bmountain.schema.MediaFolder'
     )
 
 class PersonalFolders(system.Container):

@@ -377,6 +377,12 @@ class Desktop(PorcupineDesktopServlet):
             'AUTO_RUN' : oUser.settings.value.setdefault('AUTO_RUN', ''),
             'RUN_MAXIMIZED' : int(oUser.settings.value.setdefault('RUN_MAXIMIZED', False)),
         }
+        self.params['REPOSITORY_DISABLED'] = 'true'
+        self.params['PERSONAL_FOLDER'] = ''
+        if hasattr(oUser, 'personalFolder'):
+            self.params['REPOSITORY_DISABLED'] = 'false'
+            self.params['PERSONAL_FOLDER'] = oUser.personalFolder.value
+        
         # has the user access to recycle bin?
         rb_icon = ''
         rb = self.server.store.getItem('rb')

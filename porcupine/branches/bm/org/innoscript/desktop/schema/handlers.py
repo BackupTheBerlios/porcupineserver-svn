@@ -35,10 +35,8 @@ class PersonalFolderHandler(eventHandlers.ContentclassEventHandler):
                 'administrators' : 8,
                 user.id : 2
             }
-            
-            # TODO: Replace with system ID of
-            # the personal folders file
-            personal_folder.appendTo('/Personal folders', trans)
+                        
+            personal_folder.appendTo('personal', trans)
             
     @classmethod
     def on_update(self, user, old_user, trans):
