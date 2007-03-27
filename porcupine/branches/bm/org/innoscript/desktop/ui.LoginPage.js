@@ -1,10 +1,11 @@
 function login() {}
 
 login.login = function (evt, w) {
-	var sUser = document.getWidgetById('user').getValue();
-	var sPassword = document.getWidgetById('password').getValue();
-	var login_dialog = document.getWidgetById('logindialog');
+	var login_dialog = w.getParentByType(Dialog);
+	var sUser = login_dialog.getWidgetById('user').getValue();
+	var sPassword = login_dialog.getWidgetById('password').getValue();
 	var sLoginServiceUrl = login_dialog.attributes.ServiceURI;
+
 	var xmlrpc = new XMLRPCRequest(sLoginServiceUrl);
 	xmlrpc.oncomplete = login.login_oncomplete;
 	xmlrpc.callback_info = w;

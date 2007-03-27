@@ -1,5 +1,5 @@
 #===============================================================================
-#    Copyright 2005, Tassos Koutsovassilis
+#    Copyright 2005-2007, Tassos Koutsovassilis
 #
 #    This file is part of Porcupine.
 #    Porcupine is free software; you can redistribute it and/or modify
@@ -374,9 +374,21 @@ class Desktop(PorcupineDesktopServlet):
         oUser = self.session.user
         self.params = {
             'USER': oUser.displayName.value,
-            'AUTO_RUN' : oUser.settings.value.setdefault('AUTO_RUN', ''),
-            'RUN_MAXIMIZED' : int(oUser.settings.value.setdefault('RUN_MAXIMIZED', False)),
+            'AUTO_RUN' : '',
+            'RUN_MAXIMIZED' : 0,
+            'SETTINGS_DISABLED' : '',
+            'LOGOFF_DISABLED' : ''
         }
+        
+        if hasattr(oUser, 'authenticate'):
+            self.params['AUTO_RUN'] = oUser.settings.value.setdefault('AUTO_RUN', '')
+            self.params['RUN_MAXIMIZED'] = int(oUser.settings.value.setdefault('RUN_MAXIMIZED', False))
+            taskbar_position = self.session.user.settings.value.setdefault('TASK_BAR_POS', 'bottom')
+        else:
+            taskbar_position = 'bottom'
+            self.params['SETTINGS_DISABLED'] = 'true'
+            self.params['LOGOFF_DISABLED'] = 'true'
+
         self.params['REPOSITORY_DISABLED'] = 'true'
         self.params['PERSONAL_FOLDER'] = ''
         if hasattr(oUser, 'personalFolder'):
@@ -398,7 +410,6 @@ class Desktop(PorcupineDesktopServlet):
         
         desktop_pane = DESKSTOP_PANE % (self.item.displayName.value, rb_icon)
         
-        taskbar_position = self.session.user.settings.value.setdefault('TASK_BAR_POS', 'bottom')
         if taskbar_position == 'bottom':
             self.params['TOP'] = desktop_pane
             self.params['BOTTOM'] = ''
@@ -421,6 +432,12 @@ class Desktop(PorcupineDesktopServlet):
 class LoginPage(XULSimpleTemplateServlet):
     def setParams(self):
         self.isPage = True
+        self.params = {
+            'URI': self.request.serverVariables['SCRIPT_NAME'] + '?cmd=login'
+        }
+
+class Dlg_LoginAs(XULSimpleTemplateServlet):
+    def setParams(self):
         self.params = {
             'URI': self.request.serverVariables['SCRIPT_NAME'] + '?cmd=login'
         }

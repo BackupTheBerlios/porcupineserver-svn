@@ -13,9 +13,12 @@ desktop.logoff = function(evt, w) {
 		'desktop/images/shutdown.gif', 'center', 'center', 260, 112)
 }
 
+desktop.loginAs = function(evt, w) {
+	document.desktop.parseFromUrl(QuiX.root + '?cmd=loginas');
+}
+
 desktop.showAbout = function (evt, w) {
-	var desktop = document.desktop;
-	desktop.parseFromUrl(QuiX.root + '?cmd=about');
+	document.desktop.parseFromUrl(QuiX.root + '?cmd=about');
 }
 
 desktop.showSettings = function(evt, w) {

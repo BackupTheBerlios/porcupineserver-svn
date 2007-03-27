@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+<a:dialog xmlns:a="http://www.innoscript.org/quix"
+id="logindialog"
+title="@@LOGIN@@"
+width="280"
+height="155"
+status="true"
+left="center"
+top="center"
+close="true">
+	<a:prop name="ServiceURI" value="$URI"/>
+	<a:prop name="FailMsgTitle" value="@@LOGIN_FAILED_TITLE@@"/>
+	<a:prop name="FailMsg" value="@@LOGIN_FAILED@@"/>
+	
+	<a:script name="Login Script" src="desktop/ui.LoginPage.js"/>
+	
+	<a:wbody>
+		<a:box width="100%" height="100%">
+			<a:rect width="70">
+				<a:icon left="center" top="center" width="48" height="48" img="desktop/images/kgpg.gif"/>
+			</a:rect>
+			<a:rect width="-1">
+				<a:label align="right" top="14" width="60" height="20" caption="@@USER@@:"/>
+				<a:field id="user" left="60" top="12" width="68%"/>
+				<a:label align="right" top="41" width="60" height="20" caption="@@PASSWORD@@:"/>
+				<a:field id="password" type="password" top="39" left="60" width="68%"/>
+			</a:rect>
+		</a:box>
+	</a:wbody>
+	<a:dlgbutton width="80" height="24" onclick="login.login" caption="@@LOGIN@@" default="true"/>
+	<a:dlgbutton width="80" height="24" onclick="__closeDialog__" caption="@@CLOSE@@"/>
+</a:dialog>
