@@ -95,14 +95,27 @@
 	<reg cc="org.innoscript.desktop.schema.security.UsersFolder"
         method="GET"
         param="new"
+		qs="org.innoscript.desktop.schema.security.User"
         client="(MSIE [6-7])|(Mozilla/5.0.+rv:1.[7-9])"
         lang=".*"
-        action="org.innoscript.desktop.ui.Frm_UserGroupNew">
+        action="org.innoscript.desktop.ui.Frm_UserNew">
             <filter
                 type="porcupine.filters.postProcessing.multilingual.Multilingual"
                 using="org.innoscript.desktop.strings.resources"/>
     </reg>
 
+	<reg cc="org.innoscript.desktop.schema.security.UsersFolder"
+        method="GET"
+        param="new"
+		qs="org.innoscript.desktop.schema.security.Group"
+        client="(MSIE [6-7])|(Mozilla/5.0.+rv:1.[7-9])"
+        lang=".*"
+        action="org.innoscript.desktop.ui.Frm_GroupNew">
+            <filter
+                type="porcupine.filters.postProcessing.multilingual.Multilingual"
+                using="org.innoscript.desktop.strings.resources"/>
+    </reg>
+	
 	<reg cc="org.innoscript.desktop.schema.common.AppsFolder"
         method="GET"
         param="new"

@@ -16,7 +16,7 @@
 #===============================================================================
 "QuiX UIs"
 
-from porcupine.core.servlet import XULServlet, HTTPServlet, XULSimpleTemplateServlet
+from porcupine.core.servlet import HTTPServlet, XULSimpleTemplateServlet
 from porcupine.oql.command import OqlCommand
 from porcupine.security import objectAccess
 from porcupine.utils import date, xmlUtils, misc
@@ -514,17 +514,6 @@ class Frm_AppNew(PorcupineDesktopServlet):
 #================================================================================
 # Users and groups folder
 #================================================================================
-
-class Frm_UserGroupNew(XULServlet):
-    def setParams(self):
-        sCC = self.request.queryString['cc'][0]
-        self.params['FORM'] = ''
-        if sCC == 'org.innoscript.desktop.schema.security.User':
-            servlet = Frm_UserNew(self.server, self.session, self.request)
-            self.params['FORM'] = servlet.execute()
-        elif sCC == 'org.innoscript.desktop.schema.security.Group':
-            servlet = Frm_GroupNew(self.server, self.session, self.request)
-            self.params['FORM'] = servlet.execute()
 
 class Frm_UserNew(PorcupineDesktopServlet):
     def setParams(self):
