@@ -107,7 +107,7 @@ class ItemGeneric(XMLRPCServlet):
 class ContainerGeneric(ItemGeneric):
     def create(self, data):
         # create new item
-        oNewItem = misc.getClassByName(data.pop('CC'))()
+        oNewItem = misc.getCallableByName(data.pop('CC'))()
 
         # get user role
         iUserRole = objectAccess.getAccess(self.item, self.session.user)
@@ -172,7 +172,7 @@ class ContainerGeneric(ItemGeneric):
         
         containment = []
         for contained in self.item.containment:
-            image = misc.getClassByName(contained).__image__
+            image = misc.getCallableByName(contained).__image__
             if not type(image)==str:
                 image = ''
             localestring = resources.getResource(contained, sLang)

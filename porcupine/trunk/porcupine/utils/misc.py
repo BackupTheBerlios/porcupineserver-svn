@@ -48,19 +48,17 @@ def generateOID():
     """
     return ''.join(random.sample(VALID_ID_CHRS, 8))
 
-def getClassByName(name):
+def getCallableByName(name):
     """
     This function returns an attribute by name.
     
     For example::
     
-        getClassByName('org.innoscript.desktop.schema.common.Folder')()
+        getCallableByName('org.innoscript.desktop.schema.common.Folder')()
     
     instantiates a new I{Folder} object.
-    
-    TODO: rename this function (misleading name)
-    
-    @rtype: type
+        
+    @rtype: callable type
     """
     modules = name.split('.')
     if len(modules)==1:

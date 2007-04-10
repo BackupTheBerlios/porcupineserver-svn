@@ -28,7 +28,7 @@ class Multilingual(PostProcessingFilter):
     @staticmethod
     def apply(response, request, registration, args):
         language = request.getLang()
-        resources = misc.getClassByName( args['using'] )
+        resources = misc.getCallableByName( args['using'] )
         output = response._getBody()
         tokens = frozenset(re.findall(TOKEN, output, re.DOTALL))
         for token, key in tokens:

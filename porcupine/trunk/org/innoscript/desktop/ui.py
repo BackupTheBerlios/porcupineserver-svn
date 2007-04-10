@@ -305,7 +305,7 @@ class Frm_AutoNew(Frm_Auto):
         
         sLang = self.request.getLang()
         sCC = self.request.queryString['cc'][0]
-        oNewItem = misc.getClassByName(sCC)()
+        oNewItem = misc.getCallableByName(sCC)()
         
         self.params = {
             'TITLE': self.getResource(oNewItem.contentclass, sLang),

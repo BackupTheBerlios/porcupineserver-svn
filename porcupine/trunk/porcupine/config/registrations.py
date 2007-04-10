@@ -28,7 +28,7 @@ def getFiltersList(contextNode):
     filters = []
     for filterNode in filterList:
         type = filterNode.getAttribute('type').encode('iso-8859-1')
-        filter = [misc.getClassByName(type), {}]
+        filter = [misc.getCallableByName(type), {}]
         for attr in filterNode.attributes.keys():
             filter[1][str(attr)] = filterNode.getAttribute(attr).encode('iso-8859-1')
         filters.append( tuple(filter) )
@@ -38,7 +38,7 @@ class Registration(object):
     __slots__ = ('context', 'type', 'encoding', 'filters', 'max_age')
     def __init__(self, identifier, enc, filters, max_age):
         try:
-            self.context = misc.getClassByName(identifier)
+            self.context = misc.getCallableByName(identifier)
             self.type = 2
         except:
             self.context = identifier
