@@ -149,23 +149,13 @@ class PorcupineDesktopServlet(XULSimpleTemplateServlet):
 class Frm_Auto(PorcupineDesktopServlet):
     def __init__(self, server, session, request):
         self.yoffset = 0
-        self.secondaryResources = None
         PorcupineDesktopServlet.__init__(self, server, session, request)
         
-    def getResource(self, name, lang):
-        res = resources.getResource(name, lang)
-        # if label lookup fails on the system resources
-        # try the secondary resources, if set
-        if res == name and self.secondaryResources:
-            res = self.secondaryResources.getResource(name, lang)
-        return res
-        
     def getControlFromAttribute(self, attrname, attr, readonly, isNew=False):
-        sLang = self.request.getLang()
-        attrlabel = self.getResource(attrname, sLang)
-
+        attrlabel = '@@%s@@' % attrname
         sControl = ''
         sTab = ''
+        
         if isinstance(attr, datatypes.String):
             sControl = AUTO_CONTROLS[datatypes.String] % (self.yoffset + 3, attrlabel, attrname, self.yoffset, attr.value, self.getStringFromBoolean(readonly))
             self.yoffset += 25
@@ -238,14 +228,6 @@ class Frm_AutoProperties(Frm_Auto):
         iUserRole = objectAccess.getAccess(self.item, user)
         readonly = (iUserRole==1)
         self.params = {
-            'UPDATE': self.getResource('UPDATE', sLang),
-            'CLOSE': self.getResource('CLOSE', sLang),
-            'INFO': self.getResource('INFO', sLang),
-            'DATEMOD': self.getResource('DATEMOD', sLang),
-            'OBJID': self.getResource('ID', sLang),
-            'CLASS': self.getResource('CLASS', sLang),
-            'MODIFIEDBY': self.getResource('MODIFIEDBY', sLang),
-            
             'ID': self.item.id,
             'URI': self.request.serverVariables['SCRIPT_NAME'] + '/' + self.item.id,
             'ICON': self.item.__image__,
@@ -267,11 +249,10 @@ class Frm_AutoProperties(Frm_Auto):
                 sProperties += control
                 self.params['EXTRA_TABS'] += tab
         
-        self.params['PROPERTIES_TAB'] = '<a:tab caption="%s">%s</a:tab>' % (resources.getResource('PROPERTIES', sLang), sProperties)
+        self.params['PROPERTIES_TAB'] = '<a:tab caption="@@PROPERTIES@@">%s</a:tab>' % sProperties
 
 class Dlg_SelectContainer(PorcupineDesktopServlet):
     def setParams(self):
-        sLang = self.request.getLang()
         rootFolder = self.server.store.getItem('')
         self.params = {
             'ROOT_ID': '/',
@@ -280,7 +261,7 @@ class Dlg_SelectContainer(PorcupineDesktopServlet):
             'ID': self.item.id,
         }
         sAction = self.request.queryString['action'][0]
-        self.params['TITLE'] = resources.getResource(sAction.upper(), sLang)
+        self.params['TITLE'] = '@@%s@@' % sAction.upper()
         
         if sAction != 'select_folder':
             self.params['TITLE'] += ' &quot;' + self.item.displayName.value + '&quot;'
@@ -303,12 +284,10 @@ class Frm_AutoNew(Frm_Auto):
         self.response.setHeader('cache-control', 'no-cache')
         self.response.setExpiration(1200)
         
-        sLang = self.request.getLang()
         sCC = self.request.queryString['cc'][0]
         oNewItem = misc.getCallableByName(sCC)()
         
         self.params = {
-            'TITLE': self.getResource(oNewItem.contentclass, sLang),
             'CC': sCC,
             'URI': self.request.serverVariables['SCRIPT_NAME'] + '/' + self.item.id,
             'ICON': oNewItem.__image__,
@@ -330,7 +309,6 @@ class Frm_AutoNew(Frm_Auto):
 
 class Dlg_SelectObjects(PorcupineDesktopServlet):
     def setParams(self):
-        sLang = self.request.getLang()
         sCC = self.request.queryString['cc'][0]
 
         self.params = {
@@ -370,7 +348,7 @@ class Desktop(PorcupineDesktopServlet):
     def setParams(self):
         self.isPage = True
         self.response.setHeader('cache-control', 'no-cache')
-        sLang = self.request.getLang()
+        #sLang = self.request.getLang()
         oUser = self.session.user
         self.params = {
             'USER': oUser.displayName.value,
@@ -426,7 +404,7 @@ class Desktop(PorcupineDesktopServlet):
                 sApps += '<a:menuoption img="%s" caption="%s" onclick="generic.runApp"><a:prop name="url" value="%s"></a:prop></a:menuoption>' % (app['icon'], app['displayName'], app['launchUrl'])
             self.params['APPS'] = sApps
         else:
-            self.params['APPS'] = '<a:menuoption caption="%s" disabled="true"></a:menuoption>' % resources.getResource('EMPTY', sLang)
+            self.params['APPS'] = '<a:menuoption caption="@@EMPTY@@" disabled="true"></a:menuoption>'
 
 class LoginPage(XULSimpleTemplateServlet):
     def setParams(self):
@@ -449,7 +427,7 @@ class AboutDialog(XULSimpleTemplateServlet):
 class Dlg_UserSettings(XULSimpleTemplateServlet):
     def setParams(self):
         self.response.setHeader('cache-control', 'no-cache')
-        sLang = self.request.getLang()
+        #sLang = self.request.getLang()
         
         self.params['TASK_BAR_POS'] = self.session.user.settings.value.setdefault('TASK_BAR_POS', 'bottom')
         
@@ -476,7 +454,7 @@ class Dlg_UserSettings(XULSimpleTemplateServlet):
         if autoRun == '':
             sSelected = 'true'
         
-        sApps = '<a:option caption="%s" selected="%s" value=""/>' % (resources.getResource("NONE_APP", sLang), sSelected)
+        sApps = '<a:option caption="@@NONE_APP@@" selected="%s" value=""/>' % sSelected
         if len(apps) > 0:
             for app in apps:
                 if autoRun == app['launchUrl']:
