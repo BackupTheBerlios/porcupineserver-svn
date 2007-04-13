@@ -47,9 +47,11 @@ class XMLRPCParams(list):
         oDom = minidom.parseString(s)
         oMethodCall = oDom.getElementsByTagName('methodCall')[0]
         self.method = oMethodCall.getElementsByTagName('methodName')[0].childNodes[0].data
-        params = oMethodCall.getElementsByTagName('params')[0].getElementsByTagName('param')
-        for param in params:
-            self.append(self.__getParam(param.getElementsByTagName('value')[0]))
+        params = oMethodCall.getElementsByTagName('params')
+        if params:
+            params = params[0].getElementsByTagName('param')
+            for param in params:
+                self.append(self.__getParam(param.getElementsByTagName('value')[0]))
         oDom.unlink()
         
     def __getParam(self, param):
