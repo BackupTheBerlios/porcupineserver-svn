@@ -101,6 +101,17 @@ class BaseResponse(object):
         self.__headers["Location"] = location
         raise serverExceptions.ResponseEnd
 
+    def internal_redirect(self, location):
+        """Internal server transfer
+        
+        @param location: internal relative location
+        @type location: str
+        
+        @return: None
+        """
+        raise serverExceptions.InternalServerRedirect, \
+                location
+
     def _getBody(self):
         return(''.join(self._body))
 
@@ -197,10 +208,10 @@ class HTTPResponse(BaseResponse):
         self.content_type = settings.mediatypes.setdefault(sFileExt, 'text/plain')
         self.setHeader('Content-Disposition', sPrefix + 'filename=' + sFilename)
         self._body = [sStream]
-
+        
 class XMLRPCResponse(BaseResponse):
     """The response type used by the L{porcupine.core.servlet.XMLRPCServlet}
-    class. You won't ever need to use this directly, since this kind of
+    class. You won't ever need to instantiate this, since this kind of
     response is handled by the servlet internally.
     """
     def __init__(self):
