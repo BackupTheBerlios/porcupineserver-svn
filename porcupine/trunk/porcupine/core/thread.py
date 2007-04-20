@@ -56,7 +56,8 @@ class PorcupineThread(BaseServerThread):
                 oSession = None
                 cookiesEnabled = True
                 if self.request.cookies.has_key('_sid'):
-                    oSession = sessionManager.fetchSession( self.request.cookies['_sid'].value )
+                    oSession = sessionManager.fetchSession(
+                       self.request.cookies['_sid'].value )
                 else:
                     cookiesEnabled = False
                     oSessionMatch = re.match(SESSIONID, sPath)
@@ -66,15 +67,20 @@ class PorcupineThread(BaseServerThread):
                 
                 if oSession:
                     self.session = oSession
-                    self.request.serverVariables["AUTH_USER"] = oSession.user.displayName.value
+                    self.request.serverVariables["AUTH_USER"] = \
+                        oSession.user.displayName.value
                     oUser = oSession.user
                     
                     if not cookiesEnabled:
-                        if not oSession.sessionid in self.request.serverVariables["SCRIPT_NAME"]:
-                            self.request.serverVariables["SCRIPT_NAME"] += '/{%s}' % oSession.sessionid
+                        if not oSession.sessionid in \
+                                self.request.serverVariables["SCRIPT_NAME"]:
+                            self.request.serverVariables["SCRIPT_NAME"] += \
+                                '/{%s}' % oSession.sessionid
                         else:
-                            lstScript = self.request.serverVariables["SCRIPT_NAME"].split('/')
-                            self.request.serverVariables["SCRIPT_NAME"] = "/%s/{%s}" %(lstScript[1], oSession.sessionid)
+                            lstScript = \
+                                self.request.serverVariables["SCRIPT_NAME"].split('/')
+                            self.request.serverVariables["SCRIPT_NAME"] = \
+                                "/%s/{%s}" %(lstScript[1], oSession.sessionid)
                 else:
                     # invalid sesionid
                     # create new session and redirect
@@ -93,10 +99,12 @@ class PorcupineThread(BaseServerThread):
                         sItemCC, sMethod, sCmd, sQS, sBrowser, sLang)
     
                     if not(serverSettings.allow_guests or \
-                       hasattr(oUser, 'authenticate')) and \
-                       serverSettings.login_page != (sPath + \
-                       self.request.getQueryString())[:len(serverSettings.login_page)]:
-                        sLoginUrl = self.request.getRootUrl() + serverSettings.login_page
+                           hasattr(oUser, 'authenticate')) and \
+                           serverSettings.login_page != (sPath + \
+                           self.request.getQueryString())[:len(serverSettings.login_page)]:
+
+                        sLoginUrl = self.request.getRootUrl() + \
+                                    serverSettings.login_page
                         self.response.redirect(sLoginUrl)
 
                     if not registration:
@@ -119,10 +127,12 @@ class PorcupineThread(BaseServerThread):
                 rtype = registration.type
 
                 if rtype == 2: #servlet
-                    servlet = registration.context(serverProxy.proxy, oSession, self.request)
+                    servlet = registration.context(serverProxy.proxy, oSession,
+                                                   self.request)
                     servlet.execute()
                 elif rtype == 1: # psp page
-                    servlet = psp.PspExecutor(serverProxy.proxy, oSession, self.request)
+                    servlet = psp.PspExecutor(serverProxy.proxy, oSession,
+                                              self.request)
                     servlet.execute(registration.context)
                 elif rtype == 0: # static file
                     self.response.loadFromFile(registration.context)
@@ -131,17 +141,26 @@ class PorcupineThread(BaseServerThread):
             
             except serverExceptions.ResponseEnd, e:
                 pass
-
+            
             if registration:
                 # do we have caching directive?
                 if registration.max_age:
                     self.response.setExpiration(registration.max_age)
                 # apply post-processing filters
                 dummy = [
-                    filter[0].apply(self.response, self.request, registration, filter[1])
+                    filter[0].apply(self.response, self.request, registration,
+                                    filter[1])
                     for filter in registration.filters
                 ]
 
+        except serverExceptions.InternalServerRedirect, e:
+            lstPathInfo = e.info.split('?')
+            self.request.serverVariables['PATH_INFO'] = lstPathInfo[0]
+            if len(lstPathInfo == 2):
+                self.request.serverVariables['QUERY_STRING'] = lstPathInfo[1]
+            else:
+                self.request.serverVariables['QUERY_STRING'] = ''
+            self.getResponse()
         except serverExceptions.PorcupineException, e:
             self.response._writeError(e)
             if e.severity:
@@ -164,7 +183,8 @@ class PorcupineThread(BaseServerThread):
         if servlet and self.session.user.id == 'system':
             self.session.user = oUser
 
-        requestInterfaces[self.request.interface](self.requestHandler, self.response)
+        requestInterfaces[self.request.interface](self.requestHandler,
+                                                  self.response)
 
     def createGuestSessionAndRedirect(self, sPath):
         # create new session with the specified guest user
@@ -177,14 +197,17 @@ class PorcupineThread(BaseServerThread):
         ROOT = self.request.getRootUrl()
         PATH = sPath
         QS = self.request.getQueryString()
-        
+
         # add cookie with sessionid
         self.response.cookies['_sid'] = SESSION_ID
         self.response.cookies['_sid']['path'] = '/'
-
-        oFile = open(COOKIE_DETECT_PAGE)
-        sBody = oFile.read()
-        oFile.close()
+        
+        if '_nojavascript' in QS:
+            self.response.redirect('%(ROOT)s/{%(SESSION_ID)s}%(PATH)s' % locals())        
+        else:
+            oFile = open(COOKIE_DETECT_PAGE)
+            sBody = oFile.read()
+            oFile.close()
         
         self.response.write( sBody % locals() )
 

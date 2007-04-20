@@ -65,7 +65,10 @@ class InternalServerError(PorcupineException):
         self.code = errors.SERVER_INTERNAL_ERROR
         self.severity = logging.ERROR
         self.outputTraceback = True
-        
+
+class InternalServerRedirect(PorcupineException):
+    pass
+
 class XMLRPCError(PorcupineException):
     def __init__(self, info=''):
         PorcupineException.__init__(self, info)
