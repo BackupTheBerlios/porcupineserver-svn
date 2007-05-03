@@ -126,7 +126,6 @@ DESKSTOP_PANE = '''<a:rect height="-1" overflow="hidden">
 #================================================================================
 class PorcupineDesktopServlet(XULSimpleTemplateServlet):        
     def getSecurity(self, forItem, rolesInherited=None):
-        sLang = self.request.getLang()
         user = self.session.user
         # get user role
         iUserRole = objectAccess.getAccess(forItem, user)
@@ -348,7 +347,6 @@ class Desktop(PorcupineDesktopServlet):
     def setParams(self):
         self.isPage = True
         self.response.setHeader('cache-control', 'no-cache')
-        #sLang = self.request.getLang()
         oUser = self.session.user
         self.params = {
             'USER': oUser.displayName.value,
@@ -427,7 +425,6 @@ class AboutDialog(XULSimpleTemplateServlet):
 class Dlg_UserSettings(XULSimpleTemplateServlet):
     def setParams(self):
         self.response.setHeader('cache-control', 'no-cache')
-        #sLang = self.request.getLang()
         
         self.params['TASK_BAR_POS'] = self.session.user.settings.value.setdefault('TASK_BAR_POS', 'bottom')
         
