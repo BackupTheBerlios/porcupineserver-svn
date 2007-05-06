@@ -22,6 +22,7 @@ from porcupine.core.servlet import XMLRPCServlet
 from porcupine.oql.command import OqlCommand
 from porcupine.security import objectAccess
 from porcupine.security.policy import policymethod
+from porcupine.security.impersonation import runas
 from porcupine import datatypes
 from porcupine.utils import misc, date
 
@@ -223,8 +224,8 @@ class RootFolder(ContainerGeneric):
         return True
 
 class Login(XMLRPCServlet):
+    @runas('system')
     def login(self, username, password):
-        self.runAsSystem()
         oUser = self.server.store.getItem('users').getChildByName(username)
         if oUser and hasattr(oUser, 'authenticate'):
             if oUser.authenticate(password):
@@ -233,9 +234,9 @@ class Login(XMLRPCServlet):
         return False
         
 class ApplyUserSettings(XMLRPCServlet):
+    @runas('system')
     def applySettings(self, data):
         activeUser = self.session.user
-        self.runAsSystem()
         
         activeUser.settings.value = data
         

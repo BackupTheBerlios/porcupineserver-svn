@@ -54,15 +54,6 @@ class BaseServlet(object):
             objectAccess.NO_ACCESS:
                 raise serverExceptions.PermissionDenied
 
-    def runAsSystem(self):
-        """Causes the servlet to run under the SYSTEM account.
-        Use this method carefully, since it gives full access rights to
-        the Porupine database.
-        
-        @return: None
-        """
-        currentThread().session.user = db.getItem('system')
-
     def execute(self):
         """The servlet implementation method. Override this, to implement your
         servlets.

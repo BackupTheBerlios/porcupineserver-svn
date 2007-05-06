@@ -161,12 +161,15 @@ class PorcupineThread(BaseServerThread):
             else:
                 self.request.serverVariables['QUERY_STRING'] = ''
             self.getResponse()
+            
         except serverExceptions.PorcupineException, e:
             self.response._writeError(e)
             if e.severity:
                 e.writeToLog()
+                
         except serverExceptions.ProxyRequest, e:
             raise e
+        
         except:
             e = serverExceptions.InternalServerError()
             self.response._writeError(e)
@@ -178,10 +181,6 @@ class PorcupineThread(BaseServerThread):
             self.trans.abort()
 
         self.trans = None
-
-        # restore original user in case of runAsSystem
-        if servlet and self.session.user.id == 'system':
-            self.session.user = oUser
 
         requestInterfaces[self.request.interface](self.requestHandler,
                                                   self.response)
