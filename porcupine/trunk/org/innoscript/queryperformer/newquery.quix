@@ -4,8 +4,10 @@
     <a:wbody>
         <a:box orientation="v" spacing="0" width="100%" height="100%">
             <a:toolbar height="34">
-                <a:tbbutton width="30" img="queryperformer/images/save22.gif" onclick="queryPerformer.saveQuery"/>
-                <a:tbbutton width="30" img="queryperformer/images/execute22.gif" onclick="queryPerformer.executeQuery"/>
+                <a:tbbutton width="30" img="queryperformer/images/save22.gif" onclick="queryPerformer.saveQuery"
+                	tooltip="Save"/>
+                <a:tbbutton width="30" img="queryperformer/images/execute22.gif" onclick="queryPerformer.executeQuery"
+                	tooltip="Execute"/>
             </a:toolbar>
             <a:splitter bgcolor="white" orientation="h" interactive="true" height="-1">
                 <a:pane length="100">

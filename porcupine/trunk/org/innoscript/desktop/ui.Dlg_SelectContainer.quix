@@ -11,7 +11,7 @@ top="center">
 	<a:prop name="ID" value="$ID"></a:prop>
 	<a:wbody>
 		<a:box orientation="v" spacing="0" width="100%" height="100%">
-			<a:label height="22" caption="@@SELECT_FOLDER@@"/>
+			<a:label height="22" caption="@@SELECT_FOLDER@@:"/>
 			<a:rect height="-1" bgcolor="white" padding="2,2,2,2" overflow="auto" border="1" style="border-style:inset">
 				<a:foldertree id="tree" method="getSubtree">
 					<a:treenode

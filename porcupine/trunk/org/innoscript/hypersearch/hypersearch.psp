@@ -25,7 +25,7 @@
 					<qx:box height="24">
 						<qx:field id="container_name" value="<%response.write(container_title)%>"/>
 						<qx:field type="hidden" id="container_id" value="<%response.write(container_id)%>"/>
-						<qx:flatbutton caption="..." width="24" onclick="hypersearch.selectFolder"/>
+						<qx:flatbutton caption="..." tooltip="@@SELECT_FOLDER@@" width="24" onclick="hypersearch.selectFolder"/>
 					</qx:box>
 					<qx:field id="scope" type="checkbox" caption="@@INCLUDESUBS@@" />
 					<qx:hr/>

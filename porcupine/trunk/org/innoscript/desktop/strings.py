@@ -58,6 +58,7 @@ resources = ResourceStrings({
         'FILTER' : 'Filter',
         'CREATE' : 'Create',
         'UPDATE' : 'Update',
+        'BACK' : 'Back',
         
         'MY_REPOSITORY' : 'My Repository',
         'APPLICATIONS' : 'Applications',
@@ -97,7 +98,7 @@ resources = ResourceStrings({
         'COPYTO' : 'Copy to',
         'CUT' : 'Cut',
         'PASTE' : 'Paste',
-        'SELECT_FOLDER' : 'Select folder:',
+        'SELECT_FOLDER' : 'Select folder',
         'RENAME' : 'Rename',
         'RESTORE' : 'Restore',
         'RESTORE_TO' : 'Restore to',
@@ -130,6 +131,7 @@ resources = ResourceStrings({
         'ADD' : 'Add',
         'REMOVE' : 'Remove',
         'SEARCH' : 'Search',
+        'UP_ONE_FOLDER' : 'Up',
         
         'NEW_APP' : 'New Application',
         'ICON' : 'Icon',
@@ -208,6 +210,7 @@ resources = ResourceStrings({
         'FILTER' : 'Φίλτρο',
         'CREATE' : 'Δημιουργία',
         'UPDATE' : 'Ενημέρωση',
+        'BACK' : 'Πίσω',
         
         'MY_REPOSITORY' : 'Ο αποθηκευτικός μου χώρος',
         'APPLICATIONS' : 'Εφαρμογές',
@@ -246,7 +249,7 @@ resources = ResourceStrings({
         'CUT' : 'Αποκοπή',
         'PASTE' : 'Επικόλληση',
         'COPYTO' : 'Αντιγραφή σε',
-        'SELECT_FOLDER' : 'Επιλέξτε φάκελο:',
+        'SELECT_FOLDER' : 'Επιλέξτε φάκελο',
         'RENAME' : 'Μετονομασία',
         'RESTORE' : 'Επαναφορά',
         'RESTORE_TO' : 'Επαναφορά σε',
@@ -277,6 +280,8 @@ resources = ResourceStrings({
         'ADD' : 'Προσθήκη',
         'REMOVE' : 'Αφαίρεση',
         'SEARCH' : 'Αναζήτηση',
+        'UP_ONE_FOLDER' : 'Πάνω',
+
         
         'NEW_APP' : 'Νέα εφαρμογή',
         'ICON' : 'Εικονίδιο',
