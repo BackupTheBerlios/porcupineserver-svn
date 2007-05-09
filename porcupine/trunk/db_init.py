@@ -231,6 +231,7 @@ if (answer == 'Y'):
     auth._owner = sOwner
     auth._created = ftime
     auth.modified = ftime
+    auth.policies.value = ['uploadpolicy']
     auth.description.value = 'Authenticated Users group'
     auth.security = userFolder.security
     db.putItem(auth, None)
