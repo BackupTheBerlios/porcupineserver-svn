@@ -34,7 +34,7 @@ def runas(userid):
         def __get__(self, servlet, servlet_class):
             def runas_wrapper(*args):
                 user = db.getItem(userid)
-                originalUser = servlet.session.user
+                servlet.originalUser = servlet.session.user
                 servlet.session.user = user
                 try:
                     return self.func(*args)
@@ -42,7 +42,7 @@ def runas(userid):
                     # restore original user unless
                     # the servlet hasn't switched identity
                     if servlet.session.user == user:
-                        servlet.session.user = originalUser
+                        servlet.session.user = servlet.originalUser
 
             runas_wrapper.func_name = self.func.func_name
             return types.MethodType(runas_wrapper, servlet, servlet_class)
