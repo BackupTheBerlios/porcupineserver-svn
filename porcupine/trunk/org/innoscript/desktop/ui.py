@@ -26,47 +26,68 @@ from org.innoscript.desktop.strings import resources
 from org.innoscript.desktop.schema import common, security
 
 AUTO_CONTROLS = {
-    datatypes.String:
-        '<a:label top="%d" width="100" height="20" caption="%s:"></a:label>' +
-        '<a:field name="%s" left="105" top="%d" width="this.parent.getWidth()-105" value="%s" readonly="%s"></a:field>',
+    datatypes.String: '''
+        <a:label top="%d" width="100" height="20" caption="%s:"/>
+        <a:field name="%s" left="105" top="%d"
+            width="this.parent.getWidth()-105" value="%s" readonly="%s"/>
+        ''',
 
-    datatypes.Boolean:
-        '<a:label top="%d" width="100" height="20" caption="%s:"></a:label>' +
-        '<a:field type="checkbox" name="%s" left="105" top="%d" value="%s" readonly="%s"></a:field>',
+    datatypes.Boolean: '''
+        <a:label top="%d" width="100" height="20" caption="%s:"/>
+        <a:field type="checkbox" name="%s" left="105" top="%d" value="%s"
+            readonly="%s"/>
+        ''',
 
-    datatypes.File:
-        '<a:label top="%d" width="100" height="20" caption="%s:"></a:label>' +
-        '<a:file name="%s" filename="%s" size="%d" href="%s" left="105" top="%d" readonly="%s"></a:file>',
+    datatypes.File: '''
+        <a:label top="%d" width="100" height="20" caption="%s:"/>
+        <a:file name="%s" filename="%s" size="%d" href="%s" left="105"
+            top="%d" readonly="%s"/>
+        ''',
 
-    datatypes.Text:
-        '<a:tab caption="%s"><a:field type="textarea" name="%s" width="100%%" height="100%%" readonly="%s">%s</a:field></a:tab>',
+    datatypes.Text: '''
+        <a:tab caption="%s">
+            <a:field type="textarea" name="%s" width="100%%" height="100%%"
+                readonly="%s">%s</a:field>
+        </a:tab>
+        ''',
 
-    datatypes.Date:
-        '<a:label top="%d" width="100" height="20" caption="%s:"></a:label>' +
-        '<a:datepicker name="%s" left="105" top="%d" width="140" value="%s" readonly="%s"></a:datepicker>',
+    datatypes.Date: '''
+        <a:label top="%d" width="100" height="20" caption="%s:"/>
+        <a:datepicker name="%s" left="105" top="%d" width="140" value="%s"
+            readonly="%s"/>
+        ''',
         
-    datatypes.Reference1:
-        '<a:rect top="%d" width="100%%" height="24">' +
-            '<a:prop name="SelectFrom" value="%s"></a:prop>' +
-            '<a:prop name="RelatedCC" value="%s"></a:prop>' +
-            '<a:label top="center" width="100" height="20" caption="%s:"></a:label>' +
-            '<a:field name="%s" type="hidden" value="%s"></a:field>' +
-            '<a:field left="105" top="center" width="this.parent.getWidth()-145" value="%s" readonly="true"></a:field>' +
-            '<a:button left="this.parent.getWidth()-40" top="center" caption="..." width="20" height="20" disabled="%s" onclick="generic.selectItem"></a:button>' +
-            '<a:button left="this.parent.getWidth()-20" top="center" img="desktop/images/cancel8.gif" width="20" height="20" disabled="%s" onclick="generic.clearReference1"></a:button>' +
-        '</a:rect>',
+    datatypes.Reference1: '''
+        <a:rect top="%d" width="100%%" height="24">
+            <a:prop name="SelectFrom" value="%s"/>
+            <a:prop name="RelatedCC" value="%s"/>
+            <a:label top="center" width="100" height="20" caption="%s:"/>
+            <a:field name="%s" type="hidden" value="%s"/>
+            <a:field left="105" top="center" width="this.parent.getWidth()-145"
+                value="%s" readonly="true"/>
+            <a:button left="this.parent.getWidth()-40" top="center"
+                caption="..." width="20" height="20" disabled="%s"
+                onclick="generic.selectItem"/>
+            <a:button left="this.parent.getWidth()-20" top="center"
+                img="desktop/images/cancel8.gif" width="20" height="20"
+                disabled="%s" onclick="generic.clearReference1"/>
+        </a:rect>
+        ''',
 
     datatypes.ReferenceN: '''
         <a:tab caption="%s">
             <a:box width="100%%" height="100%%" orientation="v">
                 <a:selectlist name="%s" multiple="true" posts="all" height="-1">
-                    <a:prop name="SelectFrom" value="%s"></a:prop>
-                    <a:prop name="RelatedCC" value="%s"></a:prop>
+                    <a:prop name="SelectFrom" value="%s"/>
+                    <a:prop name="RelatedCC" value="%s"/>
                     %s
                 </a:selectlist>
                 <a:rect height="24" disabled="%s">
-                    <a:flatbutton width="70" height="22" caption="@@ADD@@..." onclick="generic.selectItems"></a:flatbutton>
-                    <a:flatbutton left="80" width="70" height="22" caption="@@REMOVE@@" onclick="generic.removeSelectedItems"></a:flatbutton>
+                    <a:flatbutton width="70" height="22" caption="@@ADD@@..."
+                        onclick="generic.selectItems"/>
+                    <a:flatbutton left="80" width="70" height="22"
+                        caption="@@REMOVE@@"
+                        onclick="generic.removeSelectedItems"/>
                 </a:rect>
             </a:box>
         </a:tab>
@@ -86,18 +107,22 @@ SECURITY_TAB = '''
         <a:box spacing="0" disabled="%s" height="-1">
             <a:datagrid id="__acl" name="__acl" width="-1">
                 <a:listheader>
-                    <a:column width="140" caption="@@displayName@@" name="displayName" editable="false" sortable="true"></a:column>
-                    <a:column width="140" caption="@@ROLE@@" name="role" type="optionlist" sortable="true">
-                        <a:option value="1" caption="@@ROLE_1@@"></a:option>
-                        <a:option value="2" caption="@@ROLE_2@@"></a:option>
-                        <a:option value="4" caption="@@ROLE_4@@"></a:option>
-                        <a:option value="8" caption="@@ROLE_8@@"></a:option>
+                    <a:column width="140" caption="@@displayName@@"
+                        name="displayName" editable="false" sortable="true"/>
+                    <a:column width="140" caption="@@ROLE@@" name="role"
+                            type="optionlist" sortable="true">
+                        <a:option value="1" caption="@@ROLE_1@@"/>
+                        <a:option value="2" caption="@@ROLE_2@@"/>
+                        <a:option value="4" caption="@@ROLE_4@@"/>
+                        <a:option value="8" caption="@@ROLE_8@@"/>
                     </a:column>
                 </a:listheader>
             </a:datagrid>
             <a:rect width="60">
-                <a:flatbutton left="center" width="56" height="22" caption="@@ADD@@" onclick="generic.addACLEntry"></a:flatbutton>
-                <a:flatbutton top="24" left="center" width="56" height="22" caption="@@REMOVE@@" onclick="generic.removeACLEntry"></a:flatbutton>
+                <a:flatbutton left="center" width="56" height="22"
+                    caption="@@ADD@@" onclick="generic.addACLEntry"/>
+                <a:flatbutton top="24" left="center" width="56" height="22"
+                    caption="@@REMOVE@@" onclick="generic.removeACLEntry"/>
             </a:rect>
         </a:box>
     </a:box>
@@ -156,22 +181,29 @@ class Frm_Auto(PorcupineDesktopServlet):
         sTab = ''
         
         if isinstance(attr, datatypes.String):
-            sControl = AUTO_CONTROLS[datatypes.String] % (self.yoffset + 3, attrlabel, attrname, self.yoffset, attr.value, self.getStringFromBoolean(readonly))
+            sControl = AUTO_CONTROLS[datatypes.String] % \
+                (self.yoffset + 3, attrlabel, attrname, self.yoffset,
+                 attr.value, self.getStringFromBoolean(readonly))
             self.yoffset += 25
 
         elif isinstance(attr, datatypes.Boolean):
-            sControl = AUTO_CONTROLS[datatypes.Boolean] % (self.yoffset + 3, attrlabel, attrname, self.yoffset, self.getStringFromBoolean(attr.value), self.getStringFromBoolean(readonly))
+            sControl = AUTO_CONTROLS[datatypes.Boolean] % \
+                (self.yoffset + 3, attrlabel, attrname, self.yoffset,
+                 self.getStringFromBoolean(attr.value),
+                 self.getStringFromBoolean(readonly))
             self.yoffset += 25
             
         elif isinstance(attr, datatypes.Date):
-            sControl = AUTO_CONTROLS[datatypes.Date] % (self.yoffset + 3, attrlabel, attrname, self.yoffset, attr.toIso8601(), self.getStringFromBoolean(readonly))
+            sControl = AUTO_CONTROLS[datatypes.Date] % \
+                (self.yoffset + 3, attrlabel, attrname, self.yoffset,
+                 attr.toIso8601(), self.getStringFromBoolean(readonly))
             self.yoffset += 25
             
         elif isinstance(attr, datatypes.File):
             if isNew:
                 href = ''
             else:
-                href = self.request.serverVariables['SCRIPT_NAME'] + '/' + self.item.id + '?cmd=getfile'
+                href = self.item.id + '?cmd=getfile'
             sControl = AUTO_CONTROLS[datatypes.File] % (
                 self.yoffset + 3, attrlabel, attrname,
                 attr.filename, len(attr), href,
@@ -204,12 +236,16 @@ class Frm_Auto(PorcupineDesktopServlet):
             options = ''
             rel_items = attr.getItems()
             for item in rel_items:
-                options += '<a:option img="%s" value="%s" ondblclick="autoform.displayRelated" caption="%s"></a:option>' % (item.__image__, item.id, item.displayName.value)
+                options += \
+                    ('<a:option img="%s" value="%s" ' + \
+                    'ondblclick="autoform.displayRelated" caption="%s"/>') % \
+                    (item.__image__, item.id, item.displayName.value)
             
             sTab = AUTO_CONTROLS[datatypes.ReferenceN] % (
                 attrlabel, attrname,
                 self.request.serverVariables['SCRIPT_NAME'] + '/',
-                '|'.join(attr.relCc), options, self.getStringFromBoolean(readonly)
+                '|'.join(attr.relCc),
+                options, self.getStringFromBoolean(readonly)
             )
         
         return (sControl, sTab)
@@ -226,12 +262,13 @@ class Frm_AutoProperties(Frm_Auto):
         user = self.session.user
         iUserRole = objectAccess.getAccess(self.item, user)
         readonly = (iUserRole==1)
+        modified = date.Date(self.item.modified)
+        
         self.params = {
             'ID': self.item.id,
-            'URI': self.request.serverVariables['SCRIPT_NAME'] + '/' + self.item.id,
             'ICON': self.item.__image__,
             'NAME': self.item.displayName.value,
-            'MODIFIED': date.Date(self.item.modified).format(DATES_FORMAT, sLang),
+            'MODIFIED': modified.format(DATES_FORMAT, sLang),
             'MODIFIED_BY': self.item.modifiedBy,
             'CONTENTCLASS': self.item.contentclass,
             'PROPERTIES_TAB': '',
@@ -244,11 +281,13 @@ class Frm_AutoProperties(Frm_Auto):
         for attr_name in self.item.__props__:
             attr = getattr(self.item, attr_name)
             if isinstance(attr, datatypes.DataType):
-                control, tab = self.getControlFromAttribute(attr_name, attr, readonly)
+                control, tab = \
+                    self.getControlFromAttribute(attr_name, attr, readonly)
                 sProperties += control
                 self.params['EXTRA_TABS'] += tab
         
-        self.params['PROPERTIES_TAB'] = '<a:tab caption="@@PROPERTIES@@">%s</a:tab>' % sProperties
+        self.params['PROPERTIES_TAB'] = \
+            '<a:tab caption="@@PROPERTIES@@">%s</a:tab>' % sProperties
 
 class Dlg_SelectContainer(PorcupineDesktopServlet):
     def setParams(self):
@@ -263,7 +302,8 @@ class Dlg_SelectContainer(PorcupineDesktopServlet):
         self.params['TITLE'] = '@@%s@@' % sAction.upper()
         
         if sAction != 'select_folder':
-            self.params['TITLE'] += ' &quot;' + self.item.displayName.value + '&quot;'
+            self.params['TITLE'] += ' &quot;%s&quot;' % \
+                                    self.item.displayName.value
         
 class Dlg_Rename(PorcupineDesktopServlet):
     def setParams(self):
@@ -288,7 +328,7 @@ class Frm_AutoNew(Frm_Auto):
         
         self.params = {
             'CC': sCC,
-            'URI': self.request.serverVariables['SCRIPT_NAME'] + '/' + self.item.id,
+            'URI': self.item.id,
             'ICON': oNewItem.__image__,
             'PROPERTIES_TAB': '',
             'EXTRA_TABS': '',
@@ -300,11 +340,13 @@ class Frm_AutoNew(Frm_Auto):
         for attr_name in oNewItem.__props__:
             attr = getattr(oNewItem, attr_name)
             if isinstance(attr, datatypes.DataType):
-                control, tab = self.getControlFromAttribute(attr_name, attr, False, True)
+                control, tab = \
+                    self.getControlFromAttribute(attr_name, attr, False, True)
                 sProperties += control
                 self.params['EXTRA_TABS'] += tab
         
-        self.params['PROPERTIES_TAB'] = '<a:tab caption="@@PROPERTIES@@">%s</a:tab>' % sProperties
+        self.params['PROPERTIES_TAB'] = \
+            '<a:tab caption="@@PROPERTIES@@">%s</a:tab>' % sProperties
 
 class Dlg_SelectObjects(PorcupineDesktopServlet):
     def setParams(self):
@@ -314,7 +356,8 @@ class Dlg_SelectObjects(PorcupineDesktopServlet):
             'ID': self.item.id or '/',
             'IMG': self.item.__image__,
             'DN': self.item.displayName.value,
-            'HAS_SUBFOLDERS': self.getStringFromBoolean(self.item.hasSubfolders()),
+            'HAS_SUBFOLDERS': 
+                self.getStringFromBoolean(self.item.hasSubfolders()),
             'MULTIPLE': self.request.queryString['multiple'][0],
             'CC': sCC
         }
@@ -330,7 +373,8 @@ class Dlg_SelectObjects(PorcupineDesktopServlet):
 
         sOptions = ''
         for obj in oRes:
-             sOptions += '<a:option img="%s" value="%s" caption="%s"></a:option>' % (obj.__image__, obj.id, obj.displayName.value)
+             sOptions += '<a:option img="%s" value="%s" caption="%s"/>' % \
+                         (obj.__image__, obj.id, obj.displayName.value)
         self.params['OPTIONS'] = sOptions
         
 class ContainerList(PorcupineDesktopServlet):
@@ -347,7 +391,10 @@ class Desktop(PorcupineDesktopServlet):
     def setParams(self):
         self.isPage = True
         self.response.setHeader('cache-control', 'no-cache')
+        
         oUser = self.session.user
+        settings = oUser.settings
+        
         self.params = {
             'USER': oUser.displayName.value,
             'AUTO_RUN' : '',
@@ -356,9 +403,12 @@ class Desktop(PorcupineDesktopServlet):
             'LOGOFF_DISABLED' : ''
         }
         if hasattr(oUser, 'authenticate'):
-            self.params['AUTO_RUN'] = oUser.settings.value.setdefault('AUTO_RUN', '')
-            self.params['RUN_MAXIMIZED'] = int(oUser.settings.value.setdefault('RUN_MAXIMIZED', False))
-            taskbar_position = self.session.user.settings.value.setdefault('TASK_BAR_POS', 'bottom')
+            self.params['AUTO_RUN'] = \
+                settings.value.setdefault('AUTO_RUN', '')
+            self.params['RUN_MAXIMIZED'] = \
+                int(settings.value.setdefault('RUN_MAXIMIZED', False))
+            taskbar_position = \
+                settings.value.setdefault('TASK_BAR_POS', 'bottom')
         else:
             taskbar_position = 'bottom'
             self.params['SETTINGS_DISABLED'] = 'true'
@@ -394,15 +444,21 @@ class Desktop(PorcupineDesktopServlet):
         
         # get applications
         oCmd = OqlCommand()
-        sOql = "select launchUrl,displayName,icon from 'apps' order by displayName asc"
+        sOql = "select launchUrl,displayName,icon from 'apps' " + \
+               "order by displayName asc"
         apps = oCmd.execute(sOql)
         sApps = ''
         if len(apps) > 0:
             for app in apps:
-                sApps += '<a:menuoption img="%s" caption="%s" onclick="generic.runApp"><a:prop name="url" value="%s"></a:prop></a:menuoption>' % (app['icon'], app['displayName'], app['launchUrl'])
+                sApps += '''<a:menuoption img="%s" caption="%s"
+                    onclick="generic.runApp">
+                        <a:prop name="url" value="%s"></a:prop>
+                    </a:menuoption>''' % \
+                    (app['icon'], app['displayName'], app['launchUrl'])
             self.params['APPS'] = sApps
         else:
-            self.params['APPS'] = '<a:menuoption caption="@@EMPTY@@" disabled="true"></a:menuoption>'
+            self.params['APPS'] = '<a:menuoption caption="@@EMPTY@@"' + \
+                                  ' disabled="true"></a:menuoption>'
 
 class LoginPage(XULSimpleTemplateServlet):
     def setParams(self):
@@ -426,7 +482,10 @@ class Dlg_UserSettings(XULSimpleTemplateServlet):
     def setParams(self):
         self.response.setHeader('cache-control', 'no-cache')
         
-        self.params['TASK_BAR_POS'] = self.session.user.settings.value.setdefault('TASK_BAR_POS', 'bottom')
+        settings = self.session.user.settings
+        taskBarPos = settings.value.setdefault('TASK_BAR_POS', 'bottom')
+        
+        self.params['TASK_BAR_POS'] = taskBarPos
         
         if self.params['TASK_BAR_POS'] == 'bottom':
             self.params['CHECKED_TOP'] = 'false'
@@ -435,30 +494,33 @@ class Dlg_UserSettings(XULSimpleTemplateServlet):
             self.params['CHECKED_TOP'] = 'true'
             self.params['CHECKED_BOTTOM'] = 'false'
             
-        autoRun = self.session.user.settings.value.setdefault('AUTO_RUN', '')
+        autoRun = settings.value.setdefault('AUTO_RUN', '')
             
-        if self.session.user.settings.value.setdefault('RUN_MAXIMIZED', False) == True:
+        if settings.value.setdefault('RUN_MAXIMIZED', False) == True:
             self.params['RUN_MAXIMIZED_VALUE'] = 'true'
         else:
             self.params['RUN_MAXIMIZED_VALUE'] = 'false'
 
         # get applications
         oCmd = OqlCommand()
-        sOql = "select displayName,launchUrl,icon from 'apps' order by displayName asc"
+        sOql = "select displayName,launchUrl,icon from 'apps' " + \
+               "order by displayName asc"
         apps = oCmd.execute(sOql)
         
         sSelected = ''
         if autoRun == '':
             sSelected = 'true'
         
-        sApps = '<a:option caption="@@NONE_APP@@" selected="%s" value=""/>' % sSelected
+        sApps = '<a:option caption="@@NONE_APP@@" selected="%s"/>' % sSelected
         if len(apps) > 0:
             for app in apps:
                 if autoRun == app['launchUrl']:
                     sSelected = 'true'
                 else:
                     sSelected = 'false'
-                sApps += '<a:option img="%s" caption="%s" value="%s" selected="%s"/>' % (app['icon'], app['displayName'], app['launchUrl'], sSelected)
+                sApps += \
+                 '<a:option img="%s" caption="%s" value="%s" selected="%s"/>' % \
+                 (app['icon'], app['displayName'], app['launchUrl'], sSelected)
             self.params['APPS'] = sApps
 
 #================================================================================
@@ -481,7 +543,7 @@ class Frm_AppNew(PorcupineDesktopServlet):
         oApp = common.Application()
         self.params = {
             'CC': oApp.contentclass,
-            'URI': self.request.serverVariables['SCRIPT_NAME'] + '/' + self.item.id,
+            'URI': self.item.id,
             'ICON': oApp.__image__,
             'SECURITY_TAB': self.getSecurity(self.item, True)
         }
@@ -496,11 +558,11 @@ class Frm_UserNew(PorcupineDesktopServlet):
         
         oUser = security.User()
         self.params['CC'] = oUser.contentclass
-        self.params['URI'] = self.request.serverVariables['SCRIPT_NAME'] + '/' + self.item.id
+        self.params['URI'] = self.item.id
         self.params['REL_CC'] = '|'.join(oUser.memberof.relCc)
         self.params['ICON'] = oUser.__image__
 
-        self.params['SELECT_FROM_POLICIES'] = self.request.serverVariables['SCRIPT_NAME'] + '/policies'
+        self.params['SELECT_FROM_POLICIES'] = 'policies'
         self.params['POLICIES_REL_CC'] = '|'.join(oUser.policies.relCc)
 
         self.params['SECURITY_TAB'] = self.getSecurity(self.item, True)
@@ -511,11 +573,11 @@ class Frm_GroupNew(PorcupineDesktopServlet):
 
         oGroup = security.Group()
         self.params['CC'] = oGroup.contentclass
-        self.params['URI'] = self.request.serverVariables['SCRIPT_NAME'] + '/' + self.item.id
+        self.params['URI'] = self.item.id
         self.params['REL_CC'] = '|'.join(oGroup.members.relCc)
         self.params['ICON'] = oGroup.__image__
 
-        self.params['SELECT_FROM_POLICIES'] = self.request.serverVariables['SCRIPT_NAME'] + '/policies'
+        self.params['SELECT_FROM_POLICIES'] = 'policies'
         self.params['POLICIES_REL_CC'] = '|'.join(oGroup.policies.relCc)
 
         self.params['SECURITY_TAB'] = self.getSecurity(self.item, True)
@@ -534,27 +596,37 @@ class Frm_GroupProperties(PorcupineDesktopServlet):
         readonly = (iUserRole==1)
 
         self.params['ID'] = self.item.id
-        self.params['URI'] = self.request.serverVariables['SCRIPT_NAME'] + '/' + self.item.id
         self.params['ICON'] = self.item.__image__
 
-        self.params['SELECT_FROM_POLICIES'] = self.request.serverVariables['SCRIPT_NAME'] + '/policies'
+        self.params['SELECT_FROM_POLICIES'] = 'policies'
         self.params['POLICIES_REL_CC'] = '|'.join(self.item.policies.relCc)
         
         self.params['NAME'] = self.item.displayName.value
         self.params['DESCRIPTION'] = self.item.description.value
-        self.params['MODIFIED'] = date.Date(self.item.modified).format(DATES_FORMAT, sLang)
+        self.params['MODIFIED'] = \
+            date.Date(self.item.modified).format(DATES_FORMAT, sLang)
         self.params['MODIFIED_BY'] = self.item.modifiedBy
         self.params['CONTENTCLASS'] = self.item.contentclass
         
-        self.params['SELECT_FROM'] = self.request.serverVariables['SCRIPT_NAME'] + '/' + self.item.parentid
+        self.params['SELECT_FROM'] = self.item.parentid
         self.params['REL_CC'] = '|'.join(self.item.members.relCc)
         self.params['READONLY'] = self.getStringFromBoolean(readonly)
         
         members_options = ''
         members = self.item.members.getItems()
         for user in members:
-            members_options += '<a:option img="%s" value="%s" caption="%s"></a:option>' % (user.__image__, user.id, user.displayName.value)
+            members_options += \
+                '<a:option img="%s" value="%s" caption="%s"/>' % \
+                (user.__image__, user.id, user.displayName.value)
         self.params['MEMBERS_OPTIONS'] = members_options
+
+        policies_options = ''
+        policies = self.item.policies.getItems()
+        for policy in policies:
+            policies_options += \
+                '<a:option img="%s" value="%s" caption="%s"/>' % \
+                (policy.__image__, policy.id, policy.displayName.value)
+        self.params['POLICIES_OPTIONS'] = policies_options
 
         self.params['SECURITY_TAB'] = self.getSecurity(self.item)
 
@@ -565,11 +637,14 @@ class Frm_GroupProperties(PorcupineDesktopServlet):
 class Frm_DeletedItem(XULSimpleTemplateServlet):
     def setParams(self):
         sLang = self.request.getLang()
+        
+        modified = date.Date(self.item.modified)
+        
         self.params = {
             'ICON': self.item.__image__,
             'NAME': self.item.originalName,
             'LOC': self.item.originalLocation,
-            'MODIFIED': date.Date(self.item.modified).format(DATES_FORMAT, sLang),
+            'MODIFIED': modified.format(DATES_FORMAT, sLang),
             'MODIFIED_BY': self.item.modifiedBy,
             'CONTENTCLASS': self.item.getDeletedItem().contentclass
         }
@@ -581,7 +656,7 @@ class Frm_DeletedItem(XULSimpleTemplateServlet):
 class Frm_UserResetPassword(XULSimpleTemplateServlet):
     def setParams(self):
         self.params = {
-            'URI': self.request.serverVariables['SCRIPT_NAME'] + '/' + self.item.id,
+            'URI': self.item.id,
             'TITLE': self.item.displayName.value
         }
         
@@ -595,20 +670,20 @@ class Frm_UserProperties(PorcupineDesktopServlet):
         readonly = (iUserRole==1)
 
         self.params['ID'] = self.item.id
-        self.params['URI'] = self.request.serverVariables['SCRIPT_NAME'] + '/' + self.item.id
         self.params['ICON'] = self.item.__image__
         
         self.params['NAME'] = self.item.displayName.value
         self.params['FULL_NAME'] = self.item.fullName.value
         self.params['DESCRIPTION'] = self.item.description.value
-        self.params['MODIFIED'] = date.Date(self.item.modified).format(DATES_FORMAT, sLang)
+        self.params['MODIFIED'] = \
+            date.Date(self.item.modified).format(DATES_FORMAT, sLang)
         self.params['MODIFIED_BY'] = self.item.modifiedBy
         self.params['CONTENTCLASS'] = self.item.contentclass
         
-        self.params['SELECT_FROM'] = self.request.serverVariables['SCRIPT_NAME'] + '/' + self.item.parentid
+        self.params['SELECT_FROM'] = self.item.parentid
         self.params['REL_CC'] = '|'.join(self.item.memberof.relCc)
 
-        self.params['SELECT_FROM_POLICIES'] = self.request.serverVariables['SCRIPT_NAME'] + '/policies'
+        self.params['SELECT_FROM_POLICIES'] = 'policies'
         self.params['POLICIES_REL_CC'] = '|'.join(self.item.policies.relCc)
 
         self.params['READONLY'] = self.getStringFromBoolean(readonly)
@@ -616,9 +691,19 @@ class Frm_UserProperties(PorcupineDesktopServlet):
         memberof_options = ''
         memberof = self.item.memberof.getItems()
         for group in memberof:
-            memberof_options += '<a:option img="%s" value="%s" caption="%s"></a:option>' % (group.__image__, group.id, group.displayName.value)
+            memberof_options += \
+                '<a:option img="%s" value="%s" caption="%s"/>' % \
+                (group.__image__, group.id, group.displayName.value)
         self.params['MEMBER_OF_OPTIONS'] = memberof_options
         
+        policies_options = ''
+        policies = self.item.policies.getItems()
+        for policy in policies:
+            policies_options += \
+                '<a:option img="%s" value="%s" caption="%s"/>' % \
+                (policy.__image__, policy.id, policy.displayName.value)
+        self.params['POLICIES_OPTIONS'] = policies_options
+                
         self.params['SECURITY_TAB'] = self.getSecurity(self.item)
 
 #================================================================================
@@ -633,21 +718,19 @@ class Frm_AppProperties(PorcupineDesktopServlet):
         user = self.session.user
         iUserRole = objectAccess.getAccess(self.item, user)
         readonly = (iUserRole==1)
+        
+        modified = date.Date(self.item.modified)
 
         self.params = {
             'ID': self.item.id,
-            'URI': self.request.serverVariables['SCRIPT_NAME'] + '/' + self.item.id,
             'IMG': self.item.__image__,
             'NAME': self.item.displayName.value,
             'DESCRIPTION': self.item.description.value,
             'ICON': self.item.icon.value,
             'LAUNCH_URL': xmlUtils.XMLEncode(self.item.launchUrl.value),
-            'MODIFIED': date.Date(self.item.modified).format(DATES_FORMAT, sLang),
+            'MODIFIED': modified.format(DATES_FORMAT, sLang),
             'MODIFIED_BY': self.item.modifiedBy,
             'CONTENTCLASS': self.item.contentclass,
             'SECURITY_TAB': self.getSecurity(self.item),
             'READONLY': self.getStringFromBoolean(readonly)
         }
-
-
-
