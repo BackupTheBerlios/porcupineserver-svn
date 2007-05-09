@@ -464,13 +464,13 @@ class LoginPage(XULSimpleTemplateServlet):
     def setParams(self):
         self.isPage = True
         self.params = {
-            'URI': self.request.serverVariables['SCRIPT_NAME'] + '?cmd=login'
+            'URI': self.request.serverVariables['SCRIPT_NAME'] + '/?cmd=login'
         }
 
 class Dlg_LoginAs(XULSimpleTemplateServlet):
     def setParams(self):
         self.params = {
-            'URI': self.request.serverVariables['SCRIPT_NAME'] + '?cmd=login'
+            'URI': self.request.serverVariables['SCRIPT_NAME'] + '/?cmd=login'
         }
 
 class AboutDialog(XULSimpleTemplateServlet):
@@ -511,7 +511,8 @@ class Dlg_UserSettings(XULSimpleTemplateServlet):
         if autoRun == '':
             sSelected = 'true'
         
-        sApps = '<a:option caption="@@NONE_APP@@" selected="%s"/>' % sSelected
+        sApps = '<a:option caption="@@NONE_APP@@" selected="%s" value=""/>' \
+                % sSelected
         if len(apps) > 0:
             for app in apps:
                 if autoRun == app['launchUrl']:

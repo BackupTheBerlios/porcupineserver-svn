@@ -218,7 +218,17 @@ class RootFolder(ContainerGeneric):
             tmpfile.write( chunk )
             tmpfile.close()
         return fname
-    
+
+    @runas('system')
+    def applySettings(self, data):
+        activeUser = self.originalUser
+        activeUser.settings.value = data
+        txn = self.server.store.getTransaction()
+        activeUser.update(txn)
+        txn.commit()
+        
+        return True
+
     def logoff(self):
         self.session.terminate()
         return True
@@ -233,19 +243,6 @@ class Login(XMLRPCServlet):
                 return True
         return False
         
-class ApplyUserSettings(XMLRPCServlet):
-    @runas('system')
-    def applySettings(self, data):
-        activeUser = self.session.user
-        
-        activeUser.settings.value = data
-        
-        txn = self.server.store.getTransaction()
-        activeUser.update(txn)
-        txn.commit()
-        
-        return True
-
 #================================================================================
 # Category
 #================================================================================

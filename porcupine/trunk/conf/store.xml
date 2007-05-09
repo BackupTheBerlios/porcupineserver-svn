@@ -6,15 +6,10 @@
 	</packages>
 	
 	<!--_____________________________SYSTEM_REGISTRATIONS______________________________-->
-	<!--_________________________________HTTP_SERVLETS_________________________________-->
-	<reg cc="org.innoscript.desktop.schema.common.Document"
-        method="GET"
-        param="getfile"
-        client=".*"
-        lang=".*"
-        action="org/innoscript/desktop/getdocument.psp"/>
 	
-	<!--________________________________QUIX_INTERFACES________________________________-->
+	<!--________________________________DESKTOP_SECTION________________________________-->
+	
+	<!-- QUIX_INTERFACES -->
 	<reg cc="org.innoscript.desktop.schema.common.RootFolder"
         method="GET"
         param=""
@@ -237,7 +232,7 @@
                 using="org.innoscript.desktop.strings.resources"/>
     </reg>
 
-	<!--_________________________________XML_RPC_________________________________-->
+	<!-- XML_RPC -->
 	<reg cc="org.innoscript.desktop.schema.common.RootFolder"
         method="POST"
         param=""
@@ -251,13 +246,6 @@
         client="vcXMLRPC"
         lang=".*"
         action="org.innoscript.desktop.XMLRPC.Login"/>
-
-	<reg cc="org.innoscript.desktop.schema.common.RootFolder"
-        method="POST"
-        param="applySettings"
-        client="vcXMLRPC"
-        lang=".*"
-        action="org.innoscript.desktop.XMLRPC.ApplyUserSettings"/>
 
 	<reg cc="org.innoscript.desktop.schema.common.Category"
         method="POST"
@@ -301,7 +289,15 @@
         lang=".*"
         action="org.innoscript.desktop.XMLRPC.ItemGeneric"/>
 
-	<!--__________________________BROWSER_NOT_SUPPORTED__________________________-->
+	<!-- HTTP_SERVLETS -->
+	<reg cc="org.innoscript.desktop.schema.common.Document"
+        method="GET"
+        param="getfile"
+        client=".*"
+        lang=".*"
+        action="org/innoscript/desktop/getdocument.psp"/>
+	
+	<!-- BROWSER_NOT_SUPPORTED -->
 	<reg cc="org.innoscript.desktop.schema.common.RootFolder"
         method="GET"
         param="login"
