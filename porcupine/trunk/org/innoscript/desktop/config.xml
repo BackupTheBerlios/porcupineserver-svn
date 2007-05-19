@@ -30,6 +30,7 @@
 	<context path="images/go_up22.gif" method="GET" client=".*" lang=".*" action="images/go_up22.gif"/>
 	<context path="images/group.gif" method="GET" client=".*" lang=".*" action="images/group.gif"/>
 	<context path="images/kgpg.gif" method="GET" client=".*" lang=".*" action="images/kgpg.gif"/>
+	<context path="images/kgpg16.gif" method="GET" client=".*" lang=".*" action="images/kgpg16.gif"/>
 	<context path="images/messagebox_info.gif" method="GET" client=".*" lang=".*" action="images/messagebox_info.gif"/>
 	<context path="images/messagebox_question.gif" method="GET" client=".*" lang=".*" action="images/messagebox_question.gif"/>
 	<context path="images/messagebox_warning.gif" method="GET" client=".*" lang=".*" action="images/messagebox_warning.gif"/>
