@@ -24,7 +24,7 @@ function Clipboard() {
 }
 
 var QuiX = {};
-QuiX.version = '0.7 build 20070203';
+QuiX.version = '0.8 build 20070519';
 QuiX.namespace = 'http://www.innoscript.org/quix';
 QuiX.startX = 0;
 QuiX.startY = 0;
