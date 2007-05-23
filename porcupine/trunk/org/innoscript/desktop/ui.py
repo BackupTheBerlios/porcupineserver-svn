@@ -522,7 +522,7 @@ class Dlg_UserSettings(XULSimpleTemplateServlet):
                 sApps += \
                  '<a:option img="%s" caption="%s" value="%s" selected="%s"/>' % \
                  (app['icon'], app['displayName'], app['launchUrl'], sSelected)
-            self.params['APPS'] = sApps
+        self.params['APPS'] = sApps
 
 #================================================================================
 # Recycle Bin

@@ -14,17 +14,17 @@ NEW: Added experimental internal redirect using server local
      relative URLs.
 NEW: The "runas" decorator allows servlets' methods to run under a
      different user account.
-NEW: New "onresize" QuiX event fired whenever a widget is resized.
+NEW: New "onresize" QuiX event.
 NEW: New slider control.
 NEW: QuiX now supports tooltips using the "tooltip" attribute.
 NEW: Support for third-party widgets using the "custom" tag.
 NEW: Ability to include custom stylesheets by using the "stylesheet"
      tag.
 NEW: Added "onscroll" to the list of the supported DOM events.
-NEW: Added "step" parameter to spin buttons.
+NEW: Abillity to define custom stepping for QuiX spin buttons.
 NEW: Added new "getData" method for QuiX forms.
 
-OPT: Faster object XMLRPC serialization on the server side.
+OPT: Faster XMLRPC object serialization on the server side.
 OPT: XMLRPC serialization for Python "unicode" types.
 OPT: Allow calling XMLRPC methods with no arguments.
 OPT: The "onload" handler is called after the widget is placed
@@ -44,11 +44,11 @@ OPT: Combo boxes and select lists display vertical scroll bars only.
 OPT: Disabled "ondragstart" event for IE images.
 OPT: Ability to define initial toggle button state by using value="on".
 OPT: The form submit callback function can be omitted.
-OPT: "getClassNyName" is renamed to "getCallableByName".
+OPT: Renamed "getClassByName" to "getCallableByName".
 OPT: The selected date gets highlighted (date picker control).
 
 FIX: Fixed guest user access to the Porcupine desktop by changing
-     the "allow_guests" parameter of porcupine.ini.
+     the "allow_guests" parameter of porcupine.ini (mentioned by thugree).
 FIX: Added support for long types in the Porcupine XMLRPC module.
 FIX: Fixed hour formatting for JavaScript Date objects.
 FIX: Disabled labels appear grayed.
@@ -59,8 +59,8 @@ FIX: Fixed "onchange" event firing for spin buttons.
 FIX: Fixed width and height calculations when maximizing a window.
      This was a problem when the window was maximized from an "onload"
      handler.
-FIX: Fixed date selection when using the dropdown or the year spin button
-     of a date picker control.
+FIX: Fixed date selection when using the months' dropdown or the years'spin
+     button of a date picker control.
 FIX: Fixed error when having defined the "bgcolor" attribute of a GroupBox.
 FIX: Fixed rendering of zeros in a list view (contributed by thugree).
 FIX: Fixed ID assignment for QuiX buttons.
