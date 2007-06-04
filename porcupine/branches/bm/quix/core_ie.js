@@ -402,7 +402,7 @@ XULParser.prototype.parseXul = function(oNode, parentW) {
 				break;
 			case 'xhtml':
 				checkForChilds = false;
-				parentW.div.innerHTML = oNode.xml;
+				parentW.div.innerHTML = oNode.text;
 		}
 		
 		if (oWidget && parentW && !oWidget.parent && appendIt)

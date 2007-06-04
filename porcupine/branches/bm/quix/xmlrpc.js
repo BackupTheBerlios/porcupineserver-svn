@@ -1,6 +1,6 @@
 //===============================================================================
 //    Copyright 2000, 2001, 2002 Virtual Cowboys (info@virtualcowboys.nl)
-//    Copyright 2005, 2006 Tassos Koutsovassilis and contributors
+//    Copyright 2005 - 2007 Tassos Koutsovassilis and contributors
 //
 //    This file is part of Porcupine.
 //    Porcupine is free software; you can redistribute it and/or modify
@@ -19,14 +19,18 @@
 //xmlrpc client
 
 function __displayError__(e) {
-	document.desktop.parseFromString('<a:dialog xmlns:a="http://www.innoscript.org/quix"'+
+	document.desktop.parseFromString(
+		'<a:dialog xmlns:a="http://www.innoscript.org/quix"'+
 		' title="Error: ' + e.name + '" resizable="true" close="true"' +
 		' width="560" height="240" left="center" top="center">' +
 		'<a:wbody><a:box spacing="8" width="100%" height="100%">' +
-		'<a:icon width="56" height="56" padding="12,12,12,12" img="__quix/images/error32.gif"/>' +
-		'<a:rect padding="4,4,4,4" overflow="auto"><a:xhtml>' +
-		'<pre style="color:red;font-size:12px;font-family:monospace;padding-left:4px">' + e.message.xmlEncode() + '</pre></a:xhtml>' +
-		'</a:rect></a:box></a:wbody><a:dlgbutton onclick="__closeDialog__" width="70" height="22" caption="Close"></a:dlgbutton></a:dialog>');
+		'<a:icon width="56" height="56" padding="12,12,12,12" ' +
+			'img="__quix/images/error32.gif"/>' +
+		'<a:rect padding="4,4,4,4" overflow="auto"><a:xhtml><![CDATA[' +
+		'<pre style="color:red;font-size:12px;font-family:monospace;' +
+			'padding-left:4px">' + e.message + '</pre>]]></a:xhtml>' +
+		'</a:rect></a:box></a:wbody><a:dlgbutton onclick="__closeDialog__" ' +
+			'width="70" height="22" caption="Close"></a:dlgbutton></a:dialog>');
 }
 
 Object.prototype.toXMLRPC = function() {
