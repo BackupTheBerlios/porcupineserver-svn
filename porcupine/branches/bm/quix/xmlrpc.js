@@ -281,7 +281,7 @@ XMLRPCRequest.prototype.toObject = function(data) {
 
 XMLRPCRequest.prototype.callmethod = function(method_name) {
 	try {
-		if (!this._validateMethodName(method_name)) {
+		if (this._validateMethodName(method_name)) {
 			var message = '<?xml version="1.0"?><methodCall><methodName>' + method_name + '</methodName><params>';
 	
 		   	for(var i=1;i<arguments.length;i++)
@@ -302,7 +302,7 @@ XMLRPCRequest.prototype.callmethod = function(method_name) {
 }
 
 XMLRPCRequest.prototype._validateMethodName = function(mname) {
-	if( /^[A-Za-z0-9\._\/:]+$/.test(name) )
+	if( /^[A-Za-z0-9\._\/:]+$/.test(mname) )
 		return true
 	else
 		return false
