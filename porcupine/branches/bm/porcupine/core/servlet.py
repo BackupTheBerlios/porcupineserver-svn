@@ -54,15 +54,6 @@ class BaseServlet(object):
             objectAccess.NO_ACCESS:
                 raise serverExceptions.PermissionDenied
 
-    def runAsSystem(self):
-        """Causes the servlet to run under the SYSTEM account.
-        Use this method carefully, since it gives full access rights to
-        the Porupine database.
-        
-        @return: None
-        """
-        currentThread().session.user = db.getItem('system')
-
     def execute(self):
         """The servlet implementation method. Override this, to implement your
         servlets.
@@ -165,9 +156,9 @@ class XULServlet(HTTPServlet):
         self.isPage = False
         class_dir = os.path.dirname(sys.modules[self.__class__.__module__].__file__)
         self.xul_file = '%s%s%s.%s.quix' % (class_dir,
-                                           os.path.sep,
-                                           self.__module__.split('.')[-1],
-                                           self.__class__.__name__)
+                                            os.path.sep,
+                                            self.__module__.split('.')[-1],
+                                            self.__class__.__name__)
         
         # TODO: Open the QuiX file here (see rev 419)...
         
@@ -232,7 +223,7 @@ class XULSimpleTemplateServlet(XULServlet):
     XML-RPC template Servlet
     ========================
     This servlet uses the C{string.Template} module
-    for easier string substitutions.
+    for easier string substitutions and more readable templates.
     """
     def _writeContent(self):
         # open QuiX file
@@ -247,3 +238,49 @@ class XULSimpleTemplateServlet(XULServlet):
             self.response.write( template.substitute(self.params) )
         finally:
             quix_file.close()
+            
+class MuiXServlet(HTTPServlet):
+    def __init__(self, server, session, request):
+        HTTPServlet.__init__(self, server, session, request)
+        self.params = {}
+        class_dir = os.path.dirname(sys.modules[self.__class__.__module__].__file__)
+        self.muix_file = '%s%s%s.%s.muix' % (class_dir,
+                                             os.path.sep,
+                                             self.__module__.split('.')[-1],
+                                             self.__class__.__name__)
+        
+        # TODO: Open the MuiX file here (see rev 419)...
+        
+    def _writeContent(self):
+        # open MuiX file
+        try:
+            muix_file = file(self.muix_file)
+        except IOError:
+            raise serverExceptions.InvalidRegistration, \
+            'MuiX file "%s" is missing' % self.muix_file
+
+        try:
+            template = Template( muix_file.read() )
+            self.response.write( template.substitute(self.params) )
+        finally:
+            muix_file.close()
+        
+    def execute(self):
+        """This method writes the QuiX XUL template file to
+        the response buffer using the parameters provided.
+        
+        @warning: do not override
+        """
+        self.setParams()
+
+        self.response.content_type = 'text/xml'
+        
+        # TODO: Put try...finally here for closing the QuiX template
+        self._writeContent()
+        
+    def setParams(self):
+        """This is where you should set the parameters found
+        inside the MuiX interface definition file. Use the
+        C{self.params} dictionary.
+        """
+        pass

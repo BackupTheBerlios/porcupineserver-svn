@@ -37,7 +37,7 @@ except ValueError:
         settings.sessionmanager.timeout
 
 try:
-    sm_class = misc.getClassByName(sm_class)
+    sm_class = misc.getCallableByName(sm_class)
 except AttributeError:
     raise serverExceptions.ConfigurationError, \
         'Invalid session manager interface "%s"' % \

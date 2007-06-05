@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <a:dialog xmlns:a="http://www.innoscript.org/quix"
-title="@@CREATE@@ &quot;$TITLE&quot;"
+title="@@CREATE@@ &quot;@@$CC@@&quot;"
 img="$ICON"
 resizable="true"
 close="true"

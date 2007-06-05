@@ -26,7 +26,7 @@ except AttributeError:
     raise serverExceptions.ConfigurationError, (('interface', 'store'),)
 
 try:
-    db_class = misc.getClassByName(db_class)
+    db_class = misc.getCallableByName(db_class)
 except AttributeError:
     raise serverExceptions.ConfigurationError, 'Invalid store interface "%s"' % settings.store.interface
 except ImportError:

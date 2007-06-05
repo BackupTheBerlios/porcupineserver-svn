@@ -12,7 +12,7 @@ top="center">
 	<a:prop name="ORIGINAL_TASK_POS" value="$TASK_BAR_POS"/>
 	
 	<a:wbody>
-	 	<a:form action="./?cmd=applySettings" method="applySettings">
+	 	<a:form action="./" method="applySettings">
 			<a:tabpane width="100%" height="100%">
 				<a:tab caption="@@TASK_BAR@@">
 					<a:label caption="@@TASK_BAR_POSITION@@:"/>

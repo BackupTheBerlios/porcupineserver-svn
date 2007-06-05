@@ -12,7 +12,7 @@ height="325"
 left="30%"
 top="30%">
 	<a:wbody>
-		<a:form action="$URI" method="update">
+		<a:form action="$ID" method="update">
 			<a:tabpane top="0" left="0" width="100%%" height="100%%">
 				<a:tab caption="@@GENERAL@@">
 					<a:box height="55" width="100%">

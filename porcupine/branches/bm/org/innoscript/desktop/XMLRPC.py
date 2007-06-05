@@ -22,6 +22,7 @@ from porcupine.core.servlet import XMLRPCServlet
 from porcupine.oql.command import OqlCommand
 from porcupine.security import objectAccess
 from porcupine.security.policy import policymethod
+from porcupine.security.impersonation import runas
 from porcupine import datatypes
 from porcupine.utils import misc, date
 
@@ -107,7 +108,7 @@ class ItemGeneric(XMLRPCServlet):
 class ContainerGeneric(ItemGeneric):
     def create(self, data):
         # create new item
-        oNewItem = misc.getClassByName(data.pop('CC'))()
+        oNewItem = misc.getCallableByName(data.pop('CC'))()
 
         # get user role
         iUserRole = objectAccess.getAccess(self.item, self.session.user)
@@ -172,7 +173,7 @@ class ContainerGeneric(ItemGeneric):
         
         containment = []
         for contained in self.item.containment:
-            image = misc.getClassByName(contained).__image__
+            image = misc.getCallableByName(contained).__image__
             if not type(image)==str:
                 image = ''
             localestring = resources.getResource(contained, sLang)
@@ -217,14 +218,24 @@ class RootFolder(ContainerGeneric):
             tmpfile.write( chunk )
             tmpfile.close()
         return fname
-    
+
+    @runas('system')
+    def applySettings(self, data):
+        activeUser = self.originalUser
+        activeUser.settings.value = data
+        txn = self.server.store.getTransaction()
+        activeUser.update(txn)
+        txn.commit()
+        
+        return True
+
     def logoff(self):
         self.session.terminate()
         return True
 
 class Login(XMLRPCServlet):
+    @runas('system')
     def login(self, username, password):
-        self.runAsSystem()
         oUser = self.server.store.getItem('users').getChildByName(username)
         if oUser and hasattr(oUser, 'authenticate'):
             if oUser.authenticate(password):
@@ -232,19 +243,6 @@ class Login(XMLRPCServlet):
                 return True
         return False
         
-class ApplyUserSettings(XMLRPCServlet):
-    def applySettings(self, data):
-        activeUser = self.session.user
-        self.runAsSystem()
-        
-        activeUser.settings.value = data
-        
-        txn = self.server.store.getTransaction()
-        activeUser.update(txn)
-        txn.commit()
-        
-        return True
-
 #================================================================================
 # Category
 #================================================================================

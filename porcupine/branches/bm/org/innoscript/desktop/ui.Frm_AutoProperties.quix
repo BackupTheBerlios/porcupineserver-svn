@@ -10,7 +10,7 @@ left="30%"
 top="10%">
 	<a:script name="Generic Form Script" src="desktop/ui.Frm_Auto.js"/>
 	<a:wbody>
-		<a:form action="$URI" method="update">
+		<a:form action="$ID" method="update">
 			<a:tabpane top="0" left="0" width="100%" height="100%">
 				$PROPERTIES_TAB
 				$EXTRA_TABS

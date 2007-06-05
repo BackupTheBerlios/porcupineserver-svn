@@ -384,10 +384,12 @@ BODY {
      cursor: pointer;
 }
 
-.DatePickerBtnSelect {
+.DatePickerBtnNow {
      background-color: #c0c0ff;
-	 border: 1px solid Gray;
-     cursor: pointer;
+}
+
+.DatePickerBtnSelect {
+	  background-color: red;
 }
 
 .groupboxframe {

@@ -30,16 +30,20 @@ top="center" onload="containerList.getContainerInfo">
 			<a:toolbar width="100%" height="34">
 				<a:tbbutton width="30"
 					img="desktop/images/go_back22.gif"
+					tooltip="@@BACK@@"
 					onclick="containerList.goBack"/>
 				<a:tbbutton width="30"
 					img="desktop/images/reload22.gif"
+					tooltip="@@REFRESH@@"
 					onclick="containerList.refresh"/>
 				<a:tbbutton id="btn_up" width="30"
 					img="desktop/images/go_up22.gif"
+					tooltip="@@UP_ONE_FOLDER@@"
 					onclick="containerList.upOneFolder"/>
 				<a:tbsep/>
 				<a:tbbutton id="btn_hsearch" width="30"
 					img="desktop/images/search22.gif"
+					tooltip="@@SEARCH@@"
 					onclick="desktop.launchHyperSearch"/>
 			</a:toolbar>
 			<a:box width="100%" height="26" border="1" style="border-style:solid;border-color:ThreeDHighlight ThreeDShadow ThreeDShadow ThreeDHighlight">

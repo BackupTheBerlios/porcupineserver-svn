@@ -30,7 +30,7 @@ except AttributeError:
 for ri in ris:
     sInterface = getattr(settings.requestinterfaces, ri)
     try:
-        requestInterfaces[ri.upper()] = misc.getClassByName(sInterface)
+        requestInterfaces[ri.upper()] = misc.getCallableByName(sInterface)
     except AttributeError:
         raise serverExceptions.ConfigurationError, 'Invalid request interface "%s"' % sInterface
     except ImportError:

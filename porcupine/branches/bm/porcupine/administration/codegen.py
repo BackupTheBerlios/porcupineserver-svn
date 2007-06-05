@@ -28,7 +28,7 @@ from porcupine.administration import offlinedb
 
 class GenericSchemaEditor(object):
     def __init__(self, classobj):
-        self._class = misc.getClassByName(classobj)
+        self._class = misc.getCallableByName(classobj)
         self._bases = self._class.__bases__
         self.doc = self._class.__doc__
         self._attrs = {}
@@ -60,7 +60,7 @@ class GenericSchemaEditor(object):
                 self._imports[moduledict[x]] = x
             elif callable(moduledict[x]) and \
                     (sys.modules[moduledict[x].__module__] != self._module):
-                imported = misc.getClassByName(moduledict[x].__module__ + \
+                imported = misc.getCallableByName(moduledict[x].__module__ + \
                                                '.' + x)
                 self._imports[imported] = x
     
@@ -68,7 +68,7 @@ class GenericSchemaEditor(object):
         raise NotImplementedError
     
     def _getFullName(self, callable):
-        module = misc.getClassByName(callable.__module__)
+        module = misc.getCallableByName(callable.__module__)
         if self._imports.has_key(module):
             return self._imports[module] + '.' + callable.__name__
         else:
@@ -189,7 +189,7 @@ class ItemEditor(GenericSchemaEditor):
         GenericSchemaEditor.commitChanges(self)
         if len(self._addedProps):
             #we must reload the class module
-            oMod = misc.getClassByName(self._class.__module__)
+            oMod = misc.getCallableByName(self._class.__module__)
             reload(oMod)
             from porcupine.oql.command import OqlCommand
             

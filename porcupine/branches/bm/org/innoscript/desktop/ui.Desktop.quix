@@ -32,7 +32,7 @@
 					<a:menuoption caption="@@SETTINGS@@" img="desktop/images/admintools.gif" onclick="desktop.showSettings" disabled="$SETTINGS_DISABLED"></a:menuoption>
 					<a:sep></a:sep>
 					<a:menuoption caption="@@INFO@@" img="desktop/images/about16.gif" onclick="desktop.showAbout"></a:menuoption>
-					<a:menuoption caption="Log on as" onclick="desktop.loginAs"></a:menuoption>
+					<a:menuoption caption="@@LOGIN_AS@@" img="desktop/images/kgpg16.gif" onclick="desktop.loginAs"></a:menuoption>
 					<a:menuoption caption="@@LOGOFF@@ $USER" img="desktop/images/exit.gif" onclick="desktop.logoff" disabled="$LOGOFF_DISABLED">
 						<a:prop name="logoff" value="@@LOGOFF@@"></a:prop>
 						<a:prop name="ask_logoff" value="@@LOGOFF_Q@@"></a:prop>

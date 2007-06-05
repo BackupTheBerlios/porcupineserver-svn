@@ -1,10 +1,84 @@
 -------------
+Version 0.1.0
+-------------
+NEW: Synchronous event handlers per content class.
+NEW: Added new optional parameter "qs" to the store registrations
+     configuration file. It is used for mathcing against the
+     query string as a whole for more flexible servlet binding.
+NEW: Added new data type for linking external files that reside
+     on the file system.
+NEW: Added new method "getTempFilename" to the session object. It
+     returns a safe filename for creating a temporary file.
+NEW: Personal repository for each user.
+NEW: Added experimental internal redirect using server local
+     relative URLs.
+NEW: The "runas" decorator allows servlets' methods to run under a
+     different user account.
+NEW: New "onresize" QuiX event.
+NEW: New slider control.
+NEW: QuiX now supports tooltips using the "tooltip" attribute.
+NEW: Support for third-party widgets using the "custom" tag.
+NEW: Ability to include custom stylesheets by using the "stylesheet"
+     tag.
+NEW: Added "onscroll" to the list of the supported DOM events.
+NEW: Abillity to define custom stepping for QuiX spin buttons.
+NEW: Added new "getData" method for QuiX forms.
+
+OPT: Faster XMLRPC object serialization on the server side.
+OPT: XMLRPC serialization for Python "unicode" types.
+OPT: Allow calling XMLRPC methods with no arguments.
+OPT: The "onload" handler is called after the widget is placed
+     on the document.
+OPT: Porcupine multilingual filter supports multiple resource
+     files.
+OPT: Child windows are excluded for the task bar's context menu.
+OPT: Faster redraws by using a single document fragment.
+OPT: Redraws on IE take place offline, just like on Mozilla.
+OPT: Faster "getWidgetById".
+OPT: QuiX.removeNode returns the removed node.
+OPT: Hiding and bringing to front takes care of the child windows too.
+OPT: Ability to define custom padding to QuiX toolbars.
+OPT: Context menus are not displayed if their "onshow" handler
+     returns "false".
+OPT: Combo boxes and select lists display vertical scroll bars only.
+OPT: Disabled "ondragstart" event for IE images.
+OPT: Ability to define initial toggle button state by using value="on".
+OPT: The form submit callback function can be omitted.
+OPT: Renamed "getClassByName" to "getCallableByName".
+OPT: The selected date gets highlighted (date picker control).
+
+FIX: Fixed guest user access to the Porcupine desktop by changing
+     the "allow_guests" parameter of porcupine.ini (mentioned by thugree).
+FIX: Added support for long types in the Porcupine XMLRPC module.
+FIX: Fixed hour formatting for JavaScript Date objects.
+FIX: Disabled labels appear grayed.
+FIX: Fixed the statuses of menu options of a file upload control, based
+     on its state.
+FIX: Fixed "textpadding" attribute reading for QuiX fields.
+FIX: Fixed "onchange" event firing for spin buttons.
+FIX: Fixed width and height calculations when maximizing a window.
+     This was a problem when the window was maximized from an "onload"
+     handler.
+FIX: Fixed date selection when using the months' dropdown or the years'spin
+     button of a date picker control.
+FIX: Fixed error when having defined the "bgcolor" attribute of a GroupBox.
+FIX: Fixed rendering of zeros in a list view (contributed by thugree).
+FIX: Fixed ID assignment for QuiX buttons.
+FIX: Fixed OQL Query performer tree results display by adding required
+     redraws.
+FIX: Assigned policies display correctly on the users' and groups' property
+     forms.
+
+DEP: Removed servlets' "runAsSystem" method. Use the "runas" decorator
+     instead.
+
+-------------
 Version 0.0.9
 -------------
-NEW: Object cache with configuarable size.
+NEW: Object cache with configurable size.
 NEW: New XULSimpleTemplateServlet class using the simple string.Template
      class for simpler more readable QuiX templates.
-NEW: Policy methods can noe be declared with decorators using
+NEW: Policy methods can now be declared with decorators using
      "@policymethod(policyid)".
 NEW: New multilingual post processing filter used for easy output
      internationalization.

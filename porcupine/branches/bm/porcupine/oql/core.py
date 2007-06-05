@@ -273,7 +273,7 @@ def h_65(params, variables, forObject):
 #================================================================================
 def h_66(params, variables, forObject):
     className = evaluateStack(params[0][:], variables, forObject)
-    return isinstance(forObject, misc.getClassByName(className))
+    return isinstance(forObject, misc.getCallableByName(className))
 
 #================================================================================
 # assignment command handler
