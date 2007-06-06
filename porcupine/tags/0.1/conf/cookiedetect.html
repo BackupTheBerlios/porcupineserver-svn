@@ -1,0 +1,11 @@
+<script type="text/javascript">
+var cookieEnabled = false;
+if (typeof document.cookie == "string" && document.cookie.length != 0) {
+	cookieEnabled = true;
+}
+if (cookieEnabled) {
+	document.location.href = '%(ROOT)s%(PATH)s%(QS)s';;
+} else {
+	document.location.href = '%(ROOT)s/{%(SESSION_ID)s}%(PATH)s%(QS)s';
+}
+</script>
