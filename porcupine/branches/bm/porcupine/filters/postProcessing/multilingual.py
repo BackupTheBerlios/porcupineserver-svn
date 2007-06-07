@@ -22,7 +22,7 @@ import re
 from porcupine.filters import PostProcessingFilter
 from porcupine.utils import misc
 
-TOKEN = re.compile('(@@(\w+)@@)')
+TOKEN = re.compile('(@@([\w\.]+)@@)')
 
 class Multilingual(PostProcessingFilter):
     @staticmethod
