@@ -328,7 +328,7 @@ class Frm_AutoNew(Frm_Auto):
         
         self.params = {
             'CC': sCC,
-            'URI': self.item.id,
+            'URI': self.request.getRootUrl() + '/' + self.item.id,
             'ICON': oNewItem.__image__,
             'PROPERTIES_TAB': '',
             'EXTRA_TABS': '',
