@@ -32,7 +32,7 @@ QuiX.clipboard = new Clipboard();
 QuiX.tmpWidget = null;
 QuiX.images = [];
 
-QuiX.progress = '<a:rect xmlns:a="http://www.innoscript.org/quix" ' +
+QuiX.progress = '<a:rect id="quix_progress" xmlns:a="http://www.innoscript.org/quix" ' +
 	'width="240" height="48" overflow="hidden" top="center" left="center" ' +
 	'border="2" bgcolor="white" style="border-color:#999999;border-style:solid" '+
 	'padding="1,1,1,1"><a:xhtml><![CDATA[<center>Please wait...<br/><br/>' +
