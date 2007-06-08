@@ -11,7 +11,7 @@ top="40%">
 	<a:wbody>
 		<a:box width="100%" height="100%">
 			<a:rect width="-1">
-				<a:xhtml>
+				<a:xhtml><![CDATA[
 						<center>
 						<font size="2">QuiX Desktop running on <br/> Porcupine Server v$VERSION</font>
 						<p>
@@ -24,7 +24,7 @@ top="40%">
 							<a href="mailto:info@virtualcowboys.nl">info@virtualcowboys.nl</a>
 						</p>
 						</center>
-				</a:xhtml>
+				]]></a:xhtml>
 			</a:rect>
 			<a:rect width="58" >
 				<a:icon top="140" img="desktop/images/powered.gif"/>

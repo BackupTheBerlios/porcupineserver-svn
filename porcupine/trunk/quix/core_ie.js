@@ -402,7 +402,7 @@ XULParser.prototype.parseXul = function(oNode, parentW) {
 				break;
 			case 'xhtml':
 				checkForChilds = false;
-				parentW.div.innerHTML = oNode.xml;
+				parentW.div.innerHTML = oNode.text;
 		}
 		
 		if (oWidget && parentW && !oWidget.parent && appendIt)
@@ -1225,8 +1225,8 @@ Desktop.prototype.msgbox = function(mtitle, message, buttons, image, mleft, mtop
 	this.parseFromString('<a:dialog xmlns:a="http://www.innoscript.org/quix"' +
 		' title="' + mtitle + '" close="true"' +
 		' width="' + mwidth + '" height="' + mheight + '" left="' + mleft +'" top="' + mtop + '">' +
-		'<a:wbody><a:xhtml><table cellpadding="4"><tr>' + innHTML +
-		'</tr></table></a:xhtml></a:wbody>' + sButtons + '</a:dialog>',
+		'<a:wbody><a:xhtml><![CDATA[<table cellpadding="4"><tr>' + innHTML +
+		'</tr></table>]]></a:xhtml></a:wbody>' + sButtons + '</a:dialog>',
 		function(w) {
 			//attach buttons click events
 			if (typeof buttons=='object') {
