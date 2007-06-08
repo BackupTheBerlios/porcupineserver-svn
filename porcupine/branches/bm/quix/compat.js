@@ -231,6 +231,10 @@ QuiX.domFromString = function(s)
 
 QuiX.removeWidget = function(w) {
 	var parentElement;
+	
+	if (w.__tooltip || w.__tooltipID)
+		Widget__tooltipout(null, w);
+	
 	while (w.widgets.length>0)
 		QuiX.removeWidget(w.widgets[0]);
 	if (w.parent) {
