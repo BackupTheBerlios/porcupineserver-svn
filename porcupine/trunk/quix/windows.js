@@ -202,7 +202,7 @@ Window.prototype.addStatusBar = function(w) {
 		w.body.redraw();
 		
 		w.statusBar = new Widget({
-			top: "this.parent.getHeight()-19",
+			top: "this.parent.getHeight()-20",
 			width: '100%',
 			left: 0,
 			height: 20,
