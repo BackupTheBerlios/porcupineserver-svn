@@ -393,16 +393,16 @@ class Desktop(PorcupineDesktopServlet):
         self.response.setHeader('cache-control', 'no-cache')
         
         oUser = self.session.user
-        settings = oUser.settings
         
         self.params = {
-            'USER': oUser.displayName.value,
+            'USER' : oUser.displayName.value,
             'AUTO_RUN' : '',
             'RUN_MAXIMIZED' : 0,
             'SETTINGS_DISABLED' : '',
             'LOGOFF_DISABLED' : ''
         }
         if hasattr(oUser, 'authenticate'):
+            settings = oUser.settings
             self.params['AUTO_RUN'] = \
                 settings.value.setdefault('AUTO_RUN', '')
             self.params['RUN_MAXIMIZED'] = \
