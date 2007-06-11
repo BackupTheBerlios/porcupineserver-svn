@@ -27,9 +27,10 @@ DEFAULT_PROPS = ('id', 'modified', 'owner', 'created', '__image__',
                  'contentclass', 'parentid', 'isCollection')
 
 class XMLRPCParams(list):
-    def __init__(self, oList=[]):
+    def __init__(self, oList=[], encoding='utf-8'):
         list.__init__(self, oList)
         self.method = None
+        self.encoding = encoding
 
     def serialize(self):
         xml = cStringIO.StringIO()
@@ -60,7 +61,7 @@ class XMLRPCParams(list):
             param = childNodes[0]
             if param.tagName == 'string':
                 if param.childNodes:
-                    return(param.childNodes[0].data.encode('utf-8'))
+                    return(param.childNodes[0].data.encode(self.encoding))
                 else:
                     return ''
             elif param.tagName == 'i4' or param.tagName == 'int':
@@ -98,7 +99,7 @@ class XMLRPCParams(list):
         if type(param)==str:
             return('<value>%s</value>' % xmlUtils.XMLEncode(param))
         elif type(param)==unicode:
-            return('<value>%s</value>' % xmlUtils.XMLEncode(param.encode('utf-8')))
+            return('<value>%s</value>' % xmlUtils.XMLEncode(param.encode(self.encoding)))
         elif type(param)==int or type(param)==long:
             return('<value><i4>%i</i4></value>' % param)
         elif type(param)==bool:
