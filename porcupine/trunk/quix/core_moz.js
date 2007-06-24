@@ -49,7 +49,6 @@ function XULParser() {
 	this.__modulesToLoad = [];
 	this.__imagesToLoad = [];
 	this.__onload = [];
-	this.activeForm = null;
 	this.dom = null;
 	this.progressWidget = null;
 	this.oncomplete = null;
@@ -209,24 +208,20 @@ XULParser.prototype.parseXul = function(oNode, parentW) {
 				break;
 			case 'form':
 				oWidget = new Form(params);
-				this.activeForm = oWidget;
 				break;
 			case 'field':
-				if (params.type=='textarea') params.value = getNodeXml(oNode).trim().xmlDecode();
+				if (params.type=='textarea')
+					params.value = getNodeXml(oNode).trim().xmlDecode();
 				oWidget = new Field(params);
-				if (this.activeForm) this.activeForm.elements.push(oWidget);
 				break;
 			case 'selectlist':
 				oWidget = new SelectList(params);
-				if (this.activeForm) this.activeForm.elements.push(oWidget);
 				break;
 			case 'file':
 				oWidget = new File(params);
-				if (this.activeForm) this.activeForm.elements.push(oWidget);
 				break;
 			case 'multifile':
 				oWidget = new MultiFile(params);
-				if (this.activeForm) this.activeForm.elements.push(oWidget);
 				break;
 			case 'mfile':
 				checkForChilds = false;
@@ -240,11 +235,9 @@ XULParser.prototype.parseXul = function(oNode, parentW) {
 				break;
 			case 'combo':
 				oWidget = new Combo(params);
-				if (this.activeForm) this.activeForm.elements.push(oWidget);
 				break;
 			case 'spinbutton':
 				oWidget = new Spin(params);
-				if (this.activeForm) this.activeForm.elements.push(oWidget);
 				break;
 			case 'dialog':
 				oWidget = new Dialog(params);
@@ -298,11 +291,9 @@ XULParser.prototype.parseXul = function(oNode, parentW) {
 				break;
 			case 'datagrid':
 				oWidget = new DataGrid(params);
-				if (this.activeForm) this.activeForm.elements.push(oWidget);
 				break;
 			case 'datepicker':
 				oWidget = new Datepicker(params);
-				if (this.activeForm) this.activeForm.elements.push(oWidget);
 				break;
 			case 'progressbar':
 				oWidget = new ProgressBar(params);
@@ -374,7 +365,6 @@ XULParser.prototype.parseXul = function(oNode, parentW) {
 				break;
 			case 'slider':
 				oWidget = new Slider(params);
-				if (this.activeForm) this.activeForm.elements.push(oWidget);
 				break;
 			case 'rect':
 				oWidget = new Widget(params);
@@ -430,7 +420,6 @@ XULParser.prototype.parseXul = function(oNode, parentW) {
 				this.parseXul(oNode.childNodes[i], oWidget, fparams);
 			}
 		}
-		if (oNode.localName == 'form') this.activeForm = null;
 		
 		if (oWidget) { 
 			if (oWidget._customRegistry.onload)
@@ -594,11 +583,23 @@ Widget.prototype.getWidgetById = function(sid) {
 }
 
 Widget.prototype.getWidgetsByType = function(wtype) {
-	ws = [];
+	var w;
+	var ws = [];
 	for (var i=0; i<this.widgets.length; i++) {
 		w = this.widgets[i];
 		if (w instanceof wtype) ws.push(w);
 		ws = ws.concat(w.getWidgetsByType(wtype));
+	}
+	return ws;
+}
+
+Widget.prototype.getWidgetsByAttribute = function(attr_name) {
+	var w;
+	var ws = [];
+	for (var i=0; i<this.widgets.length; i++) {
+		w = this.widgets[i];
+		if (w[attr_name] != undefined) ws.push(w);
+		ws = ws.concat(w.getWidgetsByAttribute(attr_name));
 	}
 	return ws;
 }
