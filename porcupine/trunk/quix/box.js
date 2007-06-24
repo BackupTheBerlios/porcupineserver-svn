@@ -8,8 +8,8 @@ function Box(params) {
 	this.base(params);
 	this.div.className = 'box';
 	this.orientation = params.orientation || 'h';
-	var iSpacing = params.spacing || 2;
-	this.spacing = parseInt(iSpacing);
+	var spacing = (params.spacing == null)? 2 : params.spacing;
+	this.spacing = parseInt(spacing);
 	this.childrenAlign = params.childrenalign;
 }
 
