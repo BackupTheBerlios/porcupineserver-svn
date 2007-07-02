@@ -887,16 +887,18 @@ Widget.prototype.clear = function() {
 }
 
 Widget.prototype.hide = function() {
-	this.div.style.visibility = 'hidden';
+	if (!this.isHidden()) {
+		this._statedisplay = this.div.style.display;
+		this.div.style.display = 'none';
+	}
 }
 
 Widget.prototype.show = function() {
-	this.div.style.visibility = '';
-	//this.redraw();
+	this.div.style.display = this._statedisplay;
 }
 
 Widget.prototype.isHidden = function() {
-	return (this.div.style.visibility == 'hidden');
+	return (this.div.style.display == 'none');
 }
 
 Widget.prototype._startResize = function (evt) {

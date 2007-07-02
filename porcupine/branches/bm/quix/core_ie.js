@@ -876,16 +876,19 @@ Widget.prototype.clear = function() {
 }
 
 Widget.prototype.hide = function() {
-	if (QuiX.modules[9].isLoaded) {
-		var frames = this.getWidgetsByType(IFrame);
-		for (var i=0; i<frames.length; i++)
-			frames[i].div.firstChild.style.display = 'none';
+	if (!this.isHidden()) {
+		if (QuiX.modules[9].isLoaded) {
+			var frames = this.getWidgetsByType(IFrame);
+			for (var i=0; i<frames.length; i++)
+				frames[i].div.firstChild.style.display = 'none';
+		}
+		this._statedisplay = this.div.style.display;
+		this.div.style.display = 'none';
 	}
-	this.div.style.visibility = 'hidden';
 }
 
 Widget.prototype.show = function() {
-	this.div.style.visibility = '';
+	this.div.style.display = this._statedisplay;
 	if (QuiX.modules[9].isLoaded) {
 		var frames = this.getWidgetsByType(IFrame);
 		for (var i=0; i<frames.length; i++)
@@ -894,7 +897,7 @@ Widget.prototype.show = function() {
 }
 
 Widget.prototype.isHidden = function() {
-	return (this.div.style.visibility == 'hidden');
+	return (this.div.style.display == 'none');
 }
 
 Widget.prototype._startResize = function (evt) {
