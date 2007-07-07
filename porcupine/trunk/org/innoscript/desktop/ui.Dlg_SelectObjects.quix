@@ -42,6 +42,6 @@ top="30%">
 			</a:selectlist>
 		</a:box>
 	</a:wbody>
-	<a:dlgbutton onclick="selectObjectsDialog.select" width="70" height="22" caption="@@SELECT@@"/>
+	<a:dlgbutton onclick="__closeDialog__" width="70" height="22" caption="@@SELECT@@"/>
 	<a:dlgbutton onclick="__closeDialog__" width="70" height="22" caption="@@CLOSE@@"/>
 </a:dialog>

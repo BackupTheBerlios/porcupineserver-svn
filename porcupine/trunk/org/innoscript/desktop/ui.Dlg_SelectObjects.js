@@ -68,13 +68,6 @@ selectObjectsDialog.search = function(evt, w) {
 	xmlrpc.callmethod('executeOqlCommand', sCommand);
 }
 
-selectObjectsDialog.select = function(evt, w) {
-	var oDialog = w.getParentByType(Dialog);
-	var source = oDialog.getWidgetById("selection");
-	var target = oDialog.attributes.target;
-	oDialog.attributes.select_click(evt, w, source, target);
-}
-
 selectObjectsDialog.refreshList = function(treeNodeSelected) {
 	var oDialog = treeNodeSelected.tree.getParentByType(Dialog);
 	var xmlrpc = new XMLRPCRequest(QuiX.root);

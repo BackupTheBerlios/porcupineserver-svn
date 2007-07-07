@@ -9,6 +9,7 @@ height="420"
 left="30%"
 top="10%">
 	<a:script name="Generic Form Script" src="desktop/ui.Frm_Auto.js"/>
+	<a:script name="Generic Form Widgets" src="desktop/widgets.js" depends="10,15"/>
 	<a:wbody>
 		<a:form action="$URI" method="create">
 			<a:field name="CC" type="hidden" value="$CC"/>

@@ -58,74 +58,22 @@ AUTO_CONTROLS = {
         ''',
         
     datatypes.Reference1: '''
-        <a:rect top="%d" width="100%%" height="24">
-            <a:prop name="SelectFrom" value="%s"/>
-            <a:prop name="RelatedCC" value="%s"/>
-            <a:label top="center" width="100" height="20" caption="%s:"/>
-            <a:field name="%s" type="hidden" value="%s"/>
-            <a:field left="105" top="center" width="this.parent.getWidth()-145"
-                value="%s" readonly="true"/>
-            <a:button left="this.parent.getWidth()-40" top="center"
-                caption="..." width="20" height="20" disabled="%s"
-                onclick="generic.selectItem"/>
-            <a:button left="this.parent.getWidth()-20" top="center"
-                img="desktop/images/cancel8.gif" width="20" height="20"
-                disabled="%s" onclick="generic.clearReference1"/>
-        </a:rect>
+        <a:custom classname="Reference1" top="%d" width="100%%"
+            root="%s" cc="%s" caption="%s" name="%s" value="%s" dn="%s"
+            disabled="%s"/>
         ''',
-
+        
     datatypes.ReferenceN: '''
         <a:tab caption="%s">
-            <a:box width="100%%" height="100%%" orientation="v">
-                <a:selectlist name="%s" multiple="true" posts="all" height="-1">
-                    <a:prop name="SelectFrom" value="%s"/>
-                    <a:prop name="RelatedCC" value="%s"/>
-                    %s
-                </a:selectlist>
-                <a:rect height="24" disabled="%s">
-                    <a:flatbutton width="70" height="22" caption="@@ADD@@..."
-                        onclick="generic.selectItems"/>
-                    <a:flatbutton left="80" width="70" height="22"
-                        caption="@@REMOVE@@"
-                        onclick="generic.removeSelectedItems"/>
-                </a:rect>
-            </a:box>
+            <a:custom classname="ReferenceN" width="100%%" height="100%%"
+                    root="%s" cc="%s" name="%s" disabled="%s" value="%s"/>
         </a:tab>
         '''
 }
 
 SECURITY_TAB = '''
 <a:tab caption="@@SECURITY@@" onactivate="generic.getSecurity">
-    <a:box orientation="v" spacing="0" width="100%%" height="100%%">
-        <a:field id="__rolesinherited"
-            height="24"
-            name="__rolesinherited"
-            type="checkbox"
-            value="%s"
-            onclick="generic.rolesInherited_onclick"
-            caption="@@ROLES_INHERITED@@"/>
-        <a:box spacing="0" disabled="%s" height="-1">
-            <a:datagrid id="__acl" name="__acl" width="-1">
-                <a:listheader>
-                    <a:column width="140" caption="@@displayName@@"
-                        name="displayName" editable="false" sortable="true"/>
-                    <a:column width="140" caption="@@ROLE@@" name="role"
-                            type="optionlist" sortable="true">
-                        <a:option value="1" caption="@@ROLE_1@@"/>
-                        <a:option value="2" caption="@@ROLE_2@@"/>
-                        <a:option value="4" caption="@@ROLE_4@@"/>
-                        <a:option value="8" caption="@@ROLE_8@@"/>
-                    </a:column>
-                </a:listheader>
-            </a:datagrid>
-            <a:rect width="60">
-                <a:flatbutton left="center" width="56" height="22"
-                    caption="@@ADD@@" onclick="generic.addACLEntry"/>
-                <a:flatbutton top="24" left="center" width="56" height="22"
-                    caption="@@REMOVE@@" onclick="generic.removeACLEntry"/>
-            </a:rect>
-        </a:box>
-    </a:box>
+    <a:custom classname="ACLEditor" width="100%%" height="100%%" rolesinherited="%s"/>
 </a:tab>
 '''
 
@@ -156,11 +104,7 @@ class PorcupineDesktopServlet(XULSimpleTemplateServlet):
         iUserRole = objectAccess.getAccess(forItem, user)
         if iUserRole == objectAccess.COORDINATOR:
             rolesInherited = rolesInherited or forItem.inheritRoles
-            if rolesInherited:
-                sChecked = 'true'
-            else:
-                sChecked = 'false'
-            return SECURITY_TAB % (sChecked, sChecked)
+            return SECURITY_TAB % self.getStringFromBoolean(rolesInherited)
         else:
             return ''
             
@@ -226,9 +170,14 @@ class Frm_Auto(PorcupineDesktopServlet):
                 refid = refname = ''
             sReadonly = self.getStringFromBoolean(readonly)
             sControl = AUTO_CONTROLS[datatypes.Reference1] % (
-                self.yoffset, self.request.serverVariables['SCRIPT_NAME'] + '/',
-                '|'.join(attr.relCc), attrlabel, attrname,
-                refid, refname, sReadonly, sReadonly
+                self.yoffset,
+                self.request.getRootUrl(),
+                '|'.join(attr.relCc),
+                attrlabel,
+                attrname,
+                refid,
+                refname,
+                sReadonly
             )
             self.yoffset += 25
             
@@ -236,16 +185,18 @@ class Frm_Auto(PorcupineDesktopServlet):
             options = ''
             rel_items = attr.getItems()
             for item in rel_items:
-                options += \
-                    ('<a:option img="%s" value="%s" ' + \
-                    'ondblclick="autoform.displayRelated" caption="%s"/>') % \
-                    (item.__image__, item.id, item.displayName.value)
+                options += ('%s;%s;%s') % \
+                    (xmlUtils.XMLEncode(item.__image__),
+                     item.id,
+                     xmlUtils.XMLEncode(item.displayName.value))
             
             sTab = AUTO_CONTROLS[datatypes.ReferenceN] % (
-                attrlabel, attrname,
-                self.request.serverVariables['SCRIPT_NAME'] + '/',
+                attrlabel,
+                self.request.getRootUrl(),
                 '|'.join(attr.relCc),
-                options, self.getStringFromBoolean(readonly)
+                attrname,
+                self.getStringFromBoolean(readonly),
+                options
             )
         
         return (sControl, sTab)
