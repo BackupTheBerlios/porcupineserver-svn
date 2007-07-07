@@ -25,7 +25,8 @@ DataGrid.prototype.addHeader = function(params) {
 
 DataGrid.prototype.addColumn = function(params) {
 	var oCol = ListView.prototype.addColumn(params, this);
-	oCol.editable = (params.editable=='false')?false:true;
+	oCol.editable = (params.editable=='false' ||
+					 params.editable == false)?false:true;
 	return(oCol);
 }
 
