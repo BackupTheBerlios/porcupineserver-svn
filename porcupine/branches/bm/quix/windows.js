@@ -263,11 +263,11 @@ Window.prototype.minimize = function(w) {
 			w.height = w.title.getHeight(true) + 2*w.getBorderWidth() + padding[2] + padding[3];
 			if (maxControl)
 				maxControl.disable();
-			for (var i=0; i<this.childWindows.length; i++) {
-				childWindow = this.childWindows[i];
+			for (var i=0; i<w.childWindows.length; i++) {
+				childWindow = w.childWindows[i];
 				if (!childWindow.isHidden()) {
 					childWindow.hide();
-					this._childwindows.push(childWindow);
+					w._childwindows.push(childWindow);
 				}
 			}
 			w.isMinimized = true;
@@ -282,8 +282,8 @@ Window.prototype.minimize = function(w) {
 			if (maxControl)
 				maxControl.enable();
 				
-			while (this._childwindows.length > 0) {
-				childWindow = this._childwindows.pop();
+			while (w._childwindows.length > 0) {
+				childWindow = w._childwindows.pop();
 				childWindow.show();
 			}
 			w.isMinimized = false;
