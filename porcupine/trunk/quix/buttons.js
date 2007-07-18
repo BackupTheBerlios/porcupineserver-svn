@@ -4,7 +4,8 @@ Labels & Buttons
 function Label(params) {
 	params = params || {};
 	params.padding = params.padding || '2,2,2,2';
-	params.onmousedown = QuiX.getEventWrapper(Label__onmousedown, params.onmousedown);
+	params.onmousedown = QuiX.getEventWrapper(Label__onmousedown,
+		params.onmousedown);
 	
 	this.base = Widget;
 	this.base(params);
@@ -19,11 +20,14 @@ function Label(params) {
 			this._statecolor = params.color;
 	}
 
-	this.canSelect = (params.canselect=="true" || params.canselect==true)?true:false;
+	this.canSelect = (params.canselect=="true" || params.canselect==true)?
+					 true:false;
 	if (this.canSelect) {
 		this.div.onselectstart = QuiX.stopPropag;
 		this.div.style.cursor = 'text';
 	}
+	
+	this.wrap = (params.wrap=="true" || params.wrap==true);
 	
 	var sCaption = params.caption || '';
 	this.div.innerHTML += '<span>' + sCaption + '</span>';
@@ -41,7 +45,13 @@ Label.prototype.getCaption = function(s) {
 
 Label.prototype.redraw = function(bForceAll, w) {
 	var w = w || this;
-	w.div.style.textAlign = w.align;
+	with (w.div.style) {
+		if (!w.wrap)
+			whiteSpace = 'nowrap';
+		else
+			whiteSpace = '';
+		textAlign = w.align;
+	}
 	if (w.parent)
 		Widget.prototype.redraw(bForceAll, w);
 }
@@ -154,10 +164,14 @@ function XButton(params) {
 		bgcolor: params.bgcolor || 'buttonface',
 		padding: '0,0,0,0',
 		overflow: 'hidden',
-		onmouseover: QuiX.getEventWrapper(XButton__onmouseover, params.onmouseover),
-		onmouseout: QuiX.getEventWrapper(XButton__onmouseout, params.onmouseout),
-		onmouseup: QuiX.getEventWrapper(XButton__onmouseup, params.onmouseup),
-		onmousedown: QuiX.getEventWrapper(XButton__onmousedown, params.onmousedown),
+		onmouseover: QuiX.getEventWrapper(XButton__onmouseover,
+						params.onmouseover),
+		onmouseout: QuiX.getEventWrapper(XButton__onmouseout,
+						params.onmouseout),
+		onmouseup: QuiX.getEventWrapper(XButton__onmouseup,
+						params.onmouseup),
+		onmousedown: QuiX.getEventWrapper(XButton__onmousedown,
+						params.onmousedown),
 		onclick: params.onclick
 	});
 	this.div.className = 'btn';
@@ -244,11 +258,16 @@ function FlatButton(params) {
 	params.padding = params.padding || '4,4,4,4';
 	params.overflow = 'hidden';
 	params.align = params.align || 'center';
-	params.onmouseover = QuiX.getEventWrapper(FlatButton__onmouseover, params.onmouseover);
-	params.onmouseout = QuiX.getEventWrapper(FlatButton__onmouseout, params.onmouseout);
-	params.onmousedown = QuiX.getEventWrapper(FlatButton__onmousedown, params.onmousedown);
-	params.onmouseup = QuiX.getEventWrapper(FlatButton__onmouseup, params.onmouseup);
-	params.onclick = QuiX.getEventWrapper(FlatButton__onclick, params.onclick);
+	params.onmouseover = QuiX.getEventWrapper(FlatButton__onmouseover,
+							params.onmouseover);
+	params.onmouseout = QuiX.getEventWrapper(FlatButton__onmouseout,
+							params.onmouseout);
+	params.onmousedown = QuiX.getEventWrapper(FlatButton__onmousedown,
+							params.onmousedown);
+	params.onmouseup = QuiX.getEventWrapper(FlatButton__onmouseup,
+							params.onmouseup);
+	params.onclick = QuiX.getEventWrapper(FlatButton__onclick,
+							params.onclick);
 
 	this.base = Icon;
 	this.base(params);

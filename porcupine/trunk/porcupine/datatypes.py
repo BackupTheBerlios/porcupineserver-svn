@@ -24,6 +24,7 @@ See also the L{org.innoscript.desktop.schema.properties} module as a usage guide
 
 import copy, md5
 import os.path
+import shutil
 from threading import currentThread
 
 from porcupine.db import db, dbEnv
@@ -340,7 +341,7 @@ class ExternalAttribute(DataType):
         if self._value is None:
             trans = currentThread().trans
             self._value = db.db_handle._getExternalAttribute(self._id, trans) \
-                            or ''
+                          or ''
         return(self._value)
 
     def setValue(self, value):
@@ -417,4 +418,16 @@ class ExternalFile(String):
     def getFile(self, mode='r'):
         return file(self.value, mode)
     
-
+    def __deepcopy__(self, memo):
+        clone = copy.copy(self)
+        # copy the external file
+        fcounter = 1
+        old_filename = new_filename = self.value
+        filename, extension = os.path.splitext( old_filename )
+        while os.path.exists( new_filename ):
+            new_filename = ('%s_%d.%s' % (filename, fcounter, extension))
+            fcounter += 1
+        shutil.copyfile(old_filename, new_filename)
+        clone.value = new_filename
+        return clone
+    

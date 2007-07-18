@@ -222,7 +222,8 @@ class RootFolder(ContainerGeneric):
     @runas('system')
     def applySettings(self, data):
         activeUser = self.originalUser
-        activeUser.settings.value = data
+        for key in data:
+            activeUser.settings.value[key] = data[key]
         txn = self.server.store.getTransaction()
         activeUser.update(txn)
         txn.commit()

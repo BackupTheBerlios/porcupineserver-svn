@@ -45,7 +45,6 @@ BODY {
 .label {
 	cursor: default;
 	border-style: solid;
-	white-space: nowrap;
 }
 
 .flat {
