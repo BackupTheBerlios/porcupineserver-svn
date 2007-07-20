@@ -39,8 +39,12 @@ function XULParser() {
 
 XULParser.prototype.detectModules = function(oNode) {
 	var dependency;
-	var sTag = oNode.tagName
-	if (sTag) sTag = sTag.split(':')[1];
+	var sTag = oNode.tagName;
+	var arrTokens;
+	if (sTag) {
+		arrTokens = oNode.tagName.split(':');
+		sTag = (arrTokens.length==1) ? arrTokens[0]:arrTokens[1];
+	}
 	var iMod = QuiX.tags[sTag];
 	this._addModule(iMod);
 	
@@ -178,9 +182,10 @@ XULParser.prototype.parseXul = function(oNode, parentW) {
 	var oWidget = null;
 	var params = this.getNodeParams(oNode);
 	var fparams = {};
-	var sLocalName;
+	var sLocalName, arrTokens;
 	if (oNode.namespaceURI == QuiX.namespace) {
-		sLocalName = oNode.tagName.split(':')[1];
+		arrTokens = oNode.tagName.split(':');
+		sLocalName = (arrTokens.length==1) ? arrTokens[0]:arrTokens[1];
 		switch(sLocalName) {
 			case 'desktop':
 				oWidget = new Desktop(params, parentW);
