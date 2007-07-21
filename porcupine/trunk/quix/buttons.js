@@ -33,6 +33,7 @@ function Label(params) {
 	this.div.innerHTML += '<span>' + sCaption + '</span>';
 }
 
+QuiX.constructors['label'] = Label;
 Label.prototype = new Widget;
 
 Label.prototype.setCaption = function(s) {
@@ -75,6 +76,7 @@ function Icon(params) {
 	this.redraw(true);
 }
 
+QuiX.constructors['icon'] = Icon;
 Icon.prototype = new Label;
 
 Icon.prototype.setImageURL = function(s) {
@@ -206,6 +208,7 @@ function XButton(params) {
 	this.appendChild(this.icon);
 }
 
+QuiX.constructors['button'] = XButton;
 XButton.prototype = new Widget;
 
 XButton.prototype.setCaption = function(s) {
@@ -294,6 +297,7 @@ function FlatButton(params) {
 	}
 }
 
+QuiX.constructors['flatbutton'] = FlatButton;
 FlatButton.prototype = new Icon;
 
 FlatButton.prototype.redraw = function(bForceAll) {

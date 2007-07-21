@@ -190,104 +190,45 @@ XULParser.prototype.getNodeParams = function(oNode) {
 
 XULParser.prototype.parseXul = function(oNode, parentW) {
 	if (oNode.nodeType!=1) return;
-	var checkForChilds = true;
-	var appendIt = true;
 	var oWidget = null;
 	var params = this.getNodeParams(oNode);
 	var fparams = {};
 	if (oNode.namespaceURI==QuiX.namespace) {
 		switch(oNode.localName) {
-			case 'desktop':
-				oWidget = new Desktop(params, parentW);
-				appendIt = false;
-				break;
-			case 'label':
-				oWidget = new Label(params);
-				break;
-			case 'icon':
-				oWidget = new Icon(params);
-				break;
-			case 'button':
-				oWidget = new XButton(params);
-				break;
 			case 'flatbutton':
 				oWidget = new FlatButton(params);
 				if (params.type=='menu') {
 					parentW.appendChild(oWidget);
 					oWidget = oWidget.contextMenu;
-					appendIt = false;
 				}
-				break;
-			case 'form':
-				oWidget = new Form(params);
 				break;
 			case 'field':
 				if (params.type=='textarea')
 					params.value = getNodeXml(oNode).trim().xmlDecode();
 				oWidget = new Field(params);
 				break;
-			case 'selectlist':
-				oWidget = new SelectList(params);
-				break;
-			case 'file':
-				oWidget = new File(params);
-				break;
-			case 'multifile':
-				oWidget = new MultiFile(params);
-				break;
 			case 'mfile':
-				checkForChilds = false;
 				parentW.addFile(params);
-				appendIt = false;
 				break;
 			case 'option':
-				checkForChilds = false;
 				oWidget = parentW.addOption(params);
-				appendIt = false;
-				break;
-			case 'combo':
-				oWidget = new Combo(params);
-				break;
-			case 'spinbutton':
-				oWidget = new Spin(params);
-				break;
-			case 'dialog':
-				oWidget = new Dialog(params);
 				break;
 			case 'dlgbutton':
 				oWidget = parentW.addButton(params);
-				appendIt = false;
-				break;
-			case 'window':
-				oWidget = new Window(params);
 				break;
 			case 'wbody':
 				oWidget = parentW.body;
-				appendIt = false;
-				break;
-			case 'splitter':
-				oWidget = new Splitter(params);
 				break;
 			case 'pane':
 				oWidget = parentW.addPane(params);
-				appendIt = false;
-				break;
-			case 'tabpane':
-				oWidget = new TabPane(params);
 				break;
 			case 'tab':
 				oWidget = parentW.addTab(params);
-				appendIt = false;
-				break;
-			case 'listview':
-				oWidget = new ListView(params);
 				break;
 			case 'listheader':
 				oWidget = parentW.addHeader(params);
-				appendIt = false;
 				break;
 			case 'column':
-				checkForChilds = false;
 				var oCol = parentW.parent.addColumn(params);
 				if (params.type=='optionlist') {
 					var options, p;
@@ -301,98 +242,35 @@ XULParser.prototype.parseXul = function(oNode, parentW) {
 					}
 				}
 				break;
-			case 'datagrid':
-				oWidget = new DataGrid(params);
-				break;
-			case 'datepicker':
-				oWidget = new Datepicker(params);
-				break;
-			case 'progressbar':
-				oWidget = new ProgressBar(params);
-				break;
-			case 'tree':
-				oWidget = new Tree(params);
-				break;
-			case 'foldertree':
-				oWidget = new FolderTree(params);
-				break;
-			case 'treenode':
-				oWidget = new TreeNode(params);
-				break;
-			case 'toolbar':
-				oWidget = new Toolbar(params);
-				break;
 			case 'tbbutton':
 				oWidget = parentW.addButton(params);
 				if (params.type=='menu') oWidget = oWidget.contextMenu;
-				appendIt = false;
 				break;
 			case 'tbsep':
-				checkForChilds = false;
 				oWidget = parentW.addSeparator();
-				appendIt = false;
-				break;
-			case 'outlookbar':
-				oWidget = new OutlookBar(params);
 				break;
 			case 'tool':
 				oWidget = parentW.addPane(params);
-				appendIt = false;
-				break;
-			case 'menubar':
-				oWidget = new MBar(params);
 				break;
 			case 'menu':
 				oWidget = parentW.addRootMenu(params);
-				appendIt = false;
-				break;
-			case 'contextmenu':
-				oWidget = new ContextMenu(params, parentW);
-				parentW.contextMenu = oWidget;
-				parentW.attachEvent('oncontextmenu', Widget__contextmenu);
-				appendIt = false;
 				break;
 			case 'menuoption':
 				oWidget = parentW.addOption(params);
-				appendIt = false;
 				break;
 			case 'sep':
-				checkForChilds = false;
 				oWidget = parentW.addOption(-1);
-				appendIt = false;
-				break;
-			case 'hr':
-				checkForChilds = false;
-				oWidget = new HR(params);
-				break;
-			case 'iframe':
-				checkForChilds = false;
-				oWidget = new IFrame(params);
 				break;
 			case 'groupbox':
 				oWidget = new GroupBox(params);
 				parentW.appendChild(oWidget);
 				oWidget = oWidget.body;
-				appendIt = false;
-				break;
-			case 'slider':
-				oWidget = new Slider(params);
-				break;
-			case 'rect':
-				oWidget = new Widget(params);
-				break;
-			case 'timer':
-				oWidget = new Timer(params);
-				break;
-			case 'box':
-				oWidget = new Box(params);
 				break;
 			case 'custom':
 				oWidget = eval('new ' + params.classname + '(params)');
 				break;
 			case 'prop':
 				var attr_value = params['value'] || '';
-				checkForChilds = false;
 				switch (params.type) {
 					case 'int':
 						attr_value = parseInt(attr_value);
@@ -421,19 +299,22 @@ XULParser.prototype.parseXul = function(oNode, parentW) {
 			case 'xhtml':
 				sHtml = getNodeXml(oNode);
 				parentW.div.innerHTML = sHtml;
-				checkForChilds = false;
+				break;
+			default:
+				var widget_contructor = QuiX.constructors[oNode.localName];
+				if (widget_contructor != null)
+					oWidget = new widget_contructor(params, parentW);
 		}
 		
-		if (oWidget && parentW && !oWidget.parent && appendIt)
-			parentW.appendChild(oWidget);
-		
-		if (checkForChilds) {
-			for (var i=0; i<oNode.childNodes.length; i++) {
-				this.parseXul(oNode.childNodes[i], oWidget, fparams);
-			}
-		}
-		
-		if (oWidget) { 
+		if (oWidget) {
+			if (parentW && !oWidget.parent &&
+					!oWidget.owner && oWidget != document.desktop)
+				parentW.appendChild(oWidget);
+			
+			if (oWidget._isContainer)
+				for (var i=0; i<oNode.childNodes.length; i++)
+					this.parseXul(oNode.childNodes[i], oWidget, fparams);
+
 			if (oWidget._customRegistry.onload)
 				this.__onload.push([oWidget._customRegistry.onload, oWidget]);
 		}
@@ -456,12 +337,12 @@ function Widget(params) {
 	this.attributes = params.attributes || {};
 	this.maxz = 0;
 	this._isDisabled = false;
-	this._redrawWhenAppending = false;
+	this._isContainer = true;
 	this.contextMenu = null;
 
 	this.div = ce('DIV');
 	if (params.style) this.div.setAttribute('style', params.style);
-	this.div.style.visibility = params.hidden?'hidden':'';
+	//this.div.style.display = params.hidden?'none':'';
 	this.div.widget = this;
 
 	this._id = undefined;
@@ -497,6 +378,8 @@ function Widget(params) {
 		this.disable();
 }
 
+QuiX.constructors['rect'] = Widget;
+
 Widget.prototype.appendChild = function(w, p) {
 	p = p || this;
 	p.widgets.push(w);
@@ -505,8 +388,8 @@ Widget.prototype.appendChild = function(w, p) {
 		w._addIdRef();
 	p.div.appendChild(w.div);
 	
-	if (w._redrawWhenAppending)
-		w.redraw();
+	//if (w._redrawWhenAppending)
+	//	w.redraw();
 	
 	w.bringToFront();
 	if (p._isDisabled)
@@ -1164,10 +1047,6 @@ Widget.prototype.detachEvent = function(eventType, chr) {
 	}
 }
 
-function Widget__contextmenu(evt, w) {
-	w.contextMenu.show(document.desktop, evt.clientX, evt.clientY);
-}
-
 function Widget__tooltipover(evt, w) {
 	var x1 = evt.clientX;
 	var y1 = evt.clientY + 18;
@@ -1222,6 +1101,7 @@ function Desktop(params, root) {
 	this.overlays = [];
 }
 
+QuiX.constructors['desktop'] = Desktop;
 Desktop.prototype = new Widget;
 
 Desktop.prototype.msgbox = function(mtitle, message, buttons, image, mleft, mtop, mwidth, mheight) {
@@ -1293,6 +1173,7 @@ function ProgressBar(params) {
 	this.setValue(this.value);
 }
 
+QuiX.constructors['progressbar'] = ProgressBar;
 ProgressBar.prototype = new Widget;
 
 ProgressBar.prototype._update = function() {

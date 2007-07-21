@@ -31,6 +31,11 @@ QuiX.startY = 0;
 QuiX.clipboard = new Clipboard();
 QuiX.tmpWidget = null;
 QuiX.images = [];
+QuiX.constructors = {
+	'script' : null,
+	'module' : null,
+	'stylesheet' : null
+};
 
 QuiX.progress = '<a:rect xmlns:a="http://www.innoscript.org/quix" ' +
 	'width="240" height="48" overflow="hidden" top="center" left="center" ' +
@@ -253,6 +258,10 @@ QuiX.removeWidget = function(w) {
 	w._customRegistry = null;
 	w.div = null;
 	w = null;
+}
+
+QuiX.getParentNode = function(el) {
+	return el.parentNode || el.parentElement;
 }
 
 function QModule(sName, sFile, d) {

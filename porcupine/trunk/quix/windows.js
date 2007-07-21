@@ -80,6 +80,7 @@ function Window(params) {
 		this.addControlButton(2);
 }
 
+QuiX.constructors['window'] = Window;
 Window.prototype = new Widget;
 
 Window.prototype.customEvents = Widget.prototype.customEvents.concat(['onclose']);
@@ -400,6 +401,7 @@ function Dialog(params) {
 		this.resizeHandle.bringToFront();
 }
 
+QuiX.constructors['dialog'] = Dialog;
 Dialog.prototype = new Window;
 
 Dialog.prototype.setButtonsAlign = function(sAlign) {

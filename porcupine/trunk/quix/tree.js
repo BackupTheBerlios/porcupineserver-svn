@@ -27,6 +27,7 @@ function TreeNode(params) {
 	this.setCaption(params.caption || '');
 }
 
+QuiX.constructors['treenode'] = TreeNode;
 TreeNode.prototype = new Widget;
 
 TreeNode.prototype.redraw = function(bForceAll) {
@@ -167,6 +168,7 @@ function Tree(params) {
 	this.roots = this.widgets;
 }
 
+QuiX.constructors['tree'] = Tree;
 Tree.prototype = new Widget;
 
 Tree.prototype.customEvents = Widget.prototype.customEvents.concat(['onexpand', 'onselect']);
@@ -194,6 +196,7 @@ function FolderTree(params) {
 	this.attachEvent('onexpand', this.loadSubfolders);
 }
 
+QuiX.constructors['foldertree'] = FolderTree;
 FolderTree.prototype = new Tree;
 
 FolderTree.prototype.loadSubfolders = function(treeNode) {

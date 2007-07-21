@@ -102,6 +102,7 @@ function Combo(params) {
 		this.disable();
 }
 
+QuiX.constructors['combo'] = Combo;
 Combo.prototype = new Widget;
 
 Combo.prototype.customEvents = Widget.prototype.customEvents.concat(['onchange']);
@@ -230,6 +231,7 @@ Combo.prototype.addOption = function(params) {
 	params.align = params.align || 'left';
 	params.width = params.width || '100%';
 	var opt = new Icon(params);
+	opt._isContainer = false;
 	opt.selected = false;
 	opt.value = params.value;
 	this.dropdown.widgets[0].appendChild(opt);
@@ -290,6 +292,7 @@ function SelectList(params) {
 	this.selection = [];
 }
 
+QuiX.constructors['selectlist'] = SelectList;
 SelectList.prototype = new Widget;
 
 SelectList.prototype.addOption = function(params) {

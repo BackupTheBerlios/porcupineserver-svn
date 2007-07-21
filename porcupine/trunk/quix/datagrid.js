@@ -15,6 +15,7 @@ function DataGrid(params) {
 	this.hasSelector = true;
 }
 
+QuiX.constructors['datagrid'] = DataGrid;
 DataGrid.prototype = new ListView;
 
 DataGrid.prototype.addHeader = function(params) {

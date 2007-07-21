@@ -12,6 +12,7 @@ function Form(params) {
 	this.method = params.method;
 }
 
+QuiX.constructors['form'] = Form;
 Form.prototype = new Widget;
 
 Form.prototype.getElements = function() {
@@ -120,6 +121,7 @@ function Field(params) {
 	}
 }
 
+QuiX.constructors['field'] = Field;
 Field.prototype = new Widget;
 
 Field.prototype.customEvents = Widget.prototype.customEvents.concat(['onchange']);
@@ -340,6 +342,7 @@ function Spin(params) {
 	}
 }
 
+QuiX.constructors['spinbutton'] = Spin;
 Spin.prototype = new Widget;
 
 Spin.prototype.customEvents = Widget.prototype.customEvents.concat(['onchange']);

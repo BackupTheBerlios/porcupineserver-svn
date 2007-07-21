@@ -1,6 +1,7 @@
 /************************
 Box layout
 ************************/
+
 function Box(params) {
 	params = params || {};
 	params.overflow = params.overflow || 'hidden';
@@ -13,6 +14,7 @@ function Box(params) {
 	this.childrenAlign = params.childrenalign;
 }
 
+QuiX.constructors['box'] = Box;
 Box.prototype = new Widget;
 
 Box.prototype.appendChild = function(w) {

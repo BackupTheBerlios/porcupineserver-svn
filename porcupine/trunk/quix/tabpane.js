@@ -13,6 +13,7 @@ function TabPane(params) {
 	this.activeTab = params.active || 0;
 }
 
+QuiX.constructors['tabpane'] = TabPane;
 TabPane.prototype = new Widget;
 
 TabPane.prototype.addTab = function(params) {
