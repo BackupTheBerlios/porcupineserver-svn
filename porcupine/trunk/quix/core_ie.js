@@ -179,7 +179,6 @@ XULParser.prototype.parseXul = function(oNode, parentW) {
 	if (oNode.nodeType!=1) return;
 	var oWidget = null;
 	var params = this.getNodeParams(oNode);
-	var fparams = {};
 	var sLocalName, arrTokens;
 	if (oNode.namespaceURI == QuiX.namespace) {
 		arrTokens = oNode.tagName.split(':');
@@ -300,7 +299,7 @@ XULParser.prototype.parseXul = function(oNode, parentW) {
 			
 			if (oWidget._isContainer)
 				for (var i=0; i<oNode.childNodes.length; i++)
-					this.parseXul(oNode.childNodes[i], oWidget, fparams);
+					this.parseXul(oNode.childNodes[i], oWidget);
 
 			if (oWidget._customRegistry.onload)
 				this.__onload.push([oWidget._customRegistry.onload, oWidget]);
