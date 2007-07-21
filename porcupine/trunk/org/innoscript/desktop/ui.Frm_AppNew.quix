@@ -1,49 +1,41 @@
 <?xml version="1.0"?>
-<a:dialog xmlns:a="http://www.innoscript.org/quix"
-title="@@NEW_APP@@"
-img="$ICON"
-resizable="true"
-maximize="true"
-minimize="true"
-close="true"
-bgcolor="menu"
-width="400"
-height="235"
-left="30%"
-top="30%">
-	<a:wbody>
-		<a:form action="$URI" method="create">
-			<a:tabpane top="0" left="0" width="100%" height="100%">
-				<a:tab caption="@@GENERAL@@">
-					<a:field name="CC" type="hidden" value="$CC"></a:field>
-					<a:box height="55" width="100%">
-						<a:rect width="80">
-							<a:label top="2" width="100%" height="20" caption="@@displayName@@:"/>
-							<a:label top="27" width="100%" height="20" caption="@@description@@:"/>
-						</a:rect>
-						<a:rect width="-1">
-							<a:field name="displayName" width="100%" value=""/>
-							<a:field name="description" top="25" width="100%" value=""/>
-						</a:rect>
-					</a:box>
-					
-					<a:hr top="57" width="100%"/>
-
-					<a:box top="67" height="67" width="100%">
-						<a:rect width="80">
-							<a:label top="2" width="100%" height="20" caption="@@ICON@@:"/>
-							<a:label top="27" width="100%" height="20" caption="@@LAUNCH_URL@@:"/>
-						</a:rect>
-						<a:rect width="-1">
-							<a:field name="icon" width="100%" value=""/>
-							<a:field name="launchUrl" top="25" width="100%" value=""/>
-						</a:rect>
-					</a:box>
-				</a:tab>
+<dialog xmlns:a="http://www.innoscript.org/quix"
+		title="@@NEW_APP@@" img="$ICON" resizable="true" maximize="true"
+		minimize="true" close="true" bgcolor="menu" width="400"
+		height="235" left="30%" top="30%">
+	<a:script name="Generic Functions" src="desktop/generic.js"/>
+	<a:script name="Generic Form Widgets" src="desktop/widgets.js" depends="10,15"/>
+	<wbody>
+		<form action="$URI" method="create">
+			<tabpane top="0" left="0" width="100%" height="100%">
+				<tab caption="@@GENERAL@@">
+					<field name="CC" type="hidden" value="$CC"></field>
+					<box height="55" width="100%">
+						<rect width="80">
+							<label top="2" width="100%" height="20" caption="@@displayName@@:"/>
+							<label top="27" width="100%" height="20" caption="@@description@@:"/>
+						</rect>
+						<rect width="-1">
+							<field name="displayName" width="100%" value=""/>
+							<field name="description" top="25" width="100%" value=""/>
+						</rect>
+					</box>
+					<hr top="57" width="100%"/>
+					<box top="67" height="67" width="100%">
+						<rect width="80">
+							<label top="2" width="100%" height="20" caption="@@ICON@@:"/>
+							<label top="27" width="100%" height="20" caption="@@LAUNCH_URL@@:"/>
+						</rect>
+						<rect width="-1">
+							<field name="icon" width="100%" value=""/>
+							<field name="launchUrl" top="25" width="100%" value=""/>
+						</rect>
+					</box>
+				</tab>
 				$SECURITY_TAB
-			</a:tabpane>
-		</a:form>
-	</a:wbody>
-	<a:dlgbutton onclick="generic.submitForm" width="70" height="22" default="true" caption="@@CREATE@@"/>
-	<a:dlgbutton onclick="__closeDialog__" width="70" height="22" caption="@@CLOSE@@"/>
-</a:dialog>
+			</tabpane>
+		</form>
+	</wbody>
+	<dlgbutton onclick="generic.submitForm" width="70" height="22" default="true" caption="@@CREATE@@"/>
+	<dlgbutton onclick="__closeDialog__" width="70" height="22" caption="@@CLOSE@@"/>
+</dialog>

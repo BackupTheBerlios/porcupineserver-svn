@@ -27,72 +27,66 @@ from org.innoscript.desktop.schema import common, security
 
 AUTO_CONTROLS = {
     datatypes.String: '''
-        <a:label top="%d" width="100" height="20" caption="%s:"/>
-        <a:field name="%s" left="105" top="%d"
+        <label top="%d" width="100" height="20" caption="%s:"/>
+        <field name="%s" left="105" top="%d"
             width="this.parent.getWidth()-105" value="%s" readonly="%s"/>
         ''',
 
     datatypes.Boolean: '''
-        <a:label top="%d" width="100" height="20" caption="%s:"/>
-        <a:field type="checkbox" name="%s" left="105" top="%d" value="%s"
+        <label top="%d" width="100" height="20" caption="%s:"/>
+        <field type="checkbox" name="%s" left="105" top="%d" value="%s"
             readonly="%s"/>
         ''',
 
     datatypes.File: '''
-        <a:label top="%d" width="100" height="20" caption="%s:"/>
-        <a:file name="%s" filename="%s" size="%d" href="%s" left="105"
+        <label top="%d" width="100" height="20" caption="%s:"/>
+        <file name="%s" filename="%s" size="%d" href="%s" left="105"
             top="%d" readonly="%s"/>
         ''',
 
     datatypes.Text: '''
-        <a:tab caption="%s">
-            <a:field type="textarea" name="%s" width="100%%" height="100%%"
-                readonly="%s">%s</a:field>
-        </a:tab>
+        <tab caption="%s">
+            <field type="textarea" name="%s" width="100%%" height="100%%"
+                readonly="%s">%s</field>
+        </tab>
         ''',
 
     datatypes.Date: '''
-        <a:label top="%d" width="100" height="20" caption="%s:"/>
-        <a:datepicker name="%s" left="105" top="%d" width="140" value="%s"
+        <label top="%d" width="100" height="20" caption="%s:"/>
+        <datepicker name="%s" left="105" top="%d" width="140" value="%s"
             readonly="%s"/>
         ''',
         
     datatypes.Reference1: '''
-        <a:custom classname="Reference1" top="%d" width="100%%"
+        <custom classname="Reference1" top="%d" width="100%%"
             root="%s" cc="%s" caption="%s" name="%s" value="%s" dn="%s"
             disabled="%s"/>
         ''',
         
     datatypes.ReferenceN: '''
-        <a:tab caption="%s">
-            <a:custom classname="ReferenceN" width="100%%" height="100%%"
+        <tab caption="%s">
+            <custom classname="ReferenceN" width="100%%" height="100%%"
                     root="%s" cc="%s" name="%s" disabled="%s" value="%s"/>
-        </a:tab>
+        </tab>
         '''
 }
 
 SECURITY_TAB = '''
-<a:tab caption="@@SECURITY@@" onactivate="generic.getSecurity">
-    <a:custom classname="ACLEditor" width="100%%" height="100%%" rolesinherited="%s"/>
-</a:tab>
+<tab caption="@@SECURITY@@" onactivate="generic.getSecurity">
+    <custom classname="ACLEditor" width="100%%" height="100%%" rolesinherited="%s"/>
+</tab>
 '''
 
 DATES_FORMAT = 'ddd, dd month yyyy h12:min:sec MM'
 
-DESKSTOP_PANE = '''<a:rect height="-1" overflow="hidden">
-    <a:icon top="10"
-            left="10"
-            width="80"
-            height="80"
-            imgalign="top"
-            ondblclick="generic.openContainer"
-            img="desktop/images/store.gif"
-            color="white"
-            caption="%s">
-            <a:prop name="folderID" value=""></a:prop>
-    </a:icon>
+DESKSTOP_PANE = '''<rect height="-1" overflow="hidden">
+    <icon top="10" left="10" width="80" height="80" imgalign="top"
+                ondblclick="generic.openContainer" img="desktop/images/store.gif"
+                color="white" caption="%s">
+            <prop name="folderID" value=""></prop>
+    </icon>
     %s
-</a:rect>'''
+</rect>'''
 
 #================================================================================
 # Generic functions
@@ -238,7 +232,7 @@ class Frm_AutoProperties(Frm_Auto):
                 self.params['EXTRA_TABS'] += tab
         
         self.params['PROPERTIES_TAB'] = \
-            '<a:tab caption="@@PROPERTIES@@">%s</a:tab>' % sProperties
+            '<tab caption="@@PROPERTIES@@">%s</tab>' % sProperties
 
 class Dlg_SelectContainer(PorcupineDesktopServlet):
     def setParams(self):
@@ -297,7 +291,7 @@ class Frm_AutoNew(Frm_Auto):
                 self.params['EXTRA_TABS'] += tab
         
         self.params['PROPERTIES_TAB'] = \
-            '<a:tab caption="@@PROPERTIES@@">%s</a:tab>' % sProperties
+            '<tab caption="@@PROPERTIES@@">%s</tab>' % sProperties
 
 class Dlg_SelectObjects(PorcupineDesktopServlet):
     def setParams(self):
@@ -324,7 +318,7 @@ class Dlg_SelectObjects(PorcupineDesktopServlet):
 
         sOptions = ''
         for obj in oRes:
-             sOptions += '<a:option img="%s" value="%s" caption="%s"/>' % \
+             sOptions += '<option img="%s" value="%s" caption="%s"/>' % \
                          (obj.__image__, obj.id, obj.displayName.value)
         self.params['OPTIONS'] = sOptions
         
@@ -376,12 +370,12 @@ class Desktop(PorcupineDesktopServlet):
         rb = self.server.store.getItem('rb')
         if rb:
             rb_icon = '''
-                <a:icon top="80" left="10" width="80" height="80"
+                <icon top="80" left="10" width="80" height="80"
                     imgalign="top" ondblclick="generic.openContainer"
                     img="desktop/images/trashcan_full.gif" color="white"
                     caption="%s">
-                        <a:prop name="folderID" value="rb"></a:prop>
-                </a:icon>
+                        <prop name="folderID" value="rb"></prop>
+                </icon>
             ''' % rb.displayName.value
         
         desktop_pane = DESKSTOP_PANE % (self.item.displayName.value, rb_icon)
@@ -401,15 +395,15 @@ class Desktop(PorcupineDesktopServlet):
         sApps = ''
         if len(apps) > 0:
             for app in apps:
-                sApps += '''<a:menuoption img="%s" caption="%s"
+                sApps += '''<menuoption img="%s" caption="%s"
                     onclick="generic.runApp">
-                        <a:prop name="url" value="%s"></a:prop>
-                    </a:menuoption>''' % \
+                        <prop name="url" value="%s"></prop>
+                    </menuoption>''' % \
                     (app['icon'], app['displayName'], app['launchUrl'])
             self.params['APPS'] = sApps
         else:
-            self.params['APPS'] = '<a:menuoption caption="@@EMPTY@@"' + \
-                                  ' disabled="true"></a:menuoption>'
+            self.params['APPS'] = '<menuoption caption="@@EMPTY@@"' + \
+                                  ' disabled="true"></menuoption>'
 
 class LoginPage(XULSimpleTemplateServlet):
     def setParams(self):
@@ -462,7 +456,7 @@ class Dlg_UserSettings(XULSimpleTemplateServlet):
         if autoRun == '':
             sSelected = 'true'
         
-        sApps = '<a:option caption="@@NONE_APP@@" selected="%s" value=""/>' \
+        sApps = '<option caption="@@NONE_APP@@" selected="%s" value=""/>' \
                 % sSelected
         if len(apps) > 0:
             for app in apps:
@@ -471,7 +465,7 @@ class Dlg_UserSettings(XULSimpleTemplateServlet):
                 else:
                     sSelected = 'false'
                 sApps += \
-                 '<a:option img="%s" caption="%s" value="%s" selected="%s"/>' % \
+                 '<option img="%s" caption="%s" value="%s" selected="%s"/>' % \
                  (app['icon'], app['displayName'], app['launchUrl'], sSelected)
         self.params['APPS'] = sApps
 
@@ -568,7 +562,7 @@ class Frm_GroupProperties(PorcupineDesktopServlet):
         members = self.item.members.getItems()
         for user in members:
             members_options += \
-                '<a:option img="%s" value="%s" caption="%s"/>' % \
+                '<option img="%s" value="%s" caption="%s"/>' % \
                 (user.__image__, user.id, user.displayName.value)
         self.params['MEMBERS_OPTIONS'] = members_options
 
@@ -576,7 +570,7 @@ class Frm_GroupProperties(PorcupineDesktopServlet):
         policies = self.item.policies.getItems()
         for policy in policies:
             policies_options += \
-                '<a:option img="%s" value="%s" caption="%s"/>' % \
+                '<option img="%s" value="%s" caption="%s"/>' % \
                 (policy.__image__, policy.id, policy.displayName.value)
         self.params['POLICIES_OPTIONS'] = policies_options
 
@@ -644,7 +638,7 @@ class Frm_UserProperties(PorcupineDesktopServlet):
         memberof = self.item.memberof.getItems()
         for group in memberof:
             memberof_options += \
-                '<a:option img="%s" value="%s" caption="%s"/>' % \
+                '<option img="%s" value="%s" caption="%s"/>' % \
                 (group.__image__, group.id, group.displayName.value)
         self.params['MEMBER_OF_OPTIONS'] = memberof_options
         
@@ -652,7 +646,7 @@ class Frm_UserProperties(PorcupineDesktopServlet):
         policies = self.item.policies.getItems()
         for policy in policies:
             policies_options += \
-                '<a:option img="%s" value="%s" caption="%s"/>' % \
+                '<option img="%s" value="%s" caption="%s"/>' % \
                 (policy.__image__, policy.id, policy.displayName.value)
         self.params['POLICIES_OPTIONS'] = policies_options
                 

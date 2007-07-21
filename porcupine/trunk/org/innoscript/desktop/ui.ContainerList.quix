@@ -1,92 +1,92 @@
 <?xml version="1.0"?>
-<a:window xmlns:a="http://www.innoscript.org/quix"
+<window xmlns="http://www.innoscript.org/quix"
 title="Please wait..." resizable="true"
 close="true" minimize="true"
 maximize="true" width="600"
 height="400" left="center"
 top="center" onload="containerList.getContainerInfo">
-	<a:script name="Container List" src="desktop/ui.ContainerList.js"/>
-	<a:prop name="FolderID" value="$ID"/>
-	<a:prop name="ParentID" value="$PARENT_ID"/>
-	<a:prop name="history" value="" type="strlist"/>
-	<a:wbody>
-		<a:box orientation="v" spacing="0" width="100%" height="100%">
-			<a:menubar id="menubar" width="100%%" height="24">
-				<a:menu caption="@@FILE@@">
-					<a:menuoption img="desktop/images/filenew.gif" caption="@@CREATE@@"/>
-					<a:sep/>
-					<a:menuoption caption="@@CLOSE@@" img="desktop/images/exit.gif" onclick="containerList.closeWindow"/>
-				</a:menu>
-				<a:menu caption="@@EDIT@@">
-					<a:menuoption img="desktop/images/cut.gif" caption="@@CUT@@" onclick="containerList.updateCliboard">
-						<a:prop name="action" value="cut"/>
-					</a:menuoption>
-					<a:menuoption img="desktop/images/copy.gif" caption="@@COPY@@" onclick="containerList.updateCliboard">
-						<a:prop name="action" value="copy"/>
-					</a:menuoption>
-					<a:menuoption img="desktop/images/paste.gif" caption="@@PASTE@@" onclick="containerList.paste"/>
-				</a:menu>
-			</a:menubar>
-			<a:toolbar width="100%" height="34">
-				<a:tbbutton width="30"
+	<script name="Container List" src="desktop/ui.ContainerList.js"/>
+	<prop name="FolderID" value="$ID"/>
+	<prop name="ParentID" value="$PARENT_ID"/>
+	<prop name="history" value="" type="strlist"/>
+	<wbody>
+		<box orientation="v" spacing="0" width="100%" height="100%">
+			<menubar id="menubar" width="100%%" height="24">
+				<menu caption="@@FILE@@">
+					<menuoption img="desktop/images/filenew.gif" caption="@@CREATE@@"/>
+					<sep/>
+					<menuoption caption="@@CLOSE@@" img="desktop/images/exit.gif" onclick="containerList.closeWindow"/>
+				</menu>
+				<menu caption="@@EDIT@@">
+					<menuoption img="desktop/images/cut.gif" caption="@@CUT@@" onclick="containerList.updateCliboard">
+						<prop name="action" value="cut"/>
+					</menuoption>
+					<menuoption img="desktop/images/copy.gif" caption="@@COPY@@" onclick="containerList.updateCliboard">
+						<prop name="action" value="copy"/>
+					</menuoption>
+					<menuoption img="desktop/images/paste.gif" caption="@@PASTE@@" onclick="containerList.paste"/>
+				</menu>
+			</menubar>
+			<toolbar width="100%" height="34">
+				<tbbutton width="30"
 					img="desktop/images/go_back22.gif"
 					tooltip="@@BACK@@"
 					onclick="containerList.goBack"/>
-				<a:tbbutton width="30"
+				<tbbutton width="30"
 					img="desktop/images/reload22.gif"
 					tooltip="@@REFRESH@@"
 					onclick="containerList.refresh"/>
-				<a:tbbutton id="btn_up" width="30"
+				<tbbutton id="btn_up" width="30"
 					img="desktop/images/go_up22.gif"
 					tooltip="@@UP_ONE_FOLDER@@"
 					onclick="containerList.upOneFolder"/>
-				<a:tbsep/>
-				<a:tbbutton id="btn_hsearch" width="30"
+				<tbsep/>
+				<tbbutton id="btn_hsearch" width="30"
 					img="desktop/images/search22.gif"
 					tooltip="@@SEARCH@@"
 					onclick="desktop.launchHyperSearch"/>
-			</a:toolbar>
-			<a:box width="100%" height="26" border="1" style="border-style:solid;border-color:ThreeDHighlight ThreeDShadow ThreeDShadow ThreeDHighlight">
-				<a:label height="16" top="center" width="32" align="center" caption="Path"/>
-				<a:combo id="path" editable="true" width="-1"/>
-				<a:flatbutton width="28" caption="Go" onclick="containerList.navigateTo"/>
-			</a:box>
-			<a:rect length="-1">
-				<a:contextmenu id="contextmenu" onshow="containerList.listMenu_show">
-					<a:menuoption caption="@@CREATE@@" img="desktop/images/filenew.gif"/>
-					<a:sep/>
-					<a:menuoption img="desktop/images/cut.gif" caption="@@CUT@@" onclick="containerList.updateCliboard">
-						<a:prop name="action" value="cut"/>
-					</a:menuoption>
-					<a:menuoption img="desktop/images/copy.gif" caption="@@COPY@@" onclick="containerList.updateCliboard">
-						<a:prop name="action" value="copy"/>
-					</a:menuoption>
-					<a:menuoption img="desktop/images/paste.gif" caption="@@PASTE@@" onclick="containerList.paste"/>
-					<a:menuoption img="desktop/images/editdelete.gif" caption="@@DELETE@@" onclick="containerList.deleteItem"/>
-					<a:sep/>
-					<a:menuoption caption="@@MOVE@@..." onclick="containerList.copyMove">
-						<a:prop name="action" value="move"/>
-					</a:menuoption>
-					<a:menuoption caption="@@COPYTO@@..." onclick="containerList.copyMove">
-						<a:prop name="action" value="copy"/>
-					</a:menuoption>
-					<a:menuoption caption="@@RENAME@@" onclick="containerList.rename"/>
-					<a:sep/>
-					<a:menuoption caption="@@PROPERTIES@@" onclick="containerList.showProperties"/>
-				</a:contextmenu>
-				<a:listview id="itemslist"
+			</toolbar>
+			<box width="100%" height="26" border="1" style="border-style:solid;border-color:ThreeDHighlight ThreeDShadow ThreeDShadow ThreeDHighlight">
+				<label height="16" top="center" width="32" align="center" caption="Path"/>
+				<combo id="path" editable="true" width="-1"/>
+				<flatbutton width="28" caption="Go" onclick="containerList.navigateTo"/>
+			</box>
+			<rect length="-1">
+				<contextmenu id="contextmenu" onshow="containerList.listMenu_show">
+					<menuoption caption="@@CREATE@@" img="desktop/images/filenew.gif"/>
+					<sep/>
+					<menuoption img="desktop/images/cut.gif" caption="@@CUT@@" onclick="containerList.updateCliboard">
+						<prop name="action" value="cut"/>
+					</menuoption>
+					<menuoption img="desktop/images/copy.gif" caption="@@COPY@@" onclick="containerList.updateCliboard">
+						<prop name="action" value="copy"/>
+					</menuoption>
+					<menuoption img="desktop/images/paste.gif" caption="@@PASTE@@" onclick="containerList.paste"/>
+					<menuoption img="desktop/images/editdelete.gif" caption="@@DELETE@@" onclick="containerList.deleteItem"/>
+					<sep/>
+					<menuoption caption="@@MOVE@@..." onclick="containerList.copyMove">
+						<prop name="action" value="move"/>
+					</menuoption>
+					<menuoption caption="@@COPYTO@@..." onclick="containerList.copyMove">
+						<prop name="action" value="copy"/>
+					</menuoption>
+					<menuoption caption="@@RENAME@@" onclick="containerList.rename"/>
+					<sep/>
+					<menuoption caption="@@PROPERTIES@@" onclick="containerList.showProperties"/>
+				</contextmenu>
+				<listview id="itemslist"
 				multiple="true"
 				width="100%"
 				height="100%"
 				ondblclick="containerList.loadItem">
-					<a:listheader>
-						<a:column width="24" caption="" type="img" name="image"/>
-						<a:column width="140" caption="@@NAME@@" name="displayName" bgcolor="#EFEFEF" sortable="true"/>
-						<a:column width="80" caption="@@SIZE@@" name="size" xform="generic.computeSize" sortable="true"/>
-						<a:column width="160" caption="@@DATEMOD@@" type="date" name="modified" sortable="true"/>
-					</a:listheader>
-				</a:listview>
-			</a:rect>
-		</a:box>
-	</a:wbody>
-</a:window>
+					<listheader>
+						<column width="24" caption="" type="img" name="image"/>
+						<column width="140" caption="@@NAME@@" name="displayName" bgcolor="#EFEFEF" sortable="true"/>
+						<column width="80" caption="@@SIZE@@" name="size" xform="generic.computeSize" sortable="true"/>
+						<column width="160" caption="@@DATEMOD@@" type="date" name="modified" sortable="true"/>
+					</listheader>
+				</listview>
+			</rect>
+		</box>
+	</wbody>
+</window>
