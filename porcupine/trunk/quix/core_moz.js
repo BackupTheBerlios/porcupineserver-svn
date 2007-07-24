@@ -758,8 +758,9 @@ Widget.prototype.click = function() {
 Widget.prototype.moveTo = function(x,y) {
 	this.left = x;
 	this.top = y;
-	x = (isNaN(x))?this._calcLeft():x;
-	y = (isNaN(y))?this._calcTop():y;
+	var padding = this.parent.getPadding();
+	x = (isNaN(x))? this._calcLeft() : x + padding[0];
+	y = (isNaN(y))? this._calcTop() : y + padding[2];
 	this.div.style.left = x + 'px';
 	this.div.style.top = y + 'px';
 }
@@ -1121,17 +1122,17 @@ Desktop.prototype.msgbox = function(mtitle, message, buttons, image, mleft, mtop
 	if (typeof buttons=='object') {
 		for (var i=0; i<buttons.length; i++) {
 			oButton = buttons[i];
-			sButtons += '<a:dlgbutton width="' + oButton[1] + '" height="22" caption="' + oButton[0] + '"/>';
+			sButtons += '<dlgbutton width="' + oButton[1] + '" height="22" caption="' + oButton[0] + '"/>';
 		}
 	}
 	else
-		sButtons = '<a:dlgbutton onclick="__closeDialog__" caption="' + buttons + '" width="80" height="22"/>';
+		sButtons = '<dlgbutton onclick="__closeDialog__" caption="' + buttons + '" width="80" height="22"/>';
 
-	this.parseFromString('<a:dialog xmlns:a="http://www.innoscript.org/quix"' +
+	this.parseFromString('<dialog xmlns="http://www.innoscript.org/quix"' +
 		' title="' + mtitle + '" close="true"' +
 		' width="' + mwidth + '" height="' + mheight + '" left="' + mleft +'" top="' + mtop + '">' +
-		'<a:wbody><a:xhtml><![CDATA[<table cellpadding="4"><tr>' + innHTML +
-		'</tr></table>]]></a:xhtml></a:wbody>' + sButtons + '</a:dialog>',
+		'<wbody><xhtml><![CDATA[<table cellpadding="4"><tr>' + innHTML +
+		'</tr></table>]]></xhtml></wbody>' + sButtons + '</dialog>',
 		function(w) {
 			//attach buttons click events
 			if (typeof buttons=='object') {

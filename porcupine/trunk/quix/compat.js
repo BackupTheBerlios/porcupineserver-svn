@@ -15,7 +15,7 @@
 //    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //===============================================================================
 
-//QuiX compatibility layer
+//QuiX universal compatibility layer
 
 function Clipboard() {
 	this.contains = '';
@@ -37,13 +37,13 @@ QuiX.constructors = {
 	'stylesheet' : null
 };
 
-QuiX.progress = '<a:rect xmlns:a="http://www.innoscript.org/quix" ' +
+QuiX.progress = '<rect xmlns="http://www.innoscript.org/quix" ' +
 	'width="240" height="48" overflow="hidden" top="center" left="center" ' +
 	'border="2" bgcolor="white" style="border-color:#999999;border-style:solid" '+
-	'padding="1,1,1,1"><a:xhtml><![CDATA[<center>Please wait...<br/><br/>' +
-	'<span></span></center>]]></a:xhtml>' +
-	'<a:progressbar id="pb" width="150" maxvalue="1" height="4" ' +
-	'top="center" left="center"></a:progressbar></a:rect>';
+	'padding="1,1,1,1"><xhtml><![CDATA[<center>Please wait...<br/><br/>' +
+	'<span></span></center>]]></xhtml>' +
+	'<progressbar id="pb" width="150" maxvalue="1" height="4" ' +
+	'top="center" left="center"></progressbar></rect>';
 
 QuiX.modules = [
 	new QModule('Windows and Dialogs', '__quix/windows.js', [3]),
@@ -328,7 +328,8 @@ Resource_onstatechange = function() {
 		}
 	}
 	else {
-		if (this.tagName=='IMG') document.body.removeChild(this);
+		if (this.tagName=='IMG')
+			document.body.removeChild(this);
 		this.resource.isLoaded = true;
 		this.resource.parser.loadModules();
 	}

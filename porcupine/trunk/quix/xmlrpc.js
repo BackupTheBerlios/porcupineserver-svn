@@ -137,9 +137,7 @@ function XMLRPCRequest(sUrl,async) {
 	this.onerror = null;
 
 	var req = this;
-
 	this.xmlhttp.onreadystatechange = function() {
-		//alert(req.xmlhttp);
 		if (req.xmlhttp.readyState==4) {
 			// parse response...
 			retVal = req.processResult();
@@ -164,7 +162,6 @@ XMLRPCRequest.prototype.processResult = function() {
 		if (this.xmlhttp.status == 200) {
 			//getIncoming message
 			dom = this.xmlhttp.responseXML;
-			//alert(dom.xml);
 			if (dom) {
 				var rpcErr, main;
 	
@@ -213,7 +210,6 @@ XMLRPCRequest.prototype.getNode = function(data, len) {
 
 XMLRPCRequest.prototype.toObject = function(data) {
 	var ret, i;
-	//alert(data.tagName);
 	switch(data.tagName) {
 		case "string":
 			return (data.firstChild) ? new String(data.firstChild.nodeValue) : "";
@@ -262,7 +258,7 @@ XMLRPCRequest.prototype.toObject = function(data) {
 			return ret;
 			break;
 		case "boolean":
-			return Boolean(isNaN(parseInt(data.firstChild.nodeValue)) ? (data.firstChild.nodeValue == "true") : parseInt(data.firstChild.nodeValue))
+			return Boolean(isNaN(parseInt(data.firstChild.nodeValue)) ? (data.firstChild.nodeValue == "true") : parseInt(data.firstChild.nodeValue));
 			break;
 /*
 		case "base64":

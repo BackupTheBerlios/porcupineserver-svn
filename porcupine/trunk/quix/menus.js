@@ -34,12 +34,10 @@ MenuOption.prototype.addOption = function(params) {
 }
 
 MenuOption.prototype.redraw = function(bForceAll) {
-	if (this.subMenu) {
+	if (this.subMenu)
 		this.div.className = 'submenu';
-	}
-	else {
+	else
 		this.div.className = '';
-	}
 
 	if (this.type) {
 		if (this.selected) {
@@ -185,9 +183,9 @@ ContextMenu.prototype.redraw = function(bForceAll) {
 	
 	for (var i=0; i<this.options.length; i++) {
 		oOption = this.options[i];
-		if (oOption instanceof Icon && QuiX.browser == 'ie') {
+		if (oOption instanceof Icon && QuiX.browser == 'ie')
 			optionWidth = oOption.div.getElementsByTagName('SPAN')[0].offsetWidth + 26;
-		} else
+		else
 			optionWidth = oOption.div.offsetWidth;
 		if (optionWidth + 2 > this.width)
 			this.width = optionWidth + 16;
