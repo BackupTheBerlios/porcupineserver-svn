@@ -64,6 +64,7 @@ function File(params) {
 	}
 }
 
+QuiX.constructors['file'] = File;
 File.prototype = new FlatButton;
 
 File.prototype.openDocument = function() {
@@ -236,6 +237,7 @@ function MultiFile(params) {
 	this.files = [];
 }
 
+QuiX.constructors['multifile'] = MultiFile;
 MultiFile.prototype = new Widget;
 
 MultiFile.prototype.showUploadDialog = function(evt, w) {

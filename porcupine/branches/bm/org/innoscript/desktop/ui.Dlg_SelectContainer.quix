@@ -1,28 +1,22 @@
 <?xml version="1.0"?>
-<a:dialog xmlns:a="http://www.innoscript.org/quix"
-title="$TITLE"
-resizable="true"
-close="true"
-align="right"
-width="400"
-height="300"
-left="center"
-top="center">
-	<a:prop name="ID" value="$ID"></a:prop>
-	<a:wbody>
-		<a:box orientation="v" spacing="0" width="100%" height="100%">
-			<a:label height="22" caption="@@SELECT_FOLDER@@:"/>
-			<a:rect height="-1" bgcolor="white" padding="2,2,2,2" overflow="auto" border="1" style="border-style:inset">
-				<a:foldertree id="tree" method="getSubtree">
-					<a:treenode
+<dialog xmlns="http://www.innoscript.org/quix"
+		title="$TITLE" resizable="true" close="true" align="right"
+		width="400" height="300" left="center" top="center">
+	<prop name="ID" value="$ID"></prop>
+	<wbody>
+		<box orientation="v" spacing="0" width="100%" height="100%">
+			<label height="22" caption="@@SELECT_FOLDER@@:"/>
+			<rect height="-1" bgcolor="white" padding="2,2,2,2" overflow="auto" border="1" style="border-style:inset">
+				<foldertree id="tree" method="getSubtree">
+					<treenode
 						id="$ROOT_ID"
 						haschildren="true"
 						img="$ROOT_IMG"
 						caption="$ROOT_DN"/>
-				</a:foldertree>
-			</a:rect>
-		</a:box>
-	</a:wbody>
-	<a:dlgbutton onclick="__closeDialog__" width="70" height="22" caption="@@OK@@"/>
-	<a:dlgbutton onclick="__closeDialog__"  width="70" height="22" caption="@@CANCEL@@"/>
-</a:dialog>
+				</foldertree>
+			</rect>
+		</box>
+	</wbody>
+	<dlgbutton onclick="__closeDialog__" width="70" height="22" caption="@@OK@@"/>
+	<dlgbutton onclick="__closeDialog__"  width="70" height="22" caption="@@CANCEL@@"/>
+</dialog>

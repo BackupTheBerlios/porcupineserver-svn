@@ -10,14 +10,20 @@ function Form(params) {
 	this.files = [];
 	this.action = params.action;
 	this.method = params.method;
-	this.elements = [];
 }
 
+QuiX.constructors['form'] = Form;
 Form.prototype = new Widget;
 
+Form.prototype.getElements = function() {
+	return this.getWidgetsByAttribute('getValue');
+}
+
 Form.prototype.getElementByName = function(name) {
-	for (var i=0; i<this.elements.length; i++) {
-		if (this.elements[i].name==name) return(this.elements[i]);
+	var elements = this.getElements();
+	for (var i=0; i<elements.length; i++) {
+		if (elements[i].name == name)
+			return(elements[i]);
 	}
 }
 
@@ -38,10 +44,11 @@ Form.prototype.submit = function(f_callback) {
 Form.prototype.getData = function()
 {
 	var formData = {};
+	var elements = this.getElements();
 	// build form data
-	for (var i=0; i<this.elements.length; i++) {
-		if (this.elements[i].name && !this.elements[i]._isDisabled)
-			formData[this.elements[i].name] = this.elements[i].getValue();
+	for (var i=0; i<elements.length; i++) {
+		if (elements[i].name && !elements[i]._isDisabled)
+			formData[elements[i].name] = elements[i].getValue();
 	}
 	return formData;	
 }
@@ -114,6 +121,7 @@ function Field(params) {
 	}
 }
 
+QuiX.constructors['field'] = Field;
 Field.prototype = new Widget;
 
 Field.prototype.customEvents = Widget.prototype.customEvents.concat(['onchange']);
@@ -334,6 +342,7 @@ function Spin(params) {
 	}
 }
 
+QuiX.constructors['spinbutton'] = Spin;
 Spin.prototype = new Widget;
 
 Spin.prototype.customEvents = Widget.prototype.customEvents.concat(['onchange']);

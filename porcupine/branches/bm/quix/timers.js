@@ -30,6 +30,7 @@ function Timer(params) {
 	}
 }
 
+QuiX.constructors['timer'] = Timer;
 Timer.prototype = new Widget;
 
 Timer.prototype.start = function() {

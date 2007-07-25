@@ -8,6 +8,11 @@
 	<context path="ui.Frm_User.js" method="GET" client=".*" lang=".*" action="ui.Frm_User.js"/>
 	<context path="ui.LoginPage.js" method="GET" client=".*" lang=".*" action="ui.LoginPage.js"/>
 	<context path="ui.RecycleList.js" method="GET" client=".*" lang=".*" action="ui.RecycleList.js"/>
+	<context path="widgets.js" method="GET" client=".*" lang=".*" action="widgets.js">
+		<filter
+			type="porcupine.filters.postProcessing.multilingual.Multilingual"
+			using="org.innoscript.desktop.strings.resources"/>
+	</context>
 
 	<!-- Desktop images-->
 	<context path="images/about16.gif" method="GET" client=".*" lang=".*" action="images/about16.gif"/>

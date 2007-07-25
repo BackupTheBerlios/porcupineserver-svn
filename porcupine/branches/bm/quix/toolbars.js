@@ -19,6 +19,7 @@ function Toolbar(params) {
 	this.buttons = [];
 }
 
+QuiX.constructors['toolbar'] = Toolbar;
 Toolbar.prototype = new Widget;
 
 Toolbar.prototype._getOffset = function(oButton) {
@@ -44,6 +45,7 @@ Toolbar.prototype.addButton = function(params) {
 Toolbar.prototype.addSeparator = function() {
 	var l = "this.parent._getOffset(this)";
 	var oSep = new Widget({left:l,width:2,height:"100%",border:1,overflow:'hidden'});
+	oSep._isContainer = false;
 	oSep.destroy = ToolbarButton__destroy;
 	this.appendChild(oSep);
 	oSep.div.className = 'separator';
@@ -73,6 +75,7 @@ function OutlookBar(params) {
 	this.activePane = 0;
 }
 
+QuiX.constructors['outlookbar'] = OutlookBar;
 OutlookBar.prototype = new Widget;
 
 OutlookBar.prototype.addPane = function(params) {

@@ -31,6 +31,7 @@ function Datepicker(params) {
 	}
 }
 
+QuiX.constructors['datepicker'] = Datepicker;
 Datepicker.prototype = new Combo;
 
 Datepicker.prototype.getValue = function() {

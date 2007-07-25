@@ -1,6 +1,7 @@
 /************************
 Box layout
 ************************/
+
 function Box(params) {
 	params = params || {};
 	params.overflow = params.overflow || 'hidden';
@@ -8,11 +9,12 @@ function Box(params) {
 	this.base(params);
 	this.div.className = 'box';
 	this.orientation = params.orientation || 'h';
-	var iSpacing = params.spacing || 2;
-	this.spacing = parseInt(iSpacing);
+	var spacing = (typeof params.spacing == 'undefined')? 2:params.spacing;
+	this.spacing = parseInt(spacing);
 	this.childrenAlign = params.childrenalign;
 }
 
+QuiX.constructors['box'] = Box;
 Box.prototype = new Widget;
 
 Box.prototype.appendChild = function(w) {
@@ -132,4 +134,82 @@ function BoxWidget__destroy() {
 	}
 	Widget.prototype.destroy(this);
 	oBox.redraw(true);
+}
+
+function FlowBox(params) {
+	params = params || {};
+	params.overflow = params.overflow || 'auto';
+	this.base = Widget;
+	this.base(params);
+	this.div.className = 'box';
+	var iSpacing = params.spacing || 8;
+	this.spacing = parseInt(iSpacing);
+	this.valign = params.valign || 'center';
+}
+
+QuiX.constructors['flowbox'] = FlowBox;
+FlowBox.prototype = new Widget;
+
+FlowBox.prototype.appendChild = function(w) {
+	w.destroy = FlowBoxWidget__destroy;
+	Widget.prototype.appendChild(w, this);
+	this._rearrange(this.widgets.length - 1);	
+}
+
+FlowBox.prototype.redraw = function(bForceAll) {
+	Widget.prototype.redraw(bForceAll, this);
+	this._rearrange(0);
+}
+
+FlowBox.prototype._rearrange = function(iStart) {
+	var x = 0;
+	var y = 0;
+	var rowHeight = 0;
+	var iWidth = this.getWidth();
+	
+	if (iStart > 0) {
+		x = this.widgets[iStart - 1].left +
+			this.widgets[iStart-1].width +
+			this.spacing;
+		y = this.widgets[iStart - 1].top;
+		rowHeight = this._calcRowHeight(iStart);
+	}
+	
+	for (var i=iStart; i<this.widgets.length; i++) {
+		with (this.widgets[i]) {
+			if (x + width + this.spacing > iWidth && x != 0) {
+				x = 0;
+				y += rowHeight + this.spacing;
+				rowHeight = 0;
+			}
+			moveTo(x, y);
+			x += width + this.spacing;
+			rowHeight = Math.max(rowHeight, height);
+		}
+	}
+}
+
+FlowBox.prototype._calcRowHeight = function(iStart) {
+	var rowHeight = 0;
+	var iCount = 1
+	var prev = this.widgets[iStart - iCount];
+	if (prev.left !=0) {
+		do {
+			rowHeight = Math.max(rowHeight, prev.height);
+			iCount += 1;
+			prev = this.widgets[iStart - iCount];
+		} while (prev.left != 0)
+	}
+	return rowHeight;
+}
+
+function FlowBoxWidget__destroy() {
+	var oFlowBox = this.parent;
+	for (var i=0; i<oFlowBox.widgets.length; i++) {
+		if (oFlowBox.widgets[i] == this)
+			break;
+	}
+	Widget.prototype.destroy(this);
+	if (i < oFlowBox.widgets.length)
+		oFlowBox._rearrange(i);
 }

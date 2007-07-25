@@ -319,6 +319,7 @@ class Composite(object):
     __image__ = "desktop/images/object.gif"
     __slots__ = ('_id', '_containerid', '_isDeleted', 'displayName')
     __props__ = ()
+    _eventHandlers = []
 
     def __init__(self):
         self._id = misc.generateOID()

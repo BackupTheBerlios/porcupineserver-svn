@@ -27,6 +27,7 @@ function ListView(params) {
 	this._sortimg = null;
 }
 
+QuiX.constructors['listview'] = ListView;
 ListView.prototype = new Widget;
 
 ListView.prototype.customEvents = Widget.prototype.customEvents.concat(['onselect']);
@@ -213,6 +214,7 @@ ListView.prototype.addColumn = function(params, w) {
 	var header_width, perc;
 	
 	oCol.className = 'column';
+	oCol._isContainer = false;
 	oCol.columnBgColor = params.bgcolor || '';
 	oCol.style.padding = '0px ' + oListView.cellPadding + 'px 0px ' + oListView.cellPadding + 'px';
 

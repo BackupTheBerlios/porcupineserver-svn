@@ -15,6 +15,7 @@ function Splitter(params) {
 	this._handles = [];
 }
 
+QuiX.constructors['splitter'] = Splitter;
 Splitter.prototype = new Widget;
 
 Splitter.prototype.addPane = function(params) {

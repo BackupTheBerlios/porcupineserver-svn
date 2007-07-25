@@ -6,9 +6,11 @@ function HR(params) {
 	params.height = params.height || 2;
 	params.overflow = 'hidden';
 	this.base(params);
+	this._isContainer = false;
 	this.div.className = 'separator';
 }
 
+QuiX.constructors['hr'] = HR;
 HR.prototype = new Widget;
 
 // iframe
@@ -17,6 +19,7 @@ function IFrame(params) {
 	params.overflow = 'hidden';
 	this.base = Widget;
 	this.base(params);
+	this._isContainer = false;
 	this.div.className = 'ifrm';
 	var frame = ce("IFRAME");
 	frame.frameBorder = 0;
@@ -26,10 +29,10 @@ function IFrame(params) {
 	this.div.appendChild(frame);
 }
 
+QuiX.constructors['iframe'] = IFrame;
 IFrame.prototype = new Widget;
 
-IFrame.prototype.setSource = function(src)
-{
+IFrame.prototype.setSource = function(src) {
 	this.div.firstChild.src = src;
 }
 
@@ -87,6 +90,7 @@ function GroupBox(params) {
 	this.border.appendChild(this.body);
 }
 
+QuiX.constructors['groupbox'] = GroupBox;
 GroupBox.prototype = new Widget;
 
 GroupBox.prototype.customEvents = Widget.prototype.customEvents.concat(['onstatechange']);
@@ -172,6 +176,7 @@ function Slider(params) {
 	this.setValue(params.value || this.min);
 }
 
+QuiX.constructors['slider'] = Slider;
 Slider.prototype = new Widget;
 
 Slider.prototype.customEvents = Widget.prototype.customEvents.concat(['onchange']);

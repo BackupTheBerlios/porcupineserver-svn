@@ -31,6 +31,11 @@ QuiX.startY = 0;
 QuiX.clipboard = new Clipboard();
 QuiX.tmpWidget = null;
 QuiX.images = [];
+QuiX.constructors = {
+	'script' : null,
+	'module' : null,
+	'stylesheet' : null
+};
 
 QuiX.progress = '<a:rect id="quix_progress" xmlns:a="http://www.innoscript.org/quix" ' +
 	'width="240" height="48" overflow="hidden" top="center" left="center" ' +
@@ -255,17 +260,22 @@ QuiX.removeWidget = function(w) {
 	w = null;
 }
 
+QuiX.getParentNode = function(el) {
+	return el.parentNode || el.parentElement;
+}
+
 function QModule(sName, sFile, d) {
 	this.isLoaded = false;
 	this.name = sName;
 	this.file = sFile;
 	this.dependencies = d;
 	this.type = 'script';
+	this.callback = null;
 }
 
-QModule.prototype.load = function(parser) {
-	this.parser = parser;
+QModule.prototype.load = function(callback) {
 	var oElement;
+	this.callback = callback;
 	if (this.type == 'script') {
 		oElement = ce('SCRIPT');
 		oElement.type = 'text/javascript';
@@ -283,7 +293,7 @@ QModule.prototype.load = function(parser) {
 	document.getElementsByTagName('head')[0].appendChild(oElement);
 	if (this.type=='stylesheet') {
 		this.isLoaded = true;
-		parser.loadModules();
+		callback();
 	}
 	else {
 		if (typeof(window.event) != 'undefined')
@@ -296,32 +306,42 @@ QModule.prototype.load = function(parser) {
 function QImage(url) {
 	this.url = url;
 	this.isLoaded = false;
+	this.callback = null;
+	this.width = 0;
+	this.height = 0;
 }
 
-QImage.prototype.load = function(parser) {
-	this.parser = parser;
+QImage.prototype.load = function(callback) {
+	this.callback = callback;
 	var img = new Image;
 	QuiX.images.push(this.url);
 	img.resource = this;
 	img.onload = Resource_onstatechange;
 	img.src = this.url;
 	img.style.display = 'none';
-	img.height = 0;
-	img.width = 0;
 	document.body.appendChild(img);
 }
 
 Resource_onstatechange = function() {
 	if (this.readyState) {
 		if (this.readyState=='loaded' || this.readyState=='complete') {
+			if (this.tagName=='IMG') {
+				this.resource.width = this.width;
+				this.resource.height = this.height;
+				QuiX.removeNode(this);
+			}
 			this.resource.isLoaded = true;
-			this.resource.parser.loadModules();
+			this.resource.callback();
 		}
 	}
 	else {
-		if (this.tagName=='IMG') document.body.removeChild(this);
+		if (this.tagName=='IMG') {
+			this.resource.width = this.width;
+			this.resource.height = this.height;
+			QuiX.removeNode(this);
+		}
 		this.resource.isLoaded = true;
-		this.resource.parser.loadModules();
+		this.resource.callback();
 	}
 }
 

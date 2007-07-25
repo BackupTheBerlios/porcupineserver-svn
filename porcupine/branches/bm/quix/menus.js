@@ -166,10 +166,15 @@ function ContextMenu(params, owner) {
 
 	this.options = [];
 	this.owner = owner;
+	
+	owner.contextMenu = this;
+	owner.attachEvent('oncontextmenu', Widget__contextmenu);
+	
 	this.activeSub = null;
 	this.isOpen = false;
 }
 
+QuiX.constructors['contextmenu'] = ContextMenu;
 ContextMenu.prototype = new Widget;
 
 ContextMenu.prototype.customEvents = Widget.prototype.customEvents.concat(['onshow']);
@@ -246,12 +251,17 @@ ContextMenu.prototype.addOption = function(params) {
 		oOption.destroy = MenuOption.prototype.destroy;
 		oOption.div.className = 'separator';
 		oOption.setPosition('relative');
+		oOption._isContainer = false;
 	}
 	this.appendChild(oOption);
 	oOption.redraw();
 	
 	this.options.push(oOption);
 	return oOption;
+}
+
+function Widget__contextmenu(evt, w) {
+	w.contextMenu.show(document.desktop, evt.clientX, evt.clientY);
 }
 
 // Menu Bar
@@ -269,6 +279,7 @@ function MBar(params) {
 	this.menus = [];
 }
 
+QuiX.constructors['menubar'] = MBar;
 MBar.prototype = new Widget;
 
 MBar.prototype.redraw = function(bForceAll) {

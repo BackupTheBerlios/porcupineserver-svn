@@ -119,6 +119,9 @@ class Folder(system.Container):
     containment = (
         'org.innoscript.desktop.schema.common.Folder',
         'org.innoscript.desktop.schema.common.Document',
+        # added classes
+        'com.blymee.metaface.schema.Image',
+        'com.blymee.metaface.schema.Video',
     )
 
 class PersonalFolders(system.Container):

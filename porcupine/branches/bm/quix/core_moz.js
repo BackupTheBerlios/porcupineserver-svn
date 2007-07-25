@@ -49,7 +49,6 @@ function XULParser() {
 	this.__modulesToLoad = [];
 	this.__imagesToLoad = [];
 	this.__onload = [];
-	this.activeForm = null;
 	this.dom = null;
 	this.progressWidget = null;
 	this.oncomplete = null;
@@ -60,6 +59,36 @@ XULParser.prototype.detectModules = function(oNode) {
 	var dependency;
 	var sTag = oNode.localName;
 	var iMod = QuiX.tags[sTag];
+	this._addModule(iMod);
+	
+	if (iMod && oNode.getAttribute('img')) {
+		src = oNode.getAttribute('img');
+		if (src!='' && !QuiX.images.hasItem(src)) {
+			this.__imagesToLoad.push(src);
+		}
+	}
+	
+	if (sTag == 'script' || sTag == 'module' || sTag == 'stylesheet') {
+		params = this.getNodeParams(oNode);
+		if (!document.getElementById(params.src)) {
+			var oMod = new QModule(params.name, params.src, []);
+			if (sTag == 'stylesheet')
+				oMod.type = 'stylesheet';
+			else if (params.depends) {
+				var depends = params.depends.split(",");
+				for (var i=0; i<depends.length; i++) {
+					this._addModule(parseInt(depends[i]));
+				}
+			}
+			this.__modulesToLoad.push(oMod);
+		}
+	}
+	for (var i=0; i<oNode.childNodes.length; i++) {
+		this.detectModules(oNode.childNodes[i]);
+	}
+}
+
+XULParser.prototype._addModule = function(iMod) {
 	if (iMod>-1 && !QuiX.modules[iMod].isLoaded) {
 		var oMod = QuiX.modules[iMod];
 		if(!this.__modulesToLoad.hasItem(oMod)) {
@@ -72,28 +101,11 @@ XULParser.prototype.detectModules = function(oNode) {
 			this.__modulesToLoad.push(oMod);
 		}
 	}
-	if (iMod && oNode.getAttribute('img')) {
-		src = oNode.getAttribute('img');
-		if (src!='' && !QuiX.images.hasItem(src)) {
-			this.__imagesToLoad.push(src);
-		}
-	}
-	
-	if (sTag == 'script' || sTag == 'module' || sTag == 'stylesheet') {
-		params = this.getNodeParams(oNode);
-		if (!document.getElementById(params.src)) {
-			var oMod = new QModule(params.name, params.src, []);
-			if (sTag == 'stylesheet') oMod.type = 'stylesheet';
-			this.__modulesToLoad.push(oMod);
-		}
-	}
-	for (var i=0; i<oNode.childNodes.length; i++) {
-		this.detectModules(oNode.childNodes[i]);
-	}
 }
 
 XULParser.prototype.loadModules= function(w) {
 	var oModule, imgurl, img;
+	var oParser = this;
 	if (w) {
 		this.progressWidget = w;
 		w.getWidgetById('pb').maxvalue = this.__modulesToLoad.length + this.__imagesToLoad.length;
@@ -104,7 +116,7 @@ XULParser.prototype.loadModules= function(w) {
 			this.progressWidget.getWidgetById('pb').increase(1);
 			this.progressWidget.div.getElementsByTagName('SPAN')[0].innerHTML = oModule.name;
 		}
-		oModule.load(this);
+		oModule.load(function(){oParser.loadModules()});
 	} else if (this.__imagesToLoad.length > 0) {
 		imgurl = this.__imagesToLoad.pop();
 		img = new QImage(imgurl);
@@ -112,7 +124,7 @@ XULParser.prototype.loadModules= function(w) {
 			this.progressWidget.getWidgetById('pb').increase(1);
 			this.progressWidget.div.getElementsByTagName('SPAN')[0].innerHTML = 'image "' + imgurl + '"';
 		}
-		img.load(this);
+		img.load(function(){oParser.loadModules()});
 	} else {
 		if (this.progressWidget) this.progressWidget.destroy();
 		widget = this.beginRender();
@@ -179,110 +191,44 @@ XULParser.prototype.getNodeParams = function(oNode) {
 
 XULParser.prototype.parseXul = function(oNode, parentW) {
 	if (oNode.nodeType!=1) return;
-	var checkForChilds = true;
-	var appendIt = true;
 	var oWidget = null;
 	var params = this.getNodeParams(oNode);
-	var fparams = {};
 	if (oNode.namespaceURI==QuiX.namespace) {
 		switch(oNode.localName) {
-			case 'desktop':
-				oWidget = new Desktop(params, parentW);
-				appendIt = false;
-				break;
-			case 'label':
-				oWidget = new Label(params);
-				break;
-			case 'icon':
-				oWidget = new Icon(params);
-				break;
-			case 'button':
-				oWidget = new XButton(params);
-				break;
 			case 'flatbutton':
 				oWidget = new FlatButton(params);
 				if (params.type=='menu') {
 					parentW.appendChild(oWidget);
 					oWidget = oWidget.contextMenu;
-					appendIt = false;
 				}
 				break;
-			case 'form':
-				oWidget = new Form(params);
-				this.activeForm = oWidget;
-				break;
 			case 'field':
-				if (params.type=='textarea') params.value = getNodeXml(oNode).trim().xmlDecode();
+				if (params.type=='textarea')
+					params.value = getNodeXml(oNode).trim().xmlDecode();
 				oWidget = new Field(params);
-				if (this.activeForm) this.activeForm.elements.push(oWidget);
-				break;
-			case 'selectlist':
-				oWidget = new SelectList(params);
-				if (this.activeForm) this.activeForm.elements.push(oWidget);
-				break;
-			case 'file':
-				oWidget = new File(params);
-				if (this.activeForm) this.activeForm.elements.push(oWidget);
-				break;
-			case 'multifile':
-				oWidget = new MultiFile(params);
-				if (this.activeForm) this.activeForm.elements.push(oWidget);
 				break;
 			case 'mfile':
-				checkForChilds = false;
 				parentW.addFile(params);
-				appendIt = false;
 				break;
 			case 'option':
-				checkForChilds = false;
 				oWidget = parentW.addOption(params);
-				appendIt = false;
-				break;
-			case 'combo':
-				oWidget = new Combo(params);
-				if (this.activeForm) this.activeForm.elements.push(oWidget);
-				break;
-			case 'spinbutton':
-				oWidget = new Spin(params);
-				if (this.activeForm) this.activeForm.elements.push(oWidget);
-				break;
-			case 'dialog':
-				oWidget = new Dialog(params);
 				break;
 			case 'dlgbutton':
 				oWidget = parentW.addButton(params);
-				appendIt = false;
-				break;
-			case 'window':
-				oWidget = new Window(params);
 				break;
 			case 'wbody':
 				oWidget = parentW.body;
-				appendIt = false;
-				break;
-			case 'splitter':
-				oWidget = new Splitter(params);
 				break;
 			case 'pane':
 				oWidget = parentW.addPane(params);
-				appendIt = false;
-				break;
-			case 'tabpane':
-				oWidget = new TabPane(params);
 				break;
 			case 'tab':
 				oWidget = parentW.addTab(params);
-				appendIt = false;
-				break;
-			case 'listview':
-				oWidget = new ListView(params);
 				break;
 			case 'listheader':
 				oWidget = parentW.addHeader(params);
-				appendIt = false;
 				break;
 			case 'column':
-				checkForChilds = false;
 				var oCol = parentW.parent.addColumn(params);
 				if (params.type=='optionlist') {
 					var options, p;
@@ -296,101 +242,35 @@ XULParser.prototype.parseXul = function(oNode, parentW) {
 					}
 				}
 				break;
-			case 'datagrid':
-				oWidget = new DataGrid(params);
-				if (this.activeForm) this.activeForm.elements.push(oWidget);
-				break;
-			case 'datepicker':
-				oWidget = new Datepicker(params);
-				if (this.activeForm) this.activeForm.elements.push(oWidget);
-				break;
-			case 'progressbar':
-				oWidget = new ProgressBar(params);
-				break;
-			case 'tree':
-				oWidget = new Tree(params);
-				break;
-			case 'foldertree':
-				oWidget = new FolderTree(params);
-				break;
-			case 'treenode':
-				oWidget = new TreeNode(params);
-				break;
-			case 'toolbar':
-				oWidget = new Toolbar(params);
-				break;
 			case 'tbbutton':
 				oWidget = parentW.addButton(params);
 				if (params.type=='menu') oWidget = oWidget.contextMenu;
-				appendIt = false;
 				break;
 			case 'tbsep':
-				checkForChilds = false;
 				oWidget = parentW.addSeparator();
-				appendIt = false;
-				break;
-			case 'outlookbar':
-				oWidget = new OutlookBar(params);
 				break;
 			case 'tool':
 				oWidget = parentW.addPane(params);
-				appendIt = false;
-				break;
-			case 'menubar':
-				oWidget = new MBar(params);
 				break;
 			case 'menu':
 				oWidget = parentW.addRootMenu(params);
-				appendIt = false;
-				break;
-			case 'contextmenu':
-				oWidget = new ContextMenu(params, parentW);
-				parentW.contextMenu = oWidget;
-				parentW.attachEvent('oncontextmenu', Widget__contextmenu);
-				appendIt = false;
 				break;
 			case 'menuoption':
 				oWidget = parentW.addOption(params);
-				appendIt = false;
 				break;
 			case 'sep':
-				checkForChilds = false;
 				oWidget = parentW.addOption(-1);
-				appendIt = false;
-				break;
-			case 'hr':
-				checkForChilds = false;
-				oWidget = new HR(params);
-				break;
-			case 'iframe':
-				checkForChilds = false;
-				oWidget = new IFrame(params);
 				break;
 			case 'groupbox':
 				oWidget = new GroupBox(params);
 				parentW.appendChild(oWidget);
 				oWidget = oWidget.body;
-				appendIt = false;
-				break;
-			case 'slider':
-				oWidget = new Slider(params);
-				if (this.activeForm) this.activeForm.elements.push(oWidget);
-				break;
-			case 'rect':
-				oWidget = new Widget(params);
-				break;
-			case 'timer':
-				oWidget = new Timer(params);
-				break;
-			case 'box':
-				oWidget = new Box(params);
 				break;
 			case 'custom':
 				oWidget = eval('new ' + params.classname + '(params)');
 				break;
 			case 'prop':
 				var attr_value = params['value'] || '';
-				checkForChilds = false;
 				switch (params.type) {
 					case 'int':
 						attr_value = parseInt(attr_value);
@@ -419,20 +299,22 @@ XULParser.prototype.parseXul = function(oNode, parentW) {
 			case 'xhtml':
 				sHtml = getNodeXml(oNode);
 				parentW.div.innerHTML = sHtml;
-				checkForChilds = false;
+				break;
+			default:
+				var widget_contructor = QuiX.constructors[oNode.localName];
+				if (widget_contructor != null)
+					oWidget = new widget_contructor(params, parentW);
 		}
 		
-		if (oWidget && parentW && !oWidget.parent && appendIt)
-			parentW.appendChild(oWidget);
-		
-		if (checkForChilds) {
-			for (var i=0; i<oNode.childNodes.length; i++) {
-				this.parseXul(oNode.childNodes[i], oWidget, fparams);
-			}
-		}
-		if (oNode.localName == 'form') this.activeForm = null;
-		
-		if (oWidget) { 
+		if (oWidget) {
+			if (parentW && !oWidget.parent &&
+					!oWidget.owner && oWidget != document.desktop)
+				parentW.appendChild(oWidget);
+			
+			if (oWidget._isContainer)
+				for (var i=0; i<oNode.childNodes.length; i++)
+					this.parseXul(oNode.childNodes[i], oWidget);
+
 			if (oWidget._customRegistry.onload)
 				this.__onload.push([oWidget._customRegistry.onload, oWidget]);
 		}
@@ -455,12 +337,12 @@ function Widget(params) {
 	this.attributes = params.attributes || {};
 	this.maxz = 0;
 	this._isDisabled = false;
-	this._redrawWhenAppending = false;
+	this._isContainer = true;
 	this.contextMenu = null;
 
 	this.div = ce('DIV');
 	if (params.style) this.div.setAttribute('style', params.style);
-	this.div.style.visibility = params.hidden?'hidden':'';
+	//this.div.style.display = params.hidden?'none':'';
 	this.div.widget = this;
 
 	this._id = undefined;
@@ -496,6 +378,8 @@ function Widget(params) {
 		this.disable();
 }
 
+QuiX.constructors['rect'] = Widget;
+
 Widget.prototype.appendChild = function(w, p) {
 	p = p || this;
 	p.widgets.push(w);
@@ -503,10 +387,7 @@ Widget.prototype.appendChild = function(w, p) {
 	if (w._id)
 		w._addIdRef();
 	p.div.appendChild(w.div);
-	
-	if (w._redrawWhenAppending)
-		w.redraw();
-	
+
 	w.bringToFront();
 	if (p._isDisabled)
 		w.disable();
@@ -594,11 +475,23 @@ Widget.prototype.getWidgetById = function(sid) {
 }
 
 Widget.prototype.getWidgetsByType = function(wtype) {
-	ws = [];
+	var w;
+	var ws = [];
 	for (var i=0; i<this.widgets.length; i++) {
 		w = this.widgets[i];
 		if (w instanceof wtype) ws.push(w);
 		ws = ws.concat(w.getWidgetsByType(wtype));
+	}
+	return ws;
+}
+
+Widget.prototype.getWidgetsByAttribute = function(attr_name) {
+	var w;
+	var ws = [];
+	for (var i=0; i<this.widgets.length; i++) {
+		w = this.widgets[i];
+		if (w[attr_name] != undefined) ws.push(w);
+		ws = ws.concat(w.getWidgetsByAttribute(attr_name));
 	}
 	return ws;
 }
@@ -788,7 +681,9 @@ Widget.prototype._calcPos = function(left, offset, getWidth) {
 
 Widget.prototype._calcHeight = function(b) {
 	var offset = 0;
-	if (!b)	offset = parseInt(this.div.style.paddingTop) + parseInt(this.div.style.paddingBottom) + 2*this.getBorderWidth();
+	if (!b)	offset = parseInt(this.div.style.paddingTop) +
+					 parseInt(this.div.style.paddingBottom) +
+					 2*this.getBorderWidth();
 	var s = this._calcSize("height", offset, "getHeight");
 	var ms = this._calcMinHeight() - offset;
 	if (s < ms) s = ms;
@@ -797,7 +692,9 @@ Widget.prototype._calcHeight = function(b) {
 
 Widget.prototype._calcWidth = function(b) {
 	var offset = 0;
-	if (!b)	offset = parseInt(this.div.style.paddingLeft) + parseInt(this.div.style.paddingRight) + 2*this.getBorderWidth();
+	if (!b)	offset = parseInt(this.div.style.paddingLeft) +
+					 parseInt(this.div.style.paddingRight) +
+					 2*this.getBorderWidth();
 	var s = this._calcSize("width", offset, "getWidth");
 	var ms = this._calcMinWidth() - offset;
 	if (s < ms) s = ms;
@@ -863,8 +760,9 @@ Widget.prototype.click = function() {
 Widget.prototype.moveTo = function(x,y) {
 	this.left = x;
 	this.top = y;
-	x = (isNaN(x))?this._calcLeft():x;
-	y = (isNaN(y))?this._calcTop():y;
+	var padding = this.parent.getPadding();
+	x = (isNaN(x))? this._calcLeft() : x + padding[0];
+	y = (isNaN(y))? this._calcTop() : y + padding[2];
 	this.div.style.left = x + 'px';
 	this.div.style.top = y + 'px';
 }
@@ -1151,10 +1049,6 @@ Widget.prototype.detachEvent = function(eventType, chr) {
 	}
 }
 
-function Widget__contextmenu(evt, w) {
-	w.contextMenu.show(document.desktop, evt.clientX, evt.clientY);
-}
-
 function Widget__tooltipover(evt, w) {
 	var x1 = evt.clientX;
 	var y1 = evt.clientY + 18;
@@ -1209,6 +1103,7 @@ function Desktop(params, root) {
 	this.overlays = [];
 }
 
+QuiX.constructors['desktop'] = Desktop;
 Desktop.prototype = new Widget;
 
 Desktop.prototype.msgbox = function(mtitle, message, buttons, image, mleft, mtop, mwidth, mheight) {
@@ -1280,6 +1175,7 @@ function ProgressBar(params) {
 	this.setValue(this.value);
 }
 
+QuiX.constructors['progressbar'] = ProgressBar;
 ProgressBar.prototype = new Widget;
 
 ProgressBar.prototype._update = function() {
