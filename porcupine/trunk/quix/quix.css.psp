@@ -409,3 +409,7 @@ BODY {
 .slider .handle {
 	cursor : e-resize;
 }
+
+.flowbox .selected {
+	background-color : #6699FF;
+}

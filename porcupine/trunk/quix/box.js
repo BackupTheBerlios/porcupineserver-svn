@@ -9,7 +9,7 @@ function Box(params) {
 	this.base(params);
 	this.div.className = 'box';
 	this.orientation = params.orientation || 'h';
-	var spacing = (params.spacing == null)? 2 : params.spacing;
+	var spacing = (typeof params.spacing == 'undefined')? 2:params.spacing;
 	this.spacing = parseInt(spacing);
 	this.childrenAlign = params.childrenalign;
 }
@@ -134,4 +134,107 @@ function BoxWidget__destroy() {
 	}
 	Widget.prototype.destroy(this);
 	oBox.redraw(true);
+}
+
+function FlowBox(params) {
+	params = params || {};
+	params.overflow = params.overflow || 'auto';
+	this.base = Widget;
+	this.base(params);
+	this.div.className = 'flowbox';
+	var iSpacing = params.spacing || 8;
+	this.spacing = parseInt(iSpacing);
+	this.select = (params.select == true || params.select == 'true')?
+				  true:false;
+	if (this.select)
+		this._selection = null;
+}
+
+QuiX.constructors['flowbox'] = FlowBox;
+FlowBox.prototype = new Widget;
+
+FlowBox.prototype.appendChild = function(w) {
+	w.destroy = FlowBoxWidget__destroy;
+	if (this.select) {
+		w.attachEvent('onclick', QuiX.getEventWrapper(FlowBox__selectItem,
+			w._getHandler('onclick')));
+	}
+	Widget.prototype.appendChild(w, this);
+	this._rearrange(this.widgets.length - 1);	
+}
+
+FlowBox.prototype.redraw = function(bForceAll) {
+	Widget.prototype.redraw(bForceAll, this);
+	this._rearrange(0);
+}
+
+FlowBox.prototype.getSelection = function() {
+	if (this.select)
+		return this._selection;
+}
+
+FlowBox.prototype._rearrange = function(iStart) {
+	var x = 0;
+	var y = 0;
+	var rowHeight = 0;
+	var iWidth = this.getWidth();
+	
+	if (iStart > 0) {
+		x = this.widgets[iStart - 1].left +
+			this.widgets[iStart-1].width +
+			this.spacing;
+		y = this.widgets[iStart - 1].top;
+		rowHeight = this._calcRowHeight(iStart);
+	}
+	
+	for (var i=iStart; i<this.widgets.length; i++) {
+		with (this.widgets[i]) {
+			if (x + width + this.spacing > iWidth && x != 0) {
+				x = 0;
+				y += rowHeight + this.spacing;
+				rowHeight = 0;
+			}
+			moveTo(x, y);
+			x += width + this.spacing;
+			rowHeight = Math.max(rowHeight, height);
+		}
+	}
+}
+
+FlowBox.prototype._calcRowHeight = function(iStart) {
+	var rowHeight = 0;
+	var iCount = 1
+	var prev = this.widgets[iStart - iCount];
+	if (prev.left !=0) {
+		do {
+			rowHeight = Math.max(rowHeight, prev.height);
+			iCount += 1;
+			prev = this.widgets[iStart - iCount];
+		} while (prev.left != 0)
+	}
+	return rowHeight;
+}
+
+function FlowBoxWidget__destroy() {
+	var fb = this.parent;
+	if (fb._selection == this) {
+		fb._selection = null;
+	}
+	for (var i=0; i<fb.widgets.length; i++) {
+		if (fb.widgets[i] == this)
+			break;
+	}
+	Widget.prototype.destroy(this);
+	if (i < fb.widgets.length)
+		fb._rearrange(i);
+}
+
+function FlowBox__selectItem(evt ,w) {
+	var fb = w.parent;
+	if (fb._selection) {
+		var tok = fb._selection.div.className.split(' ');
+		tok.pop();
+		fb._selection.div.className = tok.join(' ');	}
+	fb._selection = w;
+	w.div.className += ' selected';
 }

@@ -105,6 +105,7 @@ XULParser.prototype._addModule = function(iMod) {
 
 XULParser.prototype.loadModules= function(w) {
 	var oModule, imgurl, img;
+	var oParser = this;
 	if (w) {
 		this.progressWidget = w;
 		w.getWidgetById('pb').maxvalue = this.__modulesToLoad.length + this.__imagesToLoad.length;
@@ -115,7 +116,7 @@ XULParser.prototype.loadModules= function(w) {
 			this.progressWidget.getWidgetById('pb').increase(1);
 			this.progressWidget.div.getElementsByTagName('SPAN')[0].innerHTML = oModule.name;
 		}
-		oModule.load(this);
+		oModule.load(function(){oParser.loadModules()});
 	} else if (this.__imagesToLoad.length > 0) {
 		imgurl = this.__imagesToLoad.pop();
 		img = new QImage(imgurl);
@@ -123,7 +124,7 @@ XULParser.prototype.loadModules= function(w) {
 			this.progressWidget.getWidgetById('pb').increase(1);
 			this.progressWidget.div.getElementsByTagName('SPAN')[0].innerHTML = 'image "' + imgurl + '"';
 		}
-		img.load(this);
+		img.load(function(){oParser.loadModules()});
 	} else {
 		if (this.progressWidget) this.progressWidget.destroy();
 		widget = this.beginRender();
@@ -386,10 +387,7 @@ Widget.prototype.appendChild = function(w, p) {
 	if (w._id)
 		w._addIdRef();
 	p.div.appendChild(w.div);
-	
-	//if (w._redrawWhenAppending)
-	//	w.redraw();
-	
+
 	w.bringToFront();
 	if (p._isDisabled)
 		w.disable();
@@ -683,7 +681,9 @@ Widget.prototype._calcPos = function(left, offset, getWidth) {
 
 Widget.prototype._calcHeight = function(b) {
 	var offset = 0;
-	if (!b)	offset = parseInt(this.div.style.paddingTop) + parseInt(this.div.style.paddingBottom) + 2*this.getBorderWidth();
+	if (!b)	offset = parseInt(this.div.style.paddingTop) +
+					 parseInt(this.div.style.paddingBottom) +
+					 2*this.getBorderWidth();
 	var s = this._calcSize("height", offset, "getHeight");
 	var ms = this._calcMinHeight() - offset;
 	if (s < ms) s = ms;
@@ -692,7 +692,9 @@ Widget.prototype._calcHeight = function(b) {
 
 Widget.prototype._calcWidth = function(b) {
 	var offset = 0;
-	if (!b)	offset = parseInt(this.div.style.paddingLeft) + parseInt(this.div.style.paddingRight) + 2*this.getBorderWidth();
+	if (!b)	offset = parseInt(this.div.style.paddingLeft) +
+					 parseInt(this.div.style.paddingRight) +
+					 2*this.getBorderWidth();
 	var s = this._calcSize("width", offset, "getWidth");
 	var ms = this._calcMinWidth() - offset;
 	if (s < ms) s = ms;
@@ -1122,17 +1124,17 @@ Desktop.prototype.msgbox = function(mtitle, message, buttons, image, mleft, mtop
 	if (typeof buttons=='object') {
 		for (var i=0; i<buttons.length; i++) {
 			oButton = buttons[i];
-			sButtons += '<dlgbutton width="' + oButton[1] + '" height="22" caption="' + oButton[0] + '"/>';
+			sButtons += '<a:dlgbutton width="' + oButton[1] + '" height="22" caption="' + oButton[0] + '"/>';
 		}
 	}
 	else
-		sButtons = '<dlgbutton onclick="__closeDialog__" caption="' + buttons + '" width="80" height="22"/>';
+		sButtons = '<a:dlgbutton onclick="__closeDialog__" caption="' + buttons + '" width="80" height="22"/>';
 
-	this.parseFromString('<dialog xmlns="http://www.innoscript.org/quix"' +
+	this.parseFromString('<a:dialog xmlns:a="http://www.innoscript.org/quix"' +
 		' title="' + mtitle + '" close="true"' +
 		' width="' + mwidth + '" height="' + mheight + '" left="' + mleft +'" top="' + mtop + '">' +
-		'<wbody><xhtml><![CDATA[<table cellpadding="4"><tr>' + innHTML +
-		'</tr></table>]]></xhtml></wbody>' + sButtons + '</dialog>',
+		'<a:wbody><a:xhtml><![CDATA[<table cellpadding="4"><tr>' + innHTML +
+		'</tr></table>]]></a:xhtml></a:wbody>' + sButtons + '</a:dialog>',
 		function(w) {
 			//attach buttons click events
 			if (typeof buttons=='object') {

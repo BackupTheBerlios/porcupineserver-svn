@@ -20,17 +20,17 @@
 
 function __displayError__(e) {
 	document.desktop.parseFromString(
-		'<a:dialog xmlns:a="http://www.innoscript.org/quix"'+
-		' title="Error: ' + e.name + '" resizable="true" close="true"' +
-		' width="560" height="240" left="center" top="center">' +
-		'<a:wbody><a:box spacing="8" width="100%" height="100%">' +
-		'<a:icon width="56" height="56" padding="12,12,12,12" ' +
+		'<dialog xmlns="http://www.innoscript.org/quix" '+
+		'title="Error: ' + e.name + '" resizable="true" close="true" ' +
+		'width="560" height="240" left="center" top="center">' +
+		'<wbody><box spacing="8" width="100%" height="100%">' +
+		'<icon width="56" height="56" padding="12,12,12,12" ' +
 			'img="__quix/images/error32.gif"/>' +
-		'<a:rect padding="4,4,4,4" overflow="auto"><a:xhtml><![CDATA[' +
+		'<rect padding="4,4,4,4" overflow="auto"><xhtml><![CDATA[' +
 		'<pre style="color:red;font-size:12px;font-family:monospace;' +
-			'padding-left:4px">' + e.message + '</pre>]]></a:xhtml>' +
-		'</a:rect></a:box></a:wbody><a:dlgbutton onclick="__closeDialog__" ' +
-			'width="70" height="22" caption="Close"></a:dlgbutton></a:dialog>');
+			'padding-left:4px">' + e.message + '</pre>]]></xhtml>' +
+		'</rect></box></wbody><dlgbutton onclick="__closeDialog__" ' +
+			'width="70" height="22" caption="Close"></dlgbutton></dialog>');
 }
 
 Object.prototype.toXMLRPC = function() {
@@ -39,7 +39,8 @@ Object.prototype.toXMLRPC = function() {
 		retstr = "<struct>";
 		for(prop in this) {
 			if(typeof wo[prop] != "function") {
-				retstr += "<member><name>" + prop + "</name><value>" + _getXml(wo[prop]) + "</value></member>";
+				retstr += "<member><name>" + prop + "</name><value>" +
+						  _getXml(wo[prop]) + "</value></member>";
 			}
 		}
 		retstr += "</struct>";
@@ -117,7 +118,8 @@ Array.prototype.toXMLRPC = function() {
 }
 
 function _getXml(obj) {
-	if( obj == null || obj == undefined || ( typeof obj == "number" && !isFinite(obj) ) )
+	if( obj == null || obj == undefined ||
+			(typeof obj == "number" && !isFinite(obj)) )
 		return false.toXMLRPC();
 	else
 		return obj.toXMLRPC();
@@ -137,6 +139,7 @@ function XMLRPCRequest(sUrl,async) {
 	this.onerror = null;
 
 	var req = this;
+
 	this.xmlhttp.onreadystatechange = function() {
 		if (req.xmlhttp.readyState==4) {
 			// parse response...
@@ -175,17 +178,20 @@ XMLRPCRequest.prototype.processResult = function() {
 				//handle method result
 				main = dom.getElementsByTagName("param");
 				if (main.length == 0) {
-					throw new QuiX.Exception('Malformed XMLRPC response', this.xmlhttp.responseText)
+					throw new QuiX.Exception('Malformed XMLRPC response',
+											 this.xmlhttp.responseText)
 				}
 				data = this.toObject(this.getNode(main[0], 0));
 				return data;
 			}
 			else {
-				throw new QuiX.Exception('Malformed XMLRPC response', this.xmlhttp.responseText);
+				throw new QuiX.Exception('Malformed XMLRPC response',
+										  this.xmlhttp.responseText);
 			}
 		}
 		else {
-			throw new QuiX.Exception('HTTP Exception (' + this.xmlhttp.status + ')', this.xmlhttp.statusText);
+			throw new QuiX.Exception('HTTP Exception (' + this.xmlhttp.status +
+									 ')', this.xmlhttp.statusText);
 		}
 	}
 	catch (e) {
@@ -210,6 +216,7 @@ XMLRPCRequest.prototype.getNode = function(data, len) {
 
 XMLRPCRequest.prototype.toObject = function(data) {
 	var ret, i;
+	//alert(data.tagName);
 	switch(data.tagName) {
 		case "string":
 			return (data.firstChild) ? new String(data.firstChild.nodeValue) : "";
@@ -250,15 +257,20 @@ XMLRPCRequest.prototype.toObject = function(data) {
 				if (elem.nodeType == 1)
 				{
 					if(elem.tagName == "member")
-						ret[this.getNode(elem,0).firstChild.nodeValue] = this.toObject(this.getNode(elem, 1));
+						ret[this.getNode(elem,0).firstChild.nodeValue] = 
+							this.toObject(this.getNode(elem, 1));
 					else
-						throw new QuiX.Exception('Malformed XMLRPC response', "'member' element expected, found '" + child.tagName + "' instead");
+						throw new QuiX.Exception('Malformed XMLRPC response',
+								"'member' element expected, found '" +
+								child.tagName + "' instead");
 				}
 			}
 			return ret;
 			break;
 		case "boolean":
-			return Boolean(isNaN(parseInt(data.firstChild.nodeValue)) ? (data.firstChild.nodeValue == "true") : parseInt(data.firstChild.nodeValue));
+			return Boolean(isNaN(parseInt(data.firstChild.nodeValue))?
+				(data.firstChild.nodeValue == "true"):
+				parseInt(data.firstChild.nodeValue));
 			break;
 /*
 		case "base64":
@@ -267,10 +279,12 @@ XMLRPCRequest.prototype.toObject = function(data) {
 */
 		case "value":
 			child = this.getNode(data, 0);
-			return (!child) ? ((data.firstChild) ? new String(data.firstChild.nodeValue) : "") : this.toObject(child);
+			return (!child)? ((data.firstChild)?
+				new String(data.firstChild.nodeValue) : ""):this.toObject(child);
 			break;
 		default:
-			throw new QuiX.Exception('Malformed XMLRPC response', 'Invalid tag name: ' + data.tagName);
+			throw new QuiX.Exception('Malformed XMLRPC response',
+									 'Invalid tag name: ' + data.tagName);
 	}
 }
 
@@ -278,19 +292,24 @@ XMLRPCRequest.prototype.toObject = function(data) {
 XMLRPCRequest.prototype.callmethod = function(method_name) {
 	try {
 		if (this._validateMethodName(method_name)) {
-			var message = '<?xml version="1.0"?><methodCall><methodName>' + method_name + '</methodName><params>';
+			var message = '<?xml version="1.0"?><methodCall><methodName>' +
+						  method_name + '</methodName><params>';
 	
 		   	for(var i=1;i<arguments.length;i++)
-		   		message += '<param><value>' + _getXml(arguments[i]) + '</value></param>';
+		   		message += '<param><value>' + _getXml(arguments[i]) +
+		   				   '</value></param>';
 		   	
 			message += '</params></methodCall>';
 			this.xmlhttp.open('POST', this.url, this.async);
-			this.xmlhttp.setRequestHeader("User-Agent", "vcXMLRPC running on " + navigator.userAgent);
+			this.xmlhttp.setRequestHeader("User-Agent", "vcXMLRPC running on " +
+										  navigator.userAgent);
 			this.xmlhttp.setRequestHeader("Content-type", "text/xml");
 			this.xmlhttp.send(message);
 		}
 		else
-			throw new QuiX.Exception('Malformed XMLRPC request', 'Invalid XMLRPC method name "' + method_name + '"');
+			throw new QuiX.Exception('Malformed XMLRPC request',
+									 'Invalid XMLRPC method name "' +
+									 method_name + '"');
 	}
 	catch (e) {
 		this.handleError(e);

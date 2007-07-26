@@ -3,7 +3,7 @@
 		title="@@CREATE@@ &quot;@@$CC@@&quot;" img="$ICON" resizable="true"
 		close="true" width="400" height="420" left="30%" top="10%">
 	<script name="Generic Form Script" src="desktop/ui.Frm_Auto.js"/>
-	<script name="Generic Form Widgets" src="desktop/widgets.js" depends="10,15"/>
+	<script name="Generic Form Widgets" src="desktop/widgets.js" depends="10,14,15"/>
 	<wbody>
 		<form action="$URI" method="create">
 			<field name="CC" type="hidden" value="$CC"/>

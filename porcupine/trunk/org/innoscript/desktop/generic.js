@@ -44,16 +44,22 @@ generic.computeSize = function(obj, value) {
 }
 
 generic.getProcessDialog = function(title, steps, oncomplete) {
-	var dlg = document.desktop.parseFromString('<a:dialog xmlns:a="http://www.innoscript.org/quix"'+
-		' title="' + title + '" width="240" height="100" left="center" top="center">' +
-		'<a:prop type="bool" name="canceled" value="0"></a:prop>' +
-		'<a:wbody>' +
-		'<a:progressbar id="pb" width="90%" height="24" left="center" top="center" ' +
-		'maxvalue="' + steps + '">' +
-		'<a:label align="center" width="100%" height="100%" caption="0%">' +
-		'</a:label></a:progressbar></a:wbody>' +
-		'<a:dlgbutton onclick="generic.cancelAction" width="70" height="22" caption="' + document.desktop.attributes.CANCEL + '"></a:dlgbutton>' +
-		'</a:dialog>', oncomplete);
+	var dlg = document.desktop.parseFromString(
+		'<dialog xmlns="http://www.innoscript.org/quix" '+
+				'title="' + title + '" width="240" height="100" ' +
+				'left="center" top="center">' +
+			'<prop type="bool" name="canceled" value="0"/>' +
+			'<wbody>' +
+				'<progressbar id="pb" width="90%" height="24" ' +
+						'left="center" top="center" ' +
+						'maxvalue="' + steps + '">' +
+					'<label align="center" width="100%" height="100%" ' +
+						'caption="0%"/>' +
+				'</progressbar>' +
+			'</wbody>' +
+			'<dlgbutton onclick="generic.cancelAction" width="70" ' +
+				'height="22" caption="' + document.desktop.attributes.CANCEL + '"/>' +
+		'</dialog>', oncomplete);
 }
 
 generic.cancelAction = function(evt, w) {

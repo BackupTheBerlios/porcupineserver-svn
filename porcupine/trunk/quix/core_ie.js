@@ -92,6 +92,7 @@ XULParser.prototype._addModule = function(iMod) {
 
 XULParser.prototype.loadModules= function(w) {
 	var oModule, imgurl, img;
+	var oParser = this;
 	if (w) {
 		this.progressWidget = w;
 		w.getWidgetById('pb').maxvalue = this.__modulesToLoad.length + this.__imagesToLoad.length;
@@ -102,7 +103,7 @@ XULParser.prototype.loadModules= function(w) {
 			this.progressWidget.getWidgetById('pb').increase(1);
 			this.progressWidget.div.getElementsByTagName('SPAN')[0].innerHTML = oModule.name;
 		}
-		oModule.load(this);
+		oModule.load(function(){oParser.loadModules()});
 	} else if (this.__imagesToLoad.length > 0) {
 		imgurl = this.__imagesToLoad.pop();
 		img = new QImage(imgurl);
@@ -110,7 +111,7 @@ XULParser.prototype.loadModules= function(w) {
 			this.progressWidget.getWidgetById('pb').increase(1);
 			this.progressWidget.div.getElementsByTagName('SPAN')[0].innerHTML = 'image "' + imgurl + '"';
 		}
-		img.load(this);
+		img.load(function(){oParser.loadModules()});
 	} else {
 		if (this.progressWidget) this.progressWidget.destroy();
 		widget = this.beginRender();
@@ -675,7 +676,9 @@ Widget.prototype._calcPos = function(left, offset, getWidth) {
 
 Widget.prototype._calcHeight = function(b) {
 	var offset = 0;
-	if (!b)	offset = parseInt(this.div.style.paddingTop) + parseInt(this.div.style.paddingBottom) + 2*this.getBorderWidth();
+	if (!b)	offset = parseInt(this.div.style.paddingTop) +
+					 parseInt(this.div.style.paddingBottom) +
+					 2*this.getBorderWidth();
 	var s = this._calcSize("height", offset, "getHeight");
 	var ms = this._calcMinHeight() - offset;
 	if (s < ms) s = ms;
@@ -684,7 +687,9 @@ Widget.prototype._calcHeight = function(b) {
 
 Widget.prototype._calcWidth = function(b) {
 	var offset = 0;
-	if (!b)	offset = parseInt(this.div.style.paddingLeft) + parseInt(this.div.style.paddingRight) + 2*this.getBorderWidth();
+	if (!b)	offset = parseInt(this.div.style.paddingLeft) +
+					 parseInt(this.div.style.paddingRight) +
+					 2*this.getBorderWidth();
 	var s = this._calcSize("width", offset, "getWidth");
 	var ms = this._calcMinWidth() - offset;
 	if (s < ms) s = ms;
