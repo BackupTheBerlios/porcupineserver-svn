@@ -13,11 +13,8 @@
 			<box id="vbox_main" orientation="v" height="0" spacing="0">
 				<rect overflow="auto" bgcolor="white" height="0">
 					<foldertree id="tree" padding="2,2,2,2" method="getSubtree" onselect="selectObjectsDialog.refreshList">
-						<treenode
-						id="$ID"
-						haschildren="$HAS_SUBFOLDERS"
-						img="$IMG"
-						caption="$DN"/>
+						<treenode id="$ID" haschildren="$HAS_SUBFOLDERS"
+							img="$IMG" caption="$DN"/>
 					</foldertree>
 				</rect>
 				<rect overflow="auto" height="0" padding="4,4,4,4">

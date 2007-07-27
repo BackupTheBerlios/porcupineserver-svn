@@ -30,6 +30,8 @@ QuiX.startX = 0;
 QuiX.startY = 0;
 QuiX.clipboard = new Clipboard();
 QuiX.tmpWidget = null;
+QuiX.dragable = null;
+QuiX.dropTarget = null;
 QuiX.images = [];
 QuiX.constructors = {
 	'script' : null,
@@ -37,13 +39,13 @@ QuiX.constructors = {
 	'stylesheet' : null
 };
 
-QuiX.progress = '<a:rect id="quix_progress" xmlns:a="http://www.innoscript.org/quix" ' +
+QuiX.progress = '<rect id="quix_progress" xmlns="http://www.innoscript.org/quix" ' +
 	'width="240" height="48" overflow="hidden" top="center" left="center" ' +
 	'border="2" bgcolor="white" style="border-color:#999999;border-style:solid" '+
-	'padding="1,1,1,1"><a:xhtml><![CDATA[<center>Please wait...<br/><br/>' +
-	'<span></span></center>]]></a:xhtml>' +
-	'<a:progressbar id="pb" width="150" maxvalue="1" height="4" ' +
-	'top="center" left="center"></a:progressbar></a:rect>';
+	'padding="1,1,1,1"><xhtml><![CDATA[<center>Please wait...<br/><br/>' +
+	'<span></span></center>]]></xhtml>' +
+	'<progressbar id="pb" width="150" maxvalue="1" height="4" ' +
+	'top="center" left="center"></progressbar></rect>';
 
 QuiX.modules = [
 	new QModule('Windows and Dialogs', '__quix/windows.js', [3]),
@@ -125,6 +127,32 @@ QuiX.removeNode = function(node) {
 	else
 		oNode = node.parentNode.removeChild(node);
 	return oNode;
+}
+
+QuiX.getDraggable = function(w) {
+	var d = new Widget({
+		left : w.getLeft(),
+		top : w.getTop(),
+		width : w.getWidth(true),
+		height : w.getHeight(true),
+		border : w.border
+	});
+	d.div.innerHTML = w.div.innerHTML;
+	d.div.className = w.div.className;
+	d.div.style.cssText = w.div.style.cssText;
+	d.setPosition('absolute');
+
+	var i = new Icon({
+		top : 'center',
+		left : 'center',
+		width : 18,
+		height : 18,
+		img : '__quix/images/drop.gif',
+		opacity : 1,
+		display : 'none'
+	});
+	d.appendChild(i);
+	return d;
 }
 
 QuiX.createOutline = function(w) {
