@@ -35,21 +35,21 @@ queryPerformer.executeQuery_oncomplete = function(req) {
     if (oResults.length > 0) {
         var schema = req.response[0];
         oPane.parseFromString(
-            '<a:tree xmlns:a="http://www.innoscript.org/quix" onexpand="queryPerformer.expandNode" onselect="queryPerformer.showProps"></a:tree>',
+            '<tree xmlns="http://www.innoscript.org/quix" onexpand="queryPerformer.expandNode" onselect="queryPerformer.showProps"></tree>',
             function (w) {
                 queryPerformer.expandArray(w, oResults, oWin.getParentByType(Window).getWidgetById('clientArea').attributes);
             }
         );
         oWin.setStatus('Query returned ' + oResults.length + ' rows/objects.');
     } else {
-        oPane.parseFromString('<a:rect xmlns:a="http://www.innoscript.org/quix"><a:xhtml>No results found</a:xhtml></a:rect>');
+        oPane.parseFromString('<rect xmlns="http://www.innoscript.org/quix"><xhtml>No results found</xhtml></rect>');
     }
 }
 
 queryPerformer.about = function(evt, w) {
     document.desktop.msgbox(
         w.getCaption(),
-        "OQL Query Performer v0.1<br/>(c)2005, 2006 Innoscript",
+        "OQL Query Performer v0.1<br/>(c)2005-2007 Innoscript",
         [['OK', 60]],
         'desktop/images/messagebox_info.gif', 'center', 'center', 260, 112
     );
