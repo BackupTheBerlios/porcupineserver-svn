@@ -65,7 +65,7 @@
                 using="org.innoscript.desktop.strings.resources"/>
     </reg>
 
-	<reg cc="org\.innoscript\.desktop\.schema\..+\..*Folder|schemas\.org\.innoscript\.common\.AdminTools"
+	<reg cc="org\.innoscript\.desktop\.schema\..+\.(.*Folder|AdminTools|Category)"
         method="GET"
         param="list"
         client="(MSIE [6-7])|(Mozilla/5.0.+rv:1.[7-9])"
@@ -122,7 +122,7 @@
                 using="org.innoscript.desktop.strings.resources"/>
     </reg>
 	
-	<reg cc="org.innoscript.desktop.schema.\w+.(\w*Folder|Category)|org.innoscript.desktop.schema.common.AdminTools"
+	<reg cc="org.innoscript.desktop.schema.\w+.(\w*Folder|Category|AdminTools)"
         method="GET"
         param="selectobjects"
         client="(MSIE [6-7])|(Mozilla/5.0.+rv:1.[7-9])"
@@ -254,7 +254,7 @@
         lang=".*"
         action="org.innoscript.desktop.XMLRPC.Category"/>
 	
-	<reg cc="org.innoscript.desktop.schema.\w+.\w*Folder|org.innoscript.desktop.schema.common.AdminTools"
+	<reg cc="org.innoscript.desktop.schema.\w+.(\w*Folder|AdminTools)"
         method="POST"
         param=""
         client="vcXMLRPC"
