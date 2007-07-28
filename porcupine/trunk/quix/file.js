@@ -88,17 +88,19 @@ File.prototype.showUploadDialog = function() {
 
 File.prototype.onbeginupload = function(filecontrol) {
 	var oWin = filecontrol.getParentByType(Window);
-	oWin.showWindowFromString('<a:dialog xmlns:a="http://www.innoscript.org/quix"'+
-		' title="' + filecontrol.contextMenu.options[0].getCaption() + '"' +
-		' width="240" height="90" left="center" top="center">' +
-		'<a:wbody>' +
-		'<a:progressbar width="90%" height="20" left="center" top="center" ' +
-		'maxvalue="' + filecontrol.size + '">' +
-		'<a:label align="center" width="100%" height="100%" caption="0%"/>' +
-		'</a:progressbar>' +
-		'</a:wbody>' +
-		'<a:dlgbutton width="70" height="22" caption="' + document.desktop.attributes.CANCEL + '"/>' +
-		'</a:dialog>',
+	oWin.showWindowFromString(
+		'<dialog xmlns="http://www.innoscript.org/quix" title="'
+				+ filecontrol.contextMenu.options[0].getCaption() + '" ' +
+				'width="240" height="90" left="center" top="center">' +
+			'<wbody>' +
+				'<progressbar width="90%" height="20" left="center" top="center" ' +
+						'maxvalue="' + filecontrol.size + '">' +
+					'<label align="center" width="100%" height="100%" caption="0%"/>' +
+				'</progressbar>' +
+			'</wbody>' +
+			'<dlgbutton width="70" height="22" caption="' +
+				document.desktop.attributes.CANCEL + '"/>' +
+		'</dialog>',
 		function(w) {
 			var progressDialog = w;
 			filecontrol.attributes.pbar = progressDialog.getWidgetsByType(ProgressBar)[0]
@@ -269,24 +271,22 @@ MultiFile.prototype.showUploadDialog = function(evt, w) {
 		
 		var oMultiFile = this;
 		oWin.showWindowFromString(
-			'<a:dialog xmlns:a="http://www.innoscript.org/quix"'+
-			' title="' + this.filecontrol.contextMenu.options[0].caption + '"' +
-			' width="240" height="140" left="center" top="center">' +
-			'<a:wbody>' +
-
-			'<a:progressbar width="90%" height="24" left="center" top="20" ' +
-			'maxvalue="' + total_size + '">' +
-			'<a:label align="center" width="100%" height="100%" caption="' + this.current_file.filename + '">' +
-			'</a:label></a:progressbar>' +
-
-			'<a:progressbar width="90%" height="24" left="center" top="50" ' +
-			'maxvalue="' + this.current_file.size + '">' +
-			'<a:label align="center" width="100%" height="100%" caption="0%">' +
-			'</a:label></a:progressbar>' +
-
-			'</a:wbody>' +
-			'<a:dlgbutton width="70" height="22" caption="CANCEL"></a:dlgbutton>' +
-			'</a:dialog>',
+			'<dialog xmlns="http://www.innoscript.org/quix" title="' +
+					this.filecontrol.contextMenu.options[0].caption + '" ' +
+					'width="240" height="140" left="center" top="center">' +
+				'<wbody>' +
+					'<progressbar width="90%" height="24" left="center" top="20" ' +
+							'maxvalue="' + total_size + '">' +
+						'<label align="center" width="100%" height="100%" caption="' +
+							this.current_file.filename + '"/>' +
+					'</progressbar>' +
+					'<progressbar width="90%" height="24" left="center" top="50" ' +
+							'maxvalue="' + this.current_file.size + '">' +
+						'<label align="center" width="100%" height="100%" caption="0%"/>' +
+					'</progressbar>' +
+				'</wbody>' +
+				'<dlgbutton width="70" height="22" caption="CANCEL"/>' +
+			'</dialog>',
 			function (w) {
 				oMultiFile.filecontrol.attributes.pbar1 = w.getWidgetsByType(ProgressBar)[0];
 				oMultiFile.filecontrol.attributes.pbar2 = w.getWidgetsByType(ProgressBar)[1];

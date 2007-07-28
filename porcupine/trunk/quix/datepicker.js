@@ -14,15 +14,15 @@ function Datepicker(params) {
 	this.setValue(params.value || '');
 	
 	this.dropdown.parseFromString(
-		'<a:box orientation="v" xmlns:a="http://www.innoscript.org/quix" width="100%" height="100%" spacing="4" childrenalign="center">' +
-			'<a:rect height="26" width="195" padding="2,2,2,2">' + 
-				'<a:flatbutton width="22" height="100%" caption="&lt;&lt;"/>' +
-				'<a:combo id="month" left="22" width="100" height="100%" editable="false"/>' +
-				'<a:spinbutton id="year" maxlength="4" left="121" width="50" height="100%" editable="true"/>' +
-				'<a:flatbutton left="171" width="22" height="100%" caption="&gt;&gt;"/>' +
-			'</a:rect>' +
-			'<a:rect/>' +
-		'</a:box>', Datepicker__fill);
+		'<box orientation="v" xmlns="http://www.innoscript.org/quix" width="100%" height="100%" spacing="4" childrenalign="center">' +
+			'<rect height="26" width="195" padding="2,2,2,2">' + 
+				'<flatbutton width="22" height="100%" caption="&lt;&lt;"/>' +
+				'<combo id="month" left="22" width="100" height="100%" editable="false"/>' +
+				'<spinbutton id="year" maxlength="4" left="121" width="50" height="100%" editable="true"/>' +
+				'<flatbutton left="171" width="22" height="100%" caption="&gt;&gt;"/>' +
+			'</rect>' +
+			'<rect/>' +
+		'</box>', Datepicker__fill);
 
 	if (this._isDisabled) {
 		this.div.firstChild.disabled = true;
