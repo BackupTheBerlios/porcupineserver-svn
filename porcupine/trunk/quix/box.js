@@ -159,6 +159,7 @@ FlowBox.prototype.appendChild = function(w) {
 		w.attachEvent('onclick', QuiX.getEventWrapper(FlowBox__selectItem,
 			w._getHandler('onclick')));
 	}
+	w._setCommonProps();
 	Widget.prototype.appendChild(w, this);
 	this._rearrange(this.widgets.length - 1);	
 }
