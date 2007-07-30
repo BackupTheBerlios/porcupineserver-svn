@@ -311,6 +311,6 @@ function ACLEditor__addSelectedUsers(dlg) {
 }
 
 function ACLEditor__removeEntries(evt, btn) {
-	var oDataGrid = w.parent.parent.getWidgetsByType(DataGrid)[0];
+	var oDataGrid = btn.parent.parent.getWidgetsByType(DataGrid)[0];
 	oDataGrid.removeSelected();
 }
