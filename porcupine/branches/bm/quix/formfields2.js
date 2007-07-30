@@ -300,7 +300,8 @@ SelectList.prototype.addOption = function(params) {
 	params.imgalign = 'left';
 	params.align = 'left';
 	params.width = '100%';
-	params.onclick = QuiX.getEventWrapper(SelectOption__onclick, params.onclick);
+	params.onmousedown = QuiX.getEventWrapper(SelectOption__onmousedown,
+		params.onmousedown);
 	var w = new Icon(params);
 	this.appendChild(w);
 	w.redraw();
@@ -377,7 +378,7 @@ SelectList.prototype.getValue = function() {
 	}
 }
 
-function SelectOption__onclick(evt, option) {
+function SelectOption__onmousedown(evt, option) {
 	var oSelectList = option.parent;
 	if (!oSelectList.multiple)
 		oSelectList.selectOption(option);
