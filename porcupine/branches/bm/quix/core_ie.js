@@ -1112,20 +1112,22 @@ function Widget__showtooltip(w, x, y) {
 }
 
 function Widget__startdrag(evt ,w) {
-	var dragable = QuiX.getDraggable(w);
-	dragable.left = evt.clientX + 2;
-	dragable.top = evt.clientY + 2;
-	dragable.setOpacity(.5);
-	
-	document.desktop.appendChild(dragable);
-	dragable.redraw();
+	if (QuiX.getMouseButton(evt) == 1) {
+		var dragable = QuiX.getDraggable(w);
+		dragable.left = evt.clientX + 2;
+		dragable.top = evt.clientY + 2;
+		dragable.setOpacity(.5);
 		
-	QuiX.tmpWidget = dragable;
-	QuiX.dragable = w;
-
-	document.desktop.attachEvent('onmouseover', Widget__detecttarget);
-	document.desktop.attachEvent('onmousemove', Widget__drag);
-	document.desktop.attachEvent('onmouseup', Widget__enddrag);
+		document.desktop.appendChild(dragable);
+		dragable.redraw();
+			
+		QuiX.tmpWidget = dragable;
+		QuiX.dragable = w;
+	
+		document.desktop.attachEvent('onmouseover', Widget__detecttarget);
+		document.desktop.attachEvent('onmousemove', Widget__drag);
+		document.desktop.attachEvent('onmouseup', Widget__enddrag);
+	}
 }
 
 function Widget__drag(evt, desktop) {
@@ -1140,10 +1142,16 @@ function Widget__enddrag(evt, desktop) {
 	QuiX.tmpWidget.destroy();
 	QuiX.tmpWidget = null;
 	
-	if (QuiX.dropTarget && QuiX.dropTarget._customRegistry['ondrop']) {
-		QuiX.dropTarget._customRegistry['ondrop'](QuiX.dragable);
+	try {
+		if (QuiX.dropTarget && QuiX.dropTarget._customRegistry['ondrop']) {
+			QuiX.dropTarget._customRegistry['ondrop'](evt, QuiX.dropTarget,
+													  QuiX.dragable);
+		}
 	}
-	QuiX.dragable = null;
+	finally {
+		QuiX.dropTarget = null;
+		QuiX.dragable = null;
+	}
 }
 
 function Widget__detecttarget(evt, desktop) {
@@ -1152,11 +1160,11 @@ function Widget__detecttarget(evt, desktop) {
 		target = QuiX.getParentNode(target)
 	
 	if (target.widget.dropable) {
-		QuiX.tmpWidget.widgets[0].show();
+		QuiX.tmpWidget.div.style.borderColor = 'red';
 		QuiX.dropTarget = target.widget;
 	}
 	else {
-		QuiX.tmpWidget.widgets[0].hide();
+		QuiX.tmpWidget.div.style.borderColor = 'silver';
 		QuiX.dropTarget = null;
 	}
 }

@@ -135,24 +135,18 @@ QuiX.getDraggable = function(w) {
 		top : w.getTop(),
 		width : w.getWidth(true),
 		height : w.getHeight(true),
-		border : w.border
+		border : 1
 	});
 	d.div.innerHTML = w.div.innerHTML;
 	d.div.className = w.div.className;
 	d.div.style.cssText = w.div.style.cssText;
+	d.div.style.border = '1px solid silver';
 	d.setPosition('absolute');
-
-	var i = new Icon({
-		top : 'center',
-		left : 'center',
-		width : 18,
-		height : 18,
-		img : '__quix/images/drop.gif',
-		opacity : 1,
-		display : 'none'
-	});
-	d.appendChild(i);
 	return d;
+}
+
+QuiX.getMouseButton = function(evt) {
+	return evt.button;
 }
 
 QuiX.createOutline = function(w) {
