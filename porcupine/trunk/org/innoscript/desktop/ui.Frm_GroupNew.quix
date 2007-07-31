@@ -17,28 +17,12 @@
 						<field name="description" top="27" left="75" width="75%" value=""/>
 				</tab>
 				<tab caption="Members">
-					<box width="100%" height="100%" orientation="v">
-						<selectlist name="members" multiple="true" posts="all" height="-1">
-							<prop name="SelectFrom" value="$URI"/>
-							<prop name="RelatedCC" value="$REL_CC"/>
-						</selectlist>
-						<rect height="24">
-							<flatbutton width="60" height="22" caption="Add..." onclick="generic.selectItems"/>
-							<flatbutton left="70" width="60" height="22" caption="Remove" onclick="generic.removeSelectedItems"/>
-						</rect>
-					</box>
+					<custom classname="ReferenceN" width="100%" height="100%"
+						root="$URI" cc="$REL_CC" name="members"/>
 				</tab>
 				<tab caption="Policies">
-					<box width="100%" height="100%" orientation="v">
-						<selectlist id="policies" name="policies" multiple="true" posts="all" height="-1">
-							<prop name="SelectFrom" value="$SELECT_FROM_POLICIES"/>
-							<prop name="RelatedCC" value="$POLICIES_REL_CC"/>
-						</selectlist>
-						<rect height="24">
-							<flatbutton width="60" height="22" caption="Add..." onclick="generic.selectItems"/>
-							<flatbutton left="70" width="60" height="22" caption="Remove" onclick="generic.removeSelectedItems"/>
-						</rect>
-					</box>
+					<custom classname="ReferenceN" width="100%" height="100%"
+						root="$SELECT_FROM_POLICIES" cc="$POLICIES_REL_CC" name="policies"/>
 				</tab>
 				$SECURITY_TAB
 			</tabpane>

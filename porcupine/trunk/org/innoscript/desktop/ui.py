@@ -176,13 +176,12 @@ class Frm_Auto(PorcupineDesktopServlet):
             self.yoffset += 25
             
         elif isinstance(attr, datatypes.ReferenceN):
-            options = ''
+            options = []
             rel_items = attr.getItems()
             for item in rel_items:
-                options += ('%s;%s;%s') % \
-                    (xmlUtils.XMLEncode(item.__image__),
-                     item.id,
-                     xmlUtils.XMLEncode(item.displayName.value))
+                options += [xmlUtils.XMLEncode(item.__image__),
+                            item.id,
+                            xmlUtils.XMLEncode(item.displayName.value)]
             
             sTab = AUTO_CONTROLS[datatypes.ReferenceN] % (
                 attrlabel,
@@ -190,7 +189,7 @@ class Frm_Auto(PorcupineDesktopServlet):
                 '|'.join(attr.relCc),
                 attrname,
                 self.getStringFromBoolean(readonly),
-                options
+                ';'.join(options)
             )
         
         return (sControl, sTab)
@@ -558,21 +557,21 @@ class Frm_GroupProperties(PorcupineDesktopServlet):
         self.params['REL_CC'] = '|'.join(self.item.members.relCc)
         self.params['READONLY'] = self.getStringFromBoolean(readonly)
         
-        members_options = ''
+        members_options = []
         members = self.item.members.getItems()
         for user in members:
-            members_options += \
-                '<option img="%s" value="%s" caption="%s"/>' % \
-                (user.__image__, user.id, user.displayName.value)
-        self.params['MEMBERS_OPTIONS'] = members_options
+            members_options += [xmlUtils.XMLEncode(user.__image__),
+                                user.id,
+                                xmlUtils.XMLEncode(user.displayName.value)]
+        self.params['MEMBERS'] = ';'.join(members_options)
 
-        policies_options = ''
+        policies_options = []
         policies = self.item.policies.getItems()
         for policy in policies:
-            policies_options += \
-                '<option img="%s" value="%s" caption="%s"/>' % \
-                (policy.__image__, policy.id, policy.displayName.value)
-        self.params['POLICIES_OPTIONS'] = policies_options
+            policies_options += [xmlUtils.XMLEncode(policy.__image__),
+                                 policy.id,
+                                 xmlUtils.XMLEncode(policy.displayName.value)]
+        self.params['POLICIES'] = ';'.join(policies_options)
 
         self.params['SECURITY_TAB'] = self.getSecurity(self.item)
 
@@ -634,21 +633,21 @@ class Frm_UserProperties(PorcupineDesktopServlet):
 
         self.params['READONLY'] = self.getStringFromBoolean(readonly)
         
-        memberof_options = ''
+        memberof_options = []
         memberof = self.item.memberof.getItems()
         for group in memberof:
-            memberof_options += \
-                '<option img="%s" value="%s" caption="%s"/>' % \
-                (group.__image__, group.id, group.displayName.value)
-        self.params['MEMBER_OF_OPTIONS'] = memberof_options
+            memberof_options += [xmlUtils.XMLEncode(group.__image__),
+                                 group.id,
+                                 xmlUtils.XMLEncode(group.displayName.value)]
+        self.params['MEMBEROF'] = ';'.join(memberof_options)
         
-        policies_options = ''
+        policies_options = []
         policies = self.item.policies.getItems()
         for policy in policies:
-            policies_options += \
-                '<option img="%s" value="%s" caption="%s"/>' % \
-                (policy.__image__, policy.id, policy.displayName.value)
-        self.params['POLICIES_OPTIONS'] = policies_options
+            policies_options += [xmlUtils.XMLEncode(policy.__image__),
+                                 policy.id,
+                                 xmlUtils.XMLEncode(policy.displayName.value)]
+        self.params['POLICIES'] = ';'.join(policies_options)
                 
         self.params['SECURITY_TAB'] = self.getSecurity(self.item)
 
