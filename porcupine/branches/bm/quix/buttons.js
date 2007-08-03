@@ -179,13 +179,12 @@ function XButton(params) {
 	this.div.className = 'btn';
 	this.div.style.cursor = 'pointer';
 	
-	with (params) {
-		delete id; delete top; delete left; delete minw;
-		delete minh; delete onclick; delete onmouseover;
-		delete onmousedown;	delete onmouseup; delete onmousedown;
-		delete bgcolor;
-	}
-	
+	delete params.id; delete params.top; delete params.left;
+	delete params.minw;	delete params.minh; delete params.onclick;
+	delete params.onmouseover; delete params.onmousedown;
+	delete params.onmouseup; delete params.onmousedown;
+	delete params.bgcolor;
+		
 	params.width = '100%';
 	params.height = '100%';
 	params.border = 1;
