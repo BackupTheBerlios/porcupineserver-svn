@@ -179,18 +179,12 @@ function XButton(params) {
 	this.div.className = 'btn';
 	this.div.style.cursor = 'pointer';
 	
-	delete params.id;
-	delete params.top;
-	delete params.left;
-	delete params.minw,
-	delete params.minh,
-	delete params.onclick;
-	delete params.onmouseover;
-	delete params.onmousedown;
-	delete params.onmouseup;
-	delete params.onmousedown;
+	delete params.id; delete params.top; delete params.left;
+	delete params.minw;	delete params.minh; delete params.onclick;
+	delete params.onmouseover; delete params.onmousedown;
+	delete params.onmouseup; delete params.onmousedown;
 	delete params.bgcolor;
-	
+		
 	params.width = '100%';
 	params.height = '100%';
 	params.border = 1;
@@ -206,6 +200,9 @@ function XButton(params) {
 	this.icon.div.className = 'l2';
 	this.icon.setPosition();
 	this.appendChild(this.icon);
+
+	if (this._isDisabled)
+		this._statecursor = 'pointer';
 }
 
 QuiX.constructors['button'] = XButton;
