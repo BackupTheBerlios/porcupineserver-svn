@@ -206,6 +206,9 @@ function XButton(params) {
 	this.icon.div.className = 'l2';
 	this.icon.setPosition();
 	this.appendChild(this.icon);
+
+	if (this._isDisabled)
+		this._statecursor = 'pointer';
 }
 
 QuiX.constructors['button'] = XButton;
