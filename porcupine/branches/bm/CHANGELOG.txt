@@ -1,4 +1,46 @@
 -------------
+Version 0.1.1
+-------------
+NEW: Added new "getWidgetsByAttribute" widget method.
+NEW: Third party QuiX modules can have dependencies by using the
+     "depends" attribute.
+NEW: Created custom widgets for "Relator1" and "RelatorN" data
+     types.
+NEW: New ACL editor custom widget.
+NEW: New flow box QuiX widget.
+NEW: Added widget opacity.
+NEW: Added drag an drop capabilities to QuiX widgets.
+
+OPT: Upgraded to the latest version of PLY.
+OPT: Compacted QuiX core file size by using indexed widget
+     constructors.
+OPT: QuiX markup can now be written using QuiX's namespace as the
+     default one (no need for those strange "a:" inside QuiX files)
+OPT: QuiX XHTML markup must be enclosed inside CDATA elements.
+OPT: Using the "display" CSS attribute instead of the "visibility"
+     attribute for showing and hiding widgets.
+OPT: External files get replicated when creatin g replicas of their
+     respective objects.
+OPT: Added "wrap" attribute for labels.
+OPT: QImage class now include width and height info of the preloaded
+     image.
+OPT: Select lists are selected with onmousedown instead of
+     onmouseclick.
+
+FIX: Fixed guest user desktop access.
+FIX: Root level objects can now be created.
+FIX: Tooltips are removed when their respective widget is destroyed.
+FIX: Added synchronous event handlers for composite objects.
+FIX: Fixed client side XMLRPC method name validation.
+FIX: Allow boxes with zero child spacing.
+FIX: Fixed dialogs' minimizing
+FIX: Fixed QuiX's local tag name reading for IE.
+FIX: Fixed cursor style state for initialy disabled buttons.
+
+DEP: QuiX forms no longer have an "elements" array attribute. Use
+     the "getElements" method instead.
+
+-------------
 Version 0.1.0
 -------------
 NEW: Synchronous event handlers per content class.
