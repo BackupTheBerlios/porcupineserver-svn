@@ -1000,13 +1000,15 @@ Widget.prototype._buildEventRegistry = function(params) {
 	for (i=0; i<this.supportedEvents.length; i++) {
 		evt_type = this.supportedEvents[i];
 		if (params[evt_type])
-			this._registerHandler(evt_type, getEventListener(params[evt_type]), false);
+			this._registerHandler(evt_type,
+				QuiX.getEventListener(params[evt_type]), false);
 	}
 	//register custom events
 	for (i=0; i<this.customEvents.length; i++) {
 		evt_type = this.customEvents[i];
 		if (params[evt_type])
-			this._registerHandler(evt_type, getEventListener(params[evt_type]), true);
+			this._registerHandler(evt_type,
+				QuiX.getEventListener(params[evt_type]), true);
 	}
 }
 
@@ -1031,7 +1033,7 @@ Widget.prototype._detachEvents = function(w) {
 }
 
 Widget.prototype._getHandler = function(eventType, f) {
-	f = getEventListener(f);
+	f = QuiX.getEventListener(f);
 	if (!f) {//restore from registry
 		f = this._registry[eventType] ||
 			this._registry['_' + eventType] ||

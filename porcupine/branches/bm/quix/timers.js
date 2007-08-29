@@ -22,7 +22,7 @@ function Timer(params) {
 	this.auto = (params.auto==true || params.auto=='true');
 	if (this.auto) {
 		if (this.interval) {
-			var h = getEventListener(this.handler);
+			var h = QuiX.getEventListener(this.handler);
 			if (h)
 				h(this);
 		}
@@ -36,7 +36,7 @@ Timer.prototype = new Widget;
 Timer.prototype.start = function() {
 	if (!this.timerid) {
 		var oTimer = this;
-		var handler_func = getEventListener(this.handler);
+		var handler_func = QuiX.getEventListener(this.handler);
 		var _handler = function() {
 			if (oTimer.timeout) {
 				this._timerid = null;

@@ -180,7 +180,7 @@ Window.prototype.removeControlButton = function(iWhich) {
 
 Window.prototype.close = function() {
 	if (this._customRegistry.onclose)
-		getEventListener(this._customRegistry.onclose)(this);
+		QuiX.getEventListener(this._customRegistry.onclose)(this);
 	while (this.childWindows.length != 0)
 		this.childWindows[0].close();
 	if (this.opener)

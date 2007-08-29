@@ -16,7 +16,7 @@ function ListView(params) {
 	this.nullText = params.nulltext || '&nbsp;';
 	this.dateFormat = params.dateformat || 'ddd dd/mmm/yyyy time';
 	this.trueImg = params.trueimg || '__quix/images/check16.gif';
-	this.sortfunc = getEventListener(params.sortfunc);
+	this.sortfunc = QuiX.getEventListener(params.sortfunc);
 
 	this.hasSelector = false;
 	this.selection = [];
@@ -148,7 +148,7 @@ ListView.prototype._selectline = function (evt, row) {
 	}
 	
 	if (fire && this._customRegistry.onselect) {
-		getEventListener(this._customRegistry.onselect)(evt, this, this.dataSet[row.rowIndex]);
+		QuiX.getEventListener(this._customRegistry.onselect)(evt, this, this.dataSet[row.rowIndex]);
 	}
 }
 
@@ -240,7 +240,7 @@ ListView.prototype.addColumn = function(params, w) {
 	oCol.columnType = params.type || 'str';
 	if (params.xform) {
 		oCol.xform = params.xform;
-		oCol._xform = getEventListener(oCol.xform);
+		oCol._xform = QuiX.getEventListener(oCol.xform);
 	}
 	
 	oCol.sortable = (params.sortable=='false' || params.sortable==false)?false:true;
