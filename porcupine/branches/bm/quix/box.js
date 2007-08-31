@@ -156,8 +156,8 @@ FlowBox.prototype = new Widget;
 FlowBox.prototype.appendChild = function(w) {
 	w.destroy = FlowBoxWidget__destroy;
 	if (this.select) {
-		w.attachEvent('onclick', QuiX.getEventWrapper(FlowBox__selectItem,
-			w._getHandler('onclick')));
+		w.attachEvent('onmousedown', QuiX.getEventWrapper(FlowBox__selectItem,
+			w._getHandler('onmousedown')));
 	}
 	w._setCommonProps();
 	Widget.prototype.appendChild(w, this);
