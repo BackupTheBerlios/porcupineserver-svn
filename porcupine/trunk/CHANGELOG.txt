@@ -9,7 +9,7 @@ NEW: Created custom widgets for "Relator1" and "RelatorN" data
 NEW: New ACL editor custom widget.
 NEW: New flow box QuiX widget.
 NEW: Added widget opacity.
-NEW: Added drag an drop capabilities to QuiX widgets.
+NEW: Added basic drag an drop capabilities to QuiX widgets.
 
 OPT: Upgraded to the latest version of PLY.
 OPT: Compacted QuiX core file size by using indexed widget
@@ -19,7 +19,7 @@ OPT: QuiX markup can now be written using QuiX's namespace as the
 OPT: QuiX XHTML markup must be enclosed inside CDATA elements.
 OPT: Using the "display" CSS attribute instead of the "visibility"
      attribute for showing and hiding widgets.
-OPT: External files get replicated when creatin g replicas of their
+OPT: External files get replicated when creating replicas of their
      respective objects.
 OPT: Added "wrap" attribute for labels.
 OPT: QImage class now include width and height info of the preloaded
@@ -29,10 +29,10 @@ OPT: Select lists are selected with onmousedown instead of
 
 FIX: Fixed guest user desktop access.
 FIX: Root level objects can now be created.
-FIX: Tooltips are removed when their respective widget is destroyed.
+FIX: Tooltip is removed when their respective widget is destroyed.
 FIX: Added synchronous event handlers for composite objects.
 FIX: Fixed client side XMLRPC method name validation.
-FIX: Allow boxes with zero child spacing.
+FIX: Allow boxes with zero children spacing.
 FIX: Fixed dialogs' minimizing
 FIX: Fixed QuiX's local tag name reading for IE.
 FIX: Fixed cursor style state for initialy disabled buttons.
