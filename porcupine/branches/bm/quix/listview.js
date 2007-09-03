@@ -6,7 +6,10 @@ function ListView(params) {
 	params = params || {};
 	params.bgcolor = params.bgcolor || 'white';
 	params.overflow = 'auto';
-
+	
+	var dragable = (params.dragable == 'true' || params.dragable == true);
+	delete params.dragable;
+	
 	this.base = Widget;
 	this.base(params);
 	this.div.className = 'listview';
@@ -25,6 +28,9 @@ function ListView(params) {
 	this.orderby = null;
 	this.sortorder = null;
 	this._sortimg = null;
+	
+	//this._dropable = dropable;
+	this._dragable = dragable;
 }
 
 QuiX.constructors['listview'] = ListView;
@@ -71,10 +77,12 @@ ListView.prototype.addHeader = function(params, w) {
 		oListview._deadCells = 0;
 
 	var list = new Widget({
-		top: function() { return oListview.header.isHidden()?0:oListview.header._calcHeight(true); },
-		width:'this.parent.getWidth()-1',
-		height:'this.parent.getHeight()-' + params.height + 1
+		top : function() { return oListview.header.isHidden()?0:oListview.header._calcHeight(true); },
+		width : 'this.parent.getWidth()-1',
+		height : 'this.parent.getHeight()-' + params.height + 1,
+		dragable : oListview._dragable
 	});
+	list._startDrag = List__startDrag;
 	oListview.appendChild(list);
 	
 	list.div.className = 'list';
@@ -482,3 +490,39 @@ function ListViewHeader__redraw(bForceAll) {
 	Widget.prototype.redraw(bForceAll, this);
 }
 
+function List__startDrag(x, y) {
+	var dragable = new Widget({
+		width : this.getWidth(true),
+		border : 1,
+		style : 'border:1px solid transparent'
+	});
+	with (dragable) {
+		div.className = this.div.className;
+		setPosition('absolute');
+		left = x + 2;
+		top = y + 2;
+		setOpacity(.5);
+	}
+	// fill with selected rows
+	var row;
+	var srcTable = this.div.firstChild;
+	var table = srcTable.cloneNode(false);
+	dragable.div.appendChild(table);
+	for (var i=0; i<this.parent.selection.length; i++) {
+		row = srcTable.rows[this.parent.selection[i]].cloneNode(true);
+		if (i==0) {
+			for (var j=0; j<row.cells.length; j++) {
+				row.cells[j].style.width = srcTable.rows[0].cells[j].style.width;
+			}			
+		}
+		table.appendChild(row);
+	}
+	document.desktop.appendChild(dragable);
+	dragable.redraw();
+		
+	QuiX.tmpWidget = dragable;
+	QuiX.dragable = this.parent;
+
+	document.desktop.attachEvent('onmouseover', Widget__detecttarget);
+	document.desktop.attachEvent('onmousemove', Widget__drag);
+}

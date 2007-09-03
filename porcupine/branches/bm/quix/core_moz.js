@@ -910,7 +910,7 @@ Widget.prototype._startDrag = function(x, y) {
 	
 	document.desktop.appendChild(dragable);
 	dragable.redraw();
-		
+	
 	QuiX.tmpWidget = dragable;
 	QuiX.dragable = this;
 
@@ -1183,7 +1183,7 @@ function Widget__detecttarget(evt, desktop) {
 		QuiX.dropTarget = target.widget;
 	}
 	else {
-		QuiX.tmpWidget.div.style.borderColor = 'silver';
+		QuiX.tmpWidget.div.style.borderColor = 'transparent';
 		QuiX.dropTarget = null;
 	}
 }

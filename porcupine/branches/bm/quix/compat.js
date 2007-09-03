@@ -141,7 +141,7 @@ QuiX.getDraggable = function(w) {
 	d.div.innerHTML = w.div.innerHTML;
 	d.div.className = w.div.className;
 	d.div.style.cssText = w.div.style.cssText;
-	d.div.style.border = '1px solid silver';
+	d.div.style.border = '1px solid transparent';
 	d.setPosition('absolute');
 	return d;
 }
