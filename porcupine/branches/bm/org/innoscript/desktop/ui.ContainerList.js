@@ -131,19 +131,23 @@ containerList.listMenu_show = function(menu) {
 		menu.options[2].disable();//cut
 		menu.options[3].disable();//copy
 		menu.options[5].disable();//delete
-		menu.options[7].disable();//move to
-		menu.options[8].disable();//copy to
-		menu.options[9].disable();//rename
-		menu.options[11].disable();//properties
 	}
 	else {
 		menu.options[2].enable();//cut
 		menu.options[3].enable();//copy
 		menu.options[5].enable();//delete
+	}
+	if (oItemList.selection.length == 1) {
 		menu.options[7].enable();//move to
 		menu.options[8].enable();//copy to
 		menu.options[9].enable();//rename
 		menu.options[11].enable();//properties
+	}
+	else {
+		menu.options[7].disable();//move to
+		menu.options[8].disable();//copy to
+		menu.options[9].disable();//rename
+		menu.options[11].disable();//properties		
 	}
 	if (QuiX.clipboard.items.length>0 && QuiX.clipboard.contains=='objects')
 		menu.options[4].enable();//paste
