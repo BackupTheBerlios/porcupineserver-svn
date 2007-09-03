@@ -140,6 +140,9 @@ ListView.prototype._unselrow = function(r) {
 }
 
 ListView.prototype._selectline = function (evt, row) {
+	if (row.isSelected && QuiX.getMouseButton(evt)==2) {
+		return;
+	}
 	var fire = this.multiple || !row.isSelected;
 	
 	if (!row.isSelected) {
