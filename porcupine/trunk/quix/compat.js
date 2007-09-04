@@ -32,6 +32,7 @@ QuiX.clipboard = new Clipboard();
 QuiX.tmpWidget = null;
 QuiX.dragable = null;
 QuiX.dropTarget = null;
+QuiX.dragTimer = 0;
 QuiX.images = [];
 QuiX.constructors = {
 	'script' : null,
@@ -140,7 +141,7 @@ QuiX.getDraggable = function(w) {
 	d.div.innerHTML = w.div.innerHTML;
 	d.div.className = w.div.className;
 	d.div.style.cssText = w.div.style.cssText;
-	d.div.style.border = '1px solid silver';
+	d.div.style.border = '1px solid transparent';
 	d.setPosition('absolute');
 	return d;
 }
@@ -173,10 +174,22 @@ QuiX.createOutline = function(w) {
 	return(oW);
 }
 
+QuiX.getEventListener = function(f) {
+	if (typeof(f)!='function') {
+		try {
+			f = eval(f);
+		}
+		catch(e) {
+			f = null;
+		}
+	}
+	return(f);
+}
+
 QuiX.getEventWrapper = function(f1, f2) {
 	var wrapper;
-	f1 = getEventListener(f1);
-	f2 = getEventListener(f2);
+	f1 = QuiX.getEventListener(f1);
+	f2 = QuiX.getEventListener(f2);
 	wrapper = function(evt, w) {
 		var r1, r2 = null;
 		r1 = f1(evt, w);

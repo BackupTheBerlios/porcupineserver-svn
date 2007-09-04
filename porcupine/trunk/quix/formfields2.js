@@ -86,7 +86,7 @@ function Combo(params) {
 		if (!this.readonly) {
 			e.onchange = function() {
 				if (oCombo._customRegistry.onchange)
-					getEventListener(oCombo._customRegistry.onchange)(oCombo);
+					QuiX.getEventListener(oCombo._customRegistry.onchange)(oCombo);
 			}
 		}
 		else
@@ -152,7 +152,7 @@ Combo.prototype.setValue = function(value) {
 				this.div.firstChild.value = opt.getCaption();
 				if (value != old_value)
 					if (this._customRegistry.onchange)
-						getEventListener(this._customRegistry.onchange)(this);
+						QuiX.getEventListener(this._customRegistry.onchange)(this);
 				return;
 			}
 		}

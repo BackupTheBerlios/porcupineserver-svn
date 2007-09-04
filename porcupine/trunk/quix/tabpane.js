@@ -81,7 +81,7 @@ TabPane.prototype.activateTab = function(iTab) {
 
 	this.activeTab = iTab;
 	if (iActive!=iTab && oTab.onactivate) {
-		getEventListener(oTab.onactivate)(this, iTab);
+		QuiX.getEventListener(oTab.onactivate)(this, iTab);
 	}
 }
 

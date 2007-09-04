@@ -906,6 +906,22 @@ Widget.prototype._endMove = function(evt) {
 	this.parent.div.style.cursor = '';
 }
 
+Widget.prototype._startDrag = function(x, y) {
+	var dragable = QuiX.getDraggable(this);
+	dragable.left = x + 2;
+	dragable.top = y + 2;
+	dragable.setOpacity(.5);
+	
+	document.desktop.appendChild(dragable);
+	dragable.redraw();
+		
+	QuiX.tmpWidget = dragable;
+	QuiX.dragable = this;
+
+	document.desktop.attachEvent('onmouseover', Widget__detecttarget);
+	document.desktop.attachEvent('onmousemove', Widget__drag);
+}
+
 Widget.prototype.redraw = function(bForceAll, w) {
 	w = w || this;
 	var container = w.div.parentElement;
@@ -995,13 +1011,15 @@ Widget.prototype._buildEventRegistry = function(params) {
 	for (i=0; i<this.supportedEvents.length; i++) {
 		evt_type = this.supportedEvents[i];
 		if (params[evt_type])
-			this._registerHandler(evt_type, getEventListener(params[evt_type]), false);
+			this._registerHandler(evt_type,
+				QuiX.getEventListener(params[evt_type]), false);
 	}
 	//register custom events
 	for (i=0; i<this.customEvents.length; i++) {
 		evt_type = this.customEvents[i];
 		if (params[evt_type])
-			this._registerHandler(evt_type, getEventListener(params[evt_type]), true);
+			this._registerHandler(evt_type,
+				QuiX.getEventListener(params[evt_type]), true);
 	}
 }
 
@@ -1026,7 +1044,7 @@ Widget.prototype._detachEvents = function(w) {
 }
 
 Widget.prototype._getHandler = function(eventType, f) {
-	f = getEventListener(f);
+	f = QuiX.getEventListener(f);
 	if (!f) {//restore from registry
 		f = this._registry[eventType] ||
 			this._registry['_' + eventType] ||
@@ -1111,22 +1129,13 @@ function Widget__showtooltip(w, x, y) {
 	w.__tooltip  = tooltip;
 }
 
-function Widget__startdrag(evt ,w) {
+function Widget__startdrag(evt, w) {
 	if (QuiX.getMouseButton(evt) == 1) {
-		var dragable = QuiX.getDraggable(w);
-		dragable.left = evt.clientX + 2;
-		dragable.top = evt.clientY + 2;
-		dragable.setOpacity(.5);
-		
-		document.desktop.appendChild(dragable);
-		dragable.redraw();
-			
-		QuiX.tmpWidget = dragable;
-		QuiX.dragable = w;
-	
-		document.desktop.attachEvent('onmouseover', Widget__detecttarget);
-		document.desktop.attachEvent('onmousemove', Widget__drag);
+		var x = evt.clientX;
+		var y = evt.clientY;
 		document.desktop.attachEvent('onmouseup', Widget__enddrag);
+		QuiX.dragTimer = window.setTimeout(
+			function _draghandler() {w._startDrag(x, y)}, 250);
 	}
 }
 
@@ -1135,22 +1144,27 @@ function Widget__drag(evt, desktop) {
 }
 
 function Widget__enddrag(evt, desktop) {
-	desktop.detachEvent('onmouseover');
-	desktop.detachEvent('onmousemove');
-	desktop.detachEvent('onmouseup');
-	
-	QuiX.tmpWidget.destroy();
-	QuiX.tmpWidget = null;
-	
-	try {
-		if (QuiX.dropTarget && QuiX.dropTarget._customRegistry['ondrop']) {
-			QuiX.dropTarget._customRegistry['ondrop'](evt, QuiX.dropTarget,
-													  QuiX.dragable);
-		}
+	if (QuiX.dragTimer != 0) {
+		window.clearTimeout(QuiX.dragTimer);
+		QuiX.dragTimer = 0;
 	}
-	finally {
-		QuiX.dropTarget = null;
-		QuiX.dragable = null;
+	desktop.detachEvent('onmouseup');
+	if (QuiX.dragable) {
+		desktop.detachEvent('onmouseover');
+		desktop.detachEvent('onmousemove');
+		QuiX.tmpWidget.destroy();
+		QuiX.tmpWidget = null;
+		
+		try {
+			if (QuiX.dropTarget && QuiX.dropTarget._customRegistry['ondrop']) {
+				QuiX.dropTarget._customRegistry['ondrop'](evt, QuiX.dropTarget,
+														  QuiX.dragable);
+			}
+		}
+		finally {
+			QuiX.dropTarget = null;
+			QuiX.dragable = null;
+		}
 	}
 }
 
@@ -1159,12 +1173,12 @@ function Widget__detecttarget(evt, desktop) {
 	while (!target.widget)
 		target = QuiX.getParentNode(target)
 	
-	if (target.widget.dropable) {
+	if (target.widget.dropable && target.widget != QuiX.dragable.parent) {
 		QuiX.tmpWidget.div.style.borderColor = 'red';
 		QuiX.dropTarget = target.widget;
 	}
 	else {
-		QuiX.tmpWidget.div.style.borderColor = 'silver';
+		QuiX.tmpWidget.div.style.borderColor = 'transparent';
 		QuiX.dropTarget = null;
 	}
 }
