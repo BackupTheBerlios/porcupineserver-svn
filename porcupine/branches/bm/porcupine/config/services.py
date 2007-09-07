@@ -29,7 +29,7 @@ def startServices():
         if type == 'TCPListener':
             services[name] = service_class(name,
                                        misc.getAddressFromString(service['address']),
-                                       service['worker_threads'])
+                                       int(service['worker_threads']))
         # add parameters
         if service.has_key('parameters'):
             services[name].parameters = service['parameters']

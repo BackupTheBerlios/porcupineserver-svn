@@ -5,5 +5,10 @@
 		<dir name="hypersearch" path="org/innoscript/hypersearch"/>
 		<dir name="usermgmnt" path="org/innoscript/usermgmnt"/>
 		<dir name="queryperformer" path="org/innoscript/queryperformer"/>
+
+		<dir name="metaface" path="com/blymee/metaface"/>
+		<dir name="parallax" path="com/blymee/parallax"/>
+		<dir name="commanager" path="com/blymee/commanager"/>
+		
 	</dirs>
 </config>

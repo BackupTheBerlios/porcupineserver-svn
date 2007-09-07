@@ -23,13 +23,6 @@ from porcupine import errors
 class ResponseEnd(Exception):
     pass
 
-#class ConfigurationError(Exception):
-#    def __init__(self, descr):
-#        if type(descr) == types.StringType:
-#            self.info = descr
-#        elif type(descr) == types.TupleType:
-#            self.info = 'The configuration file is missing option "%s" in section [%s]' % descr
-
 class PorcupineException(Exception):
     def __init__(self, info=''):
         self.code = 0

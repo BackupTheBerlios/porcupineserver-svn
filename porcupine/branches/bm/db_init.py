@@ -21,8 +21,8 @@ if (answer == 'Y'):
     try:
         from porcupine.config import dbparams
         db.open(dbparams.db_class)
-    except serverExceptions.ConfigurationError, e:
-        sys.exit(e.info)
+    except Exception, e:
+        sys.exit(e[0])
 
     import porcupine.systemObjects
     import org.innoscript.desktop.schema.common
