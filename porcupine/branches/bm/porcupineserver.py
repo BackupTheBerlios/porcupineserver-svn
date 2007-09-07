@@ -44,6 +44,7 @@ class Controller(object):
         self.shutdowninprogress = False
         self.running = False
         self.logger = logging.getLogger('serverlog')
+        self.services = services.services
     
     def start(self):
         try:
@@ -75,7 +76,7 @@ class Controller(object):
                             settings['sessionmanager']['interface']),
                             int(settings['sessionmanager']['timeout']))
             
-            services.services['_controller'] = self
+            self.services['_controller'] = self
             # start services
             self.logger.info('Starting services...')
             services.startServices()
@@ -118,8 +119,8 @@ certain conditions; See COPYING for more details.'''
 
         # stop services
         self.logger.info('Stopping services...')
-        from porcupine.config.services import services
-        for service in services.values():
+        for service in [x for x in self.services.values()
+                        if x is not self]:
             service.shutdown()
 
         self.running = False
