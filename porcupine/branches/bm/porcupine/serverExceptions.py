@@ -17,18 +17,18 @@
 "Porcupine Server Exception classes"
 
 import logging
-import types
+#import types
 from porcupine import errors
 
 class ResponseEnd(Exception):
     pass
 
-class ConfigurationError(Exception):
-    def __init__(self, descr):
-        if type(descr) == types.StringType:
-            self.info = descr
-        elif type(descr) == types.TupleType:
-            self.info = 'The configuration file is missing option "%s" in section [%s]' % descr
+#class ConfigurationError(Exception):
+#    def __init__(self, descr):
+#        if type(descr) == types.StringType:
+#            self.info = descr
+#        elif type(descr) == types.TupleType:
+#            self.info = 'The configuration file is missing option "%s" in section [%s]' % descr
 
 class PorcupineException(Exception):
     def __init__(self, info=''):
@@ -47,13 +47,11 @@ class PorcupineException(Exception):
             sDescr,
             *(), 
             **{'exc_info':self.outputTraceback}
-       )
+        )
 
     def getDescription(self):
-        return errors.ERROR_DESCRIPTIONS.setdefault(
-            self.code, 
-            'No description available.'
-        )
+        return errors.ERROR_DESCRIPTIONS.setdefault(self.code, 
+                                                    'No description available.')
     
     description = property(getDescription)
 
@@ -163,9 +161,6 @@ class ValidationError(PorcupineException):
 # replication exceptions
 
 class ProxyRequest(Exception):
-    pass
-
-class HostUnreachable(Exception):
     pass
 
 class ReplicationError(PorcupineException):

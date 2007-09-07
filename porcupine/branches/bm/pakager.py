@@ -31,7 +31,7 @@ if main_is_frozen():
 from porcupine import datatypes
 from porcupine import serverExceptions
 from porcupine.administration import offlinedb, configfiles
-from porcupine.config import serverSettings
+from porcupine.config.settings import settings
 
 __usage__ = """
 Install package:
@@ -46,6 +46,8 @@ Create package:
     python pakager.py -c -d PACKAGE_DEFINITION_FILE or
     python pakager.py --create --def=PACKAGE_DEFINITION_FILE
 """
+
+TMP_FOLDER = settings['services'][0]['parameters']['temp_folder']
 
 class Package(object):
     def __init__(self, package_file=None, ini_file=None):
@@ -76,7 +78,7 @@ class Package(object):
     
     
     def _exportItem(self, id, clearRolesInherited=True):
-        it_file = file(serverSettings.temp_folder + '/' + id, 'wb')
+        it_file = file(TMP_FOLDER + '/' + id, 'wb')
         item = self.db.getItem(id)
         if clearRolesInherited:
             item.inheritRoles = False
@@ -162,9 +164,9 @@ class Package(object):
         # pre-install script
         if '_pre.py' in contents:
             print 'INFO: running pre installation script...'
-            self.package_file.extract('_pre.py', serverSettings.temp_folder)
-            execfile(serverSettings.temp_folder + '/_pre.py')
-            os.remove(serverSettings.temp_folder + '/_pre.py')
+            self.package_file.extract('_pre.py', TMP_FOLDER)
+            execfile(TMP_FOLDER + '/_pre.py')
+            os.remove(TMP_FOLDER + '/_pre.py')
         
         # registrations
         if '_regs.xml' in contents:
@@ -214,11 +216,11 @@ class Package(object):
             try:
                 for dbfile in dbfiles:
                     print 'INFO: importing object ' + os.path.basename(dbfile)
-                    actual_fn = serverSettings.temp_folder + '/' + dbfile
+                    actual_fn = TMP_FOLDER + '/' + dbfile
                     objfile = None
                     try:
                         try:
-                            self.package_file.extract(dbfile, serverSettings.temp_folder)
+                            self.package_file.extract(dbfile, TMP_FOLDER)
                             objfile = file(actual_fn, 'rb')
                             self._importItem(objfile, txn)
                         except Exception, e:
@@ -233,15 +235,15 @@ class Package(object):
                 txn.commit()
             finally:
                 offlinedb.close()
-                if os.path.exists(serverSettings.temp_folder + '/_db'):
-                    os.rmdir(serverSettings.temp_folder + '/_db')
+                if os.path.exists(TMP_FOLDER + '/_db'):
+                    os.rmdir(TMP_FOLDER + '/_db')
             
         # post-install script
         if '_post.py' in contents:
             print 'INFO: running post installation script...'
-            self.package_file.extract('_post.py', serverSettings.temp_folder)
-            execfile(serverSettings.temp_folder + '/_post.py')
-            os.remove(serverSettings.temp_folder + '/_post.py')
+            self.package_file.extract('_post.py', TMP_FOLDER)
+            execfile(TMP_FOLDER + '/_post.py')
+            os.remove(TMP_FOLDER + '/_post.py')
             
     def uninstall(self):
         print 'INFO: uninstalling [%s-%s] package...' % (self.name, self.version)
@@ -281,9 +283,9 @@ class Package(object):
         contents = self.package_file.getnames()
         if '_uninstall.py' in contents:
             print 'INFO: running uninstallation script...'
-            self.package_file.extract('_uninstall.py', serverSettings.temp_folder)
-            execfile(serverSettings.temp_folder + '/_uninstall.py')
-            os.remove(serverSettings.temp_folder + '/_uninstall.py')
+            self.package_file.extract('_uninstall.py', TMP_FOLDER)
+            execfile(TMP_FOLDER + '/_uninstall.py')
+            os.remove(TMP_FOLDER + '/_uninstall.py')
         
         # files
         files = self.config_file.options('files')
@@ -337,7 +339,7 @@ class Package(object):
         pkgnode = conf_file.getPackageNode(self.name)
         if pkgnode:
             print 'INFO: extracting package registrations'
-            regsFile = file(serverSettings.temp_folder + '/_regs.xml', 'w')
+            regsFile = file(TMP_FOLDER + '/_regs.xml', 'w')
             regsFile.write('<config>\n' + pkgnode.toxml('utf-8') + '\n</config>')
             regsFile.close()
             self.package_files.append(
@@ -385,7 +387,7 @@ class Package(object):
                     print 'WARNING: published directory "%s" does not exist' % appname
             
             if dir_nodes:
-                dirsFile = file(serverSettings.temp_folder + '/_pubdir.xml', 'w')
+                dirsFile = file(TMP_FOLDER + '/_pubdir.xml', 'w')
                 dirsFile.write('<?xml version="1.0" encoding="utf-8"?><dirs>')
                 for dir_node in dir_nodes:
                     dirsFile.write(dir_node.toxml('utf-8'))
@@ -456,8 +458,7 @@ class Package(object):
             if tarinfo.isfile():
                 self.package_file.addfile(tarinfo, file(fname, 'rb'))
                 # remove temporary
-                if fname[:len(serverSettings.temp_folder)] == \
-                serverSettings.temp_folder:
+                if fname[:len(TMP_FOLDER)] == TMP_FOLDER:
                     os.remove(fname)
             else:
                 self.package_file.add(fname)

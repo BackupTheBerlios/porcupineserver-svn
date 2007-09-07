@@ -14,26 +14,4 @@
 #    along with Porcupine; if not, write to the Free Software
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #===============================================================================
-"Server request interfaces"
-
-from porcupine.config.settings import settings
-from porcupine.utils import misc
-from porcupine import serverExceptions
-
-requestInterfaces = {}
-
-try:
-    ris = settings.requestinterfaces.options
-except AttributeError:
-    raise serverExceptions.ConfigurationError, 'The configuration file either has no [requestinterfaces] section or the aforementioned section is blank'
-
-for ri in ris:
-    sInterface = getattr(settings.requestinterfaces, ri)
-    try:
-        requestInterfaces[ri.upper()] = misc.getCallableByName(sInterface)
-    except AttributeError:
-        raise serverExceptions.ConfigurationError, 'Invalid request interface "%s"' % sInterface
-    except ImportError:
-        raise serverExceptions.ConfigurationError, 'Invalid request interface "%s"' % sInterface
-
-del ris    
+"Porcupine core services base classes"

@@ -18,6 +18,7 @@
 
 import time, cPickle
 
+from porcupine.config.settings import settings
 from porcupine import serverExceptions
 from porcupine.core import cache
 
@@ -25,12 +26,11 @@ _locks = 0
 _activeTxns = 0
 db_handle = None
 object_cache = None
-    
+
 def open(db_handleClass):
     global db_handle, object_cache
     db_handle = db_handleClass()
-    from porcupine.config import serverSettings
-    object_cache = cache.Cache(serverSettings.object_cache_size)
+    object_cache = cache.Cache(settings['store']['object_cache_size'])
     
 def __getItemByPath(lstPath, trans=None):
     oItem = getItem('')

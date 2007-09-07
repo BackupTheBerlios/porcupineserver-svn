@@ -19,6 +19,8 @@
 import time, logging
 from threading import Thread
 
+from porcupine.config.services import services
+
 timeout = 1200
 isActive = True
 _sessionList = []
@@ -29,7 +31,8 @@ def open(smClass, session_timeout):
     global timeout, sm, sessionExpireThread, isActive, _sessionList
     timeout = session_timeout
     sm = smClass()
-    sessionExpireThread = Thread(target=expireSessions, name='Session expriration thread')
+    sessionExpireThread = Thread(target=expireSessions,
+                                 name='Session expriration thread')
     sessionExpireThread.start()
     isActive = True
     _sessionList = []
@@ -49,15 +52,15 @@ def fetchSession(sessionid):
     return(session)
     
 def expireSessions():
-    from porcupine.core.management import Mgt
+    logger = logging.getLogger('serverlog')
     while isActive:
-        if not sm.supports_replication or Mgt.mgtServer.isMaster():
+        if not sm.supports_replication or services['management'].isMaster():
             for sessionid in _sessionList:
                 oSession = sm.getSession(sessionid)
                 if time.time() - oSession.lastAccessed > timeout:
-                    logging.getLogger('serverlog').debug('Expiring Session: %s' % sessionid)
+                    logger.debug('Expiring Session: %s' % sessionid)
                     oSession.terminate()
-                    logging.getLogger('serverlog').debug('Total active sessions: %s' % str(len(_sessionList)))
+                    logger.debug('Total active sessions: %s' % str(len(_sessionList)))
                 else:
                     break
         time.sleep(1.0)

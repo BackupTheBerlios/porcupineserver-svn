@@ -62,7 +62,8 @@ class BaseServerThread(Thread):
 class BaseServer(asyncore.dispatcher):
     "Implements threaded tcp server using asynchronous sockets"
     def __init__(self, name, address, worker_threads, threadClass, requestHandler):
-        # create server socket
+        self.running = False
+        self.parameters = None
         self.name = name
 
 ##        if False:
@@ -85,9 +86,7 @@ class BaseServer(asyncore.dispatcher):
             self.bind(self.addr)
         except socket.error, v:
             self.close()
-            raise serverExceptions.ConfigurationError, \
-                'Invalid bind adress for service "%s": %s\n%s' % \
-                (name, str(address), v[1])
+            raise v
 
         self.listen(32)
 
@@ -213,7 +212,6 @@ class BaseRequestHandler(asyncore.dispatcher):
         pass
 
     def handle_read(self):
-##        print 'reading'
         data = self.recv(8192)
         if data:
             self.input_buffer.append(data)

@@ -14,23 +14,22 @@
 #    along with Porcupine; if not, write to the Free Software
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #===============================================================================
-"Management Server settings"
+"Porcupine configured services loader"
 
-from porcupine import serverExceptions
 from porcupine.config.settings import settings
 from porcupine.utils import misc
 
-try:
-    serverAddress = misc.getAddressFromString(settings.admin.address)
-except AttributeError:
-    raise serverExceptions.ConfigurationError, (('address', 'admin'),)
-except ValueError:
-    raise serverExceptions.ConfigurationError, 'Invalid management service bind address: %s' % settings.admin.address
+services = {}
 
-try:
-    worker_threads = int(settings.admin.worker_threads)
-except AttributeError:
-    raise serverExceptions.ConfigurationError, (('worker_threads', 'admin'),)
-except ValueError:
-    raise serverExceptions.ConfigurationError, 'Invalid management worker_threads setting: %s' % settings.admin.worker_threads
-
+def startServices():
+    for service in settings['services']:
+        name = service['name']
+        type = service['type']
+        service_class = misc.getCallableByName(service['class'])
+        if type == 'TCPListener':
+            services[name] = service_class(name,
+                                       misc.getAddressFromString(service['address']),
+                                       service['worker_threads'])
+        # add parameters
+        if service.has_key('parameters'):
+            services[name].parameters = service['parameters']

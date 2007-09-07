@@ -23,7 +23,6 @@ from threading import currentThread
 from porcupine.utils import xmlUtils
 from porcupine import serverExceptions
 from porcupine.config.settings import settings
-from porcupine import serverExceptions
 
 HTTP_ERROR_PAGE = 'conf/errorpage.html'
 XMLRPC_ERROR_PAGE = 'conf/XMLRPCError.xml'
@@ -131,7 +130,8 @@ class BaseResponse(object):
                     'The file "%s" could not be found' % fileName
         
         sFileExt = fileName.split('.')[-1]
-        self.content_type = settings.mediatypes.setdefault(sFileExt, 'text/plain')
+        self.content_type = settings['mediatypes'].setdefault(sFileExt,
+                                                              'text/plain')
         sResponseBody = oFile.read()
         self._body = [sResponseBody]
 

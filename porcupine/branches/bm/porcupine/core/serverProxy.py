@@ -23,7 +23,7 @@ Server proxy class module
 @type proxy: L{Server}
 """
 from porcupineserver import __version__
-from porcupine.config import serverSettings
+from porcupine.config.services import services
 from porcupine.db import dbEnv
 
 class Server(object):
@@ -38,16 +38,15 @@ class Server(object):
     """
     def __init__(self):
         self.__dbenv = dbEnv
-        self.__tmpfldr = serverSettings.temp_folder
 
     def getTempFolder(self):
         """Getter of the L{temp_folder} property.
         
         @rtype: str
         """
-        return self.__tmpfldr
+        return services['main'].parameters['temp_folder']
     temp_folder = property(getTempFolder, None, None,
-        'The server\'s temporary folder')
+                           'The server\'s temporary folder')
 
     def getStore(self):
         """Getter of the L{store} property.

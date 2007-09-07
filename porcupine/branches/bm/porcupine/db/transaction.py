@@ -18,10 +18,10 @@
 
 import copy, time
 
+from porcupine.config.services import services
 from porcupine.db import db
-from porcupine.core.management import Mgt
 from porcupine import serverExceptions
-from porcupine.core import management
+from porcupine.services import management
 
 class Transaction(object):
     "The main type of a Porcupine transaction."
@@ -94,7 +94,8 @@ class XTransaction(Transaction):
     def commit(self):
         Transaction.commit(self)
         # broadcast transaction data
-        Mgt.mgtServer.sendMessage(management.REP_BROADCAST, 'TRANS_DATA', (time.clock(), self.data))
+        services['management'].sendMessage(management.REP_BROADCAST,
+                                           'TRANS_DATA', (time.clock(), self.data))
 
     def repl_commit(self, data):
         retries = 0

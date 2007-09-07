@@ -20,9 +20,8 @@ import re
 
 from porcupine.core import psp, response, serverProxy
 from porcupine import serverExceptions
-from porcupine.core.asyncBaseServer import BaseServerThread 
-from porcupine.config import serverSettings
-from porcupine.config.requesttypes import requestInterfaces
+from porcupine.core.services.asyncBaseServer import BaseServerThread
+from porcupine.config.settings import settings
 from porcupine.config import registrations
 from porcupine.security import sessionManager
 from porcupine.db import db
@@ -97,14 +96,16 @@ class PorcupineThread(BaseServerThread):
                     
                     registration = registrations.storeConfig.getRegistration(
                         sItemCC, sMethod, sCmd, sQS, sBrowser, sLang)
+                    
+                    allow_guests = self.requestHandler.server.parameters['allow_guests']
+                    login_page = self.requestHandler.server.parameters['login_page']
     
-                    if not(serverSettings.allow_guests or \
+                    if not(allow_guests or \
                            hasattr(oUser, 'authenticate')) and \
-                           serverSettings.login_page != (sPath + \
-                           self.request.getQueryString())[:len(serverSettings.login_page)]:
+                           login_page != (sPath + \
+                           self.request.getQueryString())[:len(login_page)]:
 
-                        sLoginUrl = self.request.getRootUrl() + \
-                                    serverSettings.login_page
+                        sLoginUrl = self.request.getRootUrl() + login_page
                         self.response.redirect(sLoginUrl)
 
                     if not registration:
@@ -182,12 +183,12 @@ class PorcupineThread(BaseServerThread):
 
         self.trans = None
 
-        requestInterfaces[self.request.interface](self.requestHandler,
-                                                  self.response)
+        settings['requestinterfaces'][self.request.interface](self.requestHandler,
+                                                              self.response)
 
     def createGuestSessionAndRedirect(self, sPath):
         # create new session with the specified guest user
-        oGuest = db.getItem(serverSettings.guest_account)
+        oGuest = db.getItem(settings['sessionmanager']['guest'])
         oNewSession = sessionManager.create(oGuest)
         
         self.response = response.HTTPResponse()
