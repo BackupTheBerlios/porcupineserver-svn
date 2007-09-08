@@ -60,7 +60,7 @@ class CompositionEventHandler(eventHandlers.DatatypeEventHandler):
         # calculate constant composites
         lstConstant = list(new_ids & old_ids)
         for sID in lstConstant:
-            self.db.handle_update(dctObjects[sID], db.getItem(sID, trans) , trans)
+            self.db.handle_update(dctObjects[sID], self.db.getItem(sID, trans) , trans)
             self.db.putItem(dctObjects[sID], trans)
 
         # calculate removed composites
