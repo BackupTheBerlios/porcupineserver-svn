@@ -22,7 +22,7 @@ OPT: Using the "display" CSS attribute instead of the "visibility"
 OPT: External files get replicated when creatin g replicas of their
      respective objects.
 OPT: Added "wrap" attribute for labels.
-OPT: QImage class now include width and height info of the preloaded
+OPT: QImage class now includes width and height info of the preloaded
      image.
 OPT: Select lists are selected with onmousedown instead of
      onmouseclick.
@@ -36,9 +36,14 @@ FIX: Allow boxes with zero child spacing.
 FIX: Fixed dialogs' minimizing
 FIX: Fixed QuiX's local tag name reading for IE.
 FIX: Fixed cursor style state for initialy disabled buttons.
+FIX: Displaying a context menu over a list view with multiple
+     items selected does not clear the selection.
+FIX: Fixed composite objects' event handler.
 
 DEP: QuiX forms no longer have an "elements" array attribute. Use
      the "getElements" method instead.
+DEP: QuiX "getEventListener" function is now referenced as
+     "QuiX.getEventListener".
 
 -------------
 Version 0.1.0
