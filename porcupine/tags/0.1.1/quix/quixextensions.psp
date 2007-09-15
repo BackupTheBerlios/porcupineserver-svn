@@ -1,0 +1,153 @@
+//===============================================================================
+//    Copyright 2005-2007, Tassos Koutsovassilis
+//
+//    This file is part of Porcupine.
+//    Porcupine is free software; you can redistribute it and/or modify
+//    it under the terms of the GNU Lesser General Public License as published by
+//    the Free Software Foundation; either version 2.1 of the License, or
+//    (at your option) any later version.
+//    Porcupine is distributed in the hope that it will be useful,
+//    but WITHOUT ANY WARRANTY; without even the implied warranty of
+//    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//    GNU Lesser General Public License for more details.
+//    You should have received a copy of the GNU Lesser General Public License
+//    along with Porcupine; if not, write to the Free Software
+//    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+//===============================================================================
+
+<%
+	from org.innoscript.desktop.strings import resources
+	
+	sLang = request.getLang()
+	lstMonths = resources.getResource("MONTHS", sLang)
+	lstDays = resources.getResource("DAYS", sLang)
+	sMonths = ','.join(['"' + x + '"' for x in lstMonths])
+	sDays = ','.join(['"' + x + '"' for x in lstDays])
+	
+	sAM = resources.getResource("AM", sLang)
+	sPM = resources.getResource("PM", sLang)
+	
+	response.content_type = 'text/javascript'
+%>
+
+String.prototype.xmlDecode = function() {
+	var s = this.replace(/&amp;/g, '&').replace(/&gt;/g , '>').replace(/&lt;/g, '<').replace(/&quot;/g, '"');
+	return s;
+}
+
+String.prototype.xmlEncode = function() {
+	var s = this.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+	return s;
+}
+
+String.prototype.trim = function() {
+	var s = this.replace(/^\s+/, '').replace(/\s+$/, '');
+	return s;
+}
+
+Array.prototype.hasItem = function(item) {
+	for (var i=0; i<this.length; i++) {
+		if (this[i]==item) return(true);
+	}
+	return(false);
+}
+
+Array.prototype.removeItem = function(item) {
+	for (var i=0; i<this.length; i++) {
+		if (this[i]==item) {
+			this.splice(i,1);
+			return(true);
+		}
+	}
+	return(false);
+}
+
+Array.prototype.sortByAttribute = function(prop) {
+	var sortfunc = function(a,b) {
+		var prop1 = a[prop];
+		var prop2 = b[prop];
+		if (prop1<prop2 || !prop1) return -1
+		else if (prop1>prop2 || !prop2) return 1
+		else return 0
+	}
+	this.sort(sortfunc);
+}
+
+Date.prototype.Months = [<%response.write(sMonths)%>];
+Date.prototype.Days = [<%response.write(sDays)%>];
+Date.prototype.AM = '<%response.write(sAM)%>';
+Date.prototype.PM = '<%response.write(sPM)%>';
+
+Date.prototype.format = dateFormat;
+function dateFormat(format) {
+   var dateString = format;
+   dateString = dateString.replace( new RegExp("yyyy", "gi"), this.getFullYear() );
+   dateString = dateString.replace( new RegExp("yy", "gi"), new String( this.getFullYear() ).substring(2,4) );
+   dateString = dateString.replace( new RegExp("month", "gi"), this.Months[this.getMonth()] );
+   dateString = dateString.replace( new RegExp("mon", "gi"), new String( this.Months[this.getMonth()] ).substring(0,3) );
+   dateString = dateString.replace( new RegExp("mmm", "gi"), (this.getMonth() + 1) );   
+
+   var hh = new String( this.getHours() );
+   if (hh.length == 1) hh = "0" + hh;
+   dateString = dateString.replace( new RegExp("hh", "gi"),  hh );
+
+   var mm = new String( this.getMinutes() );
+   if (mm.length == 1) mm = "0" + mm;
+   dateString = dateString.replace( new RegExp("mm", "gi"), mm );
+
+   var ss = new String( this.getSeconds() );
+   if (ss.length == 1) ss = "0" + ss;
+
+   dateString = dateString.replace( new RegExp("ss", "gi"), ss ); 
+   dateString = dateString.replace( new RegExp("ddd", "gi"), new String( this.Days[this.getDay()] ).substring(0,3) );
+   dateString = dateString.replace( new RegExp("dd", "gi"), this.getDate() );
+   dateString = dateString.replace( new RegExp("day", "gi"), this.Days[this.getDay()] );
+
+   tz = this.getTimezoneOffset();
+   timezone = "";
+   if (tz < 0)
+      timezone = "GMT-" +  tz / 60;
+   else if (tz == 0)
+      timezone = "GMT";
+   else
+      timezone = "GMT+" + tz / 60;
+   dateString = dateString.replace( new RegExp("timezone", "gi"), timezone );
+   
+   var minutes = new String( this.getMinutes() );
+   if (minutes.length == 1) minutes = "0" + minutes;//pad if single digit
+   var time24 = new String( this.getHours() + ":" + minutes );
+   dateString = dateString.replace( new RegExp("time24", "gi"), time24 );
+   
+   var time;
+   var ampm;
+   var hour = this.getHours();
+   if ( hour < 12) {
+      if (hour == 0) hour = 12;
+         ampm = this.AM;
+   }
+   else {
+      if (hour !=12)
+         hour = hour - 12;
+      ampm = this.PM;   
+   }
+   time = new String(hour + ":" + minutes + " " + ampm);     
+   dateString = dateString.replace( new RegExp("time", "gi"), time );
+
+   return dateString;   
+}
+
+document.getWidgetById = function(wid) {
+	divs = document.getElementById(wid);
+	if (typeof divs == 'array') {
+		var retVal = new Array();
+		for (var i=0; i<divs.length; i++)
+			retVal.push(divs[i].widget);
+		return(retVal);
+	}	
+	else
+		return(divs.widget);
+}
+
+function ce(t) {
+	return(document.createElement(t));
+}

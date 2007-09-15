@@ -1,0 +1,33 @@
+<window xmlns="http://www.innoscript.org/quix"
+		width="480" height="300" status="true"
+		resizable="true" close="true" minimize="true" maximize="true">
+    <wbody>
+        <box orientation="v" spacing="0" width="100%" height="100%">
+            <toolbar height="34">
+                <tbbutton width="30" img="queryperformer/images/save22.gif" onclick="queryPerformer.saveQuery"
+                	tooltip="Save"/>
+                <tbbutton width="30" img="queryperformer/images/execute22.gif" onclick="queryPerformer.executeQuery"
+                	tooltip="Execute"/>
+            </toolbar>
+            <splitter bgcolor="white" orientation="h" interactive="true" height="-1">
+                <pane length="100">
+                    <field id="oqlquery" type="textarea" width="100%" height="100%" border="0"/>
+                </pane>
+                <pane length="-1">
+                    <splitter orientation="v" interactive="true" width="100%" height="100%">
+                        <pane id="resultsarea" length="50%" overflow="auto" padding="4,4,4,4"/>
+                        <pane length="-1">
+                            <listview id="proplist" width="100%" height="100%" cellborder="1">
+                                <listheader>
+                                    <column width="100" caption="Name" name="name"/>
+                                    <column width="80" caption="Type" name="type"/>
+                                    <column width="120" caption="Value" name="value"/>
+                                </listheader>
+                            </listview>
+                        </pane>
+                    </splitter>
+                </pane>
+            </splitter>
+        </box>
+    </wbody>
+</window>
