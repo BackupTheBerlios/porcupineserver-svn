@@ -179,10 +179,11 @@ FlowBox.prototype._rearrange = function(iStart) {
 	var y = 0;
 	var rowHeight = 0;
 	var iWidth = this.getWidth();
+	var icWidth;
 	
 	if (iStart > 0) {
-		x = this.widgets[iStart - 1].left +
-			this.widgets[iStart-1].width +
+		x = this.widgets[iStart - 1]._calcLeft() +
+			this.widgets[iStart-1]._calcWidth() +
 			this.spacing;
 		y = this.widgets[iStart - 1].top;
 		rowHeight = this._calcRowHeight(iStart);
@@ -190,13 +191,14 @@ FlowBox.prototype._rearrange = function(iStart) {
 	
 	for (var i=iStart; i<this.widgets.length; i++) {
 		with (this.widgets[i]) {
-			if (x + width + this.spacing > iWidth && x != 0) {
+			icWidth = _calcWidth(true);
+			if (x + icWidth + this.spacing > iWidth && x != 0) {
 				x = 0;
 				y += rowHeight + this.spacing;
 				rowHeight = 0;
 			}
 			moveTo(x, y);
-			x += width + this.spacing;
+			x += icWidth + this.spacing;
 			rowHeight = Math.max(rowHeight, height);
 		}
 	}
