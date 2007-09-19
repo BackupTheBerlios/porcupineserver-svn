@@ -176,8 +176,8 @@ def main(args):
             print 'Initiating shutdown...'
             controller.initiateShutdown()
     else:
-        signal.signal(signal.SIGINT, server.initiateShutdown)
-        signal.signal(signal.SIGTERM, server.initiateShutdown)
+        signal.signal(signal.SIGINT, controller.initiateShutdown)
+        signal.signal(signal.SIGTERM, controller.initiateShutdown)
         while controller.running:
             time.sleep(3.0)
 
