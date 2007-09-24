@@ -211,7 +211,7 @@ FlowBox.prototype._calcRowHeight = function(iStart) {
 		prev = this.widgets[iCount];
 		rowHeight = Math.max(rowHeight, prev._calcHeight(true));
 		iCount -= 1;
-	} while (iCount > 0 && prev.left != 0)
+	} while (iCount >= 0 && prev.left != 0)
 	return rowHeight;
 }
 
