@@ -199,22 +199,20 @@ FlowBox.prototype._rearrange = function(iStart) {
 			}
 			moveTo(x, y);
 			x += icWidth + this.spacing;
-			rowHeight = Math.max(rowHeight, height);
+			rowHeight = Math.max(rowHeight, _calcHeight(true));
 		}
 	}
 }
 
 FlowBox.prototype._calcRowHeight = function(iStart) {
 	var rowHeight = 0;
-	var iCount = 1
-	var prev = this.widgets[iStart - iCount];
-	if (prev.left !=0) {
-		do {
-			rowHeight = Math.max(rowHeight, prev.height);
-			iCount += 1;
-			prev = this.widgets[iStart - iCount];
-		} while (prev.left != 0)
-	}
+	var iCount = iStart - 1;
+	var prev;
+	do {
+		prev = this.widgets[iCount];
+		rowHeight = Math.max(rowHeight, prev._calcHeight(true));
+		iCount -= 1;
+	} while (iCount > 0 && prev.left != 0)
 	return rowHeight;
 }
 
