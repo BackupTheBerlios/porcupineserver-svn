@@ -161,7 +161,7 @@ FlowBox.prototype.appendChild = function(w) {
 	}
 	w._setCommonProps();
 	Widget.prototype.appendChild(w, this);
-	this._rearrange(this.widgets.length - 1);	
+	this._rearrange(this.widgets.length - 1);
 }
 
 FlowBox.prototype.redraw = function(bForceAll) {
@@ -183,8 +183,7 @@ FlowBox.prototype._rearrange = function(iStart) {
 	
 	if (iStart > 0) {
 		x = this.widgets[iStart - 1]._calcLeft() +
-			this.widgets[iStart-1]._calcWidth() +
-			this.spacing;
+			this.widgets[iStart-1]._calcWidth(true);
 		y = this.widgets[iStart - 1].top;
 		rowHeight = this._calcRowHeight(iStart);
 	}
