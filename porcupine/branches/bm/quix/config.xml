@@ -41,6 +41,7 @@
 	<context path="images/collapse.gif" method="GET" client=".*" lang=".*" action="images/collapse.gif" max-age="3600"/>
 	<context path="images/date16.gif" method="GET" client=".*" lang=".*" action="images/date16.gif" max-age="3600"/>
 	<context path="images/desc8.gif" method="GET" client=".*" lang=".*" action="images/desc8.gif" max-age="3600"/>
+	<context path="images/desktop.jpg" method="GET" client=".*" lang=".*" action="images/desktop.jpg" max-age="3600"/>
 	<context path="images/document.gif" method="GET" client=".*" lang=".*" action="images/document.gif" max-age="3600"/>
 	<context path="images/download.gif" method="GET" client=".*" lang=".*" action="images/download.gif" max-age="3600"/>
 	<context path="images/drop.gif" method="GET" client=".*" lang=".*" action="images/drop.gif" max-age="3600"/>

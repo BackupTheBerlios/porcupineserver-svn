@@ -1,4 +1,4 @@
-<desktop xmlns="http://www.innoscript.org/quix" bgcolor="#888888">
+<desktop xmlns="http://www.innoscript.org/quix" bgcolor="#7fa20a">
 	<prop name="CLOSE" value="@@CLOSE@@"></prop>
 	<prop name="CANCEL" value="@@CANCEL@@"></prop>
 	<prop name="YES" value="@@YES@@"></prop>
