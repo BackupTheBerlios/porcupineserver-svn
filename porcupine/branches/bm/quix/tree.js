@@ -101,7 +101,11 @@ TreeNode.prototype._addExpandImg = function() {
 		var oTreeNode = this;
 		this.setPadding([0,0,1,1]);
 
-		var img = QuiX.getImage('__quix/images/expand.gif');
+		var img;
+		if (this.isExpanded)
+			img = QuiX.getImage('__quix/images/collapse.gif');
+		else
+			img = QuiX.getImage('__quix/images/expand.gif');
 		img.onclick = function(evt){
 			oTreeNode.toggle()
 			QuiX.stopPropag(evt || event);
