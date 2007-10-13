@@ -71,7 +71,8 @@ function Field(params) {
 	this.base(params);
 	this.name = params.name;
 	this.readonly = (params.readonly=='true' || params.readonly==true)?true:false;
-
+	this.textAlign = params.textalign || 'left';
+	
 	var e;
 	var oField = this;
 	
@@ -95,6 +96,7 @@ function Field(params) {
 			e = (this.type=='textarea')?ce('TEXTAREA'):ce('INPUT');
 			e.style.borderWidth = '1px';
 			e.style.position='absolute';
+			e.style.textAlign = this.textAlign;
 			if (this.readonly) e.readOnly = true;
 			//fixme: wait for MS to fix it
 			//e.style.width = '100%';
@@ -233,6 +235,7 @@ Field.prototype._adjustFieldSize = function() {
 		nh -= 1;
 		if (this.type=='textarea' && QuiX.browser=='moz')
 			this.div.firstChild.style.top = '-1px';
+		nw = nw - 2*this.textPadding;
 		if (nw < 0) nw = 0;
 		if (nh < 0) nh = 0;
 		this.div.firstChild.style.width = nw + 'px';
