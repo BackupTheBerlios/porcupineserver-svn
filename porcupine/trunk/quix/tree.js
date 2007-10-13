@@ -12,6 +12,12 @@ function TreeNode(params) {
 	this.isExpanded = false;
 	this.hasChildren = (params.haschildren=='true' || params.haschildren==true)?true:false;
 	this.img = params.img || null;
+	
+	if (params.imgheight)
+		this.imgHeight = parseInt(params.imgheight);
+	if (params.imgwidth)
+		this.imgWidth = parseInt(params.imgwidth);
+	
 	this._expandImg = null;
 	this._imgElement = null;
 	this.childNodes = this.widgets;
@@ -41,7 +47,13 @@ TreeNode.prototype.redraw = function(bForceAll) {
 			nm.border = 0;
 			nm.style.verticalAlign = 'middle';
 			nm.style.marginRight = '4px';
-			this.div.insertBefore(nm, this.anchor);
+			
+			if (this.imgHeight)
+				nm.style.height = this.imgHeight + 'px';
+			if (this.imgWidth)
+				nm.style.width = this.imgWidth + 'px';
+			
+			this.anchor.insertBefore(nm, this.anchor.firstChild);
 			this._imgElement = nm;
 		}
 	}
@@ -52,15 +64,14 @@ TreeNode.prototype.redraw = function(bForceAll) {
 		}
 	}
 	
-	if (this.hasChildren && this.childNodes.length == 0)
+	if (this.hasChildren || this.childNodes.length > 0)
 		this._addExpandImg();
 		
 	if (this.parent instanceof TreeNode) {
 		//sub node
 		if (!this.parent.hasChildren)
 			this.parent._addExpandImg();
-		this.div.style.marginLeft = this.tree.levelpadding + 'px';
-		this.div.style.marginTop = '2px';
+		this.div.style.margin = '2px 0px 0px ' + this.tree.levelpadding + 'px';
 		if (this.parent.isExpanded)
 			this.setDisplay();
 	}
@@ -91,7 +102,10 @@ TreeNode.prototype._addExpandImg = function() {
 		this.setPadding([0,0,1,1]);
 
 		var img = QuiX.getImage('__quix/images/expand.gif');
-		img.onclick = function(){oTreeNode.toggle()};
+		img.onclick = function(evt){
+			oTreeNode.toggle()
+			QuiX.stopPropag(evt || event);
+		};
 		img.style.marginRight = '4px';
 		img.style.verticalAlign = 'middle';
 		
@@ -111,11 +125,13 @@ TreeNode.prototype._removeExpandImg = function() {
 }
 
 TreeNode.prototype.getCaption = function() {
-	return this.anchor.innerHTML;
+	return this.anchor.lastChild.data;
 }
 
 TreeNode.prototype.setCaption = function(sCaption) {
-	this.anchor.innerHTML = sCaption;
+	if (this.anchor.lastChild)
+		QuiX.removeNode(this.anchor.lastChild);
+	this.anchor.appendChild(document.createTextNode(sCaption));
 }
 
 TreeNode.prototype.toggle = function() {

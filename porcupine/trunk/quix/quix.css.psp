@@ -353,7 +353,7 @@ BODY {
 }
 
 .tree .treenode A.selected{
-	background: Background;
+	background: highlight;
 	color: highlighttext;
 	text-decoration: none;
 }

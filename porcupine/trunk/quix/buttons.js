@@ -73,6 +73,10 @@ function Icon(params) {
 	this.img = params.img || null;
 	this.imageElement = null;
 	this.imgAlign = params.imgalign || 'left';
+	if (params.imgheight)
+		this.imgHeight = parseInt(params.imgheight);
+	if (params.imgwidth)
+		this.imgWidth = parseInt(params.imgwidth);
 	this.redraw(true);
 }
 
@@ -114,6 +118,10 @@ Icon.prototype.redraw = function(bForceAll, w) {
 
 		if (w.img) {
 			img = QuiX.getImage(w.img);
+			if (this.imgHeight)
+				img.style.height = this.imgHeight + 'px';
+			if (this.imgWidth)
+				img.style.width = this.imgWidth + 'px';
 			img.style.verticalAlign = 'middle';
 			img.ondragstart = QuiX.cancelDefault;
 			
