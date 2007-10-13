@@ -116,11 +116,11 @@ class XMLRPCParams(list):
             return(sArray)
         elif type(param)==dict:
             sStruct = '<value><struct>'
-            for member in param.keys():
-                serialized = self.__serializeParam(param[member])
+            for member, value in param.items():
+                serialized = self.__serializeParam(value)
                 if serialized:
                     sStruct += '<member><name>%s</name>%s</member>' % \
-                    (member, serialized)
+                               (member.encode(self.encoding), serialized)
             sStruct += '</struct></value>'
             return(sStruct)
         elif isinstance(param, objectSet.ObjectSet):
