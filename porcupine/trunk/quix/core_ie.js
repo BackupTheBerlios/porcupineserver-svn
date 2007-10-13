@@ -987,7 +987,7 @@ Widget.prototype.print = function(expand) {
 Widget.prototype.supportedEvents = [
 	'onmousedown','onmouseup',
 	'onmousemove','onmouseover','onmouseout',
-	'onkeypress','onkeyup',
+	'onkeypress','onkeyup','onkeydown',
 	'onclick','ondblclick',
 	'oncontextmenu', 'onscroll'
 ];
