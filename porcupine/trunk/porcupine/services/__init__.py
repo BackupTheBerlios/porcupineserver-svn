@@ -14,23 +14,4 @@
 #    along with Porcupine; if not, write to the Free Software
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #===============================================================================
-"Server database parameters"
-
-from porcupine import serverExceptions
-from porcupine.config.settings import settings
-from porcupine.utils import misc
-
-try:
-    db_class = settings.store.interface
-except AttributeError:
-    raise serverExceptions.ConfigurationError, (('interface', 'store'),)
-
-try:
-    db_class = misc.getCallableByName(db_class)
-except AttributeError:
-    raise serverExceptions.ConfigurationError, 'Invalid store interface "%s"' % settings.store.interface
-except ImportError:
-    raise serverExceptions.ConfigurationError, 'Invalid store interface "%s"' % settings.store.interface
-    
-params = settings.storeparameters.toDict()
-
+"Porcupine core services"

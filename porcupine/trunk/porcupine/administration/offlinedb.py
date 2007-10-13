@@ -20,14 +20,15 @@ Porcupine API.
 
 from threading import currentThread
 
-from porcupine.config import dbparams
+from porcupine.config.settings import settings
+from porcupine.utils import misc
 from porcupine.db import db
 from porcupine.security import inMemorySessionManager
 from porcupine.security import sessionManager
 
 def getHandle():
     #open database
-    db.open(dbparams.db_class)
+    db.open(misc.getCallableByName(settings['store']['interface']))
     #create in-memory session manager
     sessionManager.open(inMemorySessionManager.SessionManager, 1200)
     oSystemUser = db.getItem('system')

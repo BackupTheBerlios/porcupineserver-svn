@@ -19,9 +19,7 @@
 
 import logging, sys, os, time, signal, imp
 import warnings, exceptions
-from threading import Thread, currentThread, Event
-from cPickle import loads
-from socket import error as socketError
+from threading import Thread, Event
 
 def main_is_frozen():
    return (hasattr(sys, "frozen") or # new py2exe
@@ -31,26 +29,63 @@ def main_is_frozen():
 if main_is_frozen():
     sys.path.insert(0, '')
 
-from porcupine.core import request, asyncBaseServer
-from porcupine.core.management import Mgt
+from porcupine.config import services, log
+from porcupine.utils import misc
 from porcupine.db import db
 from porcupine.security import sessionManager
-from porcupine import serverExceptions
-from porcupine.config import serverLogging
+from porcupine.serverExceptions import PorcupineException
 
 warnings.filterwarnings('ignore', '', exceptions.Warning, 'logging')
 __version__ = '0.1.1 build(20070828)'
 PID_FILE = 'conf/.pid'
 
-class PorcupineServer(asyncBaseServer.BaseServer):
-    "Porcupine server class"
+class Controller(object):
     def __init__(self):
-
+        self.shutdowninprogress = False
         self.running = False
-        self.sessionManager = None
-        self.mgtServer = None
-        logger = serverLogging.logger
+        self.logger = logging.getLogger('serverlog')
+        self.services = services.services
+    
+    def start(self):
+        try:
+            # read configuration file
+            from porcupine.config.settings import settings
+            # initialize logging
+            log.initialize_logging()
+            self.logger.info('Server starting...')
+            
+            # register request interfaces
+            for key, value in settings['requestinterfaces'].items():
+                settings['requestinterfaces'][key] = \
+                    misc.getCallableByName(value)
+            self.logger.info('Succesfullly registered %i request interfaces' % \
+                             len(settings['requestinterfaces']))
+            
+            # load registrations
+            self.logger.info('Loading store & web apps registrations...')
+            from porcupine.config import registrations
 
+            # open database
+            self.logger.info('Opening database...')
+            db.open(misc.getCallableByName(
+                    settings['store']['interface']))
+
+            # create session manager
+            self.logger.info('Creating session manager...')
+            sessionManager.open(misc.getCallableByName(
+                            settings['sessionmanager']['interface']),
+                            int(settings['sessionmanager']['timeout']))
+            
+            self.services['_controller'] = self
+            # start services
+            self.logger.info('Starting services...')
+            services.startServices()
+            
+        except Exception, e:
+            self.logger.log(logging.ERROR, e[0], *(), **{'exc_info' : True})
+            raise e
+        
+        # start shutdown thread
         self.shutdownEvt = Event()
         self.shutdownThread = Thread(
             target=self.shutdown,
@@ -58,82 +93,17 @@ class PorcupineServer(asyncBaseServer.BaseServer):
         )
         self.shutdownThread.start()
 
-        try:
-            # initialize logging
-            serverLogging.initialize_logging()
-            
-            logger.info('Server starting...')
-
-            # get server parameters
-            from porcupine.config import serverSettings
-
-            # get request interfaces
-            from porcupine.config import requesttypes
-            logger.info('Succesfullly registered %i request interfaces' % \
-                len(requesttypes.requestInterfaces))
-
-            # load registrations
-            logger.info('Loading store & web apps registrations...')
-            from porcupine.config import registrations
-
-            logger.info('Starting management server...')
-            from porcupine.config import mgtparams
-            Mgt.open(mgtparams.serverAddress, mgtparams.worker_threads)
-
-            # open database
-            logger.info('Opening database...')
-            from porcupine.config import dbparams
-            db.open(dbparams.db_class)
-
-            # create session manager
-            logger.info('Creating session manager...')
-            from porcupine.config import smparams
-            sessionManager.open(smparams.sm_class, smparams.timeout)
-
-            Mgt.mgtServer.mainServer = self
-            
-            # replication
-            if db.db_handle.supports_replication or \
-                    sessionManager.sm.supports_replication:
-                from porcupine.config import replication
-
-                # check if we have consistent interfaces
-                if db.db_handle.supports_replication != \
-                        sessionManager.sm.supports_replication:
-                    if db.db_handle.supports_replication and \
-                            not(sessionManager.sm.supports_replication):
-                        sError = 'Database supports replication but the ' + \
-                                 'session manager does not.'
-                    else:
-                        sError = 'Session manager supports replication but ' + \
-                                 'the store does not.'
-                    raise serverExceptions.ConfigurationError, \
-                        'Mismatched interfaces.\n%s' % sError
-
-                Mgt.mgtServer.sync(replication.host_priority, \
-                    replication.hostaddr)
-
-            # start server
-            logger.info('Starting main service...')
-            from porcupine.core import thread
-            asyncBaseServer.BaseServer.__init__(self, "Porcupine Server",
-                serverSettings.serverAddress, serverSettings.worker_threads,
-                thread.PorcupineThread, requestHandler)
-
-        except serverExceptions.ConfigurationError, e:
-            logger.error(e.info)
-            self.initiateShutdown()
-            raise e
+        self.running = True
 
         # record process id
         pidfile = file(PID_FILE, "w")
-        pidfile.write(str(os.getpid()))
+        pidfile.write( str(os.getpid()) )
         pidfile.close()
         
-        logger.info('Porcupine Server started succesfully')
+        self.logger.info('Porcupine Server started succesfully')
         print 'Porcupine Server v%s' % __version__
         sPythonVersion = 'Python %s' % sys.version
-        logger.info(sPythonVersion)
+        self.logger.info(sPythonVersion)
         print sPythonVersion
         print '''Porcupine comes with ABSOLUTELY NO WARRANTY.
 This is free software, and you are welcome to redistribute it under
@@ -142,58 +112,33 @@ certain conditions; See COPYING for more details.'''
     def initiateShutdown(self, arg1=None, arg2=None):
         self.shutdowninprogress = True
         self.shutdownEvt.set()
-
+        
     def shutdown(self):
         self.shutdownEvt.wait()
-        logger = serverLogging.logger
-        logger.info('Initiating shutdown...')
+        self.logger.info('Initiating shutdown...')
 
-        if self.running:
-            logger.info('Shutting down main service...')
-            asyncBaseServer.BaseServer.shutdown(self)
+        # stop services
+        self.logger.info('Stopping services...')
+        for service in [x for x in self.services.values()
+                        if x is not self]:
+            service.shutdown()
 
+        self.running = False
+        
         # shutdown session manager
         if sessionManager.sm:
-            logger.info('Closing session manager...')
+            self.logger.info('Closing session manager...')
             sessionManager.close()
         
         # close database
         if db.db_handle:
-            logger.info('Closing database...')
+            self.logger.info('Closing database...')
             db.close()
 
-        if Mgt.mgtServer:
-            logger.info('Shutting down administation service')
-            Mgt.mgtServer.shutdown()
-
-        logger.info('All services have been shut down successfully')
+        self.logger.info('All services have been shut down successfully')
         # shutdown logging
         logging.shutdown()
         self.shutdowninprogress = False
-
-class requestHandler(asyncBaseServer.BaseRequestHandler):
-    "Porcupine Server request handler"
-    def handleRequest(self):
-        oCurrentThread = currentThread()
-        oCurrentThread.request = request.Request(loads(self.input_buffer))
-        try:
-            oCurrentThread.getResponse()
-        except serverExceptions.ProxyRequest:
-##            print 'redirecting request'
-##            time.sleep(10.0)
-            masterAddr = Mgt.mgtServer.siteInfo.getMaster(1)
-            oRequest = asyncBaseServer.BaseRequest(self.input_buffer)
-            try:
-                sResponse = oRequest.getResponse(masterAddr)
-                self.write_buffer(sResponse)
-            except socketError:
-                # the master is down!!!
-                # remove master from replication site
-                master = Mgt.mgtServer.siteInfo.getMaster()
-                Mgt.mgtServer.siteInfo.removeHost(master)
-                # I am the new master...
-                # re-process the request
-                self.handleRequest()
 
 def main(args):
     for arg in args:
@@ -218,24 +163,25 @@ def main(args):
             sys.exit()
 
     try:
-        server = PorcupineServer()
-    except serverExceptions.ConfigurationError, e:
-        sys.exit(e.info)
+        controller = Controller()
+        controller.start()
+    except Exception, e:
+        sys.exit(e[0])
 
     if (os.name=='nt'):
         try:
-            while server.running:
+            while controller.running:
                 time.sleep(3.0)
         except KeyboardInterrupt:
             print 'Initiating shutdown...'
-            server.initiateShutdown()
+            controller.initiateShutdown()
     else:
-        signal.signal(signal.SIGINT, server.initiateShutdown)
-        signal.signal(signal.SIGTERM, server.initiateShutdown)
-        while server.running:
+        signal.signal(signal.SIGINT, controller.initiateShutdown)
+        signal.signal(signal.SIGTERM, controller.initiateShutdown)
+        while controller.running:
             time.sleep(3.0)
 
-    server.shutdownThread.join()
+    controller.shutdownThread.join()
     sys.exit()
 
 if __name__=='__main__':

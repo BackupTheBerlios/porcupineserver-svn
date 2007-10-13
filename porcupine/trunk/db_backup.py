@@ -20,7 +20,7 @@
 import getopt, sys, socket
 
 from porcupine.utils import misc
-from porcupine.core import management
+from porcupine.services import management
 
 __usage__ = """
 Backup database:

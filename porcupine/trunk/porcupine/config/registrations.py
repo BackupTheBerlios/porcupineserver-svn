@@ -94,10 +94,7 @@ class StoreConfiguration(object):
     def __init__(self):
         self.__config = []
         self.__cache = {}
-        try:
-            configXML = minidom.parse('conf/store.xml')
-        except expat.ExpatError, v:
-            raise serverExceptions.ConfigurationError, 'Error parsing store.xml (%s)' % v[0]
+        configXML = minidom.parse('conf/store.xml')
         regList = configXML.getElementsByTagName('reg')
         # construct action list
         for regNode in regList:
@@ -136,11 +133,7 @@ class StoreConfiguration(object):
 
 apps = {}
 
-try:
-    configDom = minidom.parse('conf/pubdir.xml')
-except expat.ExpatError, v:
-    raise serverExceptions.ConfigurationError, 'Error parsing apps.xml (%s)' % v[0]
-
+configDom = minidom.parse('conf/pubdir.xml')
 for appNode in configDom.getElementsByTagName('dir'):
     webApp = App(appNode)
     apps[appNode.getAttribute('name')] = webApp

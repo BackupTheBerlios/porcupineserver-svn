@@ -18,39 +18,18 @@
 
 import logging
 import logging.handlers
-from porcupine import serverExceptions
 from porcupine.config.settings import settings
 
-logger = logging.getLogger('serverlog')
-
 def initialize_logging():
-    try:
-        logmaxbytes = int(settings.log.maxbytes)
-    except AttributeError:
-        raise serverExceptions.ConfigurationError, (('maxbytes', 'log'),)
-    except ValueError:
-        raise serverExceptions.ConfigurationError, 'Invalid log maxbytes setting: %s' % settings.log.maxbytes
+    logger = logging.getLogger('serverlog')
+    logmaxbytes = int(settings['log']['maxbytes'])
+    logbackups = int(settings['log']['backups'])
+    logformat = settings['log']['format']
+    level = int(settings['log']['level'])
 
-    try:
-        logbackups = int(settings.log.backups)
-    except AttributeError:
-        raise serverExceptions.ConfigurationError, (('backups', 'log'),)
-    except ValueError:
-        raise serverExceptions.ConfigurationError, 'Invalid log backups setting: %s' % settings.log.backups
-
-    try:
-        logformat = settings.log.format
-    except AttributeError:
-        raise serverExceptions.ConfigurationError, (('format', 'log'),)
-
-    try:
-        level = int(settings.log.level)
-    except AttributeError:
-        raise serverExceptions.ConfigurationError, (('level', 'log'),)
-    except ValueError:
-        raise serverExceptions.ConfigurationError, 'Invalid log level setting: %s' % settings.log.level
-
-    loghandler = logging.handlers.RotatingFileHandler('log/server.log', 'a', logmaxbytes, logbackups)
+    loghandler = logging.handlers.RotatingFileHandler('log/server.log',
+                                                      'a', logmaxbytes,
+                                                      logbackups)
     logformatter = logging.Formatter(logformat)
     loghandler.setFormatter(logformatter)
     logger.addHandler(loghandler)

@@ -21,12 +21,12 @@ Use these as base classes to implement your own session managers.
 
 import time
 
+from porcupine.config.services import services
 from porcupine import serverExceptions
 from porcupine.security import sessionManager
 from porcupine.security import session
 from porcupine.db import db
-from porcupine.core.management import Mgt
-from porcupine.core import management
+from porcupine.services import management
 from porcupine.utils import misc
 
 class GenericSessionManager(object):
@@ -70,11 +70,14 @@ class SessionManagerReplicator(object):
 
     def createSession(self, user):
         # session creation is allowed only on masters
-        if Mgt.mgtServer.isMaster():
+        if services['management'].isMaster():
             self.waitForUnlock()
             oNewSession = super(SessionManagerReplicator, self).createSession(user)
             # replicate session
-            Mgt.mgtServer.sendMessage(management.REP_BROADCAST, 'NEW_SESSION', (oNewSession.sessionid, user._id, oNewSession.getData()))
+            services['management'].sendMessage(management.REP_BROADCAST, 'NEW_SESSION',
+                                               (oNewSession.sessionid,
+                                                user._id,
+                                                oNewSession.getData()))
             return(oNewSession)
         else:
             raise serverExceptions.ProxyRequest
@@ -83,7 +86,8 @@ class SessionManagerReplicator(object):
         self.waitForUnlock()
         super(SessionManagerReplicator, self).removeSession(sessionid)
         # replicate deletion
-        Mgt.mgtServer.sendMessage(management.REP_BROADCAST, 'DEL_SESSION', sessionid)
+        services['management'].sendMessage(management.REP_BROADCAST, 'DEL_SESSION',
+                                           sessionid)
 
     # generator function
     # used by replication service during host synchronization

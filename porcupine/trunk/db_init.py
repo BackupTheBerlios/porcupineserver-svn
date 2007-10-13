@@ -11,6 +11,7 @@ if main_is_frozen():
     sys.path.insert(0, '')
 
 from porcupine.db import db
+from porcupine.utils import misc
 from porcupine import serverExceptions
 
 answer = raw_input('''WARNING: Please ensure that Porcupine Server is stopped!
@@ -19,10 +20,10 @@ Are you sure you want to initialize the database(Y/N)?''')
 
 if (answer == 'Y'):
     try:
-        from porcupine.config import dbparams
-        db.open(dbparams.db_class)
-    except serverExceptions.ConfigurationError, e:
-        sys.exit(e.info)
+        from porcupine.config.settings import settings
+        db.open(misc.getCallableByName(settings['store']['interface']))
+    except Exception, e:
+        sys.exit(e[0])
 
     import porcupine.systemObjects
     import org.innoscript.desktop.schema.common
@@ -343,6 +344,6 @@ if (answer == 'Y'):
     sys.stdout.write('[OK]\n')
 
     db.close()
-    sys.stdout.write('Store initialization completed successfully.')
+    sys.stdout.write('Store initialization completed successfully.\n')
 
     sys.exit()

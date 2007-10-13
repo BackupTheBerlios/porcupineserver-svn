@@ -14,13 +14,14 @@
 #    along with Porcupine; if not, write to the Free Software
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #===============================================================================
-"Porcupine Server management module"
+"Porcupine Server management service"
 
 import logging, socket
 from threading import Thread
 from cPickle import dumps, loads, PicklingError
 
-from porcupine.core import asyncBaseServer
+from porcupine.config.services import services
+from porcupine.core.services import asyncBaseServer
 from porcupine import serverExceptions, errors
 from porcupine.db import db
 from porcupine.security import sessionManager
@@ -35,13 +36,6 @@ REP_COMMANDS = (
 	'SESSION_VALUE'
 )
 MAX_HOSTS = 2
-
-class Mgt(object):
-    mgtServer = None
-    
-    @staticmethod
-    def open(address, worker_threads):
-        Mgt.mgtServer = ManagementServer(address, worker_threads)
 
 class Site(object):
     "Site info class"
@@ -127,27 +121,21 @@ class MgtMessage(object):
 
 class ManagementServer(asyncBaseServer.BaseServer):
     "Management Service"
-    def __init__(self, serverAddress, worker_threads):
-        #logger.info('Starting management service...')
-        self.running = False
+    def __init__(self, name, serverAddress, worker_threads):
         self.has_join = False
 
-        asyncBaseServer.BaseServer.__init__(self, "Management", serverAddress,
+        asyncBaseServer.BaseServer.__init__(self, name, serverAddress,
             worker_threads, asyncBaseServer.BaseServerThread, ManagementRequestHandler)
             
         self.siteInfo = Site(self)
-        self.mainServer = None
         self.lastUpdate = 0
 
     def sync(self, host_priority, hostaddr):
-        from porcupine.config import serverSettings
         if hostaddr:
             logger.info('Initiating store replication with master')
 
             try:            
                 response = self.sendMessage(hostaddr, 'GET_MASTER')
-            except serverExceptions.HostUnreachable:
-                raise serverExceptions.ConfigurationError, 'Management service is unable to contact host %s:%d' % (hostaddr[0], hostaddr[1])
             except serverExceptions.ReplicationError, e:
                 raise serverExceptions.ConfigurationError, e.description
 
@@ -158,16 +146,15 @@ class ManagementServer(asyncBaseServer.BaseServer):
             
             # and start replication with master
             try:
-                response = self.sendMessage(masteraddr, 'REPL_START', (self.addr, host_priority, serverSettings.serverAddress))
-            except serverExceptions.HostUnreachable:
-                raise serverExceptions.ConfigurationError, 'Management service is unable to contact master %s:%d' % (masteraddr[0], masteraddr[1])
+                response = self.sendMessage(masteraddr, 'REPL_START',
+										    (self.addr, host_priority, services['main'].addr))
             except serverExceptions.ReplicationError, e:
                 raise serverExceptions.ConfigurationError, e.description
 
             logger.info('Store replication completed successfully')
         else:
             logger.info('This node is initially configured as MASTER')
-            self.siteInfo.addHost(self.addr, host_priority, serverSettings.serverAddress)
+            self.siteInfo.addHost(self.addr, host_priority, services['main'].addr)
 
         self.has_join = True
 
@@ -190,9 +177,9 @@ class ManagementServer(asyncBaseServer.BaseServer):
                     raise serverExceptions.ReplicationError, resp.header
                 return(resp)
 
-            except socket.error:
+            except socket.error, e:
                 self.siteInfo.removeHost(address)
-                raise serverExceptions.HostUnreachable
+                raise e
 
         else:
             # TODO: if we broadcast do we raise exceptions????
@@ -217,7 +204,7 @@ class ManagementServer(asyncBaseServer.BaseServer):
             logger.info('Leaving the replication site...')
             try:
                 self.sendMessage(self.siteInfo.getMaster(), 'DISJOIN', self.addr)
-            except serverExceptions.HostUnreachable:
+            except socket.error:
                 # the master is down...
                 pass
         if self.running:
@@ -244,7 +231,7 @@ class ManagementRequestHandler(asyncBaseServer.BaseRequestHandler):
             # then the server is out of sync
             # we must shutdown
             if cmd in REP_COMMANDS:
-                self.server.mainServer.initiateShutdown()
+                services['_controller'].initiateShutdown()
 
     def executeCommand(self, cmd, request):        
         # site related commands
@@ -353,7 +340,7 @@ class ManagementRequestHandler(asyncBaseServer.BaseRequestHandler):
                         for rec in all_items:
                             try:
                                 repl_response = self.server.sendMessage(host, 'REPL_DATA', rec)
-                            except serverExceptions.HostUnreachable:
+                            except socket.error:
                                 return
                             except serverExceptions.ReplicationError:
                                 return (errors.REPL_ABORT,)
@@ -369,7 +356,7 @@ class ManagementRequestHandler(asyncBaseServer.BaseRequestHandler):
                                 return (errors.REPL_INVALID_SESSION,)
                             except TypeError:
                                 return (errors.REPL_INVALID_SESSION,)
-                            except serverExceptions.HostUnreachable:
+                            except socket.error:
                                 return
                             except serverExceptions.ReplicationError:
                                 return (errors.REPL_ABORT,)

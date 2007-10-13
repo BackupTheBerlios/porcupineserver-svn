@@ -24,7 +24,7 @@ class PorcupineServerService(win32serviceutil.ServiceFramework):
 		win32serviceutil.ServiceFramework.__init__(self, args)
 		sys.stdout = open('nul', 'w')
 		sys.stderr = open('nul', 'w')
-		self.server = None
+		self.controller = None
 
 	def SvcDoRun(self):
 		try:
@@ -32,21 +32,22 @@ class PorcupineServerService(win32serviceutil.ServiceFramework):
 				sys.path = [''] + sys.path
 			if main_is_frozen():
 				os.chdir( os.path.dirname(sys.executable) )
-			from porcupineserver import PorcupineServer
-			self.server = PorcupineServer()
-			self.server.shutdownEvt.wait()
+			from porcupineserver import Controller
+			self.controller = Controller()
+			self.controller.start()
+			self.controller.shutdownEvt.wait()
 		except Exception, e:
 			print e
-			if self.server:
-				self.server.initiateShutdown()
+			if self.controller:
+				self.controller.initiateShutdown()
 			raise
 
 	def SvcStop(self):
 		self.ReportServiceStatus(win32service.SERVICE_STOP_PENDING)
-		while self.server is None:
+		while self.controller is None:
 			time.sleep(1.0)
-		self.server.initiateShutdown()
-		while self.server.shutdowninprogress:
+		self.controller.initiateShutdown()
+		while self.controller.shutdowninprogress:
 			time.sleep(1.0)
 
 if __name__=='__main__':

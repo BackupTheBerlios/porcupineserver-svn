@@ -14,6 +14,12 @@
 			using="org.innoscript.desktop.strings.resources"/>
 	</context>
 
+	<context path="mobile/editAcl.muix" method="GET" client=".*" lang=".*" action="mobile/editAcl.muix.psp">
+		<filter
+			type="porcupine.filters.postProcessing.multilingual.Multilingual"
+			using="org.innoscript.desktop.strings.resources"/>
+	</context>
+
 	<!-- Desktop images-->
 	<context path="images/about16.gif" method="GET" client=".*" lang=".*" action="images/about16.gif"/>
 	<context path="images/admintools.gif" method="GET" client=".*" lang=".*" action="images/admintools.gif"/>

@@ -20,6 +20,7 @@ import time, logging, os, os.path
 from bsddb import db
 from threading import Thread
 
+from porcupine.config.settings import settings
 from porcupine.db.genericDb import GenericDBInterface, DBReplicator
 from porcupine.utils import backup
 from porcupine import serverExceptions
@@ -33,37 +34,23 @@ class DbInterface(GenericDBInterface):
     def __init__(self):
         GenericDBInterface.__init__(self)
         
-        from porcupine.config import dbparams
-        
-        try:
-            self.dir = dbparams.params['bdb_data_dir']
-        except KeyError:
-            raise serverExceptions.ConfigurationError, (('bdb_data_dir', \
-                    'storeparameters'),)
+        self.dir = settings['store']['bdb_data_dir']
         
         # add trailing '/'
         if self.dir[-1] != '/':
             self.dir += '/'
 
         try:
-            self.trans_max_retries = int(dbparams.params['trans_max_retries'])
+            self.trans_max_retries = int(settings['store']['trans_max_retries'])
         except KeyError:
             # trans max retries default setting is 12
             trans_max_retries = 12
-        except ValueError:
-            raise serverExceptions.ConfigurationError, \
-                'Invalid trans_max_retries setting: %s' % \
-                dbparams.params[trans_max_retries]
 
         try:
-            self.checkpoint_interval = int(dbparams.params['checkpoint_interval'])
+            self.checkpoint_interval = int(settings['store']['checkpoint_interval'])
         except KeyError:
             # default checkpoint interval set to 1 minute
             self.checkpoint_interval = 1
-        except ValueError:
-            raise serverExceptions.ConfigurationError, \
-                'Invalid checkpoint_interval setting: %s' % \
-                dbparams.params[checkpoint_interval]
 
         # create db environment
         self._env = db.DBEnv()

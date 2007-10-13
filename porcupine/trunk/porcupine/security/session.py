@@ -19,11 +19,10 @@
 import time, tempfile
 import os, glob
 
+from porcupine.config.services import services
 from porcupine import serverExceptions
 from porcupine.security import sessionManager
-from porcupine.core.management import Mgt
-from porcupine.core import management
-from porcupine.config import serverSettings
+from porcupine.services import management
 from porcupine.utils import misc
 
 class Session(object):
@@ -102,7 +101,7 @@ class Session(object):
         @rtype: tuple
         """
         return tempfile.mkstemp(prefix=self.sessionid,
-                                dir=serverSettings.temp_folder)
+                                dir=services['main'].parameters['temp_folder'])
     
     def getTempFilename(self):
         """
@@ -110,7 +109,8 @@ class Session(object):
                 
         @rtype: string
         """
-        return  serverSettings.temp_folder + '/' + self.sessionid + '_' + \
+        return  services['main'].parameters['temp_folder'] + \
+                '/' + self.sessionid + '_' + \
                 misc.generateOID()
 
     def removeTempFiles(self):
@@ -119,8 +119,8 @@ class Session(object):
         
         @return: None
         """
-        tmpFiles = glob.glob(serverSettings.temp_folder + '/' + \
-                             self.sessionid + '*')
+        tmpFiles = glob.glob(services['main'].parameters['temp_folder'] +
+                             '/' + self.sessionid + '*')
         for tmpFile in tmpFiles:
             os.remove(tmpFile)
 
@@ -155,9 +155,9 @@ class ReplSession(Session):
     def keepAlive(self):
         sessionManager.sm.waitForUnlock()
         Session.keepAlive(self)
-        Mgt.mgtServer.sendMessage(management.REP_BROADCAST,
-                                  'KEEP_ALIVE',
-                                  self.sessionid)
+        services['management'].sendMessage(management.REP_BROADCAST,
+                                          'KEEP_ALIVE',
+                                          self.sessionid)
     
     def setUser(self, oUser):
         # check if i am the master
@@ -165,7 +165,7 @@ class ReplSession(Session):
             # wait until sessionmanager is unlocked...
             sessionManager.sm.waitForUnlock()
             Session.setUser(self, oUser)
-            Mgt.mgtServer.sendMessage(management.REP_BROADCAST,
+            services['management'].sendMessage(management.REP_BROADCAST,
                                       'SESSION_USER',
                                       (self.sessionid, oUser._id))
         else:
@@ -179,8 +179,8 @@ class ReplSession(Session):
             # wait until sessionmanager is unlocked...
             sessionManager.sm.waitForUnlock()
             Session.setValue(self, sName, value)
-            Mgt.mgtServer.sendMessage(management.REP_BROADCAST,
-                                      'SESSION_VALUE',
-                                      (self.sessionid, sName, value))
+            services['management'].sendMessage(management.REP_BROADCAST,
+                                              'SESSION_VALUE',
+                                              (self.sessionid, sName, value))
         else:
             raise serverExceptions.ProxyRequest
