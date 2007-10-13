@@ -19,6 +19,6 @@ from porcupine import serverExceptions
 
 conf_file = file('conf/porcupine.conf', 'r')
 try:
-    settings = eval(conf_file.read())
+    settings = eval(conf_file.read().replace('\r\n', '\n'))
 finally:
     conf_file.close()
