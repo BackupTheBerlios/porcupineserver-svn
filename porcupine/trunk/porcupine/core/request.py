@@ -119,6 +119,7 @@ class HTTPRequest(Request):
         self.interface = req.interface
         self.item = req.item
         self.input = req.input
+        self.cookies = req.cookies
         self.queryString = req.queryString
         self.form = FieldStorage(fp=req.input, environ=req.serverVariables)
 
@@ -133,4 +134,5 @@ class XMLRPCRequest(Request):
         self.interface = req.interface
         self.item = req.item
         self.params = xmlrpc.XMLRPCParams()
+        self.cookies = req.cookies
         self.params.loadXML(req.input.getvalue())

@@ -205,7 +205,7 @@ class HTTPResponse(BaseResponse):
         else:
             sPrefix = ''
         sFileExt = sFilename.split('.')[-1]
-        self.content_type = settings.mediatypes.setdefault(sFileExt, 'text/plain')
+        self.content_type = settings['mediatypes'].setdefault(sFileExt, 'text/plain')
         self.setHeader('Content-Disposition', sPrefix + 'filename=' + sFilename)
         self._body = [sStream]
         
