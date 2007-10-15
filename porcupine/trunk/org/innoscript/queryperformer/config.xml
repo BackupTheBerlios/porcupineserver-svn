@@ -1,31 +1,19 @@
 <config>
-	<context path="queryperformer.quix"
-			 method="GET"
-			 client=".*"
-			 lang=".*"
-			 action="queryperformer.quix"/>
-	<context path="newquery.quix"
-			 method="GET"
-			 client=".*"
-			 lang=".*"
-			 action="newquery.quix"/>
-	<context path="options.quix"
-			 method="GET"
-			 client=".*"
-			 lang=".*"
-			 action="options.quix"/>
+	<context match="(.*)\.quix"
+		method="GET"
+		client=".*"
+		lang=".*"
+		action="$1.quix"/>
 	<context path="queryperformer.js"
-			 method="GET"
-			 client=".*"
-			 lang=".*"
-			 action="queryperformer.js"/>
-
+		method="GET"
+		client=".*"
+		lang=".*"
+		action="queryperformer.js"/>
 	<!-- images -->
-	<context path="images/about16.gif" method="GET" client=".*" lang=".*" action="images/about16.gif"/>
-	<context path="images/configure.gif" method="GET" client=".*" lang=".*" action="images/configure.gif"/>
-	<context path="images/execute22.gif" method="GET" client=".*" lang=".*" action="images/execute22.gif"/>
-	<context path="images/exit.gif" method="GET" client=".*" lang=".*" action="images/exit.gif"/>
-	<context path="images/save22.gif" method="GET" client=".*" lang=".*" action="images/save22.gif"/>
-	<context path="images/icon.gif" method="GET" client=".*" lang=".*" action="images/icon.gif"/>
-
+	<context match="images/(.*)"
+		method="GET"
+		client=".*"
+		lang=".*"
+		action="images/$1"
+		max-age="3600"/>
 </config>

@@ -1,72 +1,52 @@
 <config>
-    <context path="compat.js" method="GET" client=".*" lang=".*" action="compat.js" max-age="3600"/>
-    <context path="xul_core.js" method="GET" client="MSIE [6-7]" lang=".*" action="core_ie.js" max-age="3600"/>
-    <context path="xul_core.js" method="GET" client="Netscape/7|Mozilla/5.0" lang=".*" action="core_moz.js" max-age="3600">
+    <context path="xul_core.js"
+		method="GET"
+		client="MSIE [6-7]"
+		lang=".*"
+		action="core_ie.js"
+		max-age="3600"/>
+    <context path="xul_core.js"
+			method="GET"
+			client="Netscape/7|Mozilla/5.0"
+			lang=".*"
+			action="core_moz.js" max-age="3600">
         <filter type="porcupine.filters.postProcessing.compress.Gzip"/>
     </context>
-
-	<context path="quixextensions.js" method="GET" client=".*" lang=".*" action="quixextensions.psp"/>
-
-	<context path="xmlrpc.js" method="GET" client=".*" lang=".*" action="xmlrpc.js" max-age="3600"/>
-	<context path="print.htm" method="GET" client=".*" lang=".*" action="print.htm" max-age="3600"/>
-	<context path="ReadFile.jar" method="GET" client=".*" lang=".*" action="ReadFile.jar"/>
-
+	<context path="quixextensions.js"
+		method="GET"
+		client=".*"
+		lang=".*"
+		action="quixextensions.psp"/>
+	<context path="print.htm"
+		method="GET"
+		client=".*"
+		lang=".*"
+		action="print.htm"
+		max-age="3600"/>
+	<context path="ReadFile.jar"
+		method="GET"
+		client=".*"
+		lang=".*"
+		action="ReadFile.jar"/>
 	<!-- QuiX Stylesheets -->
-	<context path="quix.css" method="GET" client=".*" lang=".*" action="quix.css.psp" max-age="3600"/>
-
+	<context path="quix.css"
+		method="GET"
+		client=".*"
+		lang=".*"
+		action="quix.css.psp"
+		max-age="3600"/>
 	<!-- QuiX Modules -->
-	<context path="box.js" method="GET" client=".*" lang=".*" action="box.js"/>
-	<context path="buttons.js" method="GET" client=".*" lang=".*" action="buttons.js"/>
-	<context path="common.js" method="GET" client=".*" lang=".*" action="common.js"/>
-	<context path="datagrid.js" method="GET" client=".*" lang=".*" action="datagrid.js"/>
-	<context path="datepicker.js" method="GET" client=".*" lang=".*" action="datepicker.js"/>
-	<context path="file.js" method="GET" client=".*" lang=".*" action="file.js"/>
-	<context path="formfields.js" method="GET" client=".*" lang=".*" action="formfields.js"/>
-	<context path="listview.js" method="GET" client=".*" lang=".*" action="listview.js"/>
-	<context path="menus.js" method="GET" client=".*" lang=".*" action="menus.js"/>
-	<context path="splitter.js" method="GET" client=".*" lang=".*" action="splitter.js"/>
-	<context path="tabpane.js" method="GET" client=".*" lang=".*" action="tabpane.js"/>
-	<context path="toolbars.js" method="GET" client=".*" lang=".*" action="toolbars.js"/>
-	<context path="tree.js" method="GET" client=".*" lang=".*" action="tree.js"/>
-	<context path="windows.js" method="GET" client=".*" lang=".*" action="windows.js"/>
-	<context path="timers.js" method="GET" client=".*" lang=".*" action="timers.js"/>
-	<context path="formfields2.js" method="GET" client=".*" lang=".*" action="formfields2.js"/>
-
-
+	<context match="(.*)\.js"
+		method="GET"
+		client=".*"
+		lang=".*"
+		action="$1.js"
+		max-age="3600"/>
 	<!-- QuiX images-->
-	<context path="images/add16.gif" method="GET" client=".*" lang=".*" action="images/add16.gif" max-age="3600"/>
-	<context path="images/asc8.gif" method="GET" client=".*" lang=".*" action="images/asc8.gif" max-age="3600"/>
-	<context path="images/bc_brown.jpg" method="GET" client=".*" lang=".*" action="images/bc_brown.jpg" max-age="3600"/>
-	<context path="images/check16.gif" method="GET" client=".*" lang=".*" action="images/check16.gif" max-age="3600"/>
-	<context path="images/collapse.gif" method="GET" client=".*" lang=".*" action="images/collapse.gif" max-age="3600"/>
-	<context path="images/date16.gif" method="GET" client=".*" lang=".*" action="images/date16.gif" max-age="3600"/>
-	<context path="images/desc8.gif" method="GET" client=".*" lang=".*" action="images/desc8.gif" max-age="3600"/>
-	<context path="images/document.gif" method="GET" client=".*" lang=".*" action="images/document.gif" max-age="3600"/>
-	<context path="images/download.gif" method="GET" client=".*" lang=".*" action="images/download.gif" max-age="3600"/>
-	<context path="images/drop.gif" method="GET" client=".*" lang=".*" action="images/drop.gif" max-age="3600"/>
-	<context path="images/error32.gif" method="GET" client=".*" lang=".*" action="images/error32.gif" max-age="3600"/>
-	<context path="images/expand.gif" method="GET" client=".*" lang=".*" action="images/expand.gif" max-age="3600"/>
-	<context path="images/file_temporary.gif" method="GET" client=".*" lang=".*" action="images/file_temporary.gif" max-age="3600"/>
-	<context path="images/list_header.gif" method="GET" client=".*" lang=".*" action="images/list_header.gif" max-age="3600"/>
-	<context path="images/menu_radio.gif" method="GET" client=".*" lang=".*" action="images/menu_radio.gif" max-age="3600"/>
-	<context path="images/menu_check.gif" method="GET" client=".*" lang=".*" action="images/menu_check.gif" max-age="3600"/>
-	<context path="images/on_off_down.gif" method="GET" client=".*" lang=".*" action="images/on_off_down.gif" max-age="3600"/>
-	<context path="images/on_off_left.gif" method="GET" client=".*" lang=".*" action="images/on_off_left.gif" max-age="3600"/>
-	<context path="images/on_off_right.gif" method="GET" client=".*" lang=".*" action="images/on_off_right.gif" max-age="3600"/>
-	<context path="images/on_off_up.gif" method="GET" client=".*" lang=".*" action="images/on_off_up.gif" max-age="3600"/>
-	<context path="images/remove16.gif" method="GET" client=".*" lang=".*" action="images/remove16.gif" max-age="3600"/>
-	<context path="images/resize-handle.gif" method="GET" client=".*" lang=".*" action="images/resize-handle.gif" max-age="3600"/>
-	<context path="images/slider.gif" method="GET" client=".*" lang=".*" action="images/slider.gif" max-age="3600"/>
-	<context path="images/spin_up.gif" method="GET" client=".*" lang=".*" action="images/spin_up.gif" max-age="3600"/>
-	<context path="images/submenu.gif" method="GET" client=".*" lang=".*" action="images/submenu.gif" max-age="3600"/>
-	<context path="images/tb_handle.gif" method="GET" client=".*" lang=".*" action="images/tb_handle.gif" max-age="3600"/>
-	<context path="images/transp.gif" method="GET" client=".*" lang=".*" action="images/transp.gif" max-age="3600"/>
-	<context path="images/upload.gif" method="GET" client=".*" lang=".*" action="images/upload.gif" max-age="3600"/>
-	<context path="images/win_close.gif" method="GET" client=".*" lang=".*" action="images/win_close.gif" max-age="3600"/>
-	<context path="images/win_close_over.gif" method="GET" client=".*" lang=".*" action="images/win_close_over.gif" max-age="3600"/>
-	<context path="images/win_max.gif" method="GET" client=".*" lang=".*" action="images/win_max.gif" max-age="3600"/>
-	<context path="images/win_max_over.gif" method="GET" client=".*" lang=".*" action="images/win_max_over.gif" max-age="3600"/>
-	<context path="images/win_min.gif" method="GET" client=".*" lang=".*" action="images/win_min.gif" max-age="3600"/>
-	<context path="images/win_min_over.gif" method="GET" client=".*" lang=".*" action="images/win_min_over.gif" max-age="3600"/>
-	<context path="images/win_title.gif" method="GET" client=".*" lang=".*" action="images/win_title.gif" max-age="3600"/>
+	<context match="images/(.*)"
+		method="GET"
+		client=".*"
+		lang=".*"
+		action="images/$1"
+		max-age="3600"/>
 </config>
