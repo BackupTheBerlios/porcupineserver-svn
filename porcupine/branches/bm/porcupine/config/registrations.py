@@ -17,6 +17,7 @@
 "Server registrations"
 
 import re
+import os.path
 from xml.dom import minidom
 from xml.parsers import expat
 
@@ -49,19 +50,21 @@ class Registration(object):
         
         self.encoding = enc
         self.filters = filters
-        self.max_age = int(max_age);
+        self.max_age = int(max_age)
 
 class App(object):
     def __init__(self, appNode):
         appName = appNode.getAttribute('name')
         self.path = appNode.getAttribute('path')
         self.__config = []
+        self.__matchlist = []
         self.__cache = {}
         configXML = minidom.parse(self.path + '/config.xml')
         contextList = configXML.getElementsByTagName('context')
         # construct action list
         for contextNode in contextList:
-            sPath = contextNode.getAttribute('path')
+            sPath = contextNode.getAttribute('path') or None
+            sMatch = contextNode.getAttribute('match') or None
             sMethod = contextNode.getAttribute('method')
             sBrowser = contextNode.getAttribute('client')
             sLang = contextNode.getAttribute('lang')
@@ -69,11 +72,18 @@ class App(object):
             encoding = contextNode.getAttribute('encoding').encode('iso-8859-1') or None
             max_age = contextNode.getAttribute('max-age') or 0
             
-            self.__config.append((
-                (sPath, sMethod, sBrowser, sLang),
-                Registration(self.path + '/' + sAction, encoding,
-                             getFiltersList(contextNode), max_age)
-            ))
+            if sPath:
+                self.__config.append((
+                    (sPath, sMethod, sBrowser, sLang),
+                    Registration(self.path + '/' + sAction, encoding,
+                                 getFiltersList(contextNode), max_age)
+                ))
+            elif sMatch:
+                self.__matchlist.append((
+                    (sMatch, sMethod, sBrowser, sLang),
+                    (self.path + '/' + sAction, encoding,
+                         getFiltersList(contextNode), max_age)
+                ))
             
         configXML.unlink()
 
@@ -83,10 +93,33 @@ class App(object):
         else:
             for paramList in self.__config:
                 Path, HttpMethod, Browser, Lang = paramList[0]
-                if Path==sPath and re.search(HttpMethod, sHttpMethod) and re.search(Browser, sBrowser) and re.search(Lang, sLang):
+                if Path==sPath and re.match(HttpMethod, sHttpMethod) and \
+                        re.match(Browser, sBrowser) and \
+                        re.match(Lang, sLang):
                     registration = paramList[1]
                     self.__cache[(sPath, sHttpMethod, sBrowser, sLang)] = registration
                     return registration
+            for paramList in self.__matchlist:
+                Match, HttpMethod, Browser, Lang = paramList[0]
+                match = re.match(Match, sPath)
+                if match and re.match(HttpMethod, sHttpMethod) and \
+                        re.match(Browser, sBrowser) and \
+                        re.match(Lang, sLang):
+                    registration_params = paramList[1]
+                    
+                    path = registration_params[0]
+                    
+                    def repl(mo):
+                        ind = int(mo.group(0)[-1])
+                        s = match.group(ind)
+                        return s
+                    
+                    path = re.sub('\$\d', repl, path)
+                    
+                    if (os.path.isfile(path)):
+                        registration = Registration(path, *registration_params[1:])
+                        self.__cache[(path, sHttpMethod, sBrowser, sLang)] = registration
+                        return registration
             self.__cache[(sPath, sHttpMethod, sBrowser, sLang)] = None
             return None
 
@@ -122,9 +155,9 @@ class StoreConfiguration(object):
             for paramList in self.__config:
                 CC, HttpMethod, Param, QS, Browser, Lang = paramList[0]
                 #print CC, HttpMethod, Param, Browser, Lang
-                if re.search(CC, sCC) and re.search(HttpMethod, sHttpMethod) and \
-                   Param == sParam and re.search(QS, sQS) and \
-                   re.search(Browser, sBrowser) and re.search(Lang, sLang):
+                if re.match(CC, sCC) and re.match(HttpMethod, sHttpMethod) and \
+                        Param == sParam and re.search(QS, sQS) and \
+                        re.match(Browser, sBrowser) and re.match(Lang, sLang):
                     registration = paramList[1]
                     self.__cache[(sCC, sHttpMethod, sParam, sBrowser, sLang)] = registration
                     return registration

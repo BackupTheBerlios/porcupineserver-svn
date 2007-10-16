@@ -1,29 +1,23 @@
 <config>
-	<context path="usermgmnt.quix" method="GET" client=".*" lang=".*"
+	<context path="usermgmnt.quix"
+			method="GET"
+			client=".*"
+			lang=".*"
 			action="usermgmnt.quix">
 		<filter
 			type="porcupine.filters.postProcessing.multilingual.Multilingual"
 			using="org.innoscript.desktop.strings.resources"/>
 	</context>
-	
-	<context path="usermgmnt.js" method="GET" client=".*" lang=".*"
+	<context path="usermgmnt.js"
+		method="GET"
+		client=".*"
+		lang=".*"
 		action="usermgmnt.js"/>
-
 	<!-- images -->
-	<context path="images/about16.gif" method="GET" client=".*" lang=".*"
-		action="images/about16.gif"/>
-	<context path="images/change_password.gif" method="GET" client=".*" lang=".*"
-		action="images/change_password.gif"/>
-	<context path="images/colorpicker22.gif" method="GET" client=".*" lang=".*"
-		action="images/colorpicker22.gif"/>
-	<context path="images/editdelete.gif" method="GET" client=".*" lang=".*"
-		action="images/editdelete.gif"/>
-	<context path="images/exit.gif" method="GET" client=".*" lang=".*"
-		action="images/exit.gif"/>
-	<context path="images/filenew.gif" method="GET" client=".*" lang=".*"
-		action="images/filenew.gif"/>
-	<context path="images/reload22.gif" method="GET" client=".*" lang=".*"
-		action="images/reload22.gif"/>
-	<context path="images/icon.gif" method="GET" client=".*" lang=".*"
-		action="images/icon.gif"/>
+	<context match="images/(.*)"
+		method="GET"
+		client=".*"
+		lang=".*"
+		action="images/$1"
+		max-age="3600"/>
 </config>
