@@ -155,7 +155,7 @@ class StoreConfiguration(object):
             for paramList in self.__config:
                 CC, HttpMethod, Param, QS, Browser, Lang = paramList[0]
                 #print CC, HttpMethod, Param, Browser, Lang
-                if re.match(CC, sCC) and re.match(HttpMethod, sHttpMethod) and \
+                if re.search(CC, sCC) and re.match(HttpMethod, sHttpMethod) and \
                         Param == sParam and re.search(QS, sQS) and \
                         re.match(Browser, sBrowser) and re.match(Lang, sLang):
                     registration = paramList[1]
