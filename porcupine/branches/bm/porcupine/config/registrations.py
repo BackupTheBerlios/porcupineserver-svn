@@ -94,7 +94,7 @@ class App(object):
             for paramList in self.__config:
                 Path, HttpMethod, Browser, Lang = paramList[0]
                 if Path==sPath and re.match(HttpMethod, sHttpMethod) and \
-                        re.match(Browser, sBrowser) and \
+                        re.search(Browser, sBrowser) and \
                         re.match(Lang, sLang):
                     registration = paramList[1]
                     self.__cache[(sPath, sHttpMethod, sBrowser, sLang)] = registration
@@ -103,7 +103,7 @@ class App(object):
                 Match, HttpMethod, Browser, Lang = paramList[0]
                 match = re.match(Match, sPath)
                 if match and re.match(HttpMethod, sHttpMethod) and \
-                        re.match(Browser, sBrowser) and \
+                        re.search(Browser, sBrowser) and \
                         re.match(Lang, sLang):
                     registration_params = paramList[1]
                     
@@ -157,7 +157,7 @@ class StoreConfiguration(object):
                 #print CC, HttpMethod, Param, Browser, Lang
                 if re.search(CC, sCC) and re.match(HttpMethod, sHttpMethod) and \
                         Param == sParam and re.search(QS, sQS) and \
-                        re.match(Browser, sBrowser) and re.match(Lang, sLang):
+                        re.search(Browser, sBrowser) and re.match(Lang, sLang):
                     registration = paramList[1]
                     self.__cache[(sCC, sHttpMethod, sParam, sBrowser, sLang)] = registration
                     return registration
