@@ -41,7 +41,7 @@ Label.prototype.setCaption = function(s) {
 }
 
 Label.prototype.getCaption = function(s) {
-	return(this.div.getElementsByTagName('SPAN')[0].innerHTML);
+	return(this.div.getElementsByTagName('SPAN')[0].innerHTML.xmlDecode());
 }
 
 Label.prototype.redraw = function(bForceAll, w) {
