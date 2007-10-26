@@ -35,13 +35,22 @@ DataGrid.prototype.getValue = function(params) {
 	return this.dataSet;
 }
 
-DataGrid.prototype.disable = function() {
+DataGrid.prototype._removeEditWidget = function() {
 	if (this.attributes.__editwidget) {
 		this.attributes.__editwidget.destroy();
 		this.attributes.__editwidget = null;
 		this.detachEvent('onmousedown');
-	}
-	Widget.prototype.disable(this);
+	}	
+}
+
+DataGrid.prototype.disable = function() {
+	this._removeEditWidget();
+	ListView.prototype.disable(this);
+}
+
+DataGrid.prototype.refresh = function() {
+	this._removeEditWidget();
+	ListView.prototype.refresh(this);
 }
 
 function DataGrid__onclick(evt, w) {

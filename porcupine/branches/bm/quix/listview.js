@@ -344,35 +344,36 @@ ListView.prototype._endMoveResizer = function(evt, iResizer) {
 	this.detachEvent('onmousemove');
 }
 
-ListView.prototype.refresh = function() {
+ListView.prototype.refresh = function(w) {
+	w = w || this;
 	var oRow, oCell, selector, sPad, oFiller, oListTable;
 	var oValue, column_width, offset;
 	var tbody = document.createElement("tbody");
 	var docFragment = document.createDocumentFragment();
 	// create rows
-	for (i=0; i<this.dataSet.length; i++) {
+	for (i=0; i<w.dataSet.length; i++) {
 		oRow = document.createElement("tr");
 		oRow.isSelected = false;
-		if (this.hasSelector) {
-			selector = this._getSelector();
-			selector.style.width = (8 - 2*this.cellPadding + 2) + 'px';
+		if (w.hasSelector) {
+			selector = w._getSelector();
+			selector.style.width = (8 - 2*w.cellPadding + 2) + 'px';
 			oRow.appendChild(selector);
 		}
-		for (var j=0 + this._deadCells; j<this.columns.length-1; j++) {
+		for (var j=0 + w._deadCells; j<w.columns.length-1; j++) {
 			oCell = ce('TD');
 			oCell.className = 'cell';
-			column_width = this.columns[j].style.width;
+			column_width = w.columns[j].style.width;
 			if (i==0 && column_width) {
-				oCell.style.width = parseInt(column_width) - this.cellBorder + 'px';
+				oCell.style.width = parseInt(column_width) - w.cellBorder + 'px';
 			}
 
-			oCell.style.borderWidth = this.cellBorder + 'px';
-			sPad = (this.cellPadding + 1) + 'px';
+			oCell.style.borderWidth = w.cellBorder + 'px';
+			sPad = (w.cellPadding + 1) + 'px';
 			oCell.style.padding = '4px ' + sPad + ' 4px ' + sPad;
-			if (this.columns[j].columnBgColor) oCell.bgColor = this.columns[j].columnBgColor;
+			if (w.columns[j].columnBgColor) oCell.bgColor = w.columns[j].columnBgColor;
 			oRow.appendChild(oCell);
-			oValue = this.dataSet[i][this.columns[j].name];
-			this._renderCell(oCell, j, oValue, this.dataSet[i])
+			oValue = w.dataSet[i][w.columns[j].name];
+			w._renderCell(oCell, j, oValue, w.dataSet[i])
 		}
 		oFiller = ce('TD');
 		oFiller.innerHTML = '&nbsp;';
@@ -380,12 +381,12 @@ ListView.prototype.refresh = function() {
 		docFragment.appendChild(oRow);
 	}
 	tbody.appendChild(docFragment);
-	oListTable = this.widgets[1].div.firstChild;
+	oListTable = w.widgets[1].div.firstChild;
 	oListTable.replaceChild(tbody, oListTable.tBodies[0]);
 	
-	this.div.scrollTop = '0px';
-	this.selection = [];
-	ListView__onscroll(null, this);
+	w.div.scrollTop = '0px';
+	w.selection = [];
+	ListView__onscroll(null, w);
 }
 
 ListView.prototype._renderCell = function(cell, cellIndex, value, obj) {
