@@ -1135,7 +1135,7 @@ function Widget__startdrag(evt, w) {
 		var y = evt.clientY;
 		document.desktop.attachEvent('onmouseup', Widget__enddrag);
 		QuiX.dragTimer = window.setTimeout(
-			function _draghandler() {w._startDrag(x, y)}, 250);
+			function _draghandler() {w._startDrag(x, y)}, 150);
 	}
 }
 
