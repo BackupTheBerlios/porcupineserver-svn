@@ -84,11 +84,13 @@ QuiX.constructors['icon'] = Icon;
 Icon.prototype = new Label;
 
 Icon.prototype.setImageURL = function(s) {
-	this.imageElement.src = s;
+	this.img = s;
+	if (this.imageElement)
+		this.imageElement.src = s;
 }
 
 Icon.prototype.getImageURL = function() {
-	return this.imageElement.src;
+	return (this.imageElement)?this.imageElement.src:'';
 }
 
 Icon.prototype._addDummyImage = function() {
