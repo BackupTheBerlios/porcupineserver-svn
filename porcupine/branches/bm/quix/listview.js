@@ -9,6 +9,8 @@ function ListView(params) {
 	
 	var dragable = (params.dragable == 'true' || params.dragable == true);
 	delete params.dragable;
+	var dropable = (params.dropable == 'true' || params.dropable == true);
+	delete params.dropable;
 	
 	this.base = Widget;
 	this.base(params);
@@ -29,7 +31,7 @@ function ListView(params) {
 	this.sortorder = null;
 	this._sortimg = null;
 	
-	//this._dropable = dropable;
+	this._dropable = dropable;
 	this._dragable = dragable;
 }
 
@@ -77,10 +79,13 @@ ListView.prototype.addHeader = function(params, w) {
 		oListview._deadCells = 0;
 
 	var list = new Widget({
-		top : function() { return oListview.header.isHidden()?0:oListview.header._calcHeight(true); },
+		top : function() {
+			return oListview.header.isHidden()?0:oListview.header._calcHeight(true);
+		},
 		width : 'this.parent.getWidth()-1',
-		height : 'this.parent.getHeight()-' + params.height + 1,
-		dragable : oListview._dragable
+		height : 'this.parent.getHeight()-' + (parseInt(params.height) + 1),
+		dragable : oListview._dragable,
+		dropable : oListview._dropable
 	});
 	list._startDrag = List__startDrag;
 	oListview.appendChild(list);

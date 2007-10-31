@@ -1175,7 +1175,8 @@ function Widget__detecttarget(evt, desktop) {
 	
 	if (target.widget.dropable && target.widget != QuiX.dragable.parent) {
 		QuiX.tmpWidget.div.style.borderColor = 'red';
-		QuiX.dropTarget = target.widget;
+		QuiX.dropTarget = (target.widget.parent.dataSet)?
+			target.widget.parent:target.widget;
 	}
 	else {
 		QuiX.tmpWidget.div.style.borderColor = 'transparent';
