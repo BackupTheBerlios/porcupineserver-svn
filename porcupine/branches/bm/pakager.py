@@ -461,6 +461,8 @@ class Package(object):
                 if fname[:len(TMP_FOLDER)] == TMP_FOLDER:
                     os.remove(fname)
             else:
+                if type(fname) == unicode:
+                    fname = str(fname)
                 self.package_file.add(fname)
 
 def usage():
