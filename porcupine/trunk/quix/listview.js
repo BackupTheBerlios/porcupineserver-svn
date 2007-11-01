@@ -29,7 +29,6 @@ function ListView(params) {
 	this.sortorder = null;
 	this._sortimg = null;
 	
-	//this._dropable = dropable;
 	this._dragable = dragable;
 }
 
@@ -77,9 +76,11 @@ ListView.prototype.addHeader = function(params, w) {
 		oListview._deadCells = 0;
 
 	var list = new Widget({
-		top : function() { return oListview.header.isHidden()?0:oListview.header._calcHeight(true); },
+		top : function() {
+			return oListview.header.isHidden()?0:oListview.header._calcHeight(true);
+		},
 		width : 'this.parent.getWidth()-1',
-		height : 'this.parent.getHeight()-' + params.height + 1,
+		height : 'this.parent.getHeight()-' + (parseInt(params.height) + 1),
 		dragable : oListview._dragable
 	});
 	list._startDrag = List__startDrag;
