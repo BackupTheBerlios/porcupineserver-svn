@@ -16,8 +16,10 @@
 //===============================================================================
 
 function __init__() {
-	window.moveTo(0,0);
-	window.resizeTo(screen.availWidth,screen.availHeight);
+	try {
+		window.moveTo(0,0);
+		window.resizeTo(screen.availWidth,screen.availHeight);
+	} catch(e) {}
 
 	var root = document.getElementById("xul");
 	var parser = new XULParser();
