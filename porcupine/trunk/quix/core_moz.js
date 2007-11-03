@@ -16,12 +16,14 @@
 //===============================================================================
 
 function __init__() {
-	window.moveTo(0,0);
-	if (window.outerHeight<screen.availHeight||window.outerWidth<screen.availWidth)
-	{
-		window.outerHeight = screen.availHeight;
-		window.outerWidth = screen.availWidth;
-	}
+	try {
+		window.moveTo(0,0);
+		if (window.outerHeight<screen.availHeight||window.outerWidth<screen.availWidth)
+		{
+			window.outerHeight = screen.availHeight;
+			window.outerWidth = screen.availWidth;
+		}
+	} catch(e) {}
 	var root = document.body.removeChild(document.getElementById("xul"));
 	var parser = new XULParser();
 	parser.parse(QuiX.domFromString(root.innerHTML));
