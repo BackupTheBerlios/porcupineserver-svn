@@ -498,6 +498,7 @@ function ListViewHeader__redraw(bForceAll) {
 function List__startDrag(x, y) {
 	var dragable = new Widget({
 		width : this.getWidth(true),
+		height : 1,
 		border : 1,
 		style : 'border:1px solid transparent'
 	});
@@ -509,22 +510,26 @@ function List__startDrag(x, y) {
 		setOpacity(.5);
 	}
 	// fill with selected rows
-	var row;
+	var src_row, row;
 	var srcTable = this.div.firstChild;
 	var table = srcTable.cloneNode(false);
+	table.appendChild(ce('TBODY'));
 	dragable.div.appendChild(table);
+	
 	for (var i=0; i<this.parent.selection.length; i++) {
-		row = srcTable.rows[this.parent.selection[i]].cloneNode(true);
+		src_row = srcTable.rows[this.parent.selection[i]];
+		dragable.height += src_row.offsetHeight;
+		row = src_row.cloneNode(true);
 		if (i==0) {
 			for (var j=0; j<row.cells.length; j++) {
 				row.cells[j].style.width = srcTable.rows[0].cells[j].style.width;
 			}			
 		}
-		table.appendChild(row);
+		table.firstChild.appendChild(row);
 	}
 	document.desktop.appendChild(dragable);
-	dragable.redraw();
-		
+	dragable.redraw(true);
+
 	QuiX.tmpWidget = dragable;
 	QuiX.dragable = this.parent;
 
