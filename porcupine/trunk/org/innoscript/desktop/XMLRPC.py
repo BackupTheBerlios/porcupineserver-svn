@@ -162,6 +162,7 @@ class ContainerGeneric(ItemGeneric):
         for child in children:
             obj = {
                 'id' : child.id,
+                'cc' : child.contentclass,
                 'image': child.__image__,
                 'displayName' : child.displayName.value,
                 'isCollection': child.isCollection,
