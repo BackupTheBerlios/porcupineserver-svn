@@ -215,6 +215,10 @@ Field.prototype.disable = function() {
 	Widget.prototype.disable(this);
 }
 
+Field.prototype.focus = function() {
+	this.div.firstChild.focus();
+}
+
 Field.prototype.setBgColor = function(color) {
 	this.div.style.backgroundColor = color;
 	if (this.type == 'text' || this.type == 'textarea' || this.type == 'password')
