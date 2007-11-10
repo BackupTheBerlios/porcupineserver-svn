@@ -188,7 +188,8 @@ ListView.prototype.removeSelected = function() {
 
 ListView.prototype.getSelection = function() {
 	sel = [];
-	for (var i=0; i<this.selection.length; i++) sel.push(this.dataSet[this.selection[i]]);
+	for (var i=0; i<this.selection.length; i++)
+		sel.push(this.dataSet[this.selection[i]]);
 	if (sel.length==0)
 		return null;
 	else if (sel.length==1)
@@ -414,6 +415,7 @@ ListView.prototype._renderCell = function(cell, cellIndex, value, obj) {
 			case 'img':
 				elem = QuiX.getImage(value);
 				elem.align = 'absmiddle';
+				elem.ondragstart = QuiX.cancelDefault;
 				cell.appendChild(elem);
 				return;
 			case 'bool':
