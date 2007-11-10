@@ -18,6 +18,7 @@
 
 import re, os, Cookie
 import time
+import mimetypes
 from threading import currentThread
 
 from porcupine.utils import xmlUtils
@@ -129,9 +130,7 @@ class BaseResponse(object):
             raise serverExceptions.InvalidRegistration, \
                     'The file "%s" could not be found' % fileName
         
-        sFileExt = fileName.split('.')[-1]
-        self.content_type = settings['mediatypes'].setdefault(sFileExt,
-                                                              'text/plain')
+        self.content_type = mimetypes.guess_type(fileName, False)[0] or 'text/plain'
         sResponseBody = oFile.read()
         self._body = [sResponseBody]
 

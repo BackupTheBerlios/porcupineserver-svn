@@ -15,6 +15,8 @@
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #===============================================================================
 "Porcupine configuration file loader"
+import mimetypes
+
 from porcupine import serverExceptions
 
 conf_file = file('conf/porcupine.conf', 'r')
@@ -22,3 +24,7 @@ try:
     settings = eval(conf_file.read().replace('\r\n', '\n'))
 finally:
     conf_file.close()
+
+# add additional mime types
+for ext, type in settings['mime_types'].items():
+    mimetypes.add_type(type, ext, False)
