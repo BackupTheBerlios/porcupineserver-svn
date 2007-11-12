@@ -60,7 +60,7 @@ QuiX.modules = [
 	new QModule('Forms & Fields', '__quix/formfields.js', [3]),
 	new QModule('Common Widgets', '__quix/common.js', [3]),
 	new QModule('Datagrid', '__quix/datagrid.js', [5,8]),
-	new QModule('File Control', '__quix/file.js', [1,3,8]),
+	new QModule('File Control', '__quix/file.js', [1,3,8,14]),
 	new QModule('Date Picker', '__quix/datepicker.js', [14]),
 	new QModule('Timers', '__quix/timers.js', []),
 	new QModule('Forms & Fields 2', '__quix/formfields2.js', [3]),
