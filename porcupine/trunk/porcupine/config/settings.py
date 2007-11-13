@@ -26,5 +26,5 @@ finally:
     conf_file.close()
 
 # add additional mime types
-for ext, type in settings['mime_types'].items():
+for ext, type in settings['mime_types']:
     mimetypes.add_type(type, ext, False)
