@@ -25,6 +25,7 @@ See also the L{org.innoscript.desktop.schema.properties} module as a usage guide
 import copy, md5
 import os.path
 import shutil
+import cStringIO
 from threading import currentThread
 
 from porcupine.db import db, dbEnv
@@ -393,6 +394,9 @@ class File(Text):
         Text.__init__(self)
         self.filename = ''
         
+    def getFile(self):
+        return cStringIO.StringIO(self.value)
+        
     def loadFromFile(self, fname):
         """
         This method sets the value property of this data type instance
@@ -415,7 +419,7 @@ class ExternalFile(String):
     removeFileOnDeletion = True
     isRequired = True
     
-    def getFile(self, mode='r'):
+    def getFile(self, mode='rb'):
         return file(self.value, mode)
     
     def __deepcopy__(self, memo):
