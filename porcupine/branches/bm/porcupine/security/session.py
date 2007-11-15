@@ -19,6 +19,7 @@
 import time, tempfile
 import os, glob
 
+from porcupine.config.settings import settings
 from porcupine.config.services import services
 from porcupine import serverExceptions
 from porcupine.security import sessionManager
@@ -101,7 +102,7 @@ class Session(object):
         @rtype: tuple
         """
         return tempfile.mkstemp(prefix=self.sessionid,
-                                dir=services['main'].parameters['temp_folder'])
+                                dir=settings['sessionmanager']['temp_folder'])
     
     def getTempFilename(self):
         """
@@ -109,7 +110,7 @@ class Session(object):
                 
         @rtype: string
         """
-        return  services['main'].parameters['temp_folder'] + \
+        return  settings['sessionmanager']['temp_folder'] + \
                 '/' + self.sessionid + '_' + \
                 misc.generateOID()
 
@@ -119,7 +120,7 @@ class Session(object):
         
         @return: None
         """
-        tmpFiles = glob.glob(services['main'].parameters['temp_folder'] +
+        tmpFiles = glob.glob(settings['sessionmanager']['temp_folder'] +
                              '/' + self.sessionid + '*')
         for tmpFile in tmpFiles:
             os.remove(tmpFile)
