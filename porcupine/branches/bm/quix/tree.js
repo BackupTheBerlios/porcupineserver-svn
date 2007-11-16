@@ -1,5 +1,5 @@
 /************************
-Tree control
+Tree node
 ************************/
 
 function TreeNode(params) {
@@ -176,6 +176,10 @@ function TreeNode_bdlclick(evt, w) {
 	QuiX.stopPropag(evt);
 }
 
+/************************
+Tree
+************************/
+
 function Tree(params) {
 	this.base = Widget;
 	this.base(params);
@@ -207,7 +211,18 @@ Tree.prototype.getSelection = function() {
 	return(retVal);
 }
 
+/************************
+Folder tree
+************************/
+
 function FolderTree(params) {
+	this._dropable = (params.dropable==true || params.dropable=='true')?
+					  true:false;
+	delete params.dropable;
+	
+	this._ondrop = params.ondrop;
+	delete params.ondrop;
+		
 	this.base = Tree;
 	this.base(params);
 
@@ -218,6 +233,13 @@ function FolderTree(params) {
 
 QuiX.constructors['foldertree'] = FolderTree;
 FolderTree.prototype = new Tree;
+
+FolderTree.prototype.appendChild = function(w) {
+	w.dropable = this._dropable;
+	if (w.dropable && this._ondrop)
+		w.attachEvent('ondrop', this._ondrop);
+	Tree.prototype.appendChild(w, this);
+}
 
 FolderTree.prototype.loadSubfolders = function(treeNode) {
 	var sID = treeNode.getId() || '';
@@ -235,6 +257,8 @@ FolderTree.prototype.load_oncomplete = function(req) {
 		treeNode.childNodes[0].destroy();
 	}
 	for (var i=0; i<oFolders.length; i++) {
+		oFolders[i].dropable = treeNode.tree._dropable;
+		oFolders[i].ondrop = treeNode.tree._ondrop;
 		newNode = new TreeNode(oFolders[i]);
 		treeNode.appendChild(newNode);
 		newNode.redraw();
