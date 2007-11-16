@@ -415,6 +415,7 @@ class ExternalFile(String):
     """Datatype for linking external files. Its value
     is a string which contains the path to the file.
     """
+    __slots__ = ()
     _eventHandler = datatypesEventHandlers.ExternalFileEventHandler
     removeFileOnDeletion = True
     isRequired = True
