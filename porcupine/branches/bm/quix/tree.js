@@ -207,8 +207,7 @@ Tree.prototype.selectNode = function(w) {
 }
 
 Tree.prototype.getSelection = function() {
-	var retVal = (this.selectedWidget)? this.selectedWidget:this.roots[0];
-	return(retVal);
+	return this.selectedWidget;
 }
 
 /************************
@@ -260,6 +259,12 @@ FolderTree.prototype.load_oncomplete = function(req) {
 		oFolders[i].dropable = treeNode.tree._dropable;
 		oFolders[i].ondrop = treeNode.tree._ondrop;
 		newNode = new TreeNode(oFolders[i]);
+		//custom attributes
+		if (oFolders[i].attributes) {
+			for (var attr in oFolders[i].attributes){
+				newNode.attributes[attr] = oFolders[i].attributes[attr];
+			}
+		}
 		treeNode.appendChild(newNode);
 		newNode.redraw();
 	}
