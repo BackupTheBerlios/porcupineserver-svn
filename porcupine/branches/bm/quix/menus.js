@@ -166,6 +166,7 @@ function ContextMenu(params, owner) {
 
 	this.options = [];
 	this.owner = owner;
+	this.target = null;
 	
 	owner.contextMenu = this;
 	owner.attachEvent('oncontextmenu', Widget__contextmenu);
@@ -261,6 +262,7 @@ ContextMenu.prototype.addOption = function(params) {
 }
 
 function Widget__contextmenu(evt, w) {
+	w.contextMenu.target = QuiX.getTargetWidget(evt);
 	w.contextMenu.show(document.desktop, evt.clientX, evt.clientY);
 }
 
