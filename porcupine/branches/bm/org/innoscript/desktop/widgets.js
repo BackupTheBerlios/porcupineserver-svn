@@ -16,14 +16,6 @@ function Reference1(params) {
 	this.root = params.root || '';
 	this.cc = params.cc;
 
-	var hidden = new Field({
-		name : params.name,
-		value : params.value,
-		type : 'hidden'
-	});
-	this.appendChild(hidden);
-	hidden.hide();
-	
 	var lbl = new Label({
 		caption : params.caption,
 		width : 105,
@@ -54,6 +46,14 @@ function Reference1(params) {
 		onclick : Reference1__Clear		
 	});
 	this.appendChild(btn2);
+	
+	var hidden = new Field({
+		name : params.name,
+		value : params.value,
+		type : 'hidden'
+	});
+	this.appendChild(hidden);
+	hidden.hide();
 	
 	this.redraw(true);
 }
@@ -88,8 +88,8 @@ function Reference1__fill(dlg) {
 			var oOption = source.options[i];
 			var fields = target.getWidgetsByType(Field);
 			if (oOption.selected) {
-				fields[0].setValue(oOption.value);
-				fields[1].setValue(oOption.getCaption());
+				fields[0].setValue(oOption.getCaption());
+				fields[1].setValue(oOption.value);
 				return;
 			}
 		}
