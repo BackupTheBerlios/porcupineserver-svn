@@ -152,6 +152,7 @@ function ContextMenu(params, owner) {
 		id : params.id,
 		width : 100,
 		border : 1,
+		overflow : 'auto',
 		onmousedown : QuiX.stopPropag,
 		onshow : params.onshow
 	});
@@ -163,6 +164,7 @@ function ContextMenu(params, owner) {
 	});
 	this.appendChild(rect);
 	this.div.className = 'contextmenu';
+	this.setOverflow('visible');
 
 	this.options = [];
 	this.owner = owner;

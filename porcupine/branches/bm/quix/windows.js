@@ -13,7 +13,8 @@ function Window(params) {
 	params.padding = '1,1,1,1';
 	params.onclick = QuiX.getEventWrapper(Window__onclick, params.onclick);
 	params.oncontextmenu = QuiX.getEventWrapper(Window__oncontextmenu, params.oncontextmenu);
-	params.overflow = 'auto';
+	params.overflow = (QuiX.browser == 'moz' && QuiX.getOS() == 'MacOS')?
+						'auto':'hidden';
 
 	this.base = Widget;
 	this.base(params);
@@ -336,15 +337,11 @@ Window.prototype.bringToFront = function() {
 		this.detach();
 		p.appendChild(this);
 	}
-	this._btf();
-}
-
-Window.prototype._btf = function()
-{
-	Widget.prototype.bringToFront(this);
-	
+	else
+		Widget.prototype.bringToFront(this);
+		
 	for (var i=0; i<this.childWindows.length; i++)
-		this.childWindows[i]._btf();
+		this.childWindows[i].bringToFront();
 }
 
 Window.prototype.showWindow = function(sUrl, oncomplete) {

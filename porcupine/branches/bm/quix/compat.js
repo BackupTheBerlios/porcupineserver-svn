@@ -41,9 +41,9 @@ QuiX.constructors = {
 };
 
 QuiX.progress = '<rect id="quix_progress" xmlns="http://www.innoscript.org/quix" ' +
-	'width="240" height="48" overflow="hidden" top="center" left="center" ' +
+	'width="320" height="56" overflow="auto" top="center" left="center" ' +
 	'border="2" bgcolor="white" style="border-color:#999999;border-style:solid" '+
-	'padding="1,1,1,1"><xhtml><![CDATA[<center>Please wait...<br/><br/>' +
+	'padding="4,4,4,4"><xhtml><![CDATA[<center>Please wait...<br/><br/>' +
 	'<span></span></center>]]></xhtml>' +
 	'<progressbar id="pb" width="150" maxvalue="1" height="4" ' +
 	'top="center" left="center"></progressbar></rect>';
@@ -172,13 +172,15 @@ QuiX.getMouseButton = function(evt) {
 }
 
 QuiX.createOutline = function(w) {
+	var fl = (QuiX.browser == 'moz' && QuiX.getOS() == 'MacOS')?
+					'auto':'hidden';
 	var oW = new Widget({
-		left:w.getLeft(),
-		top:w.getTop(),
-		width:w.getWidth(true),
-		height:w.getHeight(true),
-		border:2,
-		overflow:'hidden'
+		left : w.getLeft(),
+		top : w.getTop(),
+		width : w.getWidth(true),
+		height : w.getHeight(true),
+		border : 2,
+		overflow : fl
 	});
 	
 	var t = QuiX.getImage('__quix/images/transp.gif');
@@ -188,7 +190,8 @@ QuiX.createOutline = function(w) {
 	
 	w.parent.appendChild(oW);
 	oW.redraw(true);
-	//calculate size because minw/minh procedure can depends on it's children size
+	//calculate size because minw/minh procedure can
+	//depend on it's children size
 	oW.minw = (typeof w.minw == "function")?w.minw(w):w.minw;
 	oW.minh = (typeof w.minh == "function")?w.minh(w):w.minh;
 	oW.div.className = 'outline';
