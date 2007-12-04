@@ -172,9 +172,10 @@ QuiX.getMouseButton = function(evt) {
 }
 
 QuiX.createOutline = function(w) {
-	var fl = (QuiX.browser == 'moz' && QuiX.getOS() == 'MacOS')?
-					'auto':'hidden';
-	var oW = new Widget({
+	var isFirefoxOnMac = QuiX.browser == 'moz' && QuiX.getOS() == 'MacOS';
+	var fl = (isFirefoxOnMac)?'auto':'hidden';
+	
+	var o = new Widget({
 		left : w.getLeft(),
 		top : w.getTop(),
 		width : w.getWidth(true),
@@ -183,22 +184,28 @@ QuiX.createOutline = function(w) {
 		overflow : fl
 	});
 	
+	if (isFirefoxOnMac) {
+		var inner = new Widget({
+			width : '100%',
+			height : '100%'
+		});
+		o.appendChild(inner);
+	}
+	
 	var t = QuiX.getImage('__quix/images/transp.gif');
 	t.style.width = '100%';
 	t.style.height = '100%';
-	oW.div.appendChild(t);
+	((isFirefoxOnMac)?o:inner).div.appendChild(t);
 	
-	w.parent.appendChild(oW);
-	oW.redraw(true);
-	
-	oW.setOverflow('hidden');
+	w.parent.appendChild(o);
+	o.redraw();
 	
 	//calculate size because minw/minh procedure can
 	//depend on it's children size
-	oW.minw = (typeof w.minw == "function")?w.minw(w):w.minw;
-	oW.minh = (typeof w.minh == "function")?w.minh(w):w.minh;
-	oW.div.className = 'outline';
-	return(oW);
+	o.minw = (typeof w.minw == "function")?w.minw(w):w.minw;
+	o.minh = (typeof w.minh == "function")?w.minh(w):w.minh;
+	o.div.className = 'outline';
+	return(o);
 }
 
 QuiX.getEventListener = function(f) {
