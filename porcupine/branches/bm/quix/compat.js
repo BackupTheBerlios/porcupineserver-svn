@@ -196,7 +196,7 @@ QuiX.createOutline = function(w) {
 	var t = QuiX.getImage('__quix/images/transp.gif');
 	t.style.width = '100%';
 	t.style.height = '100%';
-	((isFirefoxOnMac)?o:inner).div.appendChild(t);
+	((isFirefoxOnMac)?inner:o).div.appendChild(t);
 	
 	w.parent.appendChild(o);
 	o.redraw();

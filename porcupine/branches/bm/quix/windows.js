@@ -33,11 +33,10 @@ function Window(params) {
 
 	//title
 	this.title = new Widget({
-		width:'100%',
-		height:22,
-		padding:'4,0,4,2',
-		border:0,
-		overflow:'hidden'
+		width : '100%',
+		height : 22,
+		padding :'4,0,4,2',
+		overflow : 'hidden'
 	});
 	this.appendChild(this.title);
 	this.title.div.className = 'header';
