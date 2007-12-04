@@ -118,6 +118,7 @@ function Field(params) {
 
 	e.onmousedown = QuiX.stopPropag;
 	e.onselectstart = QuiX.stopPropag;
+	e.onclick = QuiX.stopPropag;
 	
 	this._adjustFieldSize();
 	if (this._isDisabled) {
@@ -306,6 +307,7 @@ function Spin(params) {
 	
 	e.onmousedown = QuiX.stopPropag;
 	e.onselectstart = QuiX.stopPropag;
+	e.onclick = QuiX.stopPropag;
 	
 	if (params.maxlength)
 		e.maxLength = params.maxlength;

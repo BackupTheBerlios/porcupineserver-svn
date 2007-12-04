@@ -392,7 +392,7 @@ Widget.prototype.appendChild = function(w, p) {
 	if (w.height=='100%' && w.width=='100%')
 		p.setOverflow('hidden');
 
-	w.bringToFront();
+	w.div.style.zIndex = ++p.maxz;
 	if (p._isDisabled)
 		w.disable();
 }

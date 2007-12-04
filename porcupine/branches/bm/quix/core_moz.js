@@ -403,7 +403,7 @@ Widget.prototype.appendChild = function(w, p) {
 		w._addIdRef();
 	p.div.appendChild(w.div);
 
-	w.bringToFront();
+	w.div.style.zIndex = ++p.maxz;
 	if (p._isDisabled)
 		w.disable();
 }
