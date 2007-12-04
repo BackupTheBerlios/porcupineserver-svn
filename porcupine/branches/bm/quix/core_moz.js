@@ -142,7 +142,10 @@ XULParser.prototype.parse = function(oDom, parentW) {
 		this.__modulesToLoad.reverse();
 		parser = this;
 		if (parentW) {
-			parentW.parseFromString(QuiX.progress, function(w){parser.loadModules(w);});
+			parentW.parseFromString(QuiX.progress, function(w){
+				w.setOverflow('hidden');
+				parser.loadModules(w);
+			});
 		} else {
 			this.loadModules();
 		}

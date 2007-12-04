@@ -190,6 +190,9 @@ QuiX.createOutline = function(w) {
 	
 	w.parent.appendChild(oW);
 	oW.redraw(true);
+	
+	oW.setOverflow('hidden');
+	
 	//calculate size because minw/minh procedure can
 	//depend on it's children size
 	oW.minw = (typeof w.minw == "function")?w.minw(w):w.minw;
