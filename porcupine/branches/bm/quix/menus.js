@@ -152,10 +152,28 @@ function ContextMenu(params, owner) {
 		id : params.id,
 		width : 100,
 		border : 1,
-		overflow : 'auto',
 		onmousedown : QuiX.stopPropag,
 		onshow : params.onshow
 	});
+	this.div.className = 'contextmenu';
+	
+	var macff = QuiX.browser == 'moz' && QuiX.getOS() == 'MacOS';
+	if (macff)
+	{
+		var c = new Widget({
+			width : '100%',
+			height : '100%',
+			overflow : 'auto'
+		});
+		this.appendChild(c);
+		c = new Widget({
+			width : '100%',
+			height : '100%',
+			overflow : 'hidden'
+		});
+		this.appendChild(c);
+	}
+	
 	var rect = new Widget({
 		width: '22',
 		height: '100%',
@@ -163,9 +181,7 @@ function ContextMenu(params, owner) {
 		overflow: 'hidden'
 	});
 	this.appendChild(rect);
-	this.div.className = 'contextmenu';
-	this.setOverflow('visible');
-
+	
 	this.options = [];
 	this.owner = owner;
 	this.target = null;
@@ -254,7 +270,6 @@ ContextMenu.prototype.addOption = function(params) {
 		oOption.destroy = MenuOption.prototype.destroy;
 		oOption.div.className = 'separator';
 		oOption.setPosition('relative');
-		oOption._isContainer = false;
 	}
 	this.appendChild(oOption);
 	oOption.redraw();

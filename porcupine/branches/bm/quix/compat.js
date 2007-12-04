@@ -43,10 +43,11 @@ QuiX.constructors = {
 QuiX.progress = '<rect id="quix_progress" xmlns="http://www.innoscript.org/quix" ' +
 	'width="320" height="56" overflow="auto" top="center" left="center" ' +
 	'border="2" bgcolor="white" style="border-color:#999999;border-style:solid" '+
-	'padding="4,4,4,4"><xhtml><![CDATA[<center>Please wait...<br/><br/>' +
+	'padding="4,4,4,4"><rect width="100%" height="100%" overflow="hidden">' +
+	'<xhtml><![CDATA[<center>Please wait...<br/><br/>' +
 	'<span></span></center>]]></xhtml>' +
 	'<progressbar id="pb" width="150" maxvalue="1" height="4" ' +
-	'top="center" left="center"></progressbar></rect>';
+	'top="center" left="center"></progressbar></rect></rect>';
 
 QuiX.modules = [
 	new QModule('Windows and Dialogs', '__quix/windows.js', [3]),
@@ -172,8 +173,8 @@ QuiX.getMouseButton = function(evt) {
 }
 
 QuiX.createOutline = function(w) {
-	var isFirefoxOnMac = QuiX.browser == 'moz' && QuiX.getOS() == 'MacOS';
-	var fl = (isFirefoxOnMac)?'auto':'hidden';
+	var macff = QuiX.browser == 'moz' && QuiX.getOS() == 'MacOS';
+	var fl = (macff)?'auto':'hidden';
 	
 	var o = new Widget({
 		left : w.getLeft(),
@@ -184,7 +185,7 @@ QuiX.createOutline = function(w) {
 		overflow : fl
 	});
 	
-	if (isFirefoxOnMac) {
+	if (macff) {
 		var inner = new Widget({
 			width : '100%',
 			height : '100%',
@@ -196,7 +197,7 @@ QuiX.createOutline = function(w) {
 	var t = QuiX.getImage('__quix/images/transp.gif');
 	t.style.width = '100%';
 	t.style.height = '100%';
-	((isFirefoxOnMac)?inner:o).div.appendChild(t);
+	((macff)?inner:o).div.appendChild(t);
 	
 	w.parent.appendChild(o);
 	o.redraw();
