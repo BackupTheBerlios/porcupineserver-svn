@@ -14,30 +14,16 @@
 #    along with Porcupine; if not, write to the Free Software
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #===============================================================================
-"Porcupine configured services loader"
+"Porcupine service base class"
 
-from porcupine.config.settings import settings
-from porcupine.utils import misc
-
-services = {}
-
-def startServices():
-    for service in settings['services']:
-        name = service['name']
-        type = service['type']
-        service_class = misc.getCallableByName(service['class'])
+class BaseService(object):
+    def __init__(self, name):
+        self.name = name
+        self.parameters = None
+        self.running = False
         
-        if type == 'TCPListener':
-            address = misc.getAddressFromString(service['address'])
-            worker_threads = int(service['worker_threads'])
-            services[name] = service_class(name, address, worker_threads)
-        elif type == 'ScheduledTask':
-            interval = int(service['interval'])
-            services[name] = service_class(name, interval)
-
-        # add parameters
-        if service.has_key('parameters'):
-            services[name].parameters = service['parameters']
-            
-        # start service
-        services[name].start()
+    def start(self):
+        raise NotImplementedError
+    
+    def shutdown(self):
+        raise NotImplementedError

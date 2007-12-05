@@ -14,30 +14,38 @@
 #    along with Porcupine; if not, write to the Free Software
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #===============================================================================
-"Porcupine configured services loader"
+"Porcupine scheduler base classes"
+import time
+from threading import Thread
 
-from porcupine.config.settings import settings
-from porcupine.utils import misc
+from porcupine import serverExceptions
+from porcupine.core.services.service import BaseService
 
-services = {}
-
-def startServices():
-    for service in settings['services']:
-        name = service['name']
-        type = service['type']
-        service_class = misc.getCallableByName(service['class'])
+class BaseTask(BaseService):
+    "Porcupine base class for scheduled task services"
+    def __init__(self, name, interval):
+        BaseService.__init__(self, name)
+        self.interval = interval
         
-        if type == 'TCPListener':
-            address = misc.getAddressFromString(service['address'])
-            worker_threads = int(service['worker_threads'])
-            services[name] = service_class(name, address, worker_threads)
-        elif type == 'ScheduledTask':
-            interval = int(service['interval'])
-            services[name] = service_class(name, interval)
-
-        # add parameters
-        if service.has_key('parameters'):
-            services[name].parameters = service['parameters']
+    def start(self):
+        self.thread = Thread(name='%s thread' % self.name,
+                             target=self.thread_loop)
+        self.running = True
+        self.thread.start()
+    
+    def shutdown(self):
+        self.running = False
+        self.thread.join()
+        
+    def thread_loop(self):
+        while self.running:
+            try:
+                self.execute()
+            except:
+                e = serverExceptions.InternalServerError()
+                e.writeToLog()
+            time.sleep(self.interval)
             
-        # start service
-        services[name].start()
+    def execute(self):
+        raise NotImplementedError
+        

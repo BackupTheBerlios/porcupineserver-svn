@@ -14,14 +14,16 @@
 #    along with Porcupine; if not, write to the Free Software
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #===============================================================================
-"Porcupine base threaded TCP server"
-import socket, select, Queue
+"Porcupine base classes for threaded TCP server"
+import socket
+import select
+import Queue
 import time
 from threading import Thread, currentThread, RLock
 from errno import EINTR, EISCONN, EADDRINUSE
-from porcupine.core import asyncore
-##import hotshot
 
+from porcupine.core.services.service import BaseService
+from porcupine.core import asyncore
 from porcupine import serverExceptions
 
 USE_POLL = False
@@ -59,28 +61,26 @@ class BaseServerThread(Thread):
         Thread.__init__(self, None, target, name)
         self.requestHandler = None
 
-class BaseServer(asyncore.dispatcher):
-    "Implements threaded tcp server using asynchronous sockets"
-    def __init__(self, name, address, worker_threads, threadClass, requestHandler):
-        self.running = False
-        self.parameters = None
-        self.name = name
-
-##        if False:
-##            self.prof = hotshot.Profile("C:/Web Projects/Porcupine/Server/profiler/hotshot.prof")
-
-        # create client request queue
+class BaseServer(BaseService, asyncore.dispatcher):
+    "Base class for threaded TCP server using asynchronous sockets"
+    def __init__(self, name, address, worker_threads, threadClass,
+                 requestHandler):
+        # initialize base service
+        BaseService.__init__(self, name)
+        self.addr = address
         self.worker_threads = worker_threads
-
+        self.requestHandler = requestHandler
+        self.threadClass = threadClass
+        # create client request queue
         self.requestQueue = Queue.Queue(worker_threads*5)
         # create queue for inactive requestHandler objects i.e. those served
         self.rhQueue = Queue.Queue(0)
         # create threads tuple
         self.threadPool = []
 
+    def start(self):
         # activate socket
         self.create_socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.addr = address
 
         try:
             self.bind(self.addr)
@@ -90,11 +90,9 @@ class BaseServer(asyncore.dispatcher):
 
         self.listen(32)
 
-        self.requestHandler = requestHandler
-
-        for i in range(worker_threads):
+        for i in range(self.worker_threads):
             tname = '%s server thread %d' % (self.name, i+1)
-            t = threadClass(target=self.threadLoop, name=tname)
+            t = self.threadClass(target=self.threadLoop, name=tname)
             t.start()
             self.threadPool.append(t)
 
@@ -105,7 +103,7 @@ class BaseServer(asyncore.dispatcher):
         # if it is the first server start asyncore loop
         if SERVERS==1:
             ASYNCORE_THREAD.start()
-
+        
         self.running = True
 
     def readable(self):
@@ -131,7 +129,6 @@ class BaseServer(asyncore.dispatcher):
             rh = self.requestHandler(self)
         # set the client socket of requestHandler
         self.activeConnections += 1
-#        print str(self.activeConnections) + ':' + str(addr[1])
         clientSocket.setblocking(0)
         rh.activate(clientSocket)
 
@@ -145,19 +142,12 @@ class BaseServer(asyncore.dispatcher):
                 if oThread.requestHandler == None:
                     break
                 else:
-                    ## get start time
-                    #t = time.clock()
-##                        if True:
                     if oThread.requestHandler.input_buffer:
                         oThread.requestHandler.handleRequest()
                         oThread.requestHandler.hasResponse = True
                     else:
                         # we have a dead socket
                         oThread.requestHandler.close()
-##                        else:
-##                            self.prof.runcall(oThread.requestHandler.handleRequest)
-                    #t = time.clock() - t
-                    #print 'Benchmark: %s' % str(t)
             except Queue.Empty:
                 pass
 
@@ -173,11 +163,9 @@ class BaseServer(asyncore.dispatcher):
         for i in self.threadPool:
             i.join()
 
-##        if False:
-##            self.prof.close()
-
         global SERVERS
         SERVERS -= 1
+        
         # if it is the last one join the asyncore thread
         if SERVERS == 0:
             ASYNCORE_THREAD.join()
