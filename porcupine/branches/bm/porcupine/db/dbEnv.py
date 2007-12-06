@@ -65,7 +65,7 @@ def getTransaction():
         raise serverExceptions.ProxyRequest
     
     txn = currentThread().trans
-    if not txn:
+    if not txn or txn._iscommited:
         # create transaction
         txn = currentThread().trans = db.db_handle.transaction()
     
