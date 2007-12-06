@@ -20,6 +20,15 @@ from threading import Thread
 
 from porcupine import serverExceptions
 from porcupine.core.services.service import BaseService
+from porcupine.db import db
+from porcupine.security import sessionManager
+
+class TaskThread(Thread):
+    def __init__(self, name, target, identity):
+        Thread.__init__(self, name=name, target=target)
+        id = db.getItem(identity)
+        self.session = sessionManager.create(id)
+        self.trans = None
 
 class BaseTask(BaseService):
     "Porcupine base class for scheduled task services"
@@ -28,8 +37,10 @@ class BaseTask(BaseService):
         self.interval = interval
         
     def start(self):
-        self.thread = Thread(name='%s thread' % self.name,
-                             target=self.thread_loop)
+        self.thread = TaskThread('%s thread' % self.name,
+                                 self.thread_loop,
+                                 'system')
+        self.thread.trans = None
         self.running = True
         self.thread.start()
     
