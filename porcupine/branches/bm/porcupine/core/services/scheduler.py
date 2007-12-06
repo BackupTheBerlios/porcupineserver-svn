@@ -55,6 +55,11 @@ class BaseTask(BaseService):
             except:
                 e = serverExceptions.InternalServerError()
                 e.writeToLog()
+                
+            if self.thread.trans and not self.thread.trans._iscommited:
+                self.thread.trans.abort()
+                
+            self.thread.trans = None            
             time.sleep(self.interval)
             
     def execute(self):
