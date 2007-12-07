@@ -281,6 +281,7 @@ function SelectList(params) {
 	params.bgcolor = params.bgcolor || 'white';
 	params.border = params.border || 1;
 	params.overflow = 'auto';
+	
 	this.base = Widget;
 	this.base(params);
 	this.name = params.name;
@@ -302,6 +303,10 @@ SelectList.prototype.addOption = function(params) {
 	params.width = '100%';
 	params.onmousedown = QuiX.getEventWrapper(SelectOption__onmousedown,
 		params.onmousedown);
+	/*
+	if (QuiX.browser=='moz' && QuiX.getOS()=='MacOS')
+		params.onclick = QuiX.stopPropag;
+	*/
 	var w = new Icon(params);
 	this.appendChild(w);
 	w.redraw();
@@ -393,4 +398,6 @@ function SelectOption__onmousedown(evt, option) {
 			else
 				oSelectList.selectOption(option);
 	}
+	QuiX.stopPropag(evt);
+	QuiX.cancelDefault(evt);
 }

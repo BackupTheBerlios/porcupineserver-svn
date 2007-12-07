@@ -118,8 +118,6 @@ function Field(params) {
 
 	e.onmousedown = QuiX.stopPropag;
 	e.onselectstart = QuiX.stopPropag;
-	if (!(this.type=='radio' || this.type=='checkbox'))
-		e.onclick = QuiX.stopPropag;
 	
 	this._adjustFieldSize();
 	if (this._isDisabled) {

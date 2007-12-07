@@ -11,7 +11,7 @@ function Window(params) {
 	params = params || {};
 	params.border = 1;
 	params.padding = '1,1,1,1';
-	params.onclick = QuiX.getEventWrapper(Window__onclick, params.onclick);
+	params.onmousedown = QuiX.getEventWrapper(Window__onmousedown, params.onmousedown);
 	params.oncontextmenu = QuiX.getEventWrapper(Window__oncontextmenu, params.oncontextmenu);
 	params.overflow = (QuiX.browser == 'moz' && QuiX.getOS() == 'MacOS')?
 						'auto':'hidden';
@@ -368,9 +368,11 @@ Window.prototype.showWindowFromString = function(s, oncomplete) {
 
 WindowTitle__onmousedown = function(evt, w) {
 	w.parent._startMove(evt);
+	QuiX.stopPropag(evt);
+	QuiX.cancelDefault(evt);
 }
 
-Window__onclick = function(evt, w) {
+Window__onmousedown = function(evt, w) {
 	w.bringToFront();
 }
 
