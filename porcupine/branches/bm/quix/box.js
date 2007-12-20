@@ -130,7 +130,8 @@ function BoxWidget__destroy() {
 		 if (oBox.widgets[idx] == this)
 		 	break;
 	}
-	if (this[length_var] == '-1' && oBox.widgets.length > 1) {
+	if (this[length_var] == 'this.parent._calcWidgetLength()' &&
+			oBox.widgets.length > 1) {
 		if (idx == 0)
 			oBox.widgets[1][length_var] = '-1';
 		else
