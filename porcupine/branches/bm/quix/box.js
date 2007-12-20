@@ -17,13 +17,14 @@ function Box(params) {
 QuiX.constructors['box'] = Box;
 Box.prototype = new Widget;
 
-Box.prototype.appendChild = function(w) {
+Box.prototype.appendChild = function(w, p) {
+	p = p || this;
 	w.destroy = BoxWidget__destroy;
-	if (this.orientation == 'h')
+	if (p.orientation == 'h')
 		w.height = w.height || '100%';
 	else
 		w.width = w.width || '100%';
-	Widget.prototype.appendChild(w, this);
+	Widget.prototype.appendChild(w, p);
 }
 
 Box.prototype.redraw = function(bForceAll) {
@@ -64,16 +65,19 @@ Box.prototype._getWidgetPos = function(iPane) {
 	}
 }
 
-Box.prototype._getWidgetOffset=function(iPane) {
+Box.prototype._getWidgetOffset = function(iPane) {
 	var offset = 0;
 	if (iPane > 0)
 	{
 		var i = iPane - 1;
 		var ow = this.widgets[i];
 		while (ow.isHidden() && i >= 0) {
-			ow = this.widgets[i];
+			if (i==0)
+				return 0;
 			i -= 1;
+			ow = this.widgets[i];
 		}
+		
 		if (this.orientation=='h')
 			offset = ow.getLeft() + ow.getWidth(true) + this.spacing;
 		else
