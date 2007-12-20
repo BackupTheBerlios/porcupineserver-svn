@@ -474,7 +474,7 @@ function ListView__onclick (evt, w, f) {
 }
 
 function ListView__onscroll(evt, w) {
-	w.header.div.style.top = w.div.scrollTop + 'px';
+	w.header.div.style.top = (w.div.scrollTop + w.div.style.paddingTop) + 'px';
 }
 
 function ListColumn__setCaption(s) {
