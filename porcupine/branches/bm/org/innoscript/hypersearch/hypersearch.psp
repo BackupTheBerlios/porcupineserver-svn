@@ -16,42 +16,40 @@
 		resizable="true">
 	<script name="Hypersearch script" src="hypersearch/hypersearch.js"/>
 	<wbody overflow="auto">
-		<splitter width="100%" height="100%" orientation="v" spacing="0">
-			<pane overflow="hidden" length="220" onoff="true">
-				<box orientation="v" padding="8,8,8,8" width="100%" height="100%"
-						id="search_criteria" overflow="auto">
-					<label height="22" caption="@@SEARCH_IN@@"/>
-					<box height="24">
-						<field id="container_name" value="<%response.write(container_title)%>"/>
-						<field type="hidden" id="container_id" value="<%response.write(container_id)%>"/>
-						<flatbutton caption="..." tooltip="@@SELECT_FOLDER@@" width="24" onclick="hypersearch.selectFolder"/>
-					</box>
-					<field id="scope" type="checkbox" caption="@@INCLUDESUBS@@" />
-					<hr/>
-					<label height="22" caption="@@ALL_OR_PART_OF_THE_NAME@@:"/>
-					<field id="name" />
-					<label height="22" caption="@@WORD_OR_PHRASE_IN_DESCRIPTION@@:"/>
-					<field id="description" />
-					<hr/>
-					<label height="22" caption="@@MODIFIED_WITHIN@@:"/>
-					<field id="modified" type="radio" onclick="hypersearch.updateModifiedMode" value="0" checked="true" caption="@@DONT_REMEMBER@@"/>
-					<field id="modified" type="radio" onclick="hypersearch.updateModifiedMode" value="1" caption="@@LAST_WEEK@@"/>
-					<field id="modified" type="radio" onclick="hypersearch.updateModifiedMode" value="2" caption="@@LAST_MONTH@@"/>
-					<field id="modified" type="radio" onclick="hypersearch.updateModifiedMode" value="3" caption="@@SPECIFY_DATES@@"/>
-					<box id="date_from_box" height="24" padding="8,0,0,0" disabled="true">
-						<label caption="@@FROM@@" width="40"/>
-						<datepicker id="from"/>
-					</box>
-					<box id="date_to_box" height="24" padding="8,0,0,0" disabled="true">
-						<label caption="@@TO@@" width="40"/>
-						<datepicker id="to"/>
-					</box>
-					<box padding="0,0,8,0" orientation="v" childrenalign="right">
-						<button width="80" height="24" caption="@@SEARCH@@" onclick="hypersearch.search"/>
-					</box>
+		<splitter width="100%" height="100%">
+			<box orientation="v" padding="8,8,8,8" width="220"
+					id="search_criteria" overflow="auto" minw="180">
+				<label height="22" caption="@@SEARCH_IN@@"/>
+				<box height="24">
+					<field id="container_name" value="<%response.write(container_title)%>"/>
+					<field type="hidden" id="container_id" value="<%response.write(container_id)%>"/>
+					<flatbutton caption="..." tooltip="@@SELECT_FOLDER@@" width="24" onclick="hypersearch.selectFolder"/>
 				</box>
-			</pane>
-			<pane overflow="hidden" bgcolor="white" length="-1">
+				<field id="scope" type="checkbox" caption="@@INCLUDESUBS@@" />
+				<hr/>
+				<label height="22" caption="@@ALL_OR_PART_OF_THE_NAME@@:"/>
+				<field id="name" />
+				<label height="22" caption="@@WORD_OR_PHRASE_IN_DESCRIPTION@@:"/>
+				<field id="description" />
+				<hr/>
+				<label height="22" caption="@@MODIFIED_WITHIN@@:"/>
+				<field id="modified" type="radio" onclick="hypersearch.updateModifiedMode" value="0" checked="true" caption="@@DONT_REMEMBER@@"/>
+				<field id="modified" type="radio" onclick="hypersearch.updateModifiedMode" value="1" caption="@@LAST_WEEK@@"/>
+				<field id="modified" type="radio" onclick="hypersearch.updateModifiedMode" value="2" caption="@@LAST_MONTH@@"/>
+				<field id="modified" type="radio" onclick="hypersearch.updateModifiedMode" value="3" caption="@@SPECIFY_DATES@@"/>
+				<box id="date_from_box" height="24" padding="8,0,0,0" disabled="true">
+					<label caption="@@FROM@@" width="40"/>
+					<datepicker id="from"/>
+				</box>
+				<box id="date_to_box" height="24" padding="8,0,0,0" disabled="true">
+					<label caption="@@TO@@" width="40"/>
+					<datepicker id="to"/>
+				</box>
+				<box padding="0,0,8,0" orientation="v" childrenalign="right">
+					<button width="80" height="24" caption="@@SEARCH@@" onclick="hypersearch.search"/>
+				</box>
+			</box>
+			<rect overflow="hidden" bgcolor="white">
 				<contextmenu onshow="hypersearch.updateContextMenu">
 					<menuoption caption="@@OPEN_CONTAINER@@" onclick="hypersearch.openContainer"/>
 					<sep/>
@@ -68,7 +66,7 @@
 						<column width="160" caption="@@DATEMOD@@" type="date" name="modified" sortable="true"/>
 					</listheader>
 				</listview>
-			</pane>
+			</rect>
 		</splitter>
 	</wbody>
 </window>
