@@ -73,10 +73,8 @@ function Icon(params) {
 	this.img = params.img || null;
 	this.imageElement = null;
 	this.imgAlign = params.imgalign || 'left';
-	if (params.imgheight)
-		this.imgHeight = parseInt(params.imgheight);
-	if (params.imgwidth)
-		this.imgWidth = parseInt(params.imgwidth);
+	this.imgHeight = params.imgheight;
+	this.imgWidth = params.imgwidth;
 	this.redraw(true);
 }
 
@@ -119,12 +117,17 @@ Icon.prototype.redraw = function(bForceAll, w) {
 		w._addDummyImage();
 
 		if (w.img) {
+			var percentage=null;
 			img = QuiX.getImage(w.img);
-			if (this.imgHeight)
-				img.style.height = this.imgHeight + 'px';
-			if (this.imgWidth)
-				img.style.width = this.imgWidth + 'px';
-			img.style.verticalAlign = 'middle';
+			if (this.imgHeight) {
+				percentage = this.imgHeight.toString().charAt(this.imgHeight.length-1);
+				img.style.height = (percentage == '%')?this.imgHeight:this.imgHeight + 'px';
+			}
+			if (this.imgWidth) {
+				percentage = this.imgWidth.toString().charAt(this.imgWidth.length-1);
+				img.style.width = (percentage == '%')?this.imgWidth:this.imgWidth + 'px';
+			}
+			img.style.verticalAlign = (this.getCaption()=='')?'top':'middle';
 			img.ondragstart = QuiX.cancelDefault;
 			
 			if (w.getCaption()!='') {
