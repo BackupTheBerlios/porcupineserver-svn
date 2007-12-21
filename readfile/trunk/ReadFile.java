@@ -94,8 +94,10 @@ public class ReadFile extends Applet {
 			} catch ( IOException e) {}
 		}
 	}
+	
+	
 //--------------------------------------------------------
-	public String selectFiles(final boolean multiselect) {
+	public String selectFiles(final boolean multiselect, final String fileType) {
 		final Applet applet = this;
 		String selection = "";
 		
@@ -104,6 +106,13 @@ public class ReadFile extends Applet {
 		            new PrivilegedExceptionAction() {
 		            public Object run() {
 		             	JFileChooser fileChooser = new JFileChooser();
+		             	
+		             	if (!fileType.equals("*"))
+		             	{
+		             		fileChooser.removeChoosableFileFilter(fileChooser.getAcceptAllFileFilter());
+		             		fileChooser.addChoosableFileFilter(new PorcupineFileFilter(fileType));
+		             	}
+		             	
 		             	File[] files;
 		             	String selection = "";
 		             	fileChooser.setMultiSelectionEnabled(multiselect);
