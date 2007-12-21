@@ -428,9 +428,10 @@ class ExternalFile(String):
         # copy the external file
         fcounter = 1
         old_filename = new_filename = self.value
-        filename, extension = os.path.splitext( old_filename )
+        filename, extension = os.path.splitext(old_filename)
+        filename = filename.split('_')[0]
         while os.path.exists( new_filename ):
-            new_filename = ('%s_%d.%s' % (filename, fcounter, extension))
+            new_filename = ('%s_%d%s' % (filename, fcounter, extension))
             fcounter += 1
         shutil.copyfile(old_filename, new_filename)
         clone.value = new_filename
