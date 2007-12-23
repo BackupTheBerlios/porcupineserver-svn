@@ -26,6 +26,7 @@ from porcupine.services import management
 from porcupine.utils import misc
 
 class Session(object):
+    __slots__ = ('sessionid', 'lastAccessed', '__user', '__data')
     """
     Porcupine server session type.
     
@@ -86,10 +87,7 @@ class Session(object):
 
         @rtype: type
         """
-        if self.__data.has_key(sName):
-            return self.__data[sName]
-        else:
-            return None
+        return self.__data.get(sName, None)
 
     def getTempFile(self):
         """
