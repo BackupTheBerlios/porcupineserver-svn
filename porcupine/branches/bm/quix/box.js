@@ -159,14 +159,21 @@ QuiX.constructors['flowbox'] = FlowBox;
 FlowBox.prototype = new Widget;
 
 FlowBox.prototype.appendChild = function(w) {
+	var show = false;
 	w.destroy = FlowBoxWidget__destroy;
 	if (this.select) {
 		w.attachEvent('onmousedown', QuiX.getEventWrapper(FlowBox__selectItem,
 			w._getHandler('onmousedown')));
 	}
 	w._setCommonProps();
+	if (!w.isHidden()) {
+		w.hide();
+		show = true;
+	}
 	Widget.prototype.appendChild(w, this);
 	this._rearrange(this.widgets.length - 1);
+	if (show)
+		w.show();
 }
 
 FlowBox.prototype.redraw = function(bForceAll) {

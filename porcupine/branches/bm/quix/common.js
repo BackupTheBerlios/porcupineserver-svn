@@ -206,6 +206,7 @@ function Slider__mousedown(evt, handle) {
 	handle.attributes.__startx = handle.getLeft();
 	document.desktop.attachEvent('onmousemove', Slider__mousemove);
 	document.desktop.attachEvent('onmouseup', Slider__mouseup);
+	QuiX.cancelDefault(evt);
 }
 
 function Slider__mousemove(evt, desktop) {

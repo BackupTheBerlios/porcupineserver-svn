@@ -303,10 +303,6 @@ SelectList.prototype.addOption = function(params) {
 	params.width = '100%';
 	params.onmousedown = QuiX.getEventWrapper(SelectOption__onmousedown,
 		params.onmousedown);
-	/*
-	if (QuiX.browser=='moz' && QuiX.getOS()=='MacOS')
-		params.onclick = QuiX.stopPropag;
-	*/
 	var w = new Icon(params);
 	this.appendChild(w);
 	w.redraw();
@@ -397,10 +393,5 @@ function SelectOption__onmousedown(evt, option) {
 				oSelectList.deSelectOption(option);
 			else
 				oSelectList.selectOption(option);
-	}
-	if (QuiX.getMouseButton(evt) == 0) {
-		QuiX.cleanupOverlays();
-		QuiX.stopPropag(evt);
-		QuiX.cancelDefault(evt);
 	}
 }
