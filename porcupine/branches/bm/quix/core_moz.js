@@ -1192,15 +1192,9 @@ function Widget__enddrag(evt, desktop) {
 }
 
 function Widget__detecttarget(evt, desktop) {
-	var target = QuiX.getTarget(evt);
-	while (!target.widget)
-		target = QuiX.getParentNode(target)
-	
-	var w = target.widget;
-	
+	var w = QuiX.getTargetWidget(evt);
 	while (w && !w.dropable)
 		w = w.parent;
-	
 	if (w && w != QuiX.dragable && w != QuiX.dragable.parent) {
 		QuiX.tmpWidget.div.style.borderColor = 'red';
 		QuiX.dropTarget = w;
