@@ -338,23 +338,25 @@ Window.prototype.maximize = function(w) {
 }
 
 Window.prototype.bringToFront = function() {
-	var sw, dt;
-	var macff = QuiX.browser == 'moz' && QuiX.getOS() == 'MacOS';
-	Widget.prototype.bringToFront(this);
-	if (macff) {
-		var dt = document.desktop;
-		//hide scrollbars
-		sw = dt.getWidgetsByAttributeValue('_overflow', 'auto');
-		sw = sw.concat(dt.getWidgetsByAttributeValue('_overflow', 'scroll'));
-		for (var i=0; i<sw.length; i++) {
-			if (sw[i] != this.parent)
-				sw[i].div.style.overflow = 'hidden';
+	if (this.div.style.zIndex < this.parent.maxz) {
+		var sw, dt;
+		var macff = QuiX.browser == 'moz' && QuiX.getOS() == 'MacOS';
+		Widget.prototype.bringToFront(this);
+		if (macff) {
+			var dt = document.desktop;
+			//hide scrollbars
+			sw = dt.getWidgetsByAttributeValue('_overflow', 'auto');
+			sw = sw.concat(dt.getWidgetsByAttributeValue('_overflow', 'scroll'));
+			for (var i=0; i<sw.length; i++) {
+				if (sw[i] != this.parent)
+					sw[i].div.style.overflow = 'hidden';
+			}
+			//restore scrollbars
+			sw = this.getWidgetsByAttributeValue('_overflow', 'auto');
+			sw = sw.concat(this.getWidgetsByAttributeValue('_overflow', 'scroll'));
+			for (var i=0; i<sw.length; i++)
+				sw[i].div.style.overflow = sw[i]._overflow;
 		}
-		//restore scrollbars
-		sw = this.getWidgetsByAttributeValue('_overflow', 'auto');
-		sw = sw.concat(this.getWidgetsByAttributeValue('_overflow', 'scroll'));
-		for (var i=0; i<sw.length; i++)
-			sw[i].div.style.overflow = sw[i]._overflow;
 	}
 }
 
