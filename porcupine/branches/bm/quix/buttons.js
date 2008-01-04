@@ -26,7 +26,6 @@ function Label(params) {
 		this.div.onselectstart = QuiX.stopPropag;
 		this.div.style.cursor = 'text';
 	}
-	
 	this.wrap = (params.wrap=="true" || params.wrap==true);
 	
 	var sCaption = params.caption || '';
@@ -58,7 +57,8 @@ Label.prototype.redraw = function(bForceAll, w) {
 }
 
 function Label__onmousedown(evt, w) {
-	if (w.canSelect) QuiX.stopPropag(evt);
+	if (!w.canSelect)
+		QuiX.cancelDefault(evt);
 }
 
 function Icon(params) {
