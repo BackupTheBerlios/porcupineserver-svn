@@ -234,7 +234,7 @@ QuiX.constructors['foldertree'] = FolderTree;
 FolderTree.prototype = new Tree;
 
 FolderTree.prototype.appendChild = function(w) {
-	w.dropable = this._dropable;
+	w.dropable = (typeof w.dropable == 'undefined')?this._dropable:w.dropable;
 	if (w.dropable && this._ondrop)
 		w.attachEvent('ondrop', this._ondrop);
 	Tree.prototype.appendChild(w, this);
