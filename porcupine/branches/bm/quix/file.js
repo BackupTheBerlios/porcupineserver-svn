@@ -243,6 +243,7 @@ function MultiFile(params) {
 
 QuiX.constructors['multifile'] = MultiFile;
 MultiFile.prototype = new Widget;
+MultiFile.prototype.customEvents = Widget.prototype.customEvents.concat(['oncomplete']);
 
 MultiFile.prototype.showUploadDialog = function(evt, w) {
 	var file_size;
@@ -272,7 +273,7 @@ MultiFile.prototype.showUploadDialog = function(evt, w) {
 		this._tmpsize = this.current_file.size;
 		
 		var oMultiFile = this;
-		oWin.showWindowFromString(
+		document.desktop.parseFromString(
 			'<dialog xmlns="http://www.innoscript.org/quix" title="' +
 					this.filecontrol.contextMenu.options[0].getCaption() + '" ' +
 					'width="240" height="140" left="center" top="center">' +
@@ -377,6 +378,9 @@ MultiFile.prototype.onfilecomplete = function(filecontrol) {
 		multifile._tmpsize = multifile.current_file.size;
 		filecontrol.setFile(multifile.current_file.path);
 		filecontrol.upload();
-	} else
+	} else {
 		filecontrol.attributes.pbar1.getParentByType(Dialog).close();
+		if (multifile._customRegistry.oncomplete)
+			multifile._customRegistry.oncomplete(multifile);
+	}
 }
