@@ -245,6 +245,11 @@ QuiX.constructors['multifile'] = MultiFile;
 MultiFile.prototype = new Widget;
 MultiFile.prototype.customEvents = Widget.prototype.customEvents.concat(['oncomplete']);
 
+MultiFile.prototype.reset = function() {
+	this.files = [];
+	this.selectlist.clear();
+}
+
 MultiFile.prototype.showUploadDialog = function(evt, w) {
 	var file_size;
 	var filenames = this.filecontrol.uploader.selectFiles(true, this.filetypes);
