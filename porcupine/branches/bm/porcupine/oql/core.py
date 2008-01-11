@@ -74,6 +74,8 @@ fn  = {
     'len' : len,
     'abs' : abs,
     'str' : str,
+    'lower' : ( lambda a: a.lower() ),
+    'upper' : ( lambda a: a.upper() ),
     'date' : ( lambda a: Date(time.mktime(time.strptime(a, '%Y-%m-%dT%H:%M:%S'))) ),
     'trunc' : ( lambda a: int(a) ),
     'round' : ( lambda a: int(a+0.5) ),
