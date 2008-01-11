@@ -268,6 +268,6 @@ FolderTree.prototype.load_oncomplete = function(req) {
 		treeNode.appendChild(newNode);
 		newNode.redraw();
 	}
-	if (this._onexpand)
-		this._onexpand(treeNode);
+	if (treeNode.tree._onexpand)
+		treeNode.tree._onexpand(treeNode);
 }
