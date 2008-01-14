@@ -1144,7 +1144,7 @@ function Widget__showtooltip(w, x, y) {
 }
 
 function Widget__startdrag(evt, w) {
-	if (QuiX.getMouseButton(evt) == 1) {
+	if (QuiX.getMouseButton(evt) == 0) {
 		var x = evt.clientX;
 		var y = evt.clientY;
 		document.desktop.attachEvent('onmouseup', Widget__enddrag);
