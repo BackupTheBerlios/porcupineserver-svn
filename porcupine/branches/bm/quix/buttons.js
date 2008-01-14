@@ -201,7 +201,7 @@ function XButton(params) {
 	params.width = '100%';
 	params.height = '100%';
 	params.border = 1;
-	this.iconPadding = params.iconPadding || '0,0,0,0';
+	this.iconPadding = params.iconpadding || '0,0,0,0';
 	params.padding = this.iconPadding;
 	params.align = params.align || 'center';
 
@@ -248,20 +248,25 @@ function XButton__onmouseover(evt, w) {
 
 function XButton__onmouseout(evt, w) {
 	w.div.className = 'btn';
-	w.icon.addPaddingOffset('Left', -2);
-	w.icon.addPaddingOffset('Top', -1);
+	if (w._isPressed) {
+		w.icon.addPaddingOffset('Left', -1);
+		w.icon.addPaddingOffset('Top', -1);
+		w._isPressed = false;
+	}
 }
 
 function XButton__onmousedown(evt, w) {
 	w.div.className = 'btndown';
-	w.icon.addPaddingOffset('Left', 2);
+	w.icon.addPaddingOffset('Left', 1);
 	w.icon.addPaddingOffset('Top', 1);
+	w._isPressed = true;
 }
 
 function XButton__onmouseup(evt, w) {
 	w.div.className = 'btn';
-	w.icon.addPaddingOffset('Left', -2);
+	w.icon.addPaddingOffset('Left', -1);
 	w.icon.addPaddingOffset('Top', -1);
+	w._isPressed = false;
 }
 
 //FlatButton class
