@@ -67,6 +67,7 @@ function File(params) {
 
 QuiX.constructors['file'] = File;
 File.prototype = new FlatButton;
+File.prototype.customEvents = FlatButton.prototype.customEvents.concat(['oncomplete']);
 
 File.prototype.openDocument = function() {
 	window.location.href = this.href;
@@ -117,6 +118,9 @@ File.prototype.onstatechange = function(filecontrol) {
 
 File.prototype.oncomplete = File.prototype.onerror = function(filecontrol) {
 	filecontrol.attributes.pbar.getParentByType(Dialog).close();
+	if (filecontrol._customRegistry.oncomplete)
+			filecontrol._customRegistry.oncomplete(filecontrol);
+	
 }
 
 File.prototype._getCaption = function() {
@@ -388,4 +392,5 @@ MultiFile.prototype.onfilecomplete = function(filecontrol) {
 		if (multifile._customRegistry.oncomplete)
 			multifile._customRegistry.oncomplete(multifile);
 	}
+		
 }
