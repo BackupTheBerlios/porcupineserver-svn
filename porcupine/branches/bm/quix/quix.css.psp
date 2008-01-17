@@ -316,11 +316,6 @@ BODY {
 	font-size : 11px;
 }
 
-.listview .list TABLE .selected {
-	background-color : #6699FF;
-	color: White;
-}
-
 .progressbar {
 	border-style: solid;
 	border-color: black;
