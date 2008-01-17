@@ -150,9 +150,14 @@ function FlowBox(params) {
 	var iSpacing = params.spacing || 8;
 	this.spacing = parseInt(iSpacing);
 	this.select = (params.select == true || params.select == 'true')?
-				  true:false;
+					true:false;
+	this.multiple = (params.multiple == true || params.multiple == 'true')?
+					true:false;
 	if (this.select)
-		this._selection = null;
+		if (this.multiple)
+			this._selection = [];
+		else
+			this._selection = null;
 }
 
 QuiX.constructors['flowbox'] = FlowBox;
@@ -229,8 +234,13 @@ FlowBox.prototype._calcRowHeight = function(iStart) {
 
 function FlowBoxWidget__destroy() {
 	var fb = this.parent;
-	if (fb._selection == this) {
-		fb._selection = null;
+	if (this.parent.multiple) {
+		if (fb._selection.hasItem(this))
+			fb._selection.removeItem(this);
+	}
+	else {
+		if (fb._selection == this)
+			fb._selection = null;
 	}
 	for (var i=0; i<fb.widgets.length; i++) {
 		if (fb.widgets[i] == this)
@@ -243,10 +253,32 @@ function FlowBoxWidget__destroy() {
 
 function FlowBox__selectItem(evt ,w) {
 	var fb = w.parent;
-	if (fb._selection) {
-		var tok = fb._selection.div.className.split(' ');
+	
+	function _unselectWidget(w) {
+		var tok = w.div.className.split(' ');
 		tok.pop();
-		fb._selection.div.className = tok.join(' ');	}
-	fb._selection = w;
+		w.div.className = tok.join(' ');
+	}
+	
+	if (!fb.multiple) {
+		if (fb._selection)
+			_unselectWidget(fb._selection)
+		fb._selection = w;
+	}
+	else {
+		if (!evt.shiftKey) {
+			var s, tok;
+			for (var i=0; i<fb._selection.length; i++)
+				_unselectWidget(fb._selection[i]);
+			fb._selection = [];
+		}
+		if (fb._selection.hasItem(w)) {
+			fb._selection.removeItem(w);
+			_unselectWidget(w);
+			return;
+		}
+		else
+			fb._selection.push(w);
+	}
 	w.div.className += ' selected';
 }
