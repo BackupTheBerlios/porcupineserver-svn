@@ -361,7 +361,7 @@ ListView.prototype.refresh = function(w) {
 	for (i=0; i<w.dataSet.length; i++) {
 		oRow = document.createElement("tr");
 		oRow.isSelected = false;
-		rowBgColor = this.altColors[i%2];
+		rowBgColor = w.altColors[i%2];
 		oRow.style.backgroundColor = rowBgColor;
 		if (w.hasSelector) {
 			selector = w._getSelector();
