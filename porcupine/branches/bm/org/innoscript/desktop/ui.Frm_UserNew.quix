@@ -19,13 +19,16 @@
 						<label top="55" left="5" width="80" height="20" caption="@@description@@:"/>
 						<field id="description" name="description" top="53" left="95" width="72%"/>
 
-						<hr top="88" width="100%"/>
+						<label top="81" left="5" width="80" height="20" caption="@@email@@:"/>
+						<field id="description" name="email" top="80" left="95" width="72%"/>
+					
+						<hr top="112" width="100%"/>
 						
-						<label top="100" left="5" width="100" height="20" caption="@@password@@:"/>
-						<field id="password" name="password" type="password" top="98" left="115" width="230"/>
+						<label top="126" left="5" width="100" height="20" caption="@@password@@:"/>
+						<field id="password" name="password" type="password" top="124" left="115" width="230"/>
 	
-						<label top="125" left="5" width="100" height="20" caption="Re-enter password:"/>
-						<field id="password2" type="password" top="124" left="115" width="230"/>
+						<label top="151" left="5" width="100" height="20" caption="Re-enter password:"/>
+						<field id="password2" type="password" top="150" left="115" width="230"/>
 				</tab>
 				<tab caption="@@memberof@@">
 					<custom classname="ReferenceN" width="100%" height="100%"

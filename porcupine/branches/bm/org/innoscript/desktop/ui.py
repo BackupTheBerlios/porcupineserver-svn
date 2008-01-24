@@ -619,6 +619,7 @@ class Frm_UserProperties(PorcupineDesktopServlet):
         
         self.params['NAME'] = self.item.displayName.value
         self.params['FULL_NAME'] = self.item.fullName.value
+        self.params['EMAIL'] = self.item.email.value
         self.params['DESCRIPTION'] = self.item.description.value
         self.params['MODIFIED'] = \
             date.Date(self.item.modified).format(DATES_FORMAT, sLang)
