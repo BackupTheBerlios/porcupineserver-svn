@@ -34,7 +34,7 @@ QuiX.constructors['timer'] = Timer;
 Timer.prototype = new Widget;
 
 Timer.prototype.start = function() {
-	if (!this.timerid) {
+	if (!this._timerid) {
 		var oTimer = this;
 		var handler_func = QuiX.getEventListener(this.handler);
 		var _handler = function() {
