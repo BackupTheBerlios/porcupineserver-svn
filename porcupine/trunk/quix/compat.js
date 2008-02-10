@@ -88,6 +88,20 @@ QuiX.tags = {
 	'box':15
 };
 
+QuiX.getOS = function()
+{
+	var os_name = 'Unknown OS';
+	if (navigator.appVersion.indexOf("Win")!=-1)
+		os_name="Windows";
+	if (navigator.appVersion.indexOf("Mac")!=-1)
+		os_name="MacOS";
+	if (navigator.appVersion.indexOf("X11")!=-1)
+		os_name="UNIX";
+	if (navigator.appVersion.indexOf("Linux")!=-1)
+		os_name="Linux";
+	return os_name;
+}
+
 QuiX.getWidgetsById = function(w, sid) {
 	var ws = [];
 	if (w._id_widgets[sid])
