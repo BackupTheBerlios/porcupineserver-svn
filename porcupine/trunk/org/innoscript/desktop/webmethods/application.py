@@ -25,7 +25,7 @@ from porcupine.security import objectAccess
 from porcupine.utils import date, xmlUtils
 
 from org.innoscript.desktop.schema.common import Application
-from org.innoscript.desktop.webmethods import base
+from org.innoscript.desktop.webmethods import baseitem
 
 @filter.i18n('org.innoscript.desktop.strings.resources')
 @webmethods.quixui(of_type=Application,
@@ -46,9 +46,9 @@ def properties(self):
         'DESCRIPTION' : self.description.value,
         'ICON' : self.icon.value,
         'LAUNCH_URL' : xmlUtils.XMLEncode(self.launchUrl.value),
-        'MODIFIED' : modified.format(base.DATES_FORMAT, sLang),
+        'MODIFIED' : modified.format(baseitem.DATES_FORMAT, sLang),
         'MODIFIED_BY' : self.modifiedBy,
         'CONTENTCLASS' : self.contentclass,
-        'SECURITY_TAB' : base._getSecurity(self, context.session.user),
+        'SECURITY_TAB' : baseitem._getSecurity(self, context.session.user),
         'READONLY' : str(readonly).lower()
     }

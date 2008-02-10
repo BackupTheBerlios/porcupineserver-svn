@@ -24,7 +24,7 @@ from porcupine import filter
 from porcupine.utils import date
 from porcupine.systemObjects import DeletedItem
 
-from org.innoscript.desktop.webmethods import base
+from org.innoscript.desktop.webmethods import baseitem
 
 @filter.i18n('org.innoscript.desktop.strings.resources')
 @webmethods.quixui(of_type=DeletedItem, template='../ui.Frm_DeletedItem.quix')
@@ -37,7 +37,7 @@ def properties(self):
         'ICON': self.__image__,
         'NAME': self.originalName,
         'LOC': self.originalLocation,
-        'MODIFIED': modified.format(base.DATES_FORMAT, sLang),
+        'MODIFIED': modified.format(baseitem.DATES_FORMAT, sLang),
         'MODIFIED_BY': self.modifiedBy,
         'CONTENTCLASS': self.getDeletedItem().contentclass
     }

@@ -22,7 +22,7 @@ from porcupine import webmethods
 from porcupine import filter
 
 from org.innoscript.desktop.schema import security
-from org.innoscript.desktop.webmethods import base
+from org.innoscript.desktop.webmethods import baseitem
 
 @filter.i18n('org.innoscript.desktop.strings.resources')
 @webmethods.quixui(of_type=security.UsersFolder,
@@ -41,7 +41,7 @@ def new(self):
         'ICON' : oUser.__image__,
         'SELECT_FROM_POLICIES' : 'policies',
         'POLICIES_REL_CC' : '|'.join(oUser.policies.relCc),
-        'SECURITY_TAB' : base._getSecurity(self, context.session.user)
+        'SECURITY_TAB' : baseitem._getSecurity(self, context.session.user)
     }
 
 @filter.i18n('org.innoscript.desktop.strings.resources')

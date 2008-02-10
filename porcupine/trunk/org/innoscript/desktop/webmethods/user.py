@@ -25,7 +25,7 @@ from porcupine.security import objectAccess
 from porcupine.utils import date, xmlUtils
 
 from org.innoscript.desktop.schema.security import User
-from org.innoscript.desktop.webmethods import base
+from org.innoscript.desktop.webmethods import baseitem
 
 @filter.i18n('org.innoscript.desktop.strings.resources')
 @webmethods.quixui(of_type=User,
@@ -46,7 +46,7 @@ def properties(self):
         'NAME' : self.displayName.value,
         'FULL_NAME' : self.fullName.value,
         'DESCRIPTION' : self.description.value,
-        'MODIFIED' : date.Date(self.modified).format(base.DATES_FORMAT, sLang),
+        'MODIFIED' : date.Date(self.modified).format(baseitem.DATES_FORMAT, sLang),
         'MODIFIED_BY' : self.modifiedBy,
         'CONTENTCLASS' : self.contentclass,
         'SELECT_FROM' : self.parentid,
@@ -72,7 +72,7 @@ def properties(self):
                              xmlUtils.XMLEncode(policy.displayName.value)]
     params['POLICIES'] = ';'.join(policies_options)
     
-    params['SECURITY_TAB'] = base._getSecurity(self, user)
+    params['SECURITY_TAB'] = baseitem._getSecurity(self, user)
     return params
 
 @filter.i18n('org.innoscript.desktop.strings.resources')

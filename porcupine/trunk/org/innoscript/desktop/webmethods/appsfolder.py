@@ -22,7 +22,7 @@ from porcupine import webmethods
 from porcupine import filter
 
 from org.innoscript.desktop.schema import common
-from org.innoscript.desktop.webmethods import base
+from org.innoscript.desktop.webmethods import baseitem
 
 @filter.i18n('org.innoscript.desktop.strings.resources')
 @webmethods.quixui(of_type=common.AppsFolder, template='../ui.Frm_AppNew.quix')
@@ -35,5 +35,5 @@ def new(self):
         'CC': oApp.contentclass,
         'URI': self.id,
         'ICON': oApp.__image__,
-        'SECURITY_TAB': base._getSecurity(self, context.session.user)
+        'SECURITY_TAB': baseitem._getSecurity(self, context.session.user)
     }
