@@ -1,5 +1,5 @@
 /************************
-Tree control
+Tree node
 ************************/
 
 function TreeNode(params) {
@@ -176,6 +176,10 @@ function TreeNode_bdlclick(evt, w) {
 	QuiX.stopPropag(evt);
 }
 
+/************************
+Tree
+************************/
+
 function Tree(params) {
 	this.base = Widget;
 	this.base(params);
@@ -203,9 +207,12 @@ Tree.prototype.selectNode = function(w) {
 }
 
 Tree.prototype.getSelection = function() {
-	var retVal = (this.selectedWidget)? this.selectedWidget:this.roots[0];
-	return(retVal);
+	return this.selectedWidget;
 }
+
+/************************
+Folder tree
+************************/
 
 function FolderTree(params) {
 	this.base = Tree;
@@ -236,6 +243,12 @@ FolderTree.prototype.load_oncomplete = function(req) {
 	}
 	for (var i=0; i<oFolders.length; i++) {
 		newNode = new TreeNode(oFolders[i]);
+		//custom attributes
+		if (oFolders[i].attributes) {
+			for (var attr in oFolders[i].attributes){
+				newNode.attributes[attr] = oFolders[i].attributes[attr];
+			}
+		}
 		treeNode.appendChild(newNode);
 		newNode.redraw();
 	}
