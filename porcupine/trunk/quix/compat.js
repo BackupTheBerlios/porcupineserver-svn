@@ -121,6 +121,13 @@ QuiX.getTarget = function(evt) {
 		return evt.srcElement;
 }
 
+QuiX.getTargetWidget = function(evt) {
+	var el = QuiX.getTarget(evt);
+	while (!el.widget)
+		el = QuiX.getParentNode(el);
+	return el.widget;
+}
+
 QuiX.removeNode = function(node) {
 	var oNode;
 	if (node.removeNode)
