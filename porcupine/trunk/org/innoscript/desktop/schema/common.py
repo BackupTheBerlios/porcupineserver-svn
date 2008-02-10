@@ -137,7 +137,7 @@ class PersonalFolder(Folder):
     ===============
     Used for storing each user's personal objects.
     """
-    pass
+    __slots__ = ()
 
 class Category(system.Container):
     """Category
