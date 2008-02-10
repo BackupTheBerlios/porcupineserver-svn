@@ -104,6 +104,9 @@ function Field(params) {
 			if (this.type!='textarea') e.type = this.type;
 			e.value = (params.value)?params.value:'';
 			this.textPadding = params.textpadding || 1;
+			if (params.maxlength)
+				e.maxLength = params.maxlength;
+			
 			if (this.type=='hidden') this.hide();
 			this.div.appendChild(e);
 
