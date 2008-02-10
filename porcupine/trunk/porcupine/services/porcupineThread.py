@@ -18,198 +18,147 @@
 
 import re
 
-from porcupine.core import psp, response, serverProxy
+from porcupine.config.settings import settings
+from porcupine.config import pubdirs
+
+from porcupine.core.http.context import HttpContext
+from porcupine.core.http.request import HttpRequest
+from porcupine.core.http.response import HttpResponse
+from porcupine.core.http import ServerPage
+
+from porcupine.db import dbEnv
 from porcupine import serverExceptions
 from porcupine.core.services.asyncBaseServer import BaseServerThread
-from porcupine.config.settings import settings
-from porcupine.config import registrations
-from porcupine.security import sessionManager
-from porcupine.db import db
-
-SESSIONID = re.compile('/\{([a-f0-9]{32})\}')
-COOKIE_DETECT_PAGE = 'conf/cookiedetect.html'
 
 class PorcupineThread(BaseServerThread):
+    _method_cache = {}
     def __init__(self, target, name):
         BaseServerThread.__init__(self, target, name)
-        self.request = None
-        self.session = None
+        self.context = None
         self.trans = None
 
-    def getResponse(self):
-        # get request parameters
-        sMethod = self.request.serverVariables['REQUEST_METHOD']
-        sBrowser = self.request.serverVariables['HTTP_USER_AGENT']
-        sLang = self.request.getLang()
-        sPath = self.request.serverVariables.setdefault('PATH_INFO', '/') or '/'
-
-        self.response = response.BaseResponse()
-
-        servlet = None
-        sAction = None
-        self.request.item = None
+    def get_response(self, raw_request):
+        response = HttpResponse()
+        request = HttpRequest(raw_request)
+        self.context = HttpContext(request, response)
+        
+        item = None
         registration = None
         
         try:
+            sPath = request.serverVariables['PATH_INFO']
             try:
-                oSession = None
-                cookiesEnabled = True
-                if self.request.cookies.has_key('_sid'):
-                    oSession = sessionManager.fetchSession(
-                       self.request.cookies['_sid'].value )
-                else:
-                    cookiesEnabled = False
-                    oSessionMatch = re.match(SESSIONID, sPath)
-                    if oSessionMatch:
-                        sPath = sPath.replace(oSessionMatch.group(), '', 1) or '/'
-                        oSession = sessionManager.fetchSession(oSessionMatch.group(1))
-                
-                if oSession:
-                    self.session = oSession
-                    self.request.serverVariables["AUTH_USER"] = \
-                        oSession.user.displayName.value
-                    oUser = oSession.user
-                    
-                    if not cookiesEnabled:
-                        if not oSession.sessionid in \
-                                self.request.serverVariables["SCRIPT_NAME"]:
-                            self.request.serverVariables["SCRIPT_NAME"] += \
-                                '/{%s}' % oSession.sessionid
-                        else:
-                            lstScript = \
-                                self.request.serverVariables["SCRIPT_NAME"].split('/')
-                            self.request.serverVariables["SCRIPT_NAME"] = \
-                                "/%s/{%s}" %(lstScript[1], oSession.sessionid)
-                else:
-                    # invalid sesionid
-                    # create new session and redirect
-                    self.createGuestSessionAndRedirect(sPath)
-
                 try:
-                    self.request.item = db.getItem(sPath)
-                    # db request
-                    sItemCC = self.request.item.getContentclass()
-                    # get the query string
-                    sQS = self.request.serverVariables['QUERY_STRING']
-                    # get cmd parameter
-                    sCmd = self.request.queryString.setdefault('cmd',[''])[0]
-                    
-                    registration = registrations.storeConfig.getRegistration(
-                        sItemCC, sMethod, sCmd, sQS, sBrowser, sLang)
-                    
-                    allow_guests = self.requestHandler.server.parameters['allow_guests']
-                    login_page = self.requestHandler.server.parameters['login_page']
-    
-                    if not(allow_guests or \
-                           hasattr(oUser, 'authenticate')) and \
-                           login_page != (sPath + \
-                           self.request.getQueryString())[:len(login_page)]:
-
-                        sLoginUrl = self.request.getRootUrl() + login_page
-                        self.response.redirect(sLoginUrl)
-
-                    if not registration:
-                        raise serverExceptions.NoViewRegistered
-    
-                except serverExceptions.DBItemNotFound:
-                    # app request
+                    item = dbEnv.getItem(sPath)
+                except serverExceptions.ObjectNotFound:
+                    # dir request
                     lstPath = sPath.split('/')
-                    appName = lstPath[1]
+                    dirName = lstPath[1]
                     # remove blank entry & app name to get the requested path
-                    sAppPath = '/'.join(lstPath[2:])
-                    webApp = registrations.apps.setdefault(appName, None)
+                    sDirPath = '/'.join(lstPath[2:])
+                    webApp = pubdirs.dirs.setdefault(dirName, None)
                     if webApp:
                         registration = webApp.getRegistration(
-                            sAppPath, sMethod, sBrowser, sLang)
+                            sDirPath,
+                            request.serverVariables['REQUEST_METHOD'],
+                            request.serverVariables['HTTP_USER_AGENT'],
+                            request.getLang())
                     if not registration:
-                        raise serverExceptions.ItemNotFound, \
+                        raise serverExceptions.NotFound, \
                             'The resource "%s" does not exist' % sPath
+                    
+                    # apply pre-processing filters
+                    [filter[0].apply(self.context, registration, **filter[1])
+                     for filter in registration.filters
+                     if filter[0].type == 'pre']
                 
-                rtype = registration.type
-
-                if rtype == 2: #servlet
-                    servlet = registration.context(serverProxy.proxy, oSession,
-                                                   self.request)
-                    servlet.execute()
-                elif rtype == 1: # psp page
-                    servlet = psp.PspExecutor(serverProxy.proxy, oSession,
-                                              self.request)
-                    servlet.execute(registration.context)
-                elif rtype == 0: # static file
-                    self.response.loadFromFile(registration.context)
-                    if registration.encoding:
-                        self.response.charset = registration.encoding
+                    rtype = registration.type
+                    if rtype == 1: # psp page
+                        ServerPage.execute(self.context, registration.context)
+                    elif rtype == 0: # static file
+                        response.loadFromFile(registration.context)
+                        if registration.encoding:
+                            response.charset = registration.encoding
+                else:
+                    # db request
+                    if (item == None):
+                        raise serverExceptions.PermissionDenied
+                    self.dispatch_method(item)
             
             except serverExceptions.ResponseEnd, e:
                 pass
             
-            if registration:
+            if registration != None:
                 # do we have caching directive?
                 if registration.max_age:
-                    self.response.setExpiration(registration.max_age)
+                    response.setExpiration(registration.max_age)
                 # apply post-processing filters
-                dummy = [
-                    filter[0].apply(self.response, self.request, registration,
-                                    filter[1])
-                    for filter in registration.filters
-                ]
+                [filter[0].apply(self.context, registration, **filter[1])
+                 for filter in registration.filters
+                 if filter[0].type == 'post']
 
-        except serverExceptions.InternalServerRedirect, e:
-            lstPathInfo = e.info.split('?')
-            self.request.serverVariables['PATH_INFO'] = lstPathInfo[0]
+        except serverExceptions.InternalRedirect, e:
+            lstPathInfo = e.args[0].split('?')
+            raw_request['env']['PATH_INFO'] = lstPathInfo[0]
             if len(lstPathInfo == 2):
-                self.request.serverVariables['QUERY_STRING'] = lstPathInfo[1]
+                raw_request['env']['QUERY_STRING'] = lstPathInfo[1]
             else:
-                self.request.serverVariables['QUERY_STRING'] = ''
-            self.getResponse()
+                raw_request['env']['QUERY_STRING'] = ''
+            self.get_response(raw_request)
             
         except serverExceptions.PorcupineException, e:
-            self.response._writeError(e)
-            if e.severity:
-                e.writeToLog()
+            e.emit(self.context, item)
                 
         except serverExceptions.ProxyRequest, e:
             raise e
         
         except:
             e = serverExceptions.InternalServerError()
-            self.response._writeError(e)
-            if e.severity:
-                e.writeToLog()
-
+            e.emit(self.context, item)
+        
         # abort uncommited transaction
-        if self.trans and not self.trans._iscommited:
+        if self.trans != None and not self.trans._iscommited:
             self.trans.abort()
-
         self.trans = None
-
-        settings['requestinterfaces'][self.request.interface](self.requestHandler,
-                                                              self.response)
-
-    def createGuestSessionAndRedirect(self, sPath):
-        # create new session with the specified guest user
-        oGuest = db.getItem(settings['sessionmanager']['guest'])
-        oNewSession = sessionManager.create(oGuest)
         
-        self.response = response.HTTPResponse()
-        
-        SESSION_ID = oNewSession.sessionid;
-        ROOT = self.request.getRootUrl()
-        PATH = sPath
-        QS = self.request.getQueryString()
+        settings['requestinterfaces'][request.interface](
+              self.requestHandler, response)
 
-        # add cookie with sessionid
-        self.response.cookies['_sid'] = SESSION_ID
-        self.response.cookies['_sid']['path'] = '/'
+    def dispatch_method(self, item):
+        method_name = self.context.request.method or '__blank__'
+        method = None
         
-        if '_nojavascript' in QS:
-            self.response.redirect('%(ROOT)s/{%(SESSION_ID)s}%(PATH)s' % locals())        
+        # get request parameters
+        r_http_method = self.context.request.serverVariables['REQUEST_METHOD']
+        r_browser = self.context.request.serverVariables['HTTP_USER_AGENT']
+        r_qs = self.context.request.serverVariables['QUERY_STRING']
+        r_lang = self.context.request.getLang()
+        
+        method_key = (item.__class__, method_name, r_http_method,
+                      r_qs, r_browser, r_lang)
+        
+        method = self._method_cache.get(method_key, None)
+        if method == None:
+            candidate_methods = [meth for meth in dir(item)
+                                 if meth[:4+len(method_name)] == \
+                                 'WM_%s_' % method_name]
+            
+            for method_name in candidate_methods:
+                http_method, client, lang, qs = \
+                    getattr(item, method_name).func_dict['cnd']
+            
+                if re.match(http_method, r_http_method) and \
+                        re.search(qs, r_qs) and \
+                        re.search(client, r_browser) and \
+                        re.match(lang, r_lang):
+                    method = method_name
+                    break
+        
+            self._method_cache[method_key] = method
+    
+        if method == None:
+            raise serverExceptions.NotFound, \
+                'Invalid method call "%s"' % method_name
         else:
-            oFile = open(COOKIE_DETECT_PAGE)
-            sBody = oFile.read()
-            oFile.close()
-        
-        self.response.write( sBody % locals() )
-
-        self.response.end()
-
+            # execute method
+            getattr(item, method)(self.context)

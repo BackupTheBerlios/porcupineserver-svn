@@ -20,7 +20,6 @@ from threading import currentThread
 from cPickle import loads
 from socket import error as socketError
 
-from porcupine.core import request
 from porcupine.core.services import asyncBaseServer
 from porcupine.services.porcupineThread import PorcupineThread
 from porcupine import serverExceptions
@@ -34,10 +33,9 @@ class PorcupineServer(asyncBaseServer.BaseServer):
 class requestHandler(asyncBaseServer.BaseRequestHandler):
     "Porcupine Server request handler"
     def handleRequest(self):
-        oCurrentThread = currentThread()
-        oCurrentThread.request = request.Request(loads(self.input_buffer))
+        raw_request = loads(self.input_buffer)
         try:
-            oCurrentThread.getResponse()
+            currentThread().get_response(raw_request)
         except serverExceptions.ProxyRequest:
 ##            print 'redirecting request'
 ##            time.sleep(10.0)

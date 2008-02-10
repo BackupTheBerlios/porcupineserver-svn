@@ -17,8 +17,11 @@
 """
 Porcupine Object Set
 """
+import types
 
+from porcupine import serverExceptions
 from porcupine.db import db
+from porcupine.db import dbEnv
 
 class ObjectSet(object):
     """
@@ -26,95 +29,141 @@ class ObjectSet(object):
     ====================
     The Porcupine object set is a versatile type for keeping a large collection
     of objects or rows with a specified schema.
-    It suppports the iterator protocol and partially emulates the list type.
-    It implements the C{len} function, membership tests (C{in} operator),
-    slices, and the '+' operator.
+    There are two types of object sets; resolved and unresolved. They both
+    implement the iterator protocol and the '+' operator.
+    
+    An unresolved object set may contain references to objects that are not
+    accessible given the current security context. Such kind of object sets
+    are returned from methods such as:
+    L{getChildren<porcupine.systemObjects.Container.getChildren>} and
+    L{getItems<porcupine.datatypes.ReferenceN.getItems>}.
+    
+    The OQL C{select} statement always returns resolved object sets. Resolved
+    object sets provide enhanced functionality as they partialy emulate
+    the list type. They provide the C{len} function, membership tests
+    (C{in} operator) and slicing.
     """
-    def __init__(self, data, schema=None):
-        self._list = data
-        self.__index = -1
-
+    _cachesize = 100
+    def __init__(self,data, schema=None, txn=None,
+                 resolved=True, safe=True):
         self.__cache = []
-        self.__objectcache = 4000
-        self.__cacheindex = 0
+
+        self._list = data
+        self._txn = txn
+        self._resolved = resolved
+        self._safe = safe
 
         # schema info
         self.schema = schema
 
     def __iter__(self):
-        return self
+        if len(self._list) > 0:
+            if self.schema == None:
+                    if type(self._list[0]) == types.StringType:
+                        for x in range(len(self._list))[::self._cachesize]:
+                            self.__loadcache(x)
+                            while len(self.__cache) > 0:
+                                yield self.__cache.pop(0)
+                    else:
+                        for x in self._list:
+                            yield x
+            else:
+                for x in self._list:
+                    yield dict(zip(self.schema, x))
     
     def __len__(self):
-        return len(self._list)
+        """Returns the size of the objects set.
+        Valid only for resolved object sets.
+        
+        @raise TypeError: if the object set is unresloved
+        """
+        if self._resolved:
+            return len(self._list)
+        else:
+            raise TypeError, 'unresolved object sets are unsized'
         
     def __add__(self, objectset):
         """Implements the '+' operator.
-        In order to add two object sets successfully one of the following
+        In order to add two object sets successfully the objects sets must
+        share the same transaction handle and one of the following
         conditions must be met:
             1. Both of the object sets must contain objects
             2. Object sets must have identical schema
         """
         if self.schema == objectset.schema:
-            return ObjectSet(self._list + objectset._list)
+            if self._txn == objectset._txn:
+                return ObjectSet(self._list + objectset._list,
+                                 schema = self.schema,
+                                 txn = self._txn,
+                                 resolved = self._resolved and
+                                            objectset._resolved,
+                                 safe = self._safe and
+                                          objectset._safe)
+            else:
+                raise TypeError, 'Unsupported operand (+). Object sets ' + \
+                                 'do not share the same transaction'
         else:
-            raise TypeError, 'Unsupported operand (+). Objectsets do not' + \
-                ' have the same schema'
+            raise TypeError, 'Unsupported operand (+). Object sets do not ' + \
+                             'have the same schema'
         
     def __contains__(self, value):
-        """Implements membership tests.
+        """Implements membership tests. Valid only for resolved object sets.
         If the object set contains objects then legal tests are:
             1. C{object_id in objectset}
             2. C{object in objectset}
         If the object set contains rows then legal tests are:
             1. C{row_tuple in objectset}
             2. C{value in objectset} if the object set contains one field
+            
+        @raise TypeError: if the object set is unresloved
         """
-        if self.schema:
-            if len(self.schema) != 1:
-                return value in self._list
+        if self._resolved:
+            if self.schema:
+                if len(self.schema) != 1:
+                    return value in self._list
+                else:
+                    return value in [z[0] for z in self._list]
             else:
-                return value in [z[0] for z in self._list]
+                if not isinstance(value, str):
+                    try:
+                        value = value._id
+                    except AttributeError:
+                        raise TypeError, 'Invalid argument type'
+                return value in self._list
         else:
-            if not isinstance(value, str):
-                try:
-                    value = value._id
-                except AttributeError:
-                    raise TypeError, 'Invalid argument type'
-            return value in self._list
+            raise TypeError, 'unresolved object sets do not support ' + \
+                             'membership tests'
 
     def __getitem__(self, key):
-        """Implements slicing.
+        """Implements slicing. Valid only for resolved object sets.
         Useful for paging.
+        
+        @raise TypeError: if the object set is unresloved
         """
-        return ObjectSet(self._list[key], self.schema)
+        if self._resolved:
+            return ObjectSet(self._list[key],
+                             schema = self.schema,
+                             txn = self._txn)
+        else:
+            raise TypeError, 'unresolved object sets do not support slicing'
+        
+    def __getItemSafe(self, id):
+        try:
+            return dbEnv.getItem(id, self._txn)
+        except serverExceptions.ObjectNotFound:
+            return None
 
     def __loadcache(self, istart):
-#        print 'loading cache ' + str(istart)
-        self.__cache = [
-            db.getItem(id)
-            for id in self._list[istart:istart + self.__objectcache]
-        ]
-        self.__cacheindex = istart
-
-    def next(self):
-        self.__index += 1
-        if self.__index == len(self._list):
-            raise StopIteration
-        retVal = self._list[self.__index]
-        if not self.schema:
-            if isinstance(retVal, str):
-                if self.__index > self.__cacheindex + self.__objectcache or \
-                            self.__index < self.__cacheindex or \
-                            not self.__cache:
-                    # we need to load cache
-                    self.__loadcache(self.__index)
-                return self.__cache.pop(0)
-            else:
-                return retVal
+        if self._resolved:
+            self.__cache = [
+                db.getItem(id, self._txn)
+                for id in self._list[istart:istart + self._cachesize]]
         else:
-            rec = {}
-            for i in range(len(self.schema)):
-                rec[self.schema[i]] = retVal[i]
-            return rec
-
-    
+            if self._safe:
+                self.__cache = filter(None,
+                    [dbEnv.getItem(id, self._txn)
+                     for id in self._list[istart:istart + self._cachesize]])
+            else:
+                self.__cache = filter(None,
+                    [self.__getItemSafe(id)
+                     for id in self._list[istart:istart + self._cachesize]])

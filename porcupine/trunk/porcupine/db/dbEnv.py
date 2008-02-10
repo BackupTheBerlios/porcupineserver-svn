@@ -35,7 +35,8 @@ def getItem(sPath, trans=None):
     
     @rtype: L{GenericItem<porcupine.systemObjects.GenericItem>}
     
-    @raise porcupine.serverExceptions.DBItemNotFound: if the item does not exist
+    @raise porcupine.serverExceptions.ObjectNotFound: if the item does
+           not exist
     """
     if (trans):
         trans.actions.append( (getItem, (sPath, trans)) )
@@ -46,7 +47,7 @@ def getItem(sPath, trans=None):
         trans.retry()
 
     # check read permissions
-    if objectAccess.getAccess(oItem, currentThread().session.user):
+    if objectAccess.getAccess(oItem, currentThread().context.session.user) != 0:
         return(oItem)
     else:
         return(None)

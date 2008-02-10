@@ -48,47 +48,47 @@ class PubDirManager(object):
             configfile.close()
         self._xmlfile.unlink()
 
-class ConfigFileManager(object):
-    def __init__(self, configfile):
-        self._fn = configfile
-        self._xmlfile = minidom.parse(configfile)
-        
-    def getPackageNode(self, pkgname):
-        packagelist = self._xmlfile.getElementsByTagName('package')
-        for pkgnode in packagelist:
-            if pkgname==pkgnode.getAttribute('name'):
-                return pkgnode
-    
-    def addPackageNode(self, package_node):
-        packages_node = self._xmlfile.getElementsByTagName('packages')[0]
-        packages_node.appendChild(package_node)
-        
-    def removePackageNode(self, package_node):
-        packages_node = self._xmlfile.getElementsByTagName('packages')[0]
-        packages_node.removeChild(package_node)
-        
-    def replacePackageNode(self, new_node, old_node):
-        packages_node = self._xmlfile.getElementsByTagName('packages')[0]
-        packages_node.replaceChild(new_node, old_node)
-        
-    def close(self):
-        configfile = file(self._fn, 'w')
-        configfile.write(self._xmlfile.toxml('utf-8'))
-        configfile.close()
-        self._xmlfile.unlink()
-        
-def mergeConfigFiles(master, slave, removeSlave=True):
-    masterdom = minidom.parse(master)
-    slavedom = minidom.parse(slave)
-    masterPackages = masterdom.getElementsByTagName('packages')[0].cloneNode(True)
-    slavePackages = slavedom.getElementsByTagName('packages')[0]
-    slavedom.documentElement.replaceChild(masterPackages, slavePackages)
-
-    configfile = file(master, 'w')
-    configfile.write(slavedom.toxml('utf-8'))
-    configfile.close()
-    masterdom.unlink()
-    slavedom.unlink()
-    
-    if removeSlave:
-      os.remove(slave)
+#class ConfigFileManager(object):
+#    def __init__(self, configfile):
+#        self._fn = configfile
+#        self._xmlfile = minidom.parse(configfile)
+#        
+#    def getPackageNode(self, pkgname):
+#        packagelist = self._xmlfile.getElementsByTagName('package')
+#        for pkgnode in packagelist:
+#            if pkgname==pkgnode.getAttribute('name'):
+#                return pkgnode
+#    
+#    def addPackageNode(self, package_node):
+#        packages_node = self._xmlfile.getElementsByTagName('packages')[0]
+#        packages_node.appendChild(package_node)
+#        
+#    def removePackageNode(self, package_node):
+#        packages_node = self._xmlfile.getElementsByTagName('packages')[0]
+#        packages_node.removeChild(package_node)
+#        
+#    def replacePackageNode(self, new_node, old_node):
+#        packages_node = self._xmlfile.getElementsByTagName('packages')[0]
+#        packages_node.replaceChild(new_node, old_node)
+#        
+#    def close(self):
+#        configfile = file(self._fn, 'w')
+#        configfile.write(self._xmlfile.toxml('utf-8'))
+#        configfile.close()
+#        self._xmlfile.unlink()
+#        
+#def mergeConfigFiles(master, slave, removeSlave=True):
+#    masterdom = minidom.parse(master)
+#    slavedom = minidom.parse(slave)
+#    masterPackages = masterdom.getElementsByTagName('packages')[0].cloneNode(True)
+#    slavePackages = slavedom.getElementsByTagName('packages')[0]
+#    slavedom.documentElement.replaceChild(masterPackages, slavePackages)
+#
+#    configfile = file(master, 'w')
+#    configfile.write(slavedom.toxml('utf-8'))
+#    configfile.close()
+#    masterdom.unlink()
+#    slavedom.unlink()
+#    
+#    if removeSlave:
+#      os.remove(slave)

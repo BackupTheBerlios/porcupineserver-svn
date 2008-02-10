@@ -4,18 +4,6 @@ from porcupine.config.resources import ResourceStrings, Locale
 
 resources = ResourceStrings({
     '*' : Locale({
-        # dates
-        'DAYS' : [
-            'Sunday','Monday','Tuesday','Wednesday',
-            'Thursday','Friday','Saturday'
-        ],
-        'MONTHS' : [
-            'January','February','March','April','May','June',
-            'July','August','September','October','November','December'
-        ], 
-        'AM' : 'AM',
-        'PM' : 'PM',
-
         # classes
         'org.innoscript.desktop.schema.common.Folder' : 'Folder',
         'org.innoscript.desktop.schema.collab.ContactsFolder' : 'Contacts folder',
@@ -157,18 +145,6 @@ resources = ResourceStrings({
         'OPEN_CONTAINER' : 'Open container'
     }),
     'el' : Locale({
-        # dates 
-        'DAYS' : [
-            'Κυριακή','Δευτέρα','Τρίτη','Τετάρτη',
-            'Πεμπτη','Παρασκευή','Σάββατο'
-        ],
-        'MONTHS' : [
-            'Ιανουάριος','Φεβρουάριος','Μάρτιος','Απρίλιος','Μάιος','Ιούνιος',
-            'Ιούλιος','Αύγουστος','Σεπτέμβριος','Οκτώβριος','Νοέμβριος','Δεκέμβριος'
-        ],
-        'AM' : 'πμ',
-        'PM' : 'μμ',
-        
         # classes 
         'org.innoscript.desktop.schema.common.Folder' : 'Φάκελος',
         'org.innoscript.desktop.schema.collab.ContactsFolder' : 'Φάκελος επαφών',

@@ -15,14 +15,20 @@
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #===============================================================================
 """
-Porcupine GZIP post processing filter
+Porcupine output filters
 """
+import os
+import os.path
+import glob
+import gzip
+import cStringIO
+import re
 
-import os, os.path, glob, gzip, cStringIO
+from porcupine.filters import PostProcessFilter
+from porcupine.utils import misc
 
-from porcupine.filters import PostProcessingFilter
-
-class Gzip(PostProcessingFilter):
+class Gzip(PostProcessFilter):
+    "Compresses the server's output using the gzip compression algorithm"
     cacheFolder = None
     staticLevel = 9
     dynamicLevel = 3
@@ -34,19 +40,19 @@ class Gzip(PostProcessingFilter):
         zfile.close()
 
     @staticmethod
-    def apply(response, request, registration, args):
-        if not Gzip.cacheFolder:
+    def apply(context, registration, **kwargs):
+        if Gzip.cacheFolder == None:
             config = Gzip.loadConfig()
             Gzip.cacheFolder = config['cache']
             Gzip.staticLevel = int(config['static_compress_level'])
             Gzip.dynamicLevel = int(config['dynamic_compress_level'])
         
-        response.setHeader('Content-Encoding', 'gzip')    
-        isStatic = (registration.type == 0)
+        context.response.setHeader('Content-Encoding', 'gzip')    
+        isStatic = (registration != None and registration.type == 0)
                 
         if isStatic:
             fileName = registration.context
-            sMod = hex( os.stat(fileName)[8] )[2:]
+            sMod = hex(os.stat(fileName)[8])[2:]
             
             compfn = fileName.replace(os.path.sep, '_')
             if os.name == 'nt':
@@ -61,23 +67,44 @@ class Gzip(PostProcessingFilter):
                 res = [os.remove(oldFile) for oldFile in oldFiles]
 
                 zBuf = cStringIO.StringIO()
-                Gzip.compress(zBuf, response._getBody(), Gzip.staticLevel)
+                Gzip.compress(zBuf, context.response._getBody(), Gzip.staticLevel)
 
-                response._body = [zBuf.getvalue()]
+                context.response._body = zBuf
 
                 cache_file = file(compfn, 'wb')
                 cache_file.write(zBuf.getvalue())
                 
-                zBuf.close()
                 cache_file.close()
-                
             else:
                 cache_file = file(compfn, 'rb')
-                response._body = [cache_file.read()]
+                context.response.clear()
+                context.response.write(cache_file.read())
                 cache_file.close()
                 
         else:
             zBuf = cStringIO.StringIO()
-            Gzip.compress(zBuf, response._getBody(), Gzip.dynamicLevel)
-            response._body = [zBuf.getvalue()]
-            zBuf.close()
+            Gzip.compress(zBuf, context.response._getBody(), Gzip.dynamicLevel)
+            context.response._body = zBuf
+
+class I18n(PostProcessFilter):
+    _tokens = re.compile('(@@([\w\.]+)@@)')
+    """
+    Internationalization filter based on the browser's
+    preferred language setting.
+    """
+    @staticmethod
+    def apply(context, registration, **kwargs):
+        language = context.request.getLang()
+        lst_resources = kwargs['using'].split(',')
+        bundles = [misc.getCallableByName(x)
+                   for x in lst_resources]
+        output = context.response._body.getvalue()
+        tokens = frozenset(re.findall(I18n._tokens, output, re.DOTALL))
+        for token, key in tokens:
+            for bundle in bundles:
+                res = bundle.getResource(key, language)
+                if res != key:
+                    break
+            output = output.replace(token, res)
+        context.response.clear()
+        context.response.write(output)

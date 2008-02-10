@@ -331,7 +331,7 @@ QModule.prototype.load = function(callback) {
 		callback();
 	}
 	else {
-		if (typeof(window.event) != 'undefined')
+		if (typeof oElement.onreadystatechange != 'undefined')
 			oElement.onreadystatechange = Resource_onstatechange;
 		else
 			oElement.onload = Resource_onstatechange;

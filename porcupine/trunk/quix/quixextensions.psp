@@ -16,9 +16,10 @@
 //===============================================================================
 
 <%
-	from org.innoscript.desktop.strings import resources
+	from porcupine.utils.date import Date
+	resources = Date.resources
 	
-	sLang = request.getLang()
+	sLang = Request.getLang()
 	lstMonths = resources.getResource("MONTHS", sLang)
 	lstDays = resources.getResource("DAYS", sLang)
 	sMonths = ','.join(['"' + x + '"' for x in lstMonths])
@@ -27,7 +28,7 @@
 	sAM = resources.getResource("AM", sLang)
 	sPM = resources.getResource("PM", sLang)
 	
-	response.content_type = 'text/javascript'
+	Response.content_type = 'text/javascript'
 %>
 
 String.prototype.xmlDecode = function() {
@@ -73,10 +74,10 @@ Array.prototype.sortByAttribute = function(prop) {
 	this.sort(sortfunc);
 }
 
-Date.prototype.Months = [<%response.write(sMonths)%>];
-Date.prototype.Days = [<%response.write(sDays)%>];
-Date.prototype.AM = '<%response.write(sAM)%>';
-Date.prototype.PM = '<%response.write(sPM)%>';
+Date.prototype.Months = [<%Response.write(sMonths)%>];
+Date.prototype.Days = [<%Response.write(sDays)%>];
+Date.prototype.AM = '<%Response.write(sAM)%>';
+Date.prototype.PM = '<%Response.write(sPM)%>';
 
 Date.prototype.format = dateFormat;
 function dateFormat(format) {

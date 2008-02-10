@@ -21,3 +21,4 @@ Porcupine Desktop
 The Porcupine desktop environment, including all UI definitions and
 the XMLRPC interface.
 """
+from org.innoscript.desktop.webmethods import *

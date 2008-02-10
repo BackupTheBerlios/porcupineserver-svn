@@ -22,7 +22,7 @@ from org.innoscript.desktop.schema import common
 
 class PersonalFolderHandler(eventHandlers.ContentclassEventHandler):
     @classmethod
-    def on_create(self, user, trans):
+    def on_create(cls, user, trans):
         if not user.personalFolder.value:
             # create user's personal folder
             personal_folder = common.PersonalFolder()
@@ -39,7 +39,7 @@ class PersonalFolderHandler(eventHandlers.ContentclassEventHandler):
             personal_folder.appendTo('personal', trans)
             
     @classmethod
-    def on_update(self, user, old_user, trans):
+    def on_update(cls, user, old_user, trans):
         new_name = user.displayName.value
         old_name = old_user.displayName.value
         if new_name != old_name:
@@ -48,7 +48,7 @@ class PersonalFolderHandler(eventHandlers.ContentclassEventHandler):
             personal_folder.update(trans)
     
     @classmethod
-    def on_delete(self, user, trans, bPermanent):
+    def on_delete(cls, user, trans, bPermanent):
         if bPermanent:
             personal_folder = user.personalFolder.getItem(trans)
             personal_folder.delete(trans)

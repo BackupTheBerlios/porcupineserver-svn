@@ -10,7 +10,7 @@
 			client="Netscape/7|Mozilla/5.0"
 			lang=".*"
 			action="core_moz.js" max-age="3600">
-        <filter type="porcupine.filters.postProcessing.compress.Gzip"/>
+        <filter type="porcupine.filters.output.Gzip"/>
     </context>
 	<context path="quixextensions.js"
 		method="GET"

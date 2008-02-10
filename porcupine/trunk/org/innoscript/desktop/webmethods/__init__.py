@@ -14,4 +14,23 @@
 #    along with Porcupine; if not, write to the Free Software
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #===============================================================================
-"Porcupine post-processing filters"
+"""
+Porcupine Desktop web methods
+=============================
+
+Contains all the required HTTP interfaces
+for the Porcupine Desktop content classes.
+"""
+
+__all__ = ['baseitem',
+           'basecontainer',
+           'rootfolder',
+           'recyclebin',
+           'usersfolder',
+           'appsfolder',
+           'application',
+           'user',
+           'group',
+           'deleteditem',
+           'category',
+           'document']

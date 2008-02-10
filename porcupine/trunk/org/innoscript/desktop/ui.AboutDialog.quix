@@ -1,13 +1,7 @@
 <?xml version="1.0"?>
 <dialog xmlns="http://www.innoscript.org/quix"
-title="@@INFO@@"
-resizable="false"
-close="true"
-align="center"
-width="380"
-height="240"
-left="40%"
-top="40%">
+		title="@@INFO@@" resizable="false" close="true"
+		align="center" width="380" height="240" left="40%" top="40%">
 	<wbody>
 		<box width="100%" height="100%">
 			<rect>

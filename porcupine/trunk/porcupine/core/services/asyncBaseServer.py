@@ -19,7 +19,7 @@ import socket, select, Queue
 import time
 from threading import Thread, currentThread, RLock
 from errno import EINTR, EISCONN, EADDRINUSE
-from porcupine.core import asyncore
+from porcupine.core.services import asyncore
 ##import hotshot
 
 from porcupine import serverExceptions

@@ -3,33 +3,32 @@
 		<title>Porcupine Server - Error</title>
 	</head>
 	<body style="font-family:Tahoma">
-		<h3>%(iCode)i - %(sDescr)s</h3>
+		<h3>%(code)i - %(description)s</h3>
 		<table cellspacing="0" width="100%%" bgcolor="#FFFFCC">
 			<tr>
-				<td><pre>%(sInfo)s</pre></td>
+				<td><pre>%(info)s</pre></td>
 			</tr>
 		</table>
-		<br>
-		<table cellspacing="0" style="font-size:xx-small" bgcolor="#CCCCCC">
+		<table cellspacing="0" style="font-size:10px">
 	        <tr>
 				<td>HTTP-METHOD:</td>
-				<td>%(sMethod)s</td>
+				<td>%(http_method)s</td>
 			</tr>
         	<tr>
 				<td>BROWSER:</td>
-				<td>%(sBrowser)s</td>
+				<td>%(browser)s</td>
 			</tr>
             <tr>
 				<td>LANG:</td>
-				<td>%(sLang)s</td>
+				<td>%(lang)s</td>
 			</tr>
             <tr>
 				<td>CONTENT-CLASS:</td>
-				<td>%(sItemCC)s</td>
+				<td>%(contentclass)s</td>
 			</tr>
             <tr>
-				<td>COMMAND:</td>
-				<td>%(sCmd)s</td>
+				<td>METHOD:</td>
+				<td>%(method)s</td>
 			</tr>
 		</table>
 	</body>

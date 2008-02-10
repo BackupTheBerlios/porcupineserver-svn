@@ -26,10 +26,7 @@ class SessionManager(genericSessionManager.GenericSessionManager):
         genericSessionManager.GenericSessionManager.__init__(self)
 
     def getSession(self, sessionid):
-        if self.activeSessions.has_key(sessionid):
-            session = self.activeSessions[sessionid]
-        else:
-            session = None
+        session = self.activeSessions.get(sessionid, None)
         return(session)
 
     def putSession(self, session):

@@ -23,6 +23,8 @@ from threading import currentThread
 from porcupine.config.settings import settings
 from porcupine.utils import misc
 from porcupine.db import db
+
+from porcupine.core.context import HttpContext
 from porcupine.security import inMemorySessionManager
 from porcupine.security import sessionManager
 
@@ -32,7 +34,10 @@ def getHandle():
     #create in-memory session manager
     sessionManager.open(inMemorySessionManager.SessionManager, 1200)
     oSystemUser = db.getItem('system')
-    currentThread().session = sessionManager.create(oSystemUser)
+    context = HttpContext()
+    context.session = sessionManager.create(oSystemUser)
+    
+    currentThread().context = context
     currentThread().trans = None
     return db
 

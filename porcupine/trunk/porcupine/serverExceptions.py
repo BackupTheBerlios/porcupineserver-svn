@@ -17,139 +17,118 @@
 "Porcupine Server Exception classes"
 
 import logging
-#import types
-from porcupine import errors
+import sys
+import traceback
+
+from porcupine.utils import xmlUtils
 
 class ResponseEnd(Exception):
     pass
 
+class InternalRedirect(Exception):
+    pass
+
 class PorcupineException(Exception):
-    def __init__(self, info=''):
+    def __init__(self, info='', outputTraceback=False):
         self.code = 0
         self.severity = 0
-        self.outputTraceback = False
+        self.outputTraceback = outputTraceback
         self.info = info
 
-    def writeToLog(self):
+    def emit(self, context=None, item=None):
         serverLogger = logging.getLogger('serverlog')
-        sDescr = self.description
-        if self.info:
-            sDescr += '\n%s' % self.info
         serverLogger.log(
             self.severity,
-            sDescr,
+            self.description,
             *(), 
             **{'exc_info':self.outputTraceback}
         )
-
-    def getDescription(self):
-        return errors.ERROR_DESCRIPTIONS.setdefault(self.code, 
-                                                    'No description available.')
-    
-    description = property(getDescription)
+        if context != None:
+            context.response._reset()
+            context.response.setHeader('Cache-Control', 'no-cache')
+            code = self.code
+            description = self.description
+            request_type = context.request.type
+            
+            if request_type == 'xmlrpc':
+                context.response.content_type = 'text/xml'
+                error_template = 'conf/XMLRPCError.xml'
+                #description = xmlUtils.XMLEncode(description)
+            else:
+                context.response.content_type = 'text/html'
+                error_template = 'conf/errorpage.html'
+                    
+            http_method = context.request.REQUEST_METHOD
+            browser = context.request.HTTP_USER_AGENT
+            lang = context.request.HTTP_ACCEPT_LANGUAGE
+            method = context.request.method
+            
+            if item != None:
+                contentclass = item.contentclass
+            else:
+                contentclass = '-'
+        
+            if self.outputTraceback:
+                tbk = traceback.format_exception(*sys.exc_info())
+                tbk = '\n'.join(tbk)
+                if request_type == 'xmlrpc':
+                    tbk = xmlUtils.XMLEncode(tbk)
+                info = tbk
+            else:
+                info = self
+            
+            file = open(error_template)
+            body = file.read()
+            file.close()
+            context.response.write(body % vars())
+        
+    def __str__(self):
+        return self.info
 
 # server exceptions
-
 class InternalServerError(PorcupineException):
-    def __init__(self, info=''):
-        PorcupineException.__init__(self, info)
-        self.code = errors.SERVER_INTERNAL_ERROR
+    def __init__(self, info='', outputTraceback=True):
+        PorcupineException.__init__(self, info, outputTraceback)
+        self.code = 500
+        self.description = 'Internal Server Error'
         self.severity = logging.ERROR
-        self.outputTraceback = True
+        
+class ContainmentError(InternalServerError):
+    def __init__(self, info=''):
+        InternalServerError.__init__(self, info, False)
+        self.severity = logging.WARNING
+        
+class ReferentialIntegrityError(InternalServerError):
+    def __init__(self, info=''):
+        InternalServerError.__init__(self, info, False)
+        self.severity = logging.WARNING
+        
+class ValidationError(InternalServerError):
+    def __init__(self, info=''):
+        InternalServerError.__init__(self, info, False)
+        self.severity = logging.WARNING
 
-class InternalServerRedirect(PorcupineException):
+class NotFound(PorcupineException):
+    def __init__(self, info=''):
+        PorcupineException.__init__(self, info, True)
+        self.code = 404
+        self.description = 'Not Found'
+        self.severity = logging.INFO
+        
+class ObjectNotFound(NotFound):
     pass
 
-class XMLRPCError(PorcupineException):
-    def __init__(self, info=''):
-        PorcupineException.__init__(self, info)
-        self.code = errors.SERVER_XMLRPC_ERROR
-        self.severity = logging.ERROR
-
-class InvalidRegistration(PorcupineException):
-    def __init__(self, info=''):
-        PorcupineException.__init__(self, info)
-        self.code = errors.SERVER_INVALID_REG
-        self.severity = logging.ERROR
-
-class NoViewRegistered(PorcupineException):
-    def __init__(self):
-        PorcupineException.__init__(self)
-        self.code = errors.SERVER_NO_VIEW
-        self.severity = logging.WARNING
-
-class ItemNotFound(PorcupineException):
-    def __init__(self, info=''):
-        PorcupineException.__init__(self, info)
-        self.code = errors.SERVER_NOT_FOUND
-        self.severity = logging.WARNING
-
 class PermissionDenied(PorcupineException):
-    def __init__(self):
-        PorcupineException.__init__(self)
-        self.code = errors.SERVER_NO_ACCESS
-        
-class PolicyViolation(PorcupineException):
-    def __init__(self, info):
-        PorcupineException.__init__(self, info)
-        self.code = errors.SERVER_POLICY_VIOLATION
-        self.severity = logging.WARNING
-
-class OQLError(PorcupineException):
-    def __init__(self, info):
-        PorcupineException.__init__(self, info)
-        self.code = errors.SERVER_OQL_ERROR
-        self.severity = logging.ERROR
-
-# database exceptions
-
-class DBItemAlreadyExists(PorcupineException):
-    def __init__(self):
-        PorcupineException.__init__(self)
-        self.code = errors.DB_ITEM_ALREADY_EXISTS
-        self.severity = logging.WARNING
-
-class TargetContainedInSource(PorcupineException):
-    def __init__(self):
-        PorcupineException.__init__(self)
-        self.code = errors.DB_INVALID_MOVE
-        self.severity = logging.WARNING
-
-class TransactionRequired(PorcupineException):
-    def __init__(self):
-        PorcupineException.__init__(self)
-        self.code = errors.DB_TRANS_REQUIRED
-        self.severity = logging.WARNING
-
-class DBItemNotFound(PorcupineException):
     def __init__(self, info=''):
         PorcupineException.__init__(self, info)
-        self.code = errors.DB_ITEM_NOT_FOUND
-        self.severity = logging.WARNING
+        self.code = 401
+        self.description = 'Unauthorized'
 
-class DBTransactionIncomplete(PorcupineException):
+class DBTransactionIncomplete(InternalServerError):
     def __init__(self):
-        PorcupineException.__init__(self)
-        self.code = errors.DB_TRANS_INCOMPLETE
+        InternalServerError.__init__(self,
+            'Exceeded maximum retries for transcation.')
         self.severity = logging.CRITICAL
-
-class ContainmentError(PorcupineException):
-    def __init__(self):
-        PorcupineException.__init__(self)
-        self.code = errors.DB_CONTAINMENT_ERROR
-        self.severity = logging.WARNING
-
-class ReferentialIntegrityError(PorcupineException):
-    def __init__(self):
-        PorcupineException.__init__(self)
-        self.code = errors.DB_REFERENCE_ERROR
-        self.severity = logging.WARNING
-
-class ValidationError(PorcupineException):
-    def __init__(self, info=''):
-        PorcupineException.__init__(self, info)
-        self.code = errors.DB_VALIDATION_ERROR
-        self.severity = logging.WARNING
 
 # replication exceptions
 

@@ -17,7 +17,13 @@
 #===============================================================================
 "Porcupine Server Package Manager"
 
-import getopt, sys, os, cPickle, tarfile, ConfigParser, imp
+import getopt
+import sys
+import os
+import cPickle
+import tarfile
+import ConfigParser
+import imp
 from xml.dom import minidom
 
 def main_is_frozen():
@@ -30,7 +36,8 @@ if main_is_frozen():
 
 from porcupine import datatypes
 from porcupine import serverExceptions
-from porcupine.administration import offlinedb, configfiles
+from porcupine.administration import offlinedb
+from porcupine.administration import configfiles
 from porcupine.config.settings import settings
 
 __usage__ = """
@@ -111,7 +118,7 @@ class Package(object):
         #check if the item already exists
         try:
             oOldItem = self.db.getItem(oItem.id, txn)
-        except serverExceptions.DBItemNotFound:
+        except serverExceptions.ObjectNotFound:
             # write external attributes
             for prop in [getattr(oItem, x) for x in oItem.__props__]:
                 if isinstance(prop, datatypes.ExternalAttribute):
@@ -169,20 +176,20 @@ class Package(object):
             os.remove(TMP_FOLDER + '/_pre.py')
         
         # registrations
-        if '_regs.xml' in contents:
-            print 'INFO: installing package registrations...'
-            regsfile = self.package_file.extractfile('_regs.xml')
-            _dom = minidom.parse(regsfile)
-            package_node = _dom.getElementsByTagName('package')[0]
-            package_node = package_node.cloneNode(True)
-            conf_file = configfiles.ConfigFileManager('conf/store.xml')
-            old_node = conf_file.getPackageNode(self.name)
-            if old_node:
-                conf_file.replacePackageNode(package_node, old_node)
-            else:
-                conf_file.addPackageNode(package_node)
-            _dom.unlink()
-            conf_file.close()
+#        if '_regs.xml' in contents:
+#            print 'INFO: installing package registrations...'
+#            regsfile = self.package_file.extractfile('_regs.xml')
+#            _dom = minidom.parse(regsfile)
+#            package_node = _dom.getElementsByTagName('package')[0]
+#            package_node = package_node.cloneNode(True)
+#            conf_file = configfiles.ConfigFileManager('conf/store.xml')
+#            old_node = conf_file.getPackageNode(self.name)
+#            if old_node:
+#                conf_file.replacePackageNode(package_node, old_node)
+#            else:
+#                conf_file.addPackageNode(package_node)
+#            _dom.unlink()
+#            conf_file.close()
 
         # published directories
         if '_pubdir.xml' in contents:
@@ -249,12 +256,12 @@ class Package(object):
         print 'INFO: uninstalling [%s-%s] package...' % (self.name, self.version)
         
         # registrations
-        conf_file = configfiles.ConfigFileManager('conf/store.xml')
-        pkgnode = conf_file.getPackageNode(self.name)
-        if pkgnode:
-            print 'INFO: removing package registrations'
-            conf_file.removePackageNode(pkgnode)
-            conf_file.close()
+#        conf_file = configfiles.ConfigFileManager('conf/store.xml')
+#        pkgnode = conf_file.getPackageNode(self.name)
+#        if pkgnode:
+#            print 'INFO: removing package registrations'
+#            conf_file.removePackageNode(pkgnode)
+#            conf_file.close()
         
         # database items
         items = self.config_file.options('items')
@@ -335,23 +342,23 @@ class Package(object):
 
     def create(self):
         # registrations
-        conf_file = configfiles.ConfigFileManager('conf/store.xml')
-        pkgnode = conf_file.getPackageNode(self.name)
-        if pkgnode:
-            print 'INFO: extracting package registrations'
-            regsFile = file(TMP_FOLDER + '/_regs.xml', 'w')
-            regsFile.write('<config>\n' + pkgnode.toxml('utf-8') + '\n</config>')
-            regsFile.close()
-            self.package_files.append(
-                (
-                    self.package_file.gettarinfo(
-                        regsFile.name, os.path.basename(regsFile.name)
-                    ),
-                    regsFile.name
-                )
-            )
-        else:
-            print 'WARNING: Package "' + self.name + '" has no registrations'
+#        conf_file = configfiles.ConfigFileManager('conf/store.xml')
+#        pkgnode = conf_file.getPackageNode(self.name)
+#        if pkgnode:
+#            print 'INFO: extracting package registrations'
+#            regsFile = file(TMP_FOLDER + '/_regs.xml', 'w')
+#            regsFile.write('<config>\n' + pkgnode.toxml('utf-8') + '\n</config>')
+#            regsFile.close()
+#            self.package_files.append(
+#                (
+#                    self.package_file.gettarinfo(
+#                        regsFile.name, os.path.basename(regsFile.name)
+#                    ),
+#                    regsFile.name
+#                )
+#            )
+#        else:
+#            print 'WARNING: Package "' + self.name + '" has no registrations'
         
         # files
         files = self.config_file.options('files')
@@ -518,6 +525,6 @@ if __name__=='__main__':
             my_pkg = Package(ini_file = definition)
             my_pkg.create()
     finally:
-        if my_pkg:
+        if my_pkg != None:
             my_pkg.close()
 

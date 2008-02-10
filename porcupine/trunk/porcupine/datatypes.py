@@ -31,7 +31,8 @@ from threading import currentThread
 from porcupine.db import db, dbEnv
 from porcupine.utils import misc, date
 from porcupine.core import objectSet
-from porcupine import serverExceptions, datatypesEventHandlers
+from porcupine import serverExceptions
+from porcupine import datatypesEventHandlers
 
 BLANK_PASSWORD = 'd41d8cd98f00b204e9800998ecf8427e'
 
@@ -192,7 +193,7 @@ class Reference1(DataType):
         if self.value:
             try:
                 oItem = dbEnv.getItem(self.value, trans)
-            except serverExceptions.DBItemNotFound:
+            except serverExceptions.ObjectNotFound:
                 pass
         return(oItem)
         
@@ -223,15 +224,8 @@ class ReferenceN(DataType):
         
         @rtype: L{ObjectSet<porcupine.core.objectSet.ObjectSet>}
         """
-        lstItems = []
-        for sID in self.value:
-            try:
-                oItem = dbEnv.getItem(sID, trans)
-                if oItem:
-                    lstItems.append(oItem)
-            except serverExceptions.DBItemNotFound:
-                pass
-        return(objectSet.ObjectSet(lstItems))
+        return(objectSet.ObjectSet(self.value, txn=trans,
+                                   resolved=False, safe=False))
 
 class Relator1(Reference1):
     """

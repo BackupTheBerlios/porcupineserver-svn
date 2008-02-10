@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <%
-	response.content_type = "text/xml"
+	Response.content_type = "text/xml"
 	container_id = ""
 	container_title = ""
 	
-	if request.queryString.has_key("id"):
-		container_id = request.queryString["id"][0]
-		container = server.store.getItem(container_id)
+	if Request.queryString.has_key("id"):
+		container_id = Request.queryString["id"][0]
+		container = Server.store.getItem(container_id)
 		container_title = container.displayName.value
 	end
 %>
@@ -22,8 +22,8 @@
 						id="search_criteria" overflow="auto">
 					<label height="22" caption="@@SEARCH_IN@@"/>
 					<box height="24">
-						<field id="container_name" value="<%response.write(container_title)%>"/>
-						<field type="hidden" id="container_id" value="<%response.write(container_id)%>"/>
+						<field id="container_name" value="<%Response.write(container_title)%>"/>
+						<field type="hidden" id="container_id" value="<%Response.write(container_id)%>"/>
 						<flatbutton caption="..." tooltip="@@SELECT_FOLDER@@" width="24" onclick="hypersearch.selectFolder"/>
 					</box>
 					<field id="scope" type="checkbox" caption="@@INCLUDESUBS@@" />

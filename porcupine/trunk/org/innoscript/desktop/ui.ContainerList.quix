@@ -1,14 +1,12 @@
 <?xml version="1.0"?>
 <window xmlns="http://www.innoscript.org/quix"
-title="Please wait..." resizable="true"
-close="true" minimize="true"
-maximize="true" width="600"
-height="400" left="center"
-top="center" onload="containerList.getContainerInfo">
-	<script name="Container List" src="desktop/ui.ContainerList.js"/>
+		title="Please wait..." resizable="true" close="true" minimize="true"
+		maximize="true" width="600" height="400" left="center"
+		top="center" onload="containerList.getContainerInfo">
 	<prop name="FolderID" value="$ID"/>
 	<prop name="ParentID" value="$PARENT_ID"/>
 	<prop name="history" value="" type="strlist"/>
+	<script name="Container List" src="desktop/ui.ContainerList.js"/>
 	<wbody>
 		<box orientation="v" spacing="0" width="100%" height="100%">
 			<menubar id="menubar" width="100%%" height="24">

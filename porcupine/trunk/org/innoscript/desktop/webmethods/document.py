@@ -1,5 +1,5 @@
 #===============================================================================
-#    Copyright 2005 - 2007 Tassos Koutsovassilis
+#    Copyright 2005-2007, Tassos Koutsovassilis
 #
 #    This file is part of Porcupine.
 #    Porcupine is free software; you can redistribute it and/or modify
@@ -14,37 +14,17 @@
 #    along with Porcupine; if not, write to the Free Software
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #===============================================================================
-"Porcupine server event handlers base classes"
-from porcupine.db import db
-from porcupine.db import dbEnv
+"""
+Web methods for the document content class
+"""
 
-class DatatypeEventHandler(object):
-    db = db
-    store = dbEnv
+from porcupine import HttpContext
+from porcupine import webmethods
+from porcupine import filter
 
-    @classmethod
-    def on_create(cls, item, attr, trans):
-        pass
+from org.innoscript.desktop.schema.common import Document
 
-    @classmethod
-    def on_update(cls, item, new_attr, old_attr, trans):
-        pass
-    
-    @classmethod
-    def on_delete(cls, item, attr, trans, bPermanent):
-        pass
-    
-class ContentclassEventHandler(object):
-    store = dbEnv
-    
-    @classmethod
-    def on_create(cls, item, trans):
-        pass
-    
-    @classmethod
-    def on_update(cls, item, old_item, trans):
-        pass
-    
-    @classmethod
-    def on_delete(cls, item, trans, bPermanent):
-        pass
+@webmethods.webmethod(of_type=Document)
+def getfile(self):
+    HttpContext.current().response.writeFile(self.file.filename,
+                                             self.file.value)

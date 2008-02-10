@@ -14,48 +14,31 @@
 #    along with Porcupine; if not, write to the Free Software
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #===============================================================================
-"Server registrations"
+"Server public directories' registrations management"
 
 import re
 import os.path
 from xml.dom import minidom
-from xml.parsers import expat
 
 from porcupine import serverExceptions
 from porcupine.utils import misc
 
-def getFiltersList(contextNode):
-    filterList = contextNode.getElementsByTagName('filter')
-    filters = []
-    for filterNode in filterList:
-        type = filterNode.getAttribute('type').encode('iso-8859-1')
-        filter = [misc.getCallableByName(type), {}]
-        for attr in filterNode.attributes.keys():
-            filter[1][str(attr)] = filterNode.getAttribute(attr).encode('iso-8859-1')
-        filters.append( tuple(filter) )
-    return tuple(filters)
-
 class Registration(object):
     __slots__ = ('context', 'type', 'encoding', 'filters', 'max_age')
     def __init__(self, identifier, enc, filters, max_age):
-        try:
-            self.context = misc.getCallableByName(identifier)
-            self.type = 2
-        except:
-            self.context = identifier
-            if identifier[-4:] == '.psp':
-                self.type = 1
-            else:
-                self.type = 0
+        self.context = identifier
+        if identifier[-4:] == '.psp':
+            self.type = 1
+        else:
+            self.type = 0
         
         self.encoding = enc
         self.filters = filters
         self.max_age = int(max_age)
 
-class App(object):
-    def __init__(self, appNode):
-        appName = appNode.getAttribute('name')
-        self.path = appNode.getAttribute('path')
+class Dir(object):
+    def __init__(self, dirNode):
+        self.path = dirNode.getAttribute('path')
         self.__config = []
         self.__matchlist = []
         self.__cache = {}
@@ -76,16 +59,27 @@ class App(object):
                 self.__config.append((
                     (sPath, sMethod, sBrowser, sLang),
                     Registration(self.path + '/' + sAction, encoding,
-                                 getFiltersList(contextNode), max_age)
+                                 self.__getFiltersList(contextNode), max_age)
                 ))
             elif sMatch:
                 self.__matchlist.append((
                     (sMatch, sMethod, sBrowser, sLang),
                     (self.path + '/' + sAction, encoding,
-                         getFiltersList(contextNode), max_age)
+                         self.__getFiltersList(contextNode), max_age)
                 ))
             
         configXML.unlink()
+        
+    def __getFiltersList(self, contextNode):
+        filterList = contextNode.getElementsByTagName('filter')
+        filters = []
+        for filterNode in filterList:
+            type = filterNode.getAttribute('type').encode('iso-8859-1')
+            filter = [misc.getCallableByName(type), {}]
+            for attr in filterNode.attributes.keys():
+                filter[1][str(attr)] = filterNode.getAttribute(attr).encode('iso-8859-1')
+            filters.append( tuple(filter) )
+        return tuple(filters)
 
     def getRegistration(self, sPath, sHttpMethod, sBrowser, sLang):
         if self.__cache.has_key((sPath, sHttpMethod, sBrowser, sLang)):
@@ -122,56 +116,12 @@ class App(object):
                         return registration
             self.__cache[(sPath, sHttpMethod, sBrowser, sLang)] = None
             return None
-
-class StoreConfiguration(object):
-    def __init__(self):
-        self.__config = []
-        self.__cache = {}
-        configXML = minidom.parse('conf/store.xml')
-        regList = configXML.getElementsByTagName('reg')
-        # construct action list
-        for regNode in regList:
-            sCC = regNode.getAttribute('cc')
-            sMethod = regNode.getAttribute('method')
-            sParam = regNode.getAttribute('param')
-            sQS = regNode.getAttribute('qs') or ''
-            sBrowser = regNode.getAttribute('client')
-            sLang = regNode.getAttribute('lang')
-            sAction = regNode.getAttribute('action')
-            encoding = regNode.getAttribute('encoding').encode('iso-8859-1') or None
-            max_age = regNode.getAttribute('max-age') or 0
-            
-            self.__config.append((
-                 (sCC, sMethod, sParam, sQS, sBrowser, sLang),
-                 Registration(sAction, encoding, getFiltersList(regNode), max_age)
-            ))
-            
-        configXML.unlink()
-
-    def getRegistration(self, sCC, sHttpMethod, sParam, sQS, sBrowser, sLang):
-        if self.__cache.has_key((sCC, sHttpMethod, sParam, sQS, sBrowser, sLang)):
-            return self.__cache[(sCC, sHttpMethod, sParam, sQS, sBrowser, sLang)]
-        else:
-            for paramList in self.__config:
-                CC, HttpMethod, Param, QS, Browser, Lang = paramList[0]
-                #print CC, HttpMethod, Param, Browser, Lang
-                if re.search(CC, sCC) and re.match(HttpMethod, sHttpMethod) and \
-                        Param == sParam and re.search(QS, sQS) and \
-                        re.search(Browser, sBrowser) and re.match(Lang, sLang):
-                    registration = paramList[1]
-                    self.__cache[(sCC, sHttpMethod, sParam, sBrowser, sLang)] = registration
-                    return registration
-            self.__cache[(sCC, sHttpMethod, sParam, sBrowser, sLang)] = None
-            return None
-
-apps = {}
+dirs = {}
 
 configDom = minidom.parse('conf/pubdir.xml')
-for appNode in configDom.getElementsByTagName('dir'):
-    webApp = App(appNode)
-    apps[appNode.getAttribute('name')] = webApp
+for dirNode in configDom.getElementsByTagName('dir'):
+    dir = Dir(dirNode)
+    dirs[dirNode.getAttribute('name')] = dir
 
 configDom.unlink()
 del configDom
-
-storeConfig = StoreConfiguration()

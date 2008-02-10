@@ -15,28 +15,25 @@
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #===============================================================================
 """
-Porcupine multi-lingual post processing filter
+Web methods for the apps' container class
 """
-import re
+from porcupine import HttpContext
+from porcupine import webmethods
+from porcupine import filter
 
-from porcupine.filters import PostProcessingFilter
-from porcupine.utils import misc
+from org.innoscript.desktop.schema import common
+from org.innoscript.desktop.webmethods import base
 
-TOKEN = re.compile('(@@([\w\.]+)@@)')
-
-class Multilingual(PostProcessingFilter):
-    @staticmethod
-    def apply(response, request, registration, args):
-        language = request.getLang()
-        lst_resources = args['using'].split(',')
-        bundles = [misc.getCallableByName( x )
-                     for x in lst_resources]
-        output = response._getBody()
-        tokens = frozenset(re.findall(TOKEN, output, re.DOTALL))
-        for token, key in tokens:
-            for bundle in bundles:
-                res = bundle.getResource(key, language)
-                if res != key:
-                    break
-            output = output.replace(token, res)
-        response._body = [output]
+@filter.i18n('org.innoscript.desktop.strings.resources')
+@webmethods.quixui(of_type=common.AppsFolder, template='../ui.Frm_AppNew.quix')
+def new(self):
+    "Displays the form for creating a new application"
+    context = HttpContext.current()
+    context.response.setExpiration(1200)
+    oApp = common.Application()
+    return {
+        'CC': oApp.contentclass,
+        'URI': self.id,
+        'ICON': oApp.__image__,
+        'SECURITY_TAB': base._getSecurity(self, context.session.user)
+    }

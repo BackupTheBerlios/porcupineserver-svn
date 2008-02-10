@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #===============================================================================
 #    Copyright 2005-2007, Tassos Koutsovassilis
 #
@@ -18,7 +19,8 @@
 
 import time
 
-from org.innoscript.desktop.strings import resources
+from porcupine.config.resources import Locale
+from porcupine.config.resources import ResourceStrings
 
 class Date(object):
     """
@@ -29,6 +31,34 @@ class Date(object):
     @ivar value: Floating point number expressed in seconds since the epoch
     @type value: float
     """
+    resources = ResourceStrings({
+        '*' : Locale({
+            # dates
+            'DAYS' : [
+                'Sunday','Monday','Tuesday','Wednesday',
+                'Thursday','Friday','Saturday'
+            ],
+            'MONTHS' : [
+                'January','February','March','April','May','June',
+                'July','August','September','October','November','December'
+            ], 
+            'AM' : 'AM',
+            'PM' : 'PM',
+        }),
+        'el' : Locale({
+            # dates 
+            'DAYS' : [
+                'Κυριακή','Δευτέρα','Τρίτη','Τετάρτη',
+                'Πέμπτη','Παρασκευή','Σάββατο'
+            ],
+            'MONTHS' : [
+                'Ιανουάριος','Φεβρουάριος','Μέρτιος','Απρίλιος','Μάϊος','Ιούνιος',
+                'Ιούλιος','Αύγουστος','Σεπτέμβριος','Οκτώβριος','Νοέμβριος','Δεκέμβριος'
+            ],
+            'AM' : 'πμ',
+            'PM' : 'μμ',
+        })
+    })
     def __init__(self, fTime=None):
         """
         @param fTime: a floating point number expressed
@@ -74,16 +104,16 @@ class Date(object):
         iHours = tupTime[3]
         if iHours>12:
             iHours12 = iHours - 12
-            ampm = resources.getResource('PM', locale)
+            ampm = self.resources.getResource('PM', locale)
         else:
             iHours12 = iHours
-            ampm = resources.getResource('AM', locale)
+            ampm = self.resources.getResource('AM', locale)
         iMins = tupTime[4]
         iSecs = tupTime[5]
         iWeekday = tupTime[6]
 
-        months = resources.getResource('MONTHS', locale)
-        days = resources.getResource('DAYS', locale)
+        months = self.resources.getResource('MONTHS', locale)
+        days = self.resources.getResource('DAYS', locale)
         
         format = format.replace('yyyy', sYear)
         format = format.replace('yy', sYear[1:3])

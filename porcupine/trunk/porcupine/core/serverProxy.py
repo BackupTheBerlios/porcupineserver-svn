@@ -28,9 +28,11 @@ from porcupine.db import dbEnv
 
 class Server(object):
     """
-    Porcupine Server proxy
+    Porcupine Server utility object
     
-    A single instance of this type is available during servlet execution.
+    A singleton of this type is available during
+    execution of HTTP requests mainly for providing
+    access to the server's database.
     
     @type store: L{dbEnv<porcupine.db.dbEnv>}
     @type temp_folder: str
@@ -63,5 +65,3 @@ class Server(object):
         """
         return __version__
     version = property(getVersion, None, None, 'The server\'s version')
-
-proxy = Server()

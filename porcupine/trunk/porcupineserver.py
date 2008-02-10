@@ -33,7 +33,6 @@ from porcupine.config import services, log
 from porcupine.utils import misc
 from porcupine.db import db
 from porcupine.security import sessionManager
-from porcupine.serverExceptions import PorcupineException
 
 warnings.filterwarnings('ignore', '', exceptions.Warning, 'logging')
 __version__ = '0.1.1 build(20070828)'
@@ -61,9 +60,16 @@ class Controller(object):
             self.logger.info('Succesfullly registered %i request interfaces' % \
                              len(settings['requestinterfaces']))
             
-            # load registrations
-            self.logger.info('Loading store & web apps registrations...')
-            from porcupine.config import registrations
+            # register template languages
+            for key, value in settings['templatelanguages'].items():
+                settings['templatelanguages'][key] = \
+                    misc.getCallableByName(value)
+            self.logger.info('Succesfullly registered %i template languages' % \
+                             len(settings['templatelanguages']))
+                        
+            # load published directories
+            self.logger.info('Loading published directories\' registrations...')
+            from porcupine.config import pubdirs
 
             # open database
             self.logger.info('Opening database...')

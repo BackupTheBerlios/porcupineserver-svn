@@ -13,7 +13,6 @@ login.login = function (evt, w) {
 	xmlrpc.callmethod('login', sUser, sPassword);
 	login_dialog.setStatus('Please wait...');
 	w.disable();
-	document.body.style.cursor = 'wait';
 }
 
 login.login_oncomplete = function (req) {
@@ -29,7 +28,6 @@ login.login_oncomplete = function (req) {
 			'desktop/images/error32.gif', 'center', 'center', 260, 120);
 		oDialog.setStatus('');
 	}
-	document.body.style.cursor = '';
 }
 
 login.login_onerror = function(req) {

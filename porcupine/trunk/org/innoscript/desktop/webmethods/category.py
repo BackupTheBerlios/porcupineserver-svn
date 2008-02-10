@@ -15,30 +15,35 @@
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #===============================================================================
 """
-Porcupine filters base classes.
+Web methods for the category content class
 """
+from porcupine import HttpContext
+from porcupine import webmethods
 
-import ConfigParser
+from org.innoscript.desktop.schema.common import Category
 
-class BaseFilter(object):
-    @classmethod
-    def loadConfig(cls):
-        config_file = ConfigParser.RawConfigParser()
-        config_file.readfp(open('conf/filters.ini'))
-        section = cls.__module__ + '.' + cls.__name__
-        settings = config_file.items(section)
-        config = {}
-        for setting in settings:
-            config[setting[0]] = setting[1]
-        return(config)
-
-    @staticmethod
-    def apply(context, registration, **kwargs):
-        raise NotImplementedError
+@webmethods.remotemethod(of_type=Category)
+def getInfo(self):
+    "Retutns info about the category's contents"
+    context = HttpContext.current()
+    # call super method for getting the container's info
+    info = getattr(super(Category, self), getInfo.func_name)(context)
+    # and clear the response
+    context.response.clear()
     
-
-class PostProcessFilter(BaseFilter):
-    type = 'post'
+    lstObjects = []
+    category_objects = self.category_objects.getItems()
+    for item in category_objects:
+        obj = {
+            'id' : item.id,
+            'image': item.__image__,
+            'displayName' : item.displayName.value,
+            'isCollection': item.isCollection,
+            'modified': date.Date(item.modified)
+        }
+        if hasattr(item, 'size'):
+            obj['size'] = item.size
+        lstObjects.append(obj)
+    info['contents'].extend(lstObjects)
     
-class PreProcessFilter(BaseFilter):
-    type = 'pre'
+    return info

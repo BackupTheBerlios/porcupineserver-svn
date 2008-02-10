@@ -57,7 +57,7 @@ class Policy(system.Item):
     execute this XML-RPC method.
     
     If a non-authorized user calls C{myMethod} a 
-    L{PolicyViolation<porcupine.serverExceptions.PolicyViolation>}
+    L{PermissionDenied<porcupine.serverExceptions.PermissionDenied>}
     exception is raised.
 
     @ivar policyGranted: The list of users that have been granted this policy.

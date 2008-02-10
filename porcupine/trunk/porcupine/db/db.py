@@ -54,7 +54,7 @@ def getItem(sOID, trans=None):
         iPathDepth = len(lstPath)
         if iPathDepth > 1:
             # /[itemID]
-            if len(lstPath)==2:
+            if iPathDepth == 2:
                 if lstPath[1] in object_cache and not trans:
                     return object_cache[lstPath[1]]
                 else:
@@ -66,11 +66,13 @@ def getItem(sOID, trans=None):
     if sItem:
         oItem = cPickle.loads(sItem)
         if oItem._isDeleted:
-            raise serverExceptions.DBItemNotFound, 'The object "%s" does not exist' % sOID
+            raise serverExceptions.ObjectNotFound, \
+                'The object "%s" does not exist' % sOID
         object_cache[oItem._id] = oItem
         return oItem
     else:
-        raise serverExceptions.DBItemNotFound, 'The object "%s" does not exist' % sOID
+        raise serverExceptions.ObjectNotFound, \
+            'The object "%s" does not exist' % sOID
 
 def putItem(oItem, trans=None):
     db_handle._putItem(oItem._id, cPickle.dumps(oItem, 2), trans)
@@ -85,7 +87,8 @@ def deleteItem(oItem, trans):
 def getDeletedItem(sOID, trans=None):
     sItem = db_handle._getItem(sOID, trans)
     if not(sItem):
-        raise serverExceptions.DBItemNotFound, 'The deleted object "%s" no longer exists' % sOID
+        raise serverExceptions.ObjectNotFound, \
+            'The deleted object "%s" no longer exists' % sOID
     else:
         oItem = cPickle.loads(sItem)
         return(oItem)
