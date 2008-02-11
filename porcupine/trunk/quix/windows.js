@@ -360,12 +360,14 @@ Window.prototype.showWindowFromString = function(s, oncomplete) {
 
 WindowTitle__onmousedown = function(evt, w) {
 	w.parent._startMove(evt);
+	QuiX.cleanupOverlays();
 	QuiX.stopPropag(evt);
 	QuiX.cancelDefault(evt);
 }
 
 Window__onmousedown = function(evt, w) {
-	w.bringToFront();
+	if (QuiX.getMouseButton(evt) == 0)
+		w.bringToFront();
 }
 
 Window__oncontextmenu = function(evt, w) {
