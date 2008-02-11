@@ -41,9 +41,9 @@ QuiX.constructors = {
 };
 
 QuiX.progress = '<rect id="quix_progress" xmlns="http://www.innoscript.org/quix" ' +
-	'width="240" height="48" overflow="hidden" top="center" left="center" ' +
+	'width="320" height="56" overflow="auto" top="center" left="center" ' +
 	'border="2" bgcolor="white" style="border-color:#999999;border-style:solid" '+
-	'padding="1,1,1,1"><xhtml><![CDATA[<center>Please wait...<br/><br/>' +
+	'padding="4,4,4,4"><xhtml><![CDATA[<center>Please wait...<br/><br/>' +
 	'<span></span></center>]]></xhtml>' +
 	'<progressbar id="pb" width="150" maxvalue="1" height="4" ' +
 	'top="center" left="center"></progressbar></rect>';
