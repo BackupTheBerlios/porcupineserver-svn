@@ -508,6 +508,17 @@ Widget.prototype.getWidgetsByAttribute = function(attr_name) {
 	return ws;
 }
 
+Widget.prototype.getWidgetsByAttributeValue = function(attr_name, value) {
+	var w;
+	var ws = [];
+	for (var i=0; i<this.widgets.length; i++) {
+		w = this.widgets[i];
+		if (w[attr_name] == value) ws.push(w);
+		ws = ws.concat(w.getWidgetsByAttributeValue(attr_name, value));
+	}
+	return ws;
+}
+
 Widget.prototype._setAbsProps = function () {
 	this.div.style.left = this._calcLeft() + 'px';
 	this.div.style.top = this._calcTop() + 'px';
@@ -577,6 +588,7 @@ Widget.prototype.getDisplay = function() {
 //overflow attribute
 Widget.prototype.setOverflow = function(sOverflow) {
 	this.div.style.overflow = sOverflow;
+	this._overflow = sOverflow;
 }
 Widget.prototype.getOverflow = function() {
 	return this.div.style.overflow;
@@ -932,7 +944,7 @@ Widget.prototype._detach = function() {
 Widget.prototype.redraw = function(bForceAll, w) {
 	w = w || this;
 	var container = w.div.parentNode;
-	if (container && w.div.style.visibility == '') {
+	if (container && w.div.style.display != 'none') {
 		var wdth = w.div.style.width;
 		var hght = w.div.style.height;
 		if (w.div.clientWidth > 0)
@@ -1140,6 +1152,7 @@ function Widget__startdrag(evt, w) {
 		document.desktop.attachEvent('onmouseup', Widget__enddrag);
 		QuiX.dragTimer = window.setTimeout(
 			function _draghandler() {w._startDrag(x, y)}, 150);
+		QuiX.cancelDefault(evt);
 	}
 }
 
