@@ -76,8 +76,6 @@ function Combo(params) {
 		left : 'this.parent.getWidth()-20',
 		height : '100%', width : 20,
 		img : params.img || '__quix/images/desc8.gif',
-		caption : '&nbsp;',
-		iconpadding : '4,0,0,0'
 	});
 	this.appendChild(this.button);
 	if (!this.readonly)

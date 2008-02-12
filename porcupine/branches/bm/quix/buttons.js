@@ -52,8 +52,7 @@ Label.prototype.redraw = function(bForceAll, w) {
 			whiteSpace = '';
 		textAlign = w.align;
 	}
-	if (w.parent)
-		Widget.prototype.redraw(bForceAll, w);
+	Widget.prototype.redraw(bForceAll, w);
 }
 
 function Label__onmousedown(evt, w) {
@@ -62,7 +61,6 @@ function Label__onmousedown(evt, w) {
 }
 
 function Icon(params) {
-	var imgalign;
 	params = params || {};
 	params.border = params.border || 0;
 	params.canSelect = false;
@@ -108,29 +106,30 @@ Icon.prototype.redraw = function(bForceAll, w) {
 	var w = w || this;
 	if (bForceAll) {
 		var imgs = w.div.getElementsByTagName('IMG');
-		while (imgs.length > 0) {
+		while (imgs.length > 0)
 			QuiX.removeNode(imgs[0]);
-		}
 		var br = w.div.getElementsByTagName('BR')[0];
 		if (br) QuiX.removeNode(br);
 
-		w._addDummyImage();
+		if (this.imgAlign == 'left' || this.imgAling == 'right')
+			w._addDummyImage();
 
 		if (w.img) {
-			var percentage=null;
+			var percentage, caption;
 			img = QuiX.getImage(w.img);
-			if (this.imgHeight) {
-				percentage = this.imgHeight.toString().charAt(this.imgHeight.length-1);
-				img.style.height = (percentage == '%')?this.imgHeight:this.imgHeight + 'px';
+			if (w.imgHeight) {
+				percentage = w.imgHeight.toString().charAt(w.imgHeight.length-1);
+				img.style.height = (percentage == '%')?w.imgHeight:w.imgHeight + 'px';
 			}
-			if (this.imgWidth) {
-				percentage = this.imgWidth.toString().charAt(this.imgWidth.length-1);
-				img.style.width = (percentage == '%')?this.imgWidth:this.imgWidth + 'px';
+			if (w.imgWidth) {
+				percentage = w.imgWidth.toString().charAt(w.imgWidth.length-1);
+				img.style.width = (percentage == '%')?w.imgWidth:w.imgWidth + 'px';
 			}
-			img.style.verticalAlign = (this.getCaption()=='')?'top':'middle';
+			caption = w.getCaption();
+			img.style.verticalAlign = (w.imgAlign=='top')?'top':'middle';
 			img.ondragstart = QuiX.cancelDefault;
 			
-			if (w.getCaption()!='') {
+			if (caption != '') {
 				switch(w.imgAlign) {
 					case "left":
 						img.style.marginRight = '3px';
@@ -237,9 +236,7 @@ XButton.prototype.redraw = function(bForceAll) {
 		this.icon.setPadding(this.iconPadding.split(','));
 		this.icon.redraw(true);
 	}
-	if (this.parent) {
-		Widget.prototype.redraw(bForceAll, this);
-	}
+	Widget.prototype.redraw(bForceAll, this);
 }
 
 function XButton__onmouseover(evt, w) {
