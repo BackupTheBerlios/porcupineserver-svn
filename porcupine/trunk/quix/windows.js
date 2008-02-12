@@ -337,10 +337,10 @@ Window.prototype.maximize = function(w) {
 
 Window.prototype.bringToFront = function() {
 	if (this.div.style.zIndex < this.parent.maxz) {
-		var sw, dt;
-		var macff = QuiX.browser == 'moz' && QuiX.getOS() == 'MacOS';
 		Widget.prototype.bringToFront(this);
+		var macff = QuiX.browser == 'moz' && QuiX.getOS() == 'MacOS';
 		if (macff) {
+			var sw;
 			var dt = document.desktop;
 			//hide scrollbars
 			sw = dt.getWidgetsByAttributeValue('_overflow', 'auto');
