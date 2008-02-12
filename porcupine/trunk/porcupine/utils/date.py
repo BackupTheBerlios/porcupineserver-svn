@@ -116,7 +116,7 @@ class Date(object):
         days = self.resources.getResource('DAYS', locale)
         
         format = format.replace('yyyy', sYear)
-        format = format.replace('yy', sYear[1:3])
+        format = format.replace('yy', sYear[2:4])
         
         format = format.replace('month', months[iMonth])
         format = format.replace('mmm', unicode(months[iMonth], 'utf-8')[0:3].encode('utf-8'))
