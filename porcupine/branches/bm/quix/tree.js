@@ -215,13 +215,6 @@ Folder tree
 ************************/
 
 function FolderTree(params) {
-	this._dropable = (params.dropable==true || params.dropable=='true')?
-					  true:false;
-	delete params.dropable;
-	
-	this._ondrop = params.ondrop;
-	delete params.ondrop;
-		
 	this.base = Tree;
 	this.base(params);
 
@@ -232,13 +225,6 @@ function FolderTree(params) {
 
 QuiX.constructors['foldertree'] = FolderTree;
 FolderTree.prototype = new Tree;
-
-FolderTree.prototype.appendChild = function(w) {
-	w.dropable = (typeof w.dropable == 'undefined')?this._dropable:w.dropable;
-	if (w.dropable && this._ondrop)
-		w.attachEvent('ondrop', this._ondrop);
-	Tree.prototype.appendChild(w, this);
-}
 
 FolderTree.prototype.loadSubfolders = function(treeNode) {
 	var sID = treeNode.getId() || '';
@@ -256,8 +242,6 @@ FolderTree.prototype.load_oncomplete = function(req) {
 		treeNode.childNodes[0].destroy();
 	}
 	for (var i=0; i<oFolders.length; i++) {
-		oFolders[i].dropable = treeNode.tree._dropable;
-		oFolders[i].ondrop = treeNode.tree._ondrop;
 		newNode = new TreeNode(oFolders[i]);
 		//custom attributes
 		if (oFolders[i].attributes) {
