@@ -20,6 +20,8 @@ function ListView(params) {
 	this.dateFormat = params.dateformat || 'ddd dd/mmm/yyyy time';
 	this.trueImg = params.trueimg || '__quix/images/check16.gif';
 	this.sortfunc = QuiX.getEventListener(params.sortfunc);
+	this.altColors = (params.altcolors || ',').split(',');
+	this.highlightColors = (params.highlightcolors || 'white,#6699FF').split(',');
 
 	this.hasSelector = false;
 	this.selection = [];
@@ -128,12 +130,14 @@ ListView.prototype._selrow = function(r) {
 	for (var i=0; i<this.columns.length-1; i++)
 		if (this.columns[i].columnBgColor)
 			r.cells[i].bgColor = '';
-	r.className = 'selected';
+	r.style.color = this.highlightColors[0];
+	r.style.backgroundColor = this.highlightColors[1];
 	r.isSelected = true;
 }
 
 ListView.prototype._unselrow = function(r) {
-	r.className = '';
+	r.style.color = '';
+	r.style.backgroundColor = this.altColors[r.rowIndex % 2];
 	r.isSelected = false;
 	for (var i=0; i<this.columns.length-1; i++)
 		if (this.columns[i].columnBgColor)
@@ -352,10 +356,13 @@ ListView.prototype.refresh = function(w) {
 	var oValue, column_width, offset;
 	var tbody = document.createElement("tbody");
 	var docFragment = document.createDocumentFragment();
+	var rowBgColor;
 	// create rows
 	for (i=0; i<w.dataSet.length; i++) {
 		oRow = document.createElement("tr");
 		oRow.isSelected = false;
+		rowBgColor = w.altColors[i%2];
+		oRow.style.backgroundColor = rowBgColor;
 		if (w.hasSelector) {
 			selector = w._getSelector();
 			selector.style.width = (8 - 2*w.cellPadding + 2) + 'px';
