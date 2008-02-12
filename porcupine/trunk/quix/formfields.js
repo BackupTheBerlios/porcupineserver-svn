@@ -243,6 +243,7 @@ Field.prototype._adjustFieldSize = function() {
 		if (this.type=='textarea' && QuiX.browser=='moz')
 			this.div.firstChild.style.top = '-1px';
 		nw = nw - 2*this.textPadding;
+		nh = nh - 2*this.textPadding;
 		if (nw < 0) nw = 0;
 		if (nh < 0) nh = 0;
 		this.div.firstChild.style.width = nw + 'px';
