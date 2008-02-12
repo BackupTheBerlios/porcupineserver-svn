@@ -221,9 +221,6 @@ XULParser.prototype.parseXul = function(oNode, parentW) {
 			case 'wbody':
 				oWidget = parentW.body;
 				break;
-			case 'pane':
-				oWidget = parentW.addPane(params);
-				break;
 			case 'tab':
 				oWidget = parentW.addTab(params);
 				break;

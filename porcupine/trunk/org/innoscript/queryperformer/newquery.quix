@@ -4,29 +4,25 @@
     <wbody>
         <box orientation="v" spacing="0" width="100%" height="100%">
             <toolbar height="34">
-                <tbbutton width="30" img="queryperformer/images/save22.gif" onclick="queryPerformer.saveQuery"
+                <tbbutton width="30" img="queryperformer/images/save22.gif"
+					onclick="queryPerformer.saveQuery"
                 	tooltip="Save"/>
-                <tbbutton width="30" img="queryperformer/images/execute22.gif" onclick="queryPerformer.executeQuery"
+                <tbbutton width="30" img="queryperformer/images/execute22.gif"
+					onclick="queryPerformer.executeQuery"
                 	tooltip="Execute"/>
             </toolbar>
-            <splitter bgcolor="white" orientation="h" interactive="true" height="-1">
-                <pane length="100">
-                    <field id="oqlquery" type="textarea" width="100%" height="100%" border="0"/>
-                </pane>
-                <pane length="-1">
-                    <splitter orientation="v" interactive="true" width="100%" height="100%">
-                        <pane id="resultsarea" length="50%" overflow="auto" padding="4,4,4,4"/>
-                        <pane length="-1">
-                            <listview id="proplist" width="100%" height="100%" cellborder="1">
-                                <listheader>
-                                    <column width="100" caption="Name" name="name"/>
-                                    <column width="80" caption="Type" name="type"/>
-                                    <column width="120" caption="Value" name="value"/>
-                                </listheader>
-                            </listview>
-                        </pane>
-                    </splitter>
-                </pane>
+            <splitter bgcolor="white" orientation="v">
+                <field id="oqlquery" type="textarea" height="100" border="0"/>
+				<splitter>
+					<rect id="resultsarea" overflow="auto" padding="4,4,4,4"/>
+					<listview id="proplist" cellborder="1">
+						<listheader>
+							<column width="100" caption="Name" name="name"/>
+							<column width="80" caption="Type" name="type"/>
+							<column width="120" caption="Value" name="value"/>
+						</listheader>
+					</listview>
+				</splitter>
             </splitter>
         </box>
     </wbody>
