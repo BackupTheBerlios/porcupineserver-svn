@@ -24,7 +24,7 @@ from porcupine.config.services import services
 from porcupine.core.services import asyncBaseServer
 from porcupine import serverExceptions, errors
 from porcupine.db import db
-from porcupine.security import sessionManager
+from porcupine.security import SessionManager
 
 logger = logging.getLogger('serverlog')
 
@@ -265,25 +265,25 @@ class ManagementRequestHandler(asyncBaseServer.BaseRequestHandler):
         # session manager commands
         elif cmd=='NEW_SESSION':
             sessionid, userid, sessiondata = request.data
-            sessionManager.sm.repl_addSession(sessionid, userid, sessiondata)
+            SessionManager.sm.repl_addSession(sessionid, userid, sessiondata)
             return (0,)
 
         elif cmd=='DEL_SESSION':
-            sessionManager.sm.repl_removeSession(request.data)
+            SessionManager.sm.repl_removeSession(request.data)
             return (0,)
 
         elif cmd=='KEEP_ALIVE':
-            sessionManager.sm.repl_keepAlive(request.data)
+            SessionManager.sm.repl_keepAlive(request.data)
             return (0,)
 
         elif cmd=='SESSION_USER':
             sessionid, userid = request.data
-            sessionManager.sm.repl_setUser(sessionid, userid)
+            SessionManager.sm.repl_setUser(sessionid, userid)
             return (0,)
 
         elif cmd=='SESSION_VALUE':
             sessionid, name, value = request.data
-            sessionManager.sm.repl_setValue(sessionid, name, value)
+            SessionManager.sm.repl_setValue(sessionid, name, value)
             return (0,)
 
         #DB maintenance commands
@@ -345,9 +345,9 @@ class ManagementRequestHandler(asyncBaseServer.BaseRequestHandler):
                             except serverExceptions.ReplicationError:
                                 return (errors.REPL_ABORT,)
                         
-                        sessionManager.sm.lock()
+                        SessionManager.sm.lock()
                         # replicate active sessions
-                        all_sessions = sessionManager.sm.enumerate()
+                        all_sessions = SessionManager.sm.enumerate()
                         for sessionData in all_sessions:
                             try:
                                 repl_response = self.server.sendMessage(host, 'NEW_SESSION', sessionData)
@@ -364,7 +364,7 @@ class ManagementRequestHandler(asyncBaseServer.BaseRequestHandler):
                         # update site info
                         self.server.siteInfo.addHost(host, host_priority, serverAddress)
                     finally:
-                        sessionManager.sm.unlock()
+                        SessionManager.sm.unlock()
                         db.unlock()
                     
                     return (0,)

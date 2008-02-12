@@ -21,7 +21,7 @@ from threading import Thread
 from porcupine import serverExceptions
 from porcupine.db import db
 from porcupine.core.http.context import HttpContext
-from porcupine.security import sessionManager
+from porcupine.security import SessionManager
 from porcupine.core.services.service import BaseService
 
 class _TaskThread(Thread):
@@ -29,7 +29,7 @@ class _TaskThread(Thread):
         Thread.__init__(self, name=name, target=target)
         id = db.getItem(identity)
         self.context = HttpContext()
-        self.context.session = sessionManager.create(id)
+        self.context.session = SessionManager.create(id)
         self.trans = None
 
 class BaseTask(BaseService):

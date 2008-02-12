@@ -21,7 +21,7 @@ import os, glob
 
 from porcupine.config.services import services
 from porcupine import serverExceptions
-from porcupine.security import sessionManager
+from porcupine.security import SessionManager
 from porcupine.services import management
 from porcupine.utils import misc
 
@@ -49,8 +49,8 @@ class Session(object):
         @return: None
         """
         # move sessionid at the end of the list
-        sessionManager._sessionList.append(self.sessionid)
-        sessionManager._sessionList.remove(self.sessionid)
+        SessionManager._sessionList.append(self.sessionid)
+        SessionManager._sessionList.remove(self.sessionid)
         # update last access time
         self.lastAccessed = time.time()
 
@@ -60,8 +60,8 @@ class Session(object):
         
         @return: None
         """
-        sessionManager.sm.removeSession(self.sessionid)
-        sessionManager._sessionList.remove(self.sessionid)
+        SessionManager.sm.removeSession(self.sessionid)
+        SessionManager._sessionList.remove(self.sessionid)
         self.removeTempFiles()
 
     def setValue(self, sName, value):
@@ -151,7 +151,7 @@ class ReplSession(Session):
     @type user: L{GenericItem<porcupine.systemObjects.GenericItem>}
     """
     def keepAlive(self):
-        sessionManager.sm.waitForUnlock()
+        SessionManager.sm.waitForUnlock()
         Session.keepAlive(self)
         services['management'].sendMessage(management.REP_BROADCAST,
                                           'KEEP_ALIVE',
@@ -161,7 +161,7 @@ class ReplSession(Session):
         # check if i am the master
         if Mgt.mgtServer.isMaster():
             # wait until sessionmanager is unlocked...
-            sessionManager.sm.waitForUnlock()
+            SessionManager.sm.waitForUnlock()
             Session.setUser(self, oUser)
             services['management'].sendMessage(management.REP_BROADCAST,
                                       'SESSION_USER',
@@ -175,7 +175,7 @@ class ReplSession(Session):
         # check if i am the master
         if Mgt.mgtServer.isMaster():
             # wait until sessionmanager is unlocked...
-            sessionManager.sm.waitForUnlock()
+            SessionManager.sm.waitForUnlock()
             Session.setValue(self, sName, value)
             services['management'].sendMessage(management.REP_BROADCAST,
                                               'SESSION_VALUE',

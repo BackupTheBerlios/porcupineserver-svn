@@ -23,7 +23,7 @@ import time
 
 from porcupine.config.services import services
 from porcupine import serverExceptions
-from porcupine.security import sessionManager
+from porcupine.security import SessionManager
 from porcupine.security import session
 from porcupine.db import db
 from porcupine.services import management
@@ -92,7 +92,7 @@ class SessionManagerReplicator(object):
     # generator function
     # used by replication service during host synchronization
     def enumerate(self):
-        for sessionid in sessionManager._sessionList:
+        for sessionid in SessionManager._sessionList:
             oSession = self.getSession(sessionid)
             yield((sessionid, oSession.user._id, oSession.getData()))
 
@@ -104,11 +104,11 @@ class SessionManagerReplicator(object):
         # create new session
         oNewSession = self.sessionClass(sessionid, db.getItem(userid), data)
         self.putSession(oNewSession)
-        sessionManager._sessionList.append(sessionid)
+        SessionManager._sessionList.append(sessionid)
 
     def repl_removeSession(self, sessionid):
         super(SessionManagerReplicator, self).removeSession(sessionid)
-        sessionManager._sessionList.remove(sessionid)
+        SessionManager._sessionList.remove(sessionid)
 
     def repl_keepAlive(self, sessionid):
         oSession = self.getSession(sessionid)

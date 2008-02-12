@@ -32,7 +32,7 @@ if main_is_frozen():
 from porcupine.config import services, log
 from porcupine.utils import misc
 from porcupine.db import db
-from porcupine.security import sessionManager
+from porcupine.security import SessionManager
 
 warnings.filterwarnings('ignore', '', exceptions.Warning, 'logging')
 __version__ = '0.1.1 build(20070828)'
@@ -78,7 +78,7 @@ class Controller(object):
 
             # create session manager
             self.logger.info('Creating session manager...')
-            sessionManager.open(misc.getCallableByName(
+            SessionManager.open(misc.getCallableByName(
                             settings['sessionmanager']['interface']),
                             int(settings['sessionmanager']['timeout']))
             
@@ -132,9 +132,9 @@ certain conditions; See COPYING for more details.'''
         self.running = False
         
         # shutdown session manager
-        if sessionManager.sm:
+        if SessionManager.sm:
             self.logger.info('Closing session manager...')
-            sessionManager.close()
+            SessionManager.close()
         
         # close database
         if db.db_handle:

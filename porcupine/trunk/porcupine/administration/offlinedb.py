@@ -26,23 +26,23 @@ from porcupine.db import db
 
 from porcupine.core.context import HttpContext
 from porcupine.security import inMemorySessionManager
-from porcupine.security import sessionManager
+from porcupine.security import SessionManager
 
 def getHandle():
     #open database
     db.open(misc.getCallableByName(settings['store']['interface']))
     #create in-memory session manager
-    sessionManager.open(inMemorySessionManager.SessionManager, 1200)
+    SessionManager.open(inMemorySessionManager.SessionManager, 1200)
     oSystemUser = db.getItem('system')
     context = HttpContext()
-    context.session = sessionManager.create(oSystemUser)
+    context.session = SessionManager.create(oSystemUser)
     
     currentThread().context = context
     currentThread().trans = None
     return db
 
 def close():
-    sessionManager.close()
+    SessionManager.close()
     db.close()
     
 class OfflineTransaction(object):
