@@ -14,7 +14,8 @@ function File(params) {
 	this.name = params.name;
 	this.filename = params.filename;
 	this.size = params.size || 0;
-
+	this.filetypes = params.filetypes || '*';
+	
 	this._tmpfile = '';
 	this._fileid = null;
 	this.href = params.href;
@@ -66,19 +67,14 @@ function File(params) {
 
 QuiX.constructors['file'] = File;
 File.prototype = new FlatButton;
+File.prototype.customEvents = FlatButton.prototype.customEvents.concat(['oncomplete']);
 
 File.prototype.openDocument = function() {
 	window.location.href = this.href;
-/*
-	if (QuiX.browser=='ie')
-		window.open(this.href, null, 'location=0,status=0,toolbar=0,menubar=1');
-	else
-		window.open(this.href, this.filename, 'menubar');
-*/
 }
 
 File.prototype.showUploadDialog = function() {
-	var fileName = this.uploader.selectFiles(false);
+	var fileName = this.uploader.selectFiles(false, this.filetypes);
 	if (fileName != '') {
 		this.setFile(new String(fileName));
 		this.onbeginupload(this);
@@ -87,8 +83,7 @@ File.prototype.showUploadDialog = function() {
 }
 
 File.prototype.onbeginupload = function(filecontrol) {
-	var oWin = filecontrol.getParentByType(Window);
-	oWin.showWindowFromString(
+	document.desktop.parseFromString(
 		'<dialog xmlns="http://www.innoscript.org/quix" title="'
 				+ filecontrol.contextMenu.options[0].getCaption() + '" ' +
 				'width="240" height="90" left="center" top="center">' +
@@ -123,6 +118,9 @@ File.prototype.onstatechange = function(filecontrol) {
 
 File.prototype.oncomplete = File.prototype.onerror = function(filecontrol) {
 	filecontrol.attributes.pbar.getParentByType(Dialog).close();
+	if (filecontrol._customRegistry.oncomplete)
+			filecontrol._customRegistry.oncomplete(filecontrol);
+	
 }
 
 File.prototype._getCaption = function() {
@@ -196,36 +194,38 @@ function MultiFile(params) {
 	this.name = params.name;
 	this.method = params.method;
 	this.readonly = (params.readonly=='true')?true:false;
-
+	this.filetypes = params.filetypes || '*';
+	
 	this.base = Widget;
 	this.base(params);
-
-	this.selectlist = new SelectList(
-		{
-			width: '100%',
-			height: 'this.parent.getHeight()-24',
-			ondblclick: this.downloadFile
-		});
+	
+	this.selectlist = new SelectList({
+		width : '100%',
+		height : 'this.parent.getHeight()-24',
+		ondblclick : this.downloadFile
+	});
 	this.appendChild(this.selectlist);
 	
-	this.removeButton = new FlatButton(
-		{
-			width: 24, height: 24,
-			img: '__quix/images/remove16.gif',
-			top: 'this.parent.getHeight()-24',
-			left: 'this.parent.getWidth()-24',
-			disabled: this.readonly
-		});
+	this.removeButton = new FlatButton({
+		width : 24,
+		height : 24,
+		img : '__quix/images/remove16.gif',
+		top : 'this.parent.getHeight()-24',
+		left : 'this.parent.getWidth()-24',
+		disabled : this.readonly
+	});
 	this.appendChild(this.removeButton);
-	this.addButton = new FlatButton(
-		{
-			width: 24, height: 24,
-			img: '__quix/images/add16.gif',
-			top: 'this.parent.getHeight()-24',
-			left: 'this.parent.getWidth()-48',
-			disabled: this.readonly
-		});
+	
+	this.addButton = new FlatButton({
+		width : 24,
+		height : 24,
+		img : '__quix/images/add16.gif',
+		top : 'this.parent.getHeight()-24',
+		left : 'this.parent.getWidth()-48',
+		disabled : this.readonly
+	});
 	this.appendChild(this.addButton);
+	
 	var oMultiFile = this;
 	if (!this.readonly) {
 		this.filecontrol = new File();
@@ -233,18 +233,30 @@ function MultiFile(params) {
 		this.filecontrol.div.style.visibility = 'hidden';
 		this.filecontrol.onstatechange = this.statechange;
 		this.filecontrol.oncomplete = this.filecontrol.onerror = this.onfilecomplete;
-		this.addButton.attachEvent('onclick', function(evt, w) { oMultiFile.showUploadDialog(evt, w); });
-		this.removeButton.attachEvent('onclick', function() { oMultiFile.removeSelectedFiles(); });
+		this.addButton.attachEvent('onclick',
+			function(evt, w){
+				oMultiFile.showUploadDialog(evt, w);
+			});
+		this.removeButton.attachEvent('onclick',
+			function(){
+				oMultiFile.removeSelectedFiles();
+			});
 	}
 	this.files = [];
 }
 
 QuiX.constructors['multifile'] = MultiFile;
 MultiFile.prototype = new Widget;
+MultiFile.prototype.customEvents = Widget.prototype.customEvents.concat(['oncomplete']);
+
+MultiFile.prototype.reset = function() {
+	this.files = [];
+	this.selectlist.clear();
+}
 
 MultiFile.prototype.showUploadDialog = function(evt, w) {
 	var file_size;
-	var filenames = this.filecontrol.uploader.selectFiles(true);
+	var filenames = this.filecontrol.uploader.selectFiles(true, this.filetypes);
 	
 	if (filenames != '') {
 		var oWin = this.getParentByType(Window);
@@ -270,9 +282,9 @@ MultiFile.prototype.showUploadDialog = function(evt, w) {
 		this._tmpsize = this.current_file.size;
 		
 		var oMultiFile = this;
-		oWin.showWindowFromString(
+		document.desktop.parseFromString(
 			'<dialog xmlns="http://www.innoscript.org/quix" title="' +
-					this.filecontrol.contextMenu.options[0].caption + '" ' +
+					this.filecontrol.contextMenu.options[0].getCaption() + '" ' +
 					'width="240" height="140" left="center" top="center">' +
 				'<wbody>' +
 					'<progressbar width="90%" height="24" left="center" top="20" ' +
@@ -375,6 +387,10 @@ MultiFile.prototype.onfilecomplete = function(filecontrol) {
 		multifile._tmpsize = multifile.current_file.size;
 		filecontrol.setFile(multifile.current_file.path);
 		filecontrol.upload();
-	} else
+	} else {
 		filecontrol.attributes.pbar1.getParentByType(Dialog).close();
+		if (multifile._customRegistry.oncomplete)
+			multifile._customRegistry.oncomplete(multifile);
+	}
+		
 }
