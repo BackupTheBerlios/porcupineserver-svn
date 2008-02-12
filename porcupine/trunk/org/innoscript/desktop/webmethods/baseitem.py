@@ -31,7 +31,7 @@ from porcupine import datatypes
 from porcupine.systemObjects import Item
 from porcupine.systemObjects import GenericItem
 from porcupine.security import objectAccess
-from porcupine.utils import date, xmlUtils
+from porcupine.utils import date, xml
 
 from org.innoscript.desktop.strings import resources
 
@@ -143,7 +143,7 @@ def _getControlFromAttribute(item, attrname, attr, readonly, isNew=False):
     elif isinstance(attr, datatypes.Text):
         sTab = AUTO_CONTROLS[datatypes.Text] % (
             attrlabel, attrname, str(readonly).lower(),
-            xmlUtils.XMLEncode(attr.value)
+            xml.xml_encode(attr.value)
         )
         
     elif isinstance(attr, datatypes.Reference1):
@@ -167,9 +167,9 @@ def _getControlFromAttribute(item, attrname, attr, readonly, isNew=False):
         options = []
         rel_items = attr.getItems()
         for item in rel_items:
-            options += [xmlUtils.XMLEncode(item.__image__),
+            options += [xml.xml_encode(item.__image__),
                         item.id,
-                        xmlUtils.XMLEncode(item.displayName.value)]
+                        xml.xml_encode(item.displayName.value)]
         
         sTab = AUTO_CONTROLS[datatypes.ReferenceN] % (
             attrlabel,

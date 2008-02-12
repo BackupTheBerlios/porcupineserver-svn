@@ -20,7 +20,7 @@ import logging
 import sys
 import traceback
 
-from porcupine.utils import xmlUtils
+from porcupine.utils import xml
 
 class ResponseEnd(Exception):
     pass
@@ -72,7 +72,7 @@ class PorcupineException(Exception):
                 tbk = traceback.format_exception(*sys.exc_info())
                 tbk = '\n'.join(tbk)
                 if request_type == 'xmlrpc':
-                    tbk = xmlUtils.XMLEncode(tbk)
+                    tbk = xml.xml_encode(tbk)
                 info = tbk
             else:
                 info = self

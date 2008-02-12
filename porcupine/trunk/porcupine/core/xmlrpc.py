@@ -17,7 +17,7 @@
 "Porcupine XML-RPC Library"
 
 import cStringIO
-from porcupine.utils import date, xmlUtils
+from porcupine.utils import date, xml
 from porcupine.oql import core
 from porcupine.core import objectSet
 from porcupine import systemObjects, datatypes
@@ -97,9 +97,9 @@ class XMLRPCParams(list):
 
     def __serializeParam(self, param):
         if type(param)==str:
-            return('<value>%s</value>' % xmlUtils.XMLEncode(param))
+            return('<value>%s</value>' % xml.xml_encode(param))
         elif type(param)==unicode:
-            return('<value>%s</value>' % xmlUtils.XMLEncode(param.encode(self.encoding)))
+            return('<value>%s</value>' % xml.xml_encode(param.encode(self.encoding)))
         elif type(param)==int or type(param)==long:
             return('<value><i4>%i</i4></value>' % param)
         elif type(param)==bool:

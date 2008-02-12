@@ -23,7 +23,7 @@ XMLCodes = (
     ('"', '&quot;'),
 )
 
-def XMLEncode(s):
+def xml_encode(s):
     """
     Returns a string that is valid for XML string concatenations
     

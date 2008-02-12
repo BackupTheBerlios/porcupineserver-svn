@@ -22,7 +22,7 @@ from porcupine import HttpContext
 from porcupine import webmethods
 from porcupine import filter
 from porcupine.security import objectAccess
-from porcupine.utils import date, xmlUtils
+from porcupine.utils import date, xml
 
 from org.innoscript.desktop.schema.security import Group
 from org.innoscript.desktop.webmethods import baseitem
@@ -58,17 +58,17 @@ def properties(self):
     members_options = []
     members = self.members.getItems()
     for user in members:
-        members_options += [xmlUtils.XMLEncode(user.__image__),
+        members_options += [xml.xml_encode(user.__image__),
                             user.id,
-                            xmlUtils.XMLEncode(user.displayName.value)]
+                            xml.xml_encode(user.displayName.value)]
     params['MEMBERS'] = ';'.join(members_options)
 
     policies_options = []
     policies = self.policies.getItems()
     for policy in policies:
-        policies_options += [xmlUtils.XMLEncode(policy.__image__),
+        policies_options += [xml.xml_encode(policy.__image__),
                              policy.id,
-                             xmlUtils.XMLEncode(policy.displayName.value)]
+                             xml.xml_encode(policy.displayName.value)]
     params['POLICIES'] = ';'.join(policies_options)
     
     params['SECURITY_TAB'] = baseitem._getSecurity(self, user)

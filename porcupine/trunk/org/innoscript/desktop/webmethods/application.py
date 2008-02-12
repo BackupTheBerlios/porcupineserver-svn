@@ -22,7 +22,7 @@ from porcupine import HttpContext
 from porcupine import webmethods
 from porcupine import filter
 from porcupine.security import objectAccess
-from porcupine.utils import date, xmlUtils
+from porcupine.utils import date, xml
 
 from org.innoscript.desktop.schema.common import Application
 from org.innoscript.desktop.webmethods import baseitem
@@ -45,7 +45,7 @@ def properties(self):
         'NAME' : self.displayName.value,
         'DESCRIPTION' : self.description.value,
         'ICON' : self.icon.value,
-        'LAUNCH_URL' : xmlUtils.XMLEncode(self.launchUrl.value),
+        'LAUNCH_URL' : xml.xml_encode(self.launchUrl.value),
         'MODIFIED' : modified.format(baseitem.DATES_FORMAT, sLang),
         'MODIFIED_BY' : self.modifiedBy,
         'CONTENTCLASS' : self.contentclass,
