@@ -394,6 +394,7 @@ function SelectOption__onmousedown(evt, option) {
 				oSelectList.selectOption(option);
 	}
 	if (QuiX.getMouseButton(evt) == 0) {
+		QuiX.cleanupOverlays();
 		QuiX.stopPropag(evt);
 		QuiX.cancelDefault(evt);
 	}
