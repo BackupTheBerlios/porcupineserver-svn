@@ -45,6 +45,7 @@ def properties(self):
         'ICON' : self.__image__,
         'NAME' : self.displayName.value,
         'FULL_NAME' : self.fullName.value,
+        'EMAIL' : self.email.value,
         'DESCRIPTION' : self.description.value,
         'MODIFIED' : date.Date(self.modified).format(baseitem.DATES_FORMAT, sLang),
         'MODIFIED_BY' : self.modifiedBy,

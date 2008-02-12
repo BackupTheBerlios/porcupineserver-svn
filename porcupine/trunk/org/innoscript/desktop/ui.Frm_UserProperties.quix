@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <dialog xmlns="http://www.innoscript.org/quix"
 		title="$NAME" img="$ICON" resizable="false" close="true"
-		width="380" height="300" left="30%" top="30%">
+		width="380" height="325" left="30%" top="30%">
 	<script name="Generic Functions" src="desktop/generic.js"/>
 	<script name="Generic Form Widgets" src="desktop/widgets.js" depends="10,14,15"/>
 	<wbody>
@@ -9,27 +9,30 @@
 			<tabpane top="0" left="0" width="100%" height="100%">
 				<tab caption="@@GENERAL@@">
 						<label top="2" left="5" width="80" height="20" caption="@@displayName@@:"/>
-						<field id="displayName" name="displayName" left="95" top="0" width="75%" value="$NAME" readonly="$READONLY"/>
+						<field id="displayName" name="displayName" left="95" top="0" width="72%" value="$NAME" readonly="$READONLY"/>
 	
 						<label top="29" left="5" width="80" height="20" caption="@@fullName@@:"/>
-						<field id="fullName" name="fullName" top="27" left="95" width="75%" value="$FULL_NAME" readonly="$READONLY"/>
+						<field id="fullName" name="fullName" top="27" left="95" width="72%" value="$FULL_NAME" readonly="$READONLY"/>
 	
 						<label top="55" left="5" width="80" height="20" caption="@@description@@:"/>
-						<field id="description" name="description" top="53" left="95" width="75%" value="$DESCRIPTION" readonly="$READONLY"/>
+						<field id="description" name="description" top="53" left="95" width="72%" value="$DESCRIPTION" readonly="$READONLY"/>
+					
+						<label top="81" left="5" width="80" height="20" caption="@@email@@:"/>
+						<field id="description" name="email" top="80" left="95" width="72%" value="$EMAIL"/>
+					
+						<hr top="112" width="100%"/>
 						
-						<hr top="88" width="100%"/>
-						
-						<label top="100" left="5" width="120" height="20" caption="@@DATEMOD@@:"/>
-						<label top="100" left="125" width="55%" height="20" caption="$MODIFIED"/>
+						<label top="125" left="5" width="120" height="20" caption="@@DATEMOD@@:"/>
+						<label top="125" left="125" width="55%" height="20" caption="$MODIFIED"/>
 	
-						<label top="125" left="5" width="120" height="20" caption="@@MODIFIEDBY@@:"/>
-						<label top="125" left="125" width="55%" height="20" caption="$MODIFIED_BY"/>
+						<label top="150" left="5" width="120" height="20" caption="@@MODIFIEDBY@@:"/>
+						<label top="150" left="125" width="55%" height="20" caption="$MODIFIED_BY"/>
 	
-						<label top="150" left="5" width="120" height="20" caption="@@ID@@:"/>
-						<label top="150" left="125" width="55%" height="20" canselect="true" caption="$ID"/>
+						<label top="175" left="5" width="120" height="20" caption="@@ID@@:"/>
+						<label top="175" left="125" width="55%" height="20" canselect="true" caption="$ID"/>
 	
-						<label top="175" left="5" width="120" height="20" caption="@@CLASS@@:"/>
-						<label top="175" left="125" width="55%" height="20" canselect="true" caption="$CONTENTCLASS"/>
+						<label top="200" left="5" width="120" height="20" caption="@@CLASS@@:"/>
+						<label top="200" left="125" width="55%" height="20" canselect="true" caption="$CONTENTCLASS"/>
 				</tab>
 				<tab caption="@@memberof@@">
 					<custom classname="ReferenceN" width="100%" height="100%"
