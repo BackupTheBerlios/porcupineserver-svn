@@ -9,6 +9,8 @@ function __closeDialog__(evt, w) {
 //Window class
 function Window(params) {
 	params = params || {};
+	var overflow = params.oveflow;
+	
 	params.border = 1;
 	params.padding = '1,1,1,1';
 	params.onmousedown = QuiX.getEventWrapper(Window__onmousedown, params.onmousedown);
@@ -34,7 +36,6 @@ function Window(params) {
 		width:'100%',
 		height:22,
 		padding:'4,0,4,2',
-		border:0,
 		overflow:'hidden'
 	});
 	this.appendChild(this.title);
@@ -51,7 +52,7 @@ function Window(params) {
 	this.body = new Widget({
 		top:22,width:'100%',
 		height:"this.parent.getHeight()-22",
-		border:0,overflow:'auto'
+		overflow:overflow
 	});
 	this.body.div.className = 'body';
 	this.appendChild(this.body);
@@ -126,7 +127,11 @@ Window.prototype.setResizable = function(bResizable) {
 		});
 		this.appendChild(this.resizeHandle);
 		this.resizeHandle.div.className = 'resize';
-		this.resizeHandle.attachEvent('onmousedown', function(evt){oWindow._startResize(evt)});
+		this.resizeHandle.attachEvent('onmousedown',
+			function(evt){
+				oWindow._startResize(evt);
+				QuiX.stopPropag(evt);
+			});
 	}
 	else if (!bResizable && this.resizeHandle) {
 		this.resizeHandle.destroy();
@@ -274,6 +279,7 @@ Window.prototype.minimize = function(w) {
 			w.isMinimized = true;
 		}
 		else {
+			w.bringToFront();
 			w.body.show();
 			if (w.statusBar)
 				w.statusBar.show();
@@ -330,9 +336,26 @@ Window.prototype.maximize = function(w) {
 }
 
 Window.prototype.bringToFront = function() {
-	Widget.prototype.bringToFront(this);
-	for (var i=0; i<this.childWindows.length; i++)
-		this.childWindows[i].bringToFront();
+	if (this.div.style.zIndex < this.parent.maxz) {
+		var sw, dt;
+		var macff = QuiX.browser == 'moz' && QuiX.getOS() == 'MacOS';
+		Widget.prototype.bringToFront(this);
+		if (macff) {
+			var dt = document.desktop;
+			//hide scrollbars
+			sw = dt.getWidgetsByAttributeValue('_overflow', 'auto');
+			sw = sw.concat(dt.getWidgetsByAttributeValue('_overflow', 'scroll'));
+			for (var i=0; i<sw.length; i++) {
+				if (sw[i] != this.parent)
+					sw[i].div.style.overflow = 'hidden';
+			}
+			//restore scrollbars
+			sw = this.getWidgetsByAttributeValue('_overflow', 'auto');
+			sw = sw.concat(this.getWidgetsByAttributeValue('_overflow', 'scroll'));
+			for (var i=0; i<sw.length; i++)
+				sw[i].div.style.overflow = sw[i]._overflow;
+		}
+	}
 }
 
 Window.prototype.showWindow = function(sUrl, oncomplete) {
@@ -359,15 +382,18 @@ Window.prototype.showWindowFromString = function(s, oncomplete) {
 }
 
 WindowTitle__onmousedown = function(evt, w) {
-	w.parent._startMove(evt);
 	QuiX.cleanupOverlays();
 	QuiX.stopPropag(evt);
 	QuiX.cancelDefault(evt);
+	w.parent._startMove(evt);
 }
 
 Window__onmousedown = function(evt, w) {
-	if (QuiX.getMouseButton(evt) == 0)
+	if (QuiX.getMouseButton(evt) == 0) {
 		w.bringToFront();
+		QuiX.stopPropag(evt);
+	}
+	QuiX.cleanupOverlays();
 }
 
 Window__oncontextmenu = function(evt, w) {
