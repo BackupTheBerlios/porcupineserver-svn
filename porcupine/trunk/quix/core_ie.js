@@ -1106,13 +1106,15 @@ Widget.prototype.detachEvent = function(eventType, chr) {
 }
 
 function Widget__tooltipover(evt, w) {
-	var x1 = evt.clientX;
-	var y1 = evt.clientY + 18;
-	if (!w.__tooltipID) {
-		w.__tooltipID = window.setTimeout(
-			function _tooltiphandler() {
-				Widget__showtooltip(w, x1, y1);
-			}, 1000);
+	if (!QuiX.dragging) {
+		var x1 = evt.clientX;
+		var y1 = evt.clientY + 18;
+		if (!w.__tooltipID) {
+			w.__tooltipID = window.setTimeout(
+				function _tooltiphandler() {
+					Widget__showtooltip(w, x1, y1);
+				}, 1000);
+		}
 	}
 }
 
@@ -1147,6 +1149,7 @@ function Widget__startdrag(evt, w) {
 		QuiX.dragTimer = window.setTimeout(
 			function _draghandler() {w._startDrag(x, y)}, 150);
 		QuiX.cancelDefault(evt);
+		QuiX.dragging = true;
 	}
 }
 
@@ -1160,6 +1163,7 @@ function Widget__enddrag(evt, desktop) {
 		QuiX.dragTimer = 0;
 	}
 	desktop.detachEvent('onmouseup');
+	QuiX.dragging = false;
 	if (QuiX.dragable) {
 		desktop.detachEvent('onmouseover');
 		desktop.detachEvent('onmousemove');
@@ -1180,15 +1184,9 @@ function Widget__enddrag(evt, desktop) {
 }
 
 function Widget__detecttarget(evt, desktop) {
-	var target = QuiX.getTarget(evt);
-	while (!target.widget)
-		target = QuiX.getParentNode(target)
-	
-	var w = target.widget;
-	
+	var w = QuiX.getTargetWidget(evt);
 	while (w && !w.dropable)
 		w = w.parent;
-	
 	if (w && w != QuiX.dragable && w != QuiX.dragable.parent) {
 		QuiX.tmpWidget.div.style.borderColor = 'red';
 		QuiX.dropTarget = w;

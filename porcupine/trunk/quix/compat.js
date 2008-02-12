@@ -33,6 +33,7 @@ QuiX.tmpWidget = null;
 QuiX.dragable = null;
 QuiX.dropTarget = null;
 QuiX.dragTimer = 0;
+QuiX.dragging = false;
 QuiX.images = [];
 QuiX.constructors = {
 	'script' : null,

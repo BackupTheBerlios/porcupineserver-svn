@@ -68,7 +68,7 @@ Splitter.prototype._handleMoving = function(evt, iHandle) {
 	var limit2 = pane2[length_func]();
 	var min1 = pane1[min_length_var]();
 	var min2 = pane2[min_length_var]();
-	
+
 	var offset = evt['client' + offset_var] - QuiX['start' + offset_var];
 	if (-offset < limit1 && offset < limit2) {
 		this.panes[iHandle][length_var] = Math.max(length1 + offset, min1);
@@ -86,6 +86,7 @@ Splitter.prototype._endMoveHandle = function(evt, iHandle) {
 	this.detachEvent('onmouseup');
 	this.detachEvent('onmousemove');
 	this.div.style.cursor = '';
+	QuiX.dragging = false;
 }
 
 function SplitterPane__destroy() {
@@ -121,6 +122,8 @@ function SplitterHandle__mousedown(evt, w) {
 	var splitter = w.parent;
 	QuiX.startX = evt.clientX;
 	QuiX.startY = evt.clientY;
+	QuiX.cancelDefault(evt);
+	QuiX.dragging = true;
 	for (var idx=0; idx < splitter._handles.length; idx++) {
 		 if (splitter._handles[idx] == w)
 		 	break;
