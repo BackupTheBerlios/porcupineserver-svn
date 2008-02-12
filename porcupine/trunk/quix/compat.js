@@ -169,7 +169,14 @@ QuiX.getDraggable = function(w) {
 }
 
 QuiX.getMouseButton = function(evt) {
-	return evt.button;
+	iButton = evt.button;
+	if (QuiX.browser == 'ie') {
+		if (iButton == 1) //left
+			iButton = 0;
+		if (iButton == 4) //middle
+			iButton = 1;
+	}
+	return iButton;
 }
 
 QuiX.createOutline = function(w) {
