@@ -4,7 +4,7 @@
 	<prop name="YES" value="@@YES@@"></prop>
 	<prop name="NO" value="@@NO@@"></prop>
 
-	<script name="Login Script" src="desktop/ui.LoginPage.js"></script>
+	<a:script xmlns:a="http://www.innoscript.org/quix" name="Login Script" src="desktop/ui.LoginPage.js"></a:script>
 
 	<dialog id="logindialog" title="@@LOGIN@@" align="center" width="280"
 			height="155" status="true" left="center" top="center">
