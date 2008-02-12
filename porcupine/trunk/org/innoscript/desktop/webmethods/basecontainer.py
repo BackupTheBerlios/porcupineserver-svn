@@ -34,6 +34,7 @@ from porcupine.security import objectAccess
 from porcupine.utils import date, misc
 
 from org.innoscript.desktop.strings import resources
+from org.innoscript.desktop.webmethods import baseitem
 
 @filter.i18n('org.innoscript.desktop.strings.resources')
 @webmethods.quixui(of_type=Container,
@@ -63,7 +64,7 @@ def new(self):
         'ICON': oNewItem.__image__,
         'PROPERTIES_TAB': '',
         'EXTRA_TABS': '',
-        'SECURITY_TAB': _getSecurity(self, context.session.user, True)
+        'SECURITY_TAB': baseitem._getSecurity(self, context.session.user, True)
     }
     
     # inspect item properties
@@ -71,8 +72,11 @@ def new(self):
     for attr_name in oNewItem.__props__:
         attr = getattr(oNewItem, attr_name)
         if isinstance(attr, datatypes.DataType):
-            control, tab = \
-                _getControlFromAttribute(oNewItem, attr_name, attr, False, True)
+            control, tab = baseitem._getControlFromAttribute(oNewItem,
+                                                             attr_name,
+                                                             attr,
+                                                             False,
+                                                             True)
             sProperties += control
             params['EXTRA_TABS'] += tab
     
