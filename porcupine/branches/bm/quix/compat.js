@@ -51,9 +51,9 @@ QuiX.progress = '<rect id="quix_progress" xmlns="http://www.innoscript.org/quix"
 	'top="center" left="center"></progressbar></rect></rect>';
 
 QuiX.modules = [
-	new QModule('Windows and Dialogs', '__quix/windows.js', [3]),
+	new QModule('Windows and Dialogs', '__quix/windows.js', [3,15]),
 	new QModule('Menus', '__quix/menus.js', [3]),
-	new QModule('Splitter', '__quix/splitter.js', [3]),
+	new QModule('Splitter', '__quix/splitter.js', [15]),
 	new QModule('Labels & Buttons', '__quix/buttons.js', []),
 	new QModule('Tab Pane', '__quix/tabpane.js', []),
 	new QModule('List View', '__quix/listview.js', []),
