@@ -58,7 +58,6 @@ function XULParser() {
 
 XULParser.prototype.detectModules = function(oNode) {
 	if (oNode.nodeType!=1) return;
-	var dependency;
 	var sTag = oNode.localName;
 	var iMod = QuiX.tags[sTag];
 	this._addModule(iMod);
@@ -91,13 +90,14 @@ XULParser.prototype.detectModules = function(oNode) {
 }
 
 XULParser.prototype._addModule = function(iMod) {
+	var dependency;
 	if (iMod>-1 && !QuiX.modules[iMod].isLoaded) {
 		var oMod = QuiX.modules[iMod];
 		if(!this.__modulesToLoad.hasItem(oMod)) {
 			for (var i=0; i<oMod.dependencies.length; i++) {
 				dependency = QuiX.modules[oMod.dependencies[i]];
 				if (!this.__modulesToLoad.hasItem(dependency) && !dependency.isLoaded) {
-					this.__modulesToLoad.push(QuiX.modules[oMod.dependencies[i]]);
+					this._addModule(oMod.dependencies[i]);
 				}
 			}
 			this.__modulesToLoad.push(oMod);
