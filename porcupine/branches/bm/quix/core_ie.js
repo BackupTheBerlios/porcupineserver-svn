@@ -361,7 +361,7 @@ function Widget(params) {
 			params.onmouseout);
 	}
 	
-	if (params.opacity) {
+	if (typeof(params.opacity) != 'undefined') {
 		this.setOpacity(parseFloat(params.opacity));
 	}
 	
