@@ -10,12 +10,14 @@ function __closeDialog__(evt, w) {
 function Window(params) {
 	params = params || {};
 	var overflow = params.oveflow;
-	
 	params.border = 1;
 	params.padding = '1,1,1,1';
-	params.onmousedown = QuiX.getEventWrapper(Window__onmousedown, params.onmousedown);
-	params.oncontextmenu = QuiX.getEventWrapper(Window__oncontextmenu, params.oncontextmenu);
-
+	params.onmousedown = QuiX.getEventWrapper(Window__onmousedown,
+												params.onmousedown);
+	params.oncontextmenu = QuiX.getEventWrapper(Window__oncontextmenu,
+												params.oncontextmenu);
+	params.overflow = (QuiX.browser == 'moz' && QuiX.getOS() == 'MacOS')?
+						'auto':'hidden';
 	this.base = Widget;
 	this.base(params);
 	this.minw = params.minw || 120;
@@ -30,55 +32,55 @@ function Window(params) {
 	this._stateh = 0;
 	this._childwindows = [];
 	this.div.className = 'window';
-
+	var box = new Box({
+		width : '100%',
+		height : '100%',
+		orientation : 'v',
+		spacing : 0
+	});
+	this.appendChild(box);
 	//title
-	this.title = new Widget({
-		width:'100%',
-		height:22,
-		padding:'4,0,4,2',
-		overflow:'hidden'
+	this.title = new Box({
+		height : 22,
+		padding :'1,1,1,1',
+		childrenalign : 'center'
 	});
-	this.appendChild(this.title);
 	this.title.div.className = 'header';
-	this.title.div.innerHTML = '<span style="margin-top:8px"></span>';
 	this.title.attachEvent('onmousedown', WindowTitle__onmousedown);
-	this.setTitle(params.title || "Untitled");
-
-	//icon
-	if (params.img)
-		this.setIcon(params.img);
-
-	//client area
-	this.body = new Widget({
-		top:22,width:'100%',
-		height:"this.parent.getHeight()-22",
-		overflow:overflow
+	box.appendChild(this.title);
+	var t = new Icon({
+		id : '_t',
+		caption : params.title || 'Untitled',
+		img : params.img,
+		align : 'left',
+		style : 'cursor:move'
 	});
-	this.body.div.className = 'body';
-	this.appendChild(this.body);
-	
-	//status
-	var status = (params.status=="true"||params.status==true)?true:false;
-	if (status) {
-		this.addStatusBar();
-	}
-
-	// resize handle
-	var isResizable = (params.resizable=="true"||params.resizable==true)?true:false;
-	if (isResizable) {
-		this.setResizable(true);
-	}
-	
+	this.title.appendChild(t);
 	// control buttons
+	this._addControlButtons();
 	var canClose = (params.close=='true'||params.close==true)?true:false;
 	var canMini = (params.minimize=='true'||params.minimize==true)?true:false;
 	var canMaxi = (params.maximize=='true'||params.maximize==true)?true:false;
-	if (canClose)
-		this.addControlButton(0);
-	if (canMaxi)
-		this.addControlButton(1);
-	if (canMini)
-		this.addControlButton(2);
+	if (!canMini)
+		this.title.getWidgetById('2').hide();
+	if (!canMaxi)
+		this.title.getWidgetById('1').hide();
+	if (!canClose)
+		this.title.getWidgetById('0').hide();
+	//client area
+	this.body = new Widget({
+		border : 0,
+		overflow : overflow
+	});
+	this.body.div.className = 'body';
+	box.appendChild(this.body);
+	//status
+	var stat = (params.status=="true"||params.status==true)?true:false;
+	if (stat)
+		this.addStatusBar();
+	// resize handle
+	var resizable = (params.resizable=="true"||params.resizable==true)?true:false;
+	this.setResizable(resizable);
 }
 
 QuiX.constructors['window'] = Window;
@@ -96,59 +98,52 @@ Window.prototype.images = [
 ];
 
 Window.prototype.setIcon = function(sUrl) {
-	var icon = this.title.div.firstChild;
-	if (icon.tagName == 'IMG')
-		QuiX.removeNode(icon);
-	if (sUrl) {
-		var icon = QuiX.getImage(sUrl);
-		icon.align = 'absmiddle';
-		icon.style.marginRight = '2px';
-		this.title.div.insertBefore(icon, this.title.div.firstChild);
-	}
+	var icon = this.title.getWidgetById('_t');
+	icon.setImageURL(sUrl);
+	icon.redraw(true);
 }
 
 Window.prototype.getIcon = function() {
-	var icon = this.title.div.firstChild;
-	if (icon.tagName == 'IMG')
-		return icon.src;
-	return '';
+	var icon = this.title.getWidgetById('_t');
+	return icon.getImageURL();
 }
 
 Window.prototype.setResizable = function(bResizable) {
 	var oWindow = this;
-	if (bResizable && !this.resizeHandle) {
-		this.resizeHandle = new Widget({
-			left:"this.parent.getWidth()-16",
-			top:"this.parent.getHeight()-16",
-			width:16,
-			height:16,
-			border:0,
-			overflow:'hidden'
+	if (bResizable && !this._resizer) {
+		this._resizer = new Widget({
+			left : 'this.parent.getWidth()-16',
+			top : 'this.parent.getHeight()-16',
+			width : 16,
+			height : 16,
+			border : 0,
+			overflow : 'hidden'
 		});
-		this.appendChild(this.resizeHandle);
-		this.resizeHandle.div.className = 'resize';
-		this.resizeHandle.attachEvent('onmousedown',
+		this.appendChild(this._resizer);
+		this._resizer.div.className = 'resize';
+		this._resizer.div.style.zIndex = 10000; //stay on top
+		this._resizer.attachEvent('onmousedown',
 			function(evt){
 				oWindow._startResize(evt);
 				QuiX.stopPropag(evt);
 			});
 	}
-	else if (!bResizable && this.resizeHandle) {
-		this.resizeHandle.destroy();
-		this.resizeHandle = null;
+	else if (!bResizable && this._resizer) {
+		this._resizer.destroy();
+		this._resizer = null;
 	}
 }
 
-Window.prototype.addControlButton = function(iWhich) {
-	var oControl, img, iOffset;
+Window.prototype._addControlButtons = function() {
+	var oControl, img;
 	var oWindow = this;
-	if (iWhich>-1 && iWhich<3) {
-		iOffset = (iWhich + 1) * 17;
+	for (var iWhich=2; iWhich>-1; iWhich--) {
 		oControl = new Widget({
-			id:iWhich.toString(),
-			left:"this.parent.getWidth()-" + iOffset,top:-1,padding:'0,0,0,0',
-			onmouseover:function(){oWindow._mouseoverControl(iWhich)},
-			onmouseout:function(){oWindow._mouseoutControl(iWhich)}
+			id : iWhich.toString(),
+			width : 16,
+			height : 16,
+			onmouseover : oWindow._mouseoverControl,
+			onmouseout : oWindow._mouseoutControl
 		});
 		img = this.images[iWhich].cloneNode(true);
 		oControl.div.appendChild(img);
@@ -160,7 +155,7 @@ Window.prototype.addControlButton = function(iWhich) {
 				oControl.attachEvent('onclick', function(){
 					if (oWindow.buttonIndex)
 						oWindow.buttonIndex = -1;
-					oWindow.close()
+					oWindow.close();
 				});
 				break;
 			case 1:
@@ -177,10 +172,16 @@ Window.prototype.addControlButton = function(iWhich) {
 	}
 }
 
+Window.prototype.addControlButton = function(iWhich) {
+	var oButton = this.title.getWidgetById(iWhich.toString());
+	oButton.show();
+	this.title.redraw();
+}
+
 Window.prototype.removeControlButton = function(iWhich) {
 	var oButton = this.title.getWidgetById(iWhich.toString());
-	if (oButton)
-		oButton.destroy();
+	oButton.hide();
+	this.title.redraw();
 }
 
 Window.prototype.close = function() {
@@ -194,79 +195,69 @@ Window.prototype.close = function() {
 }
 
 Window.prototype.setTitle = function(s) {
-	this.title.div.getElementsByTagName('SPAN')[0].innerHTML = s;
+	var icon = this.title.getWidgetById('_t');
+	icon.setCaption(s);
 }
 
 Window.prototype.getTitle = function() {
-	return this.title.div.getElementsByTagName('SPAN')[0].innerHTML;
+	var icon = this.title.getWidgetById('_t');
+	return icon.getCaption();
 }
 
-Window.prototype.addStatusBar = function(w) {
-	w = w || this;
+Window.prototype.addStatusBar = function() {
 	if (!this.statusBar) {
-		w.body.height = 'this.parent.getHeight()-42';
-		w.body.redraw();
-		
-		w.statusBar = new Widget({
-			top: "this.parent.getHeight()-20",
-			width: '100%',
-			left: 0,
+		this.statusBar = new Label({
 			height: 20,
 			padding: '4,0,0,0',
 			border: 1,
 			overflow: 'hidden'
 		});
-		w.statusBar.div.className = 'status';
-		w.appendChild(w.statusBar);
-		if (w.resizeHandle)
-			w.resizeHandle.bringToFront();
+		this.statusBar.div.className = 'status';
+		this.widgets[0].appendChild(this.statusBar);
 	}
 }
 
-Window.prototype.removeStatusBar = function(w) {
-	w = w || this;
-	if (w.statusBar) {
-		w.statusBar.destroy();
-		w.statusBar = null;
-		w.body.height = 'this.parent.getHeight()-22';
-		w.body.redraw();
+Window.prototype.removeStatusBar = function() {
+	if (this.statusBar) {
+		this.statusBar.destroy();
+		this.statusBar = null;
+		this.redraw();
 	}
 }
 
 Window.prototype.setStatus = function(s) {
 	if (this.statusBar)
-		this.statusBar.div.innerHTML = s;
+		this.statusBar.setCaption(s);
 }
 
 Window.prototype.getStatus = function() {
 	if (this.statusBar)
-		return this.statusBar.div.innerHTML;
+		return this.statusBar.getCaption();
 }
 
-Window.prototype._mouseoverControl = function(iWhich) {
-	this.title.getWidgetById(iWhich.toString()).div.childNodes[0].src = this.images[iWhich + 3].src;
+Window.prototype._mouseoverControl = function(evt, btn) {
+	var id = btn.getId();
+	btn.div.childNodes[0].src = Window.prototype.images[parseInt(id) + 3].src;
 }
 
-Window.prototype._mouseoutControl = function(iWhich) {
-	this.title.getWidgetById(iWhich.toString()).div.childNodes[0].src = this.images[iWhich].src;
+Window.prototype._mouseoutControl = function(evt, btn) {
+	var id = btn.getId();
+	btn.div.childNodes[0].src = Window.prototype.images[parseInt(id)].src;
 }
 
-Window.prototype.minimize = function(w) {
-	w = w || this;
+Window.prototype.minimize = function() {
+	var w = this;
 	var maxControl = w.title.getWidgetById('1');
 	var minControl = w.title.getWidgetById('2');
 	var childWindow;
-	
 	if (minControl) {
 		if (!w.isMinimized) {
 			var padding = w.getPadding();
-			w.body.hide();
-			if (w.statusBar)
-				w.statusBar.hide();
-			if (w.resizeHandle)
-				w.resizeHandle.hide();
+			for (var i=1; i<w.widgets.length; i++)
+				w.widgets[i].hide();
 			w._stateh = w.getHeight(true);
-			w.height = w.title.getHeight(true) + 2*w.getBorderWidth() + padding[2] + padding[3];
+			w.height = w.title.getHeight(true) + 2*w.getBorderWidth() +
+						padding[2] + padding[3];
 			if (maxControl)
 				maxControl.disable();
 			for (var i=0; i<w.childWindows.length; i++) {
@@ -280,15 +271,11 @@ Window.prototype.minimize = function(w) {
 		}
 		else {
 			w.bringToFront();
-			w.body.show();
-			if (w.statusBar)
-				w.statusBar.show();
-			if (w.resizeHandle)
-				w.resizeHandle.show();
+			for (var i=1; i<w.widgets.length; i++)
+				w.widgets[i].show();
 			w.height = w._stateh;
 			if (maxControl)
 				maxControl.enable();
-				
 			while (w._childwindows.length > 0) {
 				childWindow = w._childwindows.pop();
 				childWindow.show();
@@ -299,8 +286,8 @@ Window.prototype.minimize = function(w) {
 	}
 }
 
-Window.prototype.maximize = function(w) {
-	w = w || this;
+Window.prototype.maximize = function() {
+	var w = this;
 	var maxControl = w.title.getWidgetById('1');
 	var minControl = w.title.getWidgetById('2');
 	if (maxControl) {
@@ -314,8 +301,8 @@ Window.prototype.maximize = function(w) {
 			w.width = '100%';
 			if (minControl)
 				minControl.disable();
-			if (w.isResizable)
-				w.resz.disable();
+			if (w._resizer)
+				w._resizer.disable();
 			w.title.detachEvent('onmousedown');
 			w.isMaximized = true;
 		}
@@ -326,8 +313,8 @@ Window.prototype.maximize = function(w) {
 			w.height = w._stateh;
 			if (minControl)
 				minControl.enable();
-			if (w.isResizable)
-				w.resz.enable();
+			if (w._resizer)
+				w._resizer.enable();
 			w.title.attachEvent('onmousedown');
 			w.isMaximized = false;
 		}
@@ -337,10 +324,10 @@ Window.prototype.maximize = function(w) {
 
 Window.prototype.bringToFront = function() {
 	if (this.div.style.zIndex < this.parent.maxz) {
-		Widget.prototype.bringToFront(this);
+		var sw, dt;
 		var macff = QuiX.browser == 'moz' && QuiX.getOS() == 'MacOS';
+		Widget.prototype.bringToFront(this);
 		if (macff) {
-			var sw;
 			var dt = document.desktop;
 			//hide scrollbars
 			sw = dt.getWidgetsByAttributeValue('_overflow', 'auto');
@@ -360,8 +347,7 @@ Window.prototype.bringToFront = function() {
 
 Window.prototype.showWindow = function(sUrl, oncomplete) {
 	var oWin = this;
-	document.desktop.parseFromUrl(
-		sUrl,
+	document.desktop.parseFromUrl(sUrl,
 		function(w) {
 			oWin.childWindows.push(w);
 			w.opener = oWin;
@@ -371,11 +357,11 @@ Window.prototype.showWindow = function(sUrl, oncomplete) {
 }
 
 Window.prototype.showWindowFromString = function(s, oncomplete) {
-	var oParent = this;
+	var oWin = this;
 	document.desktop.parseFromString(s, 
 		function(w) {
-			oParent.childWindows.push(w);
-			w.opener = oParent;
+			oWin.childWindows.push(w);
+			w.opener = oWin;
 			if (oncomplete) oncomplete(w);
 		}
 	);
@@ -385,7 +371,7 @@ WindowTitle__onmousedown = function(evt, w) {
 	QuiX.cleanupOverlays();
 	QuiX.stopPropag(evt);
 	QuiX.cancelDefault(evt);
-	w.parent._startMove(evt);
+	w.parent.parent._startMove(evt);
 }
 
 Window__onmousedown = function(evt, w) {
@@ -403,32 +389,47 @@ Window__oncontextmenu = function(evt, w) {
 
 //Dialog class
 function Dialog(params) {
+	var stat = params.status || false;
+	var resizable = params.resizable || false;
+	
+	params.status = false;
+	params.resizable = false;
 	params.onkeypress = Dialog__keypress;
+		
 	this.base = Window;
 	this.base(params);
 
-	iOffset = this.statusBar?20:0;
-	this.body.height = "this.parent.getHeight()-56-" + iOffset.toString();
 	this.footer = new Widget({
-		top:"this.parent.getHeight()-32-" + iOffset.toString(),
-		width:'100%', height:32,padding:'0,0,0,0', overflow:'hidden',
-		onclick: QuiX.stopPropag
+		height : 32,
+		padding : '0,0,0,0',
+		overflow : 'hidden',
+		onclick : QuiX.stopPropag
 	});
-	this.appendChild(this.footer);
+	this.widgets[0].appendChild(this.footer);
 	
 	this.buttonHolder = new Widget({
-		top: 0, height: '100%',
-		width: 0, border:0, overflow:'hidden'
+		top : 0,
+		height : '100%',
+		width : 0,
+		border : 0,
+		overflow:'hidden'
 	});
 	this.buttonHolder.redraw = Dialog__buttonHolderRedraw;
 	
 	this.setButtonsAlign(params.align);
 	this.footer.appendChild(this.buttonHolder);
 	this.buttons = this.buttonHolder.widgets;
+	
+	//status
+	if (stat.toString()=='true')
+		this.addStatusBar();
+
+	// resize handle
+	if (resizable.toString()=='true')
+		this.setResizable(true);
+	
 	this.buttonIndex = -1;
 	this.defaultButton = null;
-	if (this.resizeHandle)
-		this.resizeHandle.bringToFront();
 }
 
 QuiX.constructors['dialog'] = Dialog;
@@ -450,24 +451,6 @@ Dialog.prototype.setButtonsAlign = function(sAlign) {
 	this.buttonHolder.redraw();
 }
 
-Dialog.prototype.addStatusBar = function() {
-	Window.prototype.addStatusBar(this);
-	this.body.height = 'this.parent.getHeight()-76';
-	this.body.redraw();
-	if (this.footer) {
-		this.footer.top = 'this.parent.getHeight()-52';
-		this.footer.redraw();
-	}
-}
-
-Dialog.prototype.removeStatusBar = function() {
-	Window.prototype.removeStatusBar(this);
-	this.body.height = 'this.parent.getHeight()-56';
-	this.body.redraw();
-	this.footer.top = 'this.parent.getHeight()-32';
-	this.footer.redraw();
-}
-
 Dialog.prototype.addButton = function(params) {
 	params.top = 'center';
 	var oWidget = new DialogButton(params, this);
@@ -478,16 +461,6 @@ Dialog.prototype.addButton = function(params) {
 		this.defaultButton.widgets[0].div.className='l2default';
 	}
 	return oWidget;
-}
-
-Dialog.prototype.minimize = function() {
-	Window.prototype.minimize(this);
-	if (this.isMinimized)
-		this.footer.hide();
-	else {
-		this.footer.show();
-		this.redraw();
-	}
 }
 
 function Dialog__keypress(evt, w) {
@@ -527,7 +500,6 @@ DialogButton.prototype._registerHandler = function(eventType, handler, isCustom)
 			}
 			handler(evt, w);
 		}
-
 	wrapper = wrapper || handler;
 	Widget.prototype._registerHandler(eventType, wrapper, isCustom, this);
 }
