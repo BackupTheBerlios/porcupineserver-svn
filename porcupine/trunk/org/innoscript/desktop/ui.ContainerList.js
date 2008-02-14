@@ -32,8 +32,8 @@ containerList.createItem = function(evt, w) {
 }
 
 containerList.showProperties = function(evt, w) {
-	var oWindow = w.parent.owner.getParentByType(Window);
-	var oItemList = w.parent.owner.getWidgetsByType(ListView)[0];
+	var oItemList = w.parent.owner;
+	var oWindow = oItemList.getParentByType(Window);
 	generic.showObjectProperties(evt, w, oItemList.getSelection(), containerList.refreshWindow);
 }
 
@@ -65,13 +65,13 @@ containerList.getContainerInfo = function(w, bAddPath) {
 			if (!pathExists) cmb_path.addOption({ caption: sFullPath, value: sFullPath });
 		}
 		var newOption1 = w.getWidgetById('menubar').menus[0].contextMenu.options[0];
-		var newOption2 = w.getWidgetsByType(Box)[0].widgets[3].contextMenu.options[0];
+		var newOption2 = w.getWidgetById('itemslist').contextMenu.options[0];
 		var containment = req.response.containment;
 		newOption1.options = [];
 		newOption1.subMenu = null;
 		newOption2.options = [];
 		newOption2.subMenu = null;
-		if (req.response.user_role > 1 && containment.length>0) {
+		if (req.response.user_role > 1 && containment.length > 0) {
 			var params, mo1, mo2;
 			newOption1.enable();
 			newOption2.enable();
@@ -126,7 +126,7 @@ containerList.navigateTo = function(evt, w) {
 }
 
 containerList.listMenu_show = function(menu) {
-	var oItemList = menu.owner.getWidgetsByType(ListView)[0];
+	var oItemList = menu.owner;
 	if (oItemList.selection.length == 0) {
 		menu.options[2].disable();//cut
 		menu.options[3].disable();//copy
