@@ -331,3 +331,10 @@ def delete(self):
     self.recycle('rb', txn)
     txn.commit()
     return True
+
+@webmethods.remotemethod(of_type=GenericItem)
+def deletePermanent(self):
+    txn = HttpContext.current().server.store.getTransaction()
+    self.delete(txn)
+    txn.commit()
+    return True
