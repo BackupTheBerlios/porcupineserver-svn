@@ -78,7 +78,7 @@ AUTO_CONTROLS = {
     datatypes.Reference1: '''
         <rect height="24">
             <custom classname="Reference1" width="100%%"
-                root="/" cc="%s" caption="%s" name="%s" value="%s" dn="%s"
+                root="" cc="%s" caption="%s" name="%s" value="%s" dn="%s"
                 disabled="%s"/>
         </rect>
         ''',
