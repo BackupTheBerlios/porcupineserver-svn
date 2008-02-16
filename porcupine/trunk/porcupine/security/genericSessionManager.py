@@ -15,116 +15,29 @@
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #===============================================================================
 """
-Generic Session Manager classes.
-Use these as base classes to implement your own session managers.
+Generic Session Manager class.
+Use this as a base class in order to implement
+your own session manager.
 """
-
-import time
-
-from porcupine.config.services import services
-from porcupine import serverExceptions
-from porcupine.security import SessionManager
-from porcupine.security import session
-from porcupine.db import db
-from porcupine.services import management
+from porcupine.security.session import Session
 from porcupine.utils import misc
 
 class GenericSessionManager(object):
-    def __init__(self):
-        self.sessionClass = session.Session
-        self.supports_replication = False
-
+    sessionClass = Session
+    
     def createSession(self, user):
         session = self.sessionClass(misc.generateGUID(), user, {})
         return session
 
     # to be implemented by subclass
     def getSession(self, sessionid):
-        pass
+        raise NotImplementedError
 
     def putSession(self, session):
-        pass
+        raise NotImplementedError
 
     def removeSession(self, sessionid):
-        pass
+        raise NotImplementedError
 
     def close(self):
-        pass
-
-class SessionManagerReplicator(object):
-    def __init__(self):
-        self.sessionClass = session.ReplSession
-        self.__locks = 0
-        self.supports_replication = True
-
-    def lock(self):
-        self.__locks += 1
-
-    def unlock(self):
-        if self.__locks:
-            self.__locks -= 1
-
-    def waitForUnlock(self):
-        while self.__locks:
-            time.sleep(1)
-
-    def createSession(self, user):
-        # session creation is allowed only on masters
-        if services['management'].isMaster():
-            self.waitForUnlock()
-            oNewSession = super(SessionManagerReplicator, self).createSession(user)
-            # replicate session
-            services['management'].sendMessage(management.REP_BROADCAST, 'NEW_SESSION',
-                                               (oNewSession.sessionid,
-                                                user._id,
-                                                oNewSession.getData()))
-            return(oNewSession)
-        else:
-            raise serverExceptions.ProxyRequest
-
-    def removeSession(self, sessionid):
-        self.waitForUnlock()
-        super(SessionManagerReplicator, self).removeSession(sessionid)
-        # replicate deletion
-        services['management'].sendMessage(management.REP_BROADCAST, 'DEL_SESSION',
-                                           sessionid)
-
-    # generator function
-    # used by replication service during host synchronization
-    def enumerate(self):
-        for sessionid in SessionManager._sessionList:
-            oSession = self.getSession(sessionid)
-            yield((sessionid, oSession.user._id, oSession.getData()))
-
-    # these methods are called by replicator service
-    # and are executed only on replicas....
-
-    def repl_addSession(self, sessionid, userid, data):
-        print 'got new session: ' + sessionid
-        # create new session
-        oNewSession = self.sessionClass(sessionid, db.getItem(userid), data)
-        self.putSession(oNewSession)
-        SessionManager._sessionList.append(sessionid)
-
-    def repl_removeSession(self, sessionid):
-        super(SessionManagerReplicator, self).removeSession(sessionid)
-        SessionManager._sessionList.remove(sessionid)
-
-    def repl_keepAlive(self, sessionid):
-        oSession = self.getSession(sessionid)
-        # call superclass keepAlive in order
-        # not to send 'KEEP_ALIVE' again
-        super(self.sessionClass, oSession).keepAlive()
-
-    def repl_setUser(self, sessionid, userid):
-        oUser = db.getItem(userid)
-        oSession = self.getSession(sessionid)
-        # call superclass setUser in order
-        # not to raise a ProxyRequest exception again
-        super(self.sessionClass, oSession).setUser(oUser)
-
-    def repl_setValue(self, sessionid, name, value):
-        oSession = self.getSession(sessionid)
-        # call superclass setValue in order
-        # not to raise a ProxyRequest exception again
-        super(self.sessionClass, oSession).setValue(name, value)
+        raise NotImplementedError

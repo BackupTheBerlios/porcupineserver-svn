@@ -15,13 +15,11 @@
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #===============================================================================
 "Porcupine Server Transaction classes"
+import copy
+import time
 
-import copy, time
-
-from porcupine.config.services import services
 from porcupine.db import db
 from porcupine import serverExceptions
-from porcupine.services import management
 
 class Transaction(object):
     "The main type of a Porcupine transaction."
@@ -84,40 +82,3 @@ class Transaction(object):
         @return: None
         """
         db.abortTransaction(self.txn)
-
-class XTransaction(Transaction):
-    "Transaction class used on replicated environments."
-    def __init__(self):
-        Transaction.__init__(self)
-        self.data = {0:{}, 1:{}}
-
-    def commit(self):
-        Transaction.commit(self)
-        # broadcast transaction data
-        services['management'].sendMessage(management.REP_BROADCAST,
-                                           'TRANS_DATA', (time.clock(), self.data))
-
-    def repl_commit(self, data):
-        retries = 0
-        while retries < db.db_handle.trans_max_retries:
-            try:
-                for sId in data[1].keys():
-                    if data[1][sId] != -1:
-                        db.db_handle.repl_putExternalAttribute(sId, data[1][sId], self)
-                    else:
-                        db.db_handle.repl_deleteExternalAttribute(sId, self)
-
-                for sId in data[0].keys():
-                    if data[0][sId] != -1:
-                        db.db_handle.repl_putItem(sId, data[0][sId], self)
-                    else:
-                        db.db_handle.repl_deleteItem(sId, self)
-                    
-                db.commitTransaction(self.txn)
-                return
-            except serverExceptions.DBTransactionIncomplete:
-                db.abortTransaction(self.txn)
-                self.txn = db.createTransaction()
-                retries += 1
-                time.sleep(0.05)
-        raise serverExceptions.DBTransactionIncomplete

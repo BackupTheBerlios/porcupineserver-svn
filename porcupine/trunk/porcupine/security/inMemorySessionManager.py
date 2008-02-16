@@ -15,15 +15,14 @@
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #===============================================================================
 """
-In-memory session manager classes for single-server and replicated environments
+In-memory session manager class
 """
+from porcupine.security.genericSessionManager import GenericSessionManager
 
-from porcupine.security import genericSessionManager
-
-class SessionManager(genericSessionManager.GenericSessionManager):
+class SessionManager(GenericSessionManager):
     def __init__(self):
         self.activeSessions = {}
-        genericSessionManager.GenericSessionManager.__init__(self)
+        GenericSessionManager.__init__(self)
 
     def getSession(self, sessionid):
         session = self.activeSessions.get(sessionid, None)
@@ -35,7 +34,3 @@ class SessionManager(genericSessionManager.GenericSessionManager):
     def removeSession(self, sessionid):
         del self.activeSessions[sessionid]
 
-class XSessionManager(genericSessionManager.SessionManagerReplicator, SessionManager):
-    def __init__(self):
-        SessionManager.__init__(self)
-        genericSessionManager.SessionManagerReplicator.__init__(self)

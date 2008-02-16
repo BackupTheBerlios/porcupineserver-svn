@@ -18,7 +18,6 @@
 
 from threading import currentThread
 
-from porcupine.config.services import services
 from porcupine.db import db
 from porcupine import serverExceptions
 from porcupine.security import objectAccess
@@ -60,11 +59,6 @@ def getTransaction():
     
     @rtype: L{Transaction<porcupine.db.transaction.Transaction>}
     """
-    # check if server runs in replicated environment
-    # and if it is the master
-    if db.db_handle.supports_replication and not(services['management'].isMaster()):
-        raise serverExceptions.ProxyRequest
-    
     txn = currentThread().trans
     if not txn or txn._iscommited:
         # create transaction

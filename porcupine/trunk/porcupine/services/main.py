@@ -15,14 +15,11 @@
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #===============================================================================
 "Porcupine main service"
-
 from threading import currentThread
 from cPickle import loads
-from socket import error as socketError
 
 from porcupine.core.services import asyncBaseServer
 from porcupine.services.porcupineThread import PorcupineThread
-from porcupine import serverExceptions
 
 class PorcupineServer(asyncBaseServer.BaseServer):
     "Porcupine server class"
@@ -34,21 +31,4 @@ class requestHandler(asyncBaseServer.BaseRequestHandler):
     "Porcupine Server request handler"
     def handleRequest(self):
         raw_request = loads(self.input_buffer)
-        try:
-            currentThread().get_response(raw_request)
-        except serverExceptions.ProxyRequest:
-##            print 'redirecting request'
-##            time.sleep(10.0)
-            masterAddr = Mgt.mgtServer.siteInfo.getMaster(1)
-            oRequest = asyncBaseServer.BaseRequest(self.input_buffer)
-            try:
-                sResponse = oRequest.getResponse(masterAddr)
-                self.write_buffer(sResponse)
-            except socketError:
-                # the master is down!!!
-                # remove master from replication site
-                master = Mgt.mgtServer.siteInfo.getMaster()
-                Mgt.mgtServer.siteInfo.removeHost(master)
-                # I am the new master...
-                # re-process the request
-                self.handleRequest()
+        currentThread().get_response(raw_request)

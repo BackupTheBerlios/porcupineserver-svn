@@ -15,11 +15,9 @@
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #===============================================================================
 "Porcupine Server session manager"
-
-import time, logging
+import time
+import logging
 from threading import Thread
-
-from porcupine.config.services import services
 
 timeout = 1200
 isActive = True
@@ -54,15 +52,14 @@ def fetchSession(sessionid):
 def expireSessions():
     logger = logging.getLogger('serverlog')
     while isActive:
-        if not sm.supports_replication or services['management'].isMaster():
-            for sessionid in _sessionList:
-                oSession = sm.getSession(sessionid)
-                if time.time() - oSession.lastAccessed > timeout:
-                    logger.debug('Expiring Session: %s' % sessionid)
-                    oSession.terminate()
-                    logger.debug('Total active sessions: %s' % str(len(_sessionList)))
-                else:
-                    break
+        for sessionid in _sessionList:
+            oSession = sm.getSession(sessionid)
+            if time.time() - oSession.lastAccessed > timeout:
+                logger.debug('Expiring Session: %s' % sessionid)
+                oSession.terminate()
+                logger.debug('Total active sessions: %s' % str(len(_sessionList)))
+            else:
+                break
         time.sleep(1.0)
     
 def close():

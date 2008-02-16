@@ -15,14 +15,13 @@
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #===============================================================================
 "Session classes for single server and replicated environments"
-
-import time, tempfile
-import os, glob
+import time
+import tempfile
+import os
+import glob
 
 from porcupine.config.services import services
-from porcupine import serverExceptions
 from porcupine.security import SessionManager
-from porcupine.services import management
 from porcupine.utils import misc
 
 class Session(object):
@@ -144,41 +143,3 @@ class Session(object):
         @rtype: dict
         """
         return(self.__data)
-
-class ReplSession(Session):
-    """The session type used on replicated environments
-    
-    @type user: L{GenericItem<porcupine.systemObjects.GenericItem>}
-    """
-    def keepAlive(self):
-        SessionManager.sm.waitForUnlock()
-        Session.keepAlive(self)
-        services['management'].sendMessage(management.REP_BROADCAST,
-                                          'KEEP_ALIVE',
-                                          self.sessionid)
-    
-    def setUser(self, oUser):
-        # check if i am the master
-        if Mgt.mgtServer.isMaster():
-            # wait until sessionmanager is unlocked...
-            SessionManager.sm.waitForUnlock()
-            Session.setUser(self, oUser)
-            services['management'].sendMessage(management.REP_BROADCAST,
-                                      'SESSION_USER',
-                                      (self.sessionid, oUser._id))
-        else:
-            raise serverExceptions.ProxyRequest
-
-    user = property(Session.getUser, setUser, None, 'The session\'s user')
-
-    def setValue(self, sName, value):
-        # check if i am the master
-        if Mgt.mgtServer.isMaster():
-            # wait until sessionmanager is unlocked...
-            SessionManager.sm.waitForUnlock()
-            Session.setValue(self, sName, value)
-            services['management'].sendMessage(management.REP_BROADCAST,
-                                              'SESSION_VALUE',
-                                              (self.sessionid, sName, value))
-        else:
-            raise serverExceptions.ProxyRequest

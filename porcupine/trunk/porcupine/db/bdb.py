@@ -16,12 +16,14 @@
 #===============================================================================
 "Berkeley DB interfaces"
 
-import time, logging, os, os.path
+import os
+import time
+import logging
 from bsddb import db
 from threading import Thread
 
 from porcupine.config.settings import settings
-from porcupine.db.genericDb import GenericDBInterface, DBReplicator
+from porcupine.db.genericDb import GenericDBInterface
 from porcupine.utils import backup
 from porcupine import serverExceptions
 
@@ -208,31 +210,3 @@ class DbInterface(GenericDBInterface):
         self._itemdb.close()
         self._docdb.close()
         self._env.close()
-
-class XDbInterface(DBReplicator, DbInterface):
-    """
-    Porcupine server Berkeley DB interface
-    for replicated environments
-    """
-    def __init__(self):
-        DbInterface.__init__(self)
-        # do not use durable transactions
-        # let the checkpointing do the job...
-        self._env.set_flags(db.DB_TXN_NOSYNC, 1)
-        DBReplicator.__init__(self)
-
-    def enumerate(self):
-        # get objects
-        cursor = self._itemdb.cursor()
-        rec = cursor.first()
-        while rec is not None:
-            yield [0, rec]
-            rec = cursor.next()
-        cursor.close()
-        # get files
-        cursor = self._docdb.cursor()
-        rec = cursor.first()
-        while rec is not None:
-            yield [1, rec]
-            rec = cursor.next()
-        cursor.close()
