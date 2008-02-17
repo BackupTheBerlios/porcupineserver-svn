@@ -19,7 +19,7 @@ Porcupine Object Set
 """
 import types
 
-from porcupine import serverExceptions
+from porcupine import exceptions
 from porcupine.db import db
 from porcupine.db import dbEnv
 
@@ -150,7 +150,7 @@ class ObjectSet(object):
     def __getItemSafe(self, id):
         try:
             return dbEnv.getItem(id, self._txn)
-        except serverExceptions.ObjectNotFound:
+        except exceptions.ObjectNotFound:
             return None
 
     def __loadcache(self, istart):

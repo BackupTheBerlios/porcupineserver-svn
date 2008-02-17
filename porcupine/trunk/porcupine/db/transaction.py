@@ -19,7 +19,7 @@ import copy
 import time
 
 from porcupine.db import db
-from porcupine import serverExceptions
+from porcupine import exceptions
 
 class Transaction(object):
     "The main type of a Porcupine transaction."
@@ -35,7 +35,7 @@ class Transaction(object):
         
         @return: None
         
-        @raise porcupine.serverExceptions.DBTransactionIncomplete:
+        @raise porcupine.exceptions.DBTransactionIncomplete:
             if the maximum number of transaction retries has been reached,
             as defined in the C{porcupine.ini} file.
         """
@@ -48,10 +48,10 @@ class Transaction(object):
                 tmpActions, self.actions = copy.copy(self.actions), []
                 dummy = [func(*args) for func,args in tmpActions]
                 return
-            except serverExceptions.DBTransactionIncomplete:
+            except exceptions.DBTransactionIncomplete:
                 pass
         else:
-            raise serverExceptions.DBTransactionIncomplete
+            raise exceptions.DBTransactionIncomplete
 
     def commit(self):
         """
@@ -59,21 +59,21 @@ class Transaction(object):
         
         @return: None
         
-        @raise porcupine.serverExceptions.DBTransactionIncomplete:
+        @raise porcupine.exceptions.DBTransactionIncomplete:
             if the maximum number of transaction retries has been reached,
             as defined in the C{porcupine.ini} file.
         """
         while self._retries < db.db_handle.trans_max_retries:
             try:
 #                if self._retries == 1:
-#                    raise serverExceptions.DBTransactionIncomplete
+#                    raise exceptions.DBTransactionIncomplete
                 db.commitTransaction(self.txn)
                 self._iscommited = True
                 return
-            except serverExceptions.DBTransactionIncomplete:
+            except exceptions.DBTransactionIncomplete:
                 self.retry()
         else:
-            raise serverExceptions.DBTransactionIncomplete
+            raise exceptions.DBTransactionIncomplete
 
     def abort(self):
         """

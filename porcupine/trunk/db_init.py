@@ -12,7 +12,6 @@ if main_is_frozen():
 
 from porcupine.db import db
 from porcupine.utils import misc
-from porcupine import serverExceptions
 
 answer = raw_input('''WARNING: Please ensure that Porcupine Server is stopped!
 All objects will be erased!

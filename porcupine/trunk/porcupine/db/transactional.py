@@ -18,7 +18,7 @@
 
 import types
 
-from porcupine import serverExceptions
+from porcupine import exceptions
 
 class transactional(object):
     """
@@ -43,7 +43,7 @@ class transactional(object):
             trans.actions.append( (method, args) )
             try:
                 return self.func(*args)
-            except serverExceptions.DBTransactionIncomplete:
+            except exceptions.DBTransactionIncomplete:
                 trans.retry()
         transactional_wrapper.func_name = self.func.func_name
         return types.MethodType(transactional_wrapper, item, item_class)

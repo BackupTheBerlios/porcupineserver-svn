@@ -27,7 +27,7 @@ from porcupine.core.http.response import HttpResponse
 from porcupine.core.http import ServerPage
 
 from porcupine.db import dbEnv
-from porcupine import serverExceptions
+from porcupine import exceptions
 from porcupine.core.services.asyncBaseServer import BaseServerThread
 
 class PorcupineThread(BaseServerThread):
@@ -50,7 +50,7 @@ class PorcupineThread(BaseServerThread):
             try:
                 try:
                     item = dbEnv.getItem(sPath)
-                except serverExceptions.ObjectNotFound:
+                except exceptions.ObjectNotFound:
                     # dir request
                     lstPath = sPath.split('/')
                     dirName = lstPath[1]
@@ -64,7 +64,7 @@ class PorcupineThread(BaseServerThread):
                             request.serverVariables['HTTP_USER_AGENT'],
                             request.getLang())
                     if not registration:
-                        raise serverExceptions.NotFound, \
+                        raise exceptions.NotFound, \
                             'The resource "%s" does not exist' % sPath
                     
                     # apply pre-processing filters
@@ -82,10 +82,10 @@ class PorcupineThread(BaseServerThread):
                 else:
                     # db request
                     if (item == None):
-                        raise serverExceptions.PermissionDenied
+                        raise exceptions.PermissionDenied
                     self.dispatch_method(item)
             
-            except serverExceptions.ResponseEnd, e:
+            except exceptions.ResponseEnd, e:
                 pass
             
             if registration != None:
@@ -97,7 +97,7 @@ class PorcupineThread(BaseServerThread):
                  for filter in registration.filters
                  if filter[0].type == 'post']
 
-        except serverExceptions.InternalRedirect, e:
+        except exceptions.InternalRedirect, e:
             lstPathInfo = e.args[0].split('?')
             raw_request['env']['PATH_INFO'] = lstPathInfo[0]
             if len(lstPathInfo == 2):
@@ -106,14 +106,14 @@ class PorcupineThread(BaseServerThread):
                 raw_request['env']['QUERY_STRING'] = ''
             self.get_response(raw_request)
             
-        except serverExceptions.PorcupineException, e:
+        except exceptions.PorcupineException, e:
             e.emit(self.context, item)
                 
-        except serverExceptions.ProxyRequest, e:
+        except exceptions.ProxyRequest, e:
             raise e
         
         except:
-            e = serverExceptions.InternalServerError()
+            e = exceptions.InternalServerError()
             e.emit(self.context, item)
         
         # abort uncommited transaction
@@ -157,7 +157,7 @@ class PorcupineThread(BaseServerThread):
             self._method_cache[method_key] = method
     
         if method == None:
-            raise serverExceptions.NotFound, \
+            raise exceptions.NotFound, \
                 'Invalid method call "%s"' % method_name
         else:
             # execute method

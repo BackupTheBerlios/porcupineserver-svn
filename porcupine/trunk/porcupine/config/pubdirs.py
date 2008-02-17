@@ -14,13 +14,11 @@
 #    along with Porcupine; if not, write to the Free Software
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #===============================================================================
-"Server public directories' registrations management"
-
+"Parser module for the server's published directories"
 import re
 import os.path
 from xml.dom import minidom
 
-from porcupine import serverExceptions
 from porcupine.utils import misc
 
 class Registration(object):

@@ -18,7 +18,7 @@
 
 import os
 
-from porcupine import serverExceptions
+from porcupine import exceptions
 from porcupine.core import eventHandlers
 
 class CompositionEventHandler(eventHandlers.DatatypeEventHandler):
@@ -35,7 +35,7 @@ class CompositionEventHandler(eventHandlers.DatatypeEventHandler):
         # check containment
         if [obj for obj in new_attr.value
                 if obj.getContentclass() != new_attr.compositeClass]:
-            raise serverExceptions.ContainmentError, \
+            raise exceptions.ContainmentError, \
                 'Invalid content class in composition.'
                 
         dctObjects = {}
@@ -154,7 +154,7 @@ class RelatorNEventHandler(eventHandlers.DatatypeEventHandler):
 
             lstValue = attr.value
             if lstValue and attr.respectsReferences:
-                raise serverExceptions.ReferentialIntegrityError, (
+                raise exceptions.ReferentialIntegrityError, (
                     'Cannot delete object "%s" ' % item.displayName.value +
                     'because it is being referenced by other objects.')
             
@@ -233,7 +233,7 @@ class Relator1EventHandler(eventHandlers.DatatypeEventHandler):
             from porcupine import datatypes
             if attr.value:
                 if attr.respectsReferences:
-                    raise serverExceptions.ReferentialIntegrityError, (
+                    raise exceptions.ReferentialIntegrityError, (
                         'Cannot delete object "%s" ' % item.displayName.value +
                         'because it is referenced by other objects.')
                 # remove reference

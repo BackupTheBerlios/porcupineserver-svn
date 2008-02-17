@@ -21,7 +21,7 @@ import time
 import mimetypes
 import cStringIO
 
-from porcupine import serverExceptions
+from porcupine import exceptions
 
 class HttpResponse(object):
     """Base response class
@@ -102,7 +102,7 @@ class HttpResponse(object):
         @return: None
         """
         self.__headers["Location"] = location
-        raise serverExceptions.ResponseEnd
+        raise exceptions.ResponseEnd
 
     def internal_redirect(self, location):
         """Internal server transfer
@@ -112,7 +112,7 @@ class HttpResponse(object):
         
         @return: None
         """
-        raise serverExceptions.InternalRedirect, location
+        raise exceptions.InternalRedirect, location
 
     def write(self, s):
         """Appends a string to the response sent to the client.
@@ -127,7 +127,7 @@ class HttpResponse(object):
     def end(self):
         """Terminates the response processing cycle
         and sends the response written so far to the client."""
-        raise serverExceptions.ResponseEnd
+        raise exceptions.ResponseEnd
 
     def writeFile(self, sFilename, sStream, isAttachment=True):
         """Writes a file stream to the response using a specified
@@ -164,7 +164,7 @@ class HttpResponse(object):
         try:
             oFile = file(fileName, 'rb')
         except IOError:
-            raise serverExceptions.NotFound, \
+            raise exceptions.NotFound, \
                     'The file "%s" can not be found' % fileName
         
         self.content_type = mimetypes.guess_type(fileName, False)[0] or 'text/plain'

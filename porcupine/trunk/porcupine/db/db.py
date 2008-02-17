@@ -19,7 +19,7 @@
 import time, cPickle
 
 from porcupine.config.settings import settings
-from porcupine import serverExceptions
+from porcupine import exceptions
 from porcupine.core import cache
 
 _locks = 0
@@ -66,12 +66,12 @@ def getItem(sOID, trans=None):
     if sItem:
         oItem = cPickle.loads(sItem)
         if oItem._isDeleted:
-            raise serverExceptions.ObjectNotFound, \
+            raise exceptions.ObjectNotFound, \
                 'The object "%s" does not exist' % sOID
         object_cache[oItem._id] = oItem
         return oItem
     else:
-        raise serverExceptions.ObjectNotFound, \
+        raise exceptions.ObjectNotFound, \
             'The object "%s" does not exist' % sOID
 
 def putItem(oItem, trans=None):
@@ -87,7 +87,7 @@ def deleteItem(oItem, trans):
 def getDeletedItem(sOID, trans=None):
     sItem = db_handle._getItem(sOID, trans)
     if not(sItem):
-        raise serverExceptions.ObjectNotFound, \
+        raise exceptions.ObjectNotFound, \
             'The deleted object "%s" no longer exists' % sOID
     else:
         oItem = cPickle.loads(sItem)

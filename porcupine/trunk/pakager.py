@@ -35,7 +35,7 @@ if main_is_frozen():
     sys.path.insert(0, '')
 
 from porcupine import datatypes
-from porcupine import serverExceptions
+from porcupine import exceptions
 from porcupine.administration import offlinedb
 from porcupine.administration import configfiles
 from porcupine.config.settings import settings
@@ -118,7 +118,7 @@ class Package(object):
         #check if the item already exists
         try:
             oOldItem = self.db.getItem(oItem.id, txn)
-        except serverExceptions.ObjectNotFound:
+        except exceptions.ObjectNotFound:
             # write external attributes
             for prop in [getattr(oItem, x) for x in oItem.__props__]:
                 if isinstance(prop, datatypes.ExternalAttribute):

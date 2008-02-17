@@ -21,7 +21,6 @@ import os.path
 import sys
 import re
 
-from porcupine import serverExceptions
 from porcupine.config.settings import settings
 
 class WebMethodDescriptor(object):

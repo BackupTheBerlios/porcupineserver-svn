@@ -19,7 +19,7 @@ Porcupine authorization pre-processing filters
 """
 import re
 
-from porcupine import serverExceptions
+from porcupine import exceptions
 from porcupine.filters import PreProcessFilter
 from porcupine.db import db
 
@@ -36,7 +36,7 @@ class RequiresLogin(PreProcessFilter):
                     absolute_url = context.request.SCRIPT_NAME + redirect_url
                     context.response.redirect(absolute_url)
             else:
-                raise serverExceptions.PermissionDenied
+                raise exceptions.PermissionDenied
 
 class RequiresPolicy(PreProcessFilter):
     @staticmethod
@@ -59,6 +59,6 @@ class RequiresPolicy(PreProcessFilter):
             if groupid in policyGrantedTo:
                 return
         
-        raise serverExceptions.PermissionDenied, \
+        raise exceptions.PermissionDenied, \
             "This action is restricted due to policy '%s'" \
             % policy.displayName.value

@@ -31,7 +31,7 @@ from threading import currentThread
 from porcupine.db import db, dbEnv
 from porcupine.utils import misc, date
 from porcupine.core import objectSet
-from porcupine import serverExceptions
+from porcupine import exceptions
 from porcupine import datatypesEventHandlers
 
 BLANK_PASSWORD = 'd41d8cd98f00b204e9800998ecf8427e'
@@ -57,13 +57,13 @@ class DataType(object):
         instance attribute of an object, whenever this object
         is appended or updated.
         
-        @raise porcupine.serverExceptions.ValidationError:
+        @raise porcupine.exceptions.ValidationError:
             if the datatype is required and is empty.
         
         @returns: None
         """
         if self.isRequired and not(self.value):
-            raise serverExceptions.ValidationError, \
+            raise exceptions.ValidationError, \
                 '"%s" attribute is mandatory' % self.__class__.__name__
             
 class String(DataType):
@@ -146,7 +146,7 @@ class Password(DataType):
 
     def validate(self):
         if self.isRequired and self._value == BLANK_PASSWORD:
-            raise serverExceptions.ValidationError, \
+            raise exceptions.ValidationError, \
                 '"%s" attribute is mandatory' % self.__class__.__name__
 
     def getValue(self):
@@ -193,7 +193,7 @@ class Reference1(DataType):
         if self.value:
             try:
                 oItem = dbEnv.getItem(self.value, trans)
-            except serverExceptions.ObjectNotFound:
+            except exceptions.ObjectNotFound:
                 pass
         return(oItem)
         
@@ -373,7 +373,7 @@ class Text(ExternalAttribute):
 
     def validate(self):
         if self.isRequired and not(self._size):
-            raise serverExceptions.ValidationError, \
+            raise exceptions.ValidationError, \
                 '"%s" attribute is mandatory' % self.__class__.__name__
         
 class File(Text):

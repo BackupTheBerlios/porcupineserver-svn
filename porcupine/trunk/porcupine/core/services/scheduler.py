@@ -18,7 +18,7 @@
 import time
 from threading import Thread
 
-from porcupine import serverExceptions
+from porcupine import exceptions
 from porcupine.db import db
 from porcupine.core.http.context import HttpContext
 from porcupine.security import SessionManager
@@ -55,7 +55,7 @@ class BaseTask(BaseService):
             try:
                 self.execute()
             except:
-                e = serverExceptions.InternalServerError()
+                e = exceptions.InternalServerError()
                 e.emit()
             if self.thread.trans and not self.thread.trans._iscommited:
                 self.thread.trans.abort()

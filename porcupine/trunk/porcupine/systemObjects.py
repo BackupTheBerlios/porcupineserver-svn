@@ -27,7 +27,7 @@ from threading import currentThread
 from porcupine.db import db, dbEnv
 from porcupine.db.transactional import transactional
 from porcupine.security import objectAccess
-from porcupine import serverExceptions
+from porcupine import exceptions
 from porcupine.core import objectSet
 from porcupine.utils import misc
 from porcupine import datatypes
@@ -112,7 +112,7 @@ class Cloneable(object):
         """
         oTarget = db.getItem(targetId, trans)
         if self.isCollection and oTarget.isContainedIn(self._id):
-            raise serverExceptions.ContainmentError, \
+            raise exceptions.ContainmentError, \
                 'Cannot copy item to destination.\n' + \
                 'The destination is contained in the source.'
         #check permissions on target folder
@@ -120,13 +120,13 @@ class Cloneable(object):
         iUserRole = objectAccess.getAccess(oTarget, oUser)
         if not(self._isSystem) and iUserRole>objectAccess.READER:
             if not(self.getContentclass() in oTarget.containment):
-                raise serverExceptions.ContainmentError, \
+                raise exceptions.ContainmentError, \
                     'The target container does not accept ' + \
                     'objects of type "%s".' % self.getContentclass()
             
             self._copy(oTarget, trans, True)
         else:
-            raise serverExceptions.PermissionDenied, \
+            raise exceptions.PermissionDenied, \
                 'The object was not copied.\n' + \
                 'The user has insufficient permissions.'
 
@@ -161,13 +161,13 @@ class Moveable(object):
         iUserRole2 = objectAccess.getAccess(oTarget, oUser)
     
         if self.isCollection and oTarget.isContainedIn(self._id):
-            raise serverExceptions.ContainmentError, \
+            raise exceptions.ContainmentError, \
                 'Cannot move item to destination.\n' + \
                 'The destination is contained in the source.'
     
         if (not(self._isSystem) and bCanMove and iUserRole2 > objectAccess.READER):
             if not(self.getContentclass() in oTarget.containment):
-                raise serverExceptions.ContainmentError, \
+                raise exceptions.ContainmentError, \
                     'The target container does not accept ' + \
                     'objects of type "%s".' % self.getContentclass()
 
@@ -184,7 +184,7 @@ class Moveable(object):
             oParent._removeItemReference(self)
             db.putItem(oParent, trans)
         else:
-            raise serverExceptions.PermissionDenied, \
+            raise exceptions.PermissionDenied, \
                 'The object was not moved.\n' + \
                 'The user has insufficient permissions.'
 
@@ -240,7 +240,7 @@ class Removeable(object):
             oParent._removeItemReference(self)
             db.putItem(oParent, trans)
         else:
-            raise serverExceptions.PermissionDenied, \
+            raise exceptions.PermissionDenied, \
                 'The object was not deleted.\n' + \
                 'The user has insufficient permissions.'
     
@@ -305,13 +305,13 @@ class Removeable(object):
             #update recycle bin
             oRecycleBin = db.getItem(rbID, trans)
             if not(oDeleted.getContentclass() in oRecycleBin.containment):
-                raise serverExceptions.ContainmentError, \
+                raise exceptions.ContainmentError, \
                     'The target container does not accept ' + \
                     'objects of type "%s".' % oDeleted.getContentclass()
             oRecycleBin._addItemReference(oDeleted)
             db.putItem(oRecycleBin, trans)
         else:
-            raise serverExceptions.PermissionDenied, \
+            raise exceptions.PermissionDenied, \
                 'The object was not deleted.\n' + \
                 'The user has insufficient permissions.'
 
@@ -466,11 +466,11 @@ class GenericItem(object):
 
         iUserRole = objectAccess.getAccess(oParent, oUser)
         if iUserRole == objectAccess.READER:
-            raise serverExceptions.PermissionDenied, \
+            raise exceptions.PermissionDenied, \
                 'The user does not have write permissions ' + \
                 'on the parent folder.'
         if not(self.getContentclass() in oParent.containment):
-            raise serverExceptions.ContainmentError, \
+            raise exceptions.ContainmentError, \
                 'The target container does not accept ' + \
                 'objects of type "%s".' % self.getContentclass()
 
@@ -483,7 +483,7 @@ class GenericItem(object):
             self.inheritRoles = True
             self.security = oParent.security
             #if trans._retries == 0:
-            #   raise serverExceptions.DBTransactionIncomplete    
+            #   raise exceptions.DBTransactionIncomplete    
         self._owner = oUser._id
         self._created = time.time()
         self.modifiedBy = oUser.displayName.value
@@ -659,7 +659,7 @@ class DeletedItem(GenericItem, Removeable):
             deletedItem.inheritRoles = False
             self._undelete(deletedItem, trans)
         else:
-            raise serverExceptions.PermissionDenied, \
+            raise exceptions.PermissionDenied, \
                     'The user does not have write permissions on the ' + \
                     'destination folder.'
 
@@ -682,9 +682,9 @@ class DeletedItem(GenericItem, Removeable):
         the L{Removeable.recycle} method is called.
 
         @warning: DO NOT USE.
-        @raise L{porcupine.serverExceptions.ContainmentError}: Always
+        @raise L{porcupine.exceptions.ContainmentError}: Always
         """
-        raise serverExceptions.ContainmentError, \
+        raise exceptions.ContainmentError, \
             'Cannot directly add this item to the store.\n' + \
             'Use the "recycle" method instead.'
 
@@ -698,7 +698,7 @@ class DeletedItem(GenericItem, Removeable):
         
         @return: None
         
-        @raise L{porcupine.serverExceptions.ObjectNotFound}:
+        @raise L{porcupine.exceptions.ObjectNotFound}:
             If the original location no longer exists.
         """
         ## TODO: check if oDeleted exists
@@ -732,7 +732,7 @@ class DeletedItem(GenericItem, Removeable):
         oParent = db.getItem(sParentId, trans)
         
         if not(oDeleted.getContentclass() in oParent.containment):
-            raise serverExceptions.ContainmentError, \
+            raise exceptions.ContainmentError, \
                 'The target container does not accept ' + \
                 'objects of type "%s".' % oDeleted.getContentclass()
         
@@ -817,7 +817,7 @@ class Item(GenericItem, Cloneable, Moveable, Removeable):
                 oParent._addItemReference(self)
                 db.putItem(oParent, trans)
         else:
-            raise serverExceptions.PermissionDenied, \
+            raise exceptions.PermissionDenied, \
                     'The user does not have update permissions.'
 
 class Container(Item):
@@ -850,7 +850,7 @@ class Container(Item):
 
     def _addItemReference(self, oItem):            
         if self.childExists(oItem.displayName.value):
-            raise serverExceptions.ContainmentError, \
+            raise exceptions.ContainmentError, \
                 'Cannot create item "%s".\n' % oItem.displayName.value + \
                 'An item with the specified name already exists.'
         if oItem.isCollection:

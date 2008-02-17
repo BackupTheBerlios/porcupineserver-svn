@@ -25,7 +25,7 @@ from threading import Thread
 from porcupine.config.settings import settings
 from porcupine.db.genericDb import GenericDBInterface
 from porcupine.utils import backup
-from porcupine import serverExceptions
+from porcupine import exceptions
 
 logger = logging.getLogger('serverlog')
 
@@ -117,37 +117,37 @@ class DbInterface(GenericDBInterface):
         try:
             return self._itemdb.get(sOID, txn=trans and trans.txn)
         except (db.DBLockDeadlockError, db.DBLockNotGrantedError):
-            raise serverExceptions.DBTransactionIncomplete
+            raise exceptions.DBTransactionIncomplete
 
     def _putItem(self, sOID, sItem, trans):
         try:
             self._itemdb.put(sOID, sItem, trans and trans.txn)
         except (db.DBLockDeadlockError, db.DBLockNotGrantedError):
-            raise serverExceptions.DBTransactionIncomplete
+            raise exceptions.DBTransactionIncomplete
 
     def _deleteItem(self, sID, trans):
         try:
             self._itemdb.delete(sID, trans and trans.txn)
         except (db.DBLockDeadlockError, db.DBLockNotGrantedError):
-            raise serverExceptions.DBTransactionIncomplete
+            raise exceptions.DBTransactionIncomplete
 
     def _getExternalAttribute(self, sID, trans=None):
         try:
             return(self._docdb.get(sID, txn=trans and trans.txn))
         except (db.DBLockDeadlockError, db.DBLockNotGrantedError):
-            raise serverExceptions.DBTransactionIncomplete
+            raise exceptions.DBTransactionIncomplete
 
     def _putExternalAttribute(self, sID, sStream, trans):
         try:
             self._docdb.put(sID, sStream, trans and trans.txn)
         except (db.DBLockDeadlockError, db.DBLockNotGrantedError):
-            raise serverExceptions.DBTransactionIncomplete
+            raise exceptions.DBTransactionIncomplete
 
     def _deleteExternalAttribute(self, sID, trans):
         try:
             self._docdb.delete(sID, trans and trans.txn)
         except (db.DBLockDeadlockError, db.DBLockNotGrantedError):
-            raise serverExceptions.DBTransactionIncomplete
+            raise exceptions.DBTransactionIncomplete
 
     def _getTransactionHandle(self):
         return(self._env.txn_begin())
@@ -159,7 +159,7 @@ class DbInterface(GenericDBInterface):
         try:
             txn.commit()
         except (db.DBLockDeadlockError, db.DBLockNotGrantedError):
-            raise serverExceptions.DBTransactionIncomplete
+            raise exceptions.DBTransactionIncomplete
 
     def _backup(self, output_file):
         if not os.path.isdir(os.path.dirname(output_file)):

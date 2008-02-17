@@ -18,7 +18,7 @@
 
 import os, re, marshal
 
-from porcupine import serverExceptions
+from porcupine import exceptions
 
 PSP_TAGS = re.compile('(<%.*?%>)', re.DOTALL)
 PSP_DECREASE_INDENT = re.compile('else|elif|except|finally')
@@ -30,7 +30,7 @@ def execute(context, filename):
         # get modification date
         sMod = os.stat(filename)[8]
     except OSError:
-        raise serverExceptions.NotFound(
+        raise exceptions.NotFound(
             'The file "%s" can not be found' % filename)
     
     sMod = hex(sMod)[2:]

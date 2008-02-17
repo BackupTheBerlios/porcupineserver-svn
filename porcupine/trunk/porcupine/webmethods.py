@@ -18,7 +18,7 @@
 Porcupine web method decorators.
 This kind of method becomes directly accessible over HTTP.
 """
-from porcupine import serverExceptions
+from porcupine import exceptions
 from porcupine.core.decorators import WebMethodDescriptor
 from porcupine.core import xmlrpc
 
@@ -104,7 +104,7 @@ def remotemethod(of_type, client='', lang='', qs='', encoding='utf-8'):
                     response.serialize())
                 return v
             else:
-                raise serverExceptions.InternalServerError, \
+                raise exceptions.InternalServerError, \
                     'Remote method "%s" returns no value' % context.request.method
     
     return WebMethod

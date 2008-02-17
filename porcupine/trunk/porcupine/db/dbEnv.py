@@ -19,7 +19,7 @@
 from threading import currentThread
 
 from porcupine.db import db
-from porcupine import serverExceptions
+from porcupine import exceptions
 from porcupine.security import objectAccess
 
 def getItem(sPath, trans=None):
@@ -34,7 +34,7 @@ def getItem(sPath, trans=None):
     
     @rtype: L{GenericItem<porcupine.systemObjects.GenericItem>}
     
-    @raise porcupine.serverExceptions.ObjectNotFound: if the item does
+    @raise porcupine.exceptions.ObjectNotFound: if the item does
            not exist
     """
     if (trans):
@@ -42,7 +42,7 @@ def getItem(sPath, trans=None):
     
     try:
         oItem = db.getItem(sPath, trans)
-    except serverExceptions.DBTransactionIncomplete:
+    except exceptions.DBTransactionIncomplete:
         trans.retry()
 
     # check read permissions

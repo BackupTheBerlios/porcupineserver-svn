@@ -20,13 +20,13 @@ Template languages processors
 
 from string import Template
 
-from porcupine import serverExceptions
+from porcupine import exceptions
 
 def string_template(context, filename, vars):
     try:
         f = file(filename)
     except IOError:
-        raise serverExceptions.NotFound, \
+        raise exceptions.NotFound, \
             'Template file "%s" is missing' % filename
     try:
         template = Template(f.read())
