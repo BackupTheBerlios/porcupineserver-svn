@@ -20,7 +20,6 @@ from threading import Thread
 from cPickle import dumps, loads
 
 from porcupine.core.services import asyncBaseServer
-from porcupine import errors
 from porcupine.db import db
 
 logger = logging.getLogger('serverlog')
@@ -79,7 +78,9 @@ class ManagementRequestHandler(asyncBaseServer.BaseRequestHandler):
                 self.write_buffer(response.serialize())
         except:
             logger.log(logging.ERROR, 'Management Error:', *(), **{'exc_info':1})
-            self.write_buffer(MgtMessage(errors.MGT_ERROR).serialize())
+            error_msg = MgtMessage(-1,
+                                   'Internal server error. See log for details.')
+            self.write_buffer(error_msg.serialize())
 
     def executeCommand(self, cmd, request):        
         #DB maintenance commands
@@ -90,34 +91,34 @@ class ManagementRequestHandler(asyncBaseServer.BaseRequestHandler):
                 try:
                     backfiles = db.db_handle._backup(output_file)
                 except IOError:
-                    return(errors.MGT_INV_FOLDER,)
+                    return (-1, 'The specified folder doer not exist.')
                 except NotImplementedError:
-                    return(errors.MGT_NOT_IMPLEMENTED,)
+                    return (-1, 'Not implemented.')
             finally:
                 db.unlock()
-            return((0,'Database backup completed successfuly.'))
+            return (0,'Database backup completed successfuly.')
         
         elif cmd=='DB_RESTORE':
             backup_set = request.data
             try:
                 db.db_handle._restore(backup_set)
-                return((0,'Database restore completed successfully.'))
+                return (0,'Database restore completed successfully.')
             except IOError:
-                return(errors.MGT_INV_FILE,)
+                return (-1, 'The specified file does not exist.')
             except NotImplementedError:
-                return(errors.MGT_NOT_IMPLEMENTED,)
+                return (-1, 'Not implemented.')
         
         elif cmd=='DB_SHRINK':
             try:
                 iLogs = db.db_handle._shrink()
                 if iLogs:
-                    return((0,'Successfully removed %d log files.' % iLogs))
+                    return (0,'Successfully removed %d log files.' % iLogs)
                 else:
-                    return((0,'No log files removed.'))
+                    return (0,'No log files removed.')
             except NotImplementedError:
-                return(errors.MGT_NOT_IMPLEMENTED,)
+                return (-1, 'Not implemented.')
 
         # unknown command
         else:
             logger.warning('Management service received unknown command: %s' % cmd)
-            return (errors.MGT_UNKNOWN_COMMAND,)
+            return (-1, 'Unknown command.')

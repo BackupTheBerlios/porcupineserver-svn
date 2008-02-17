@@ -95,5 +95,4 @@ except socket.error:
 if response.header == 0:
     print response.data
 else:
-    from porcupine import errors
-    sys.exit(errors.ERROR_DESCRIPTIONS[response.header])
+    sys.exit(response.data)
