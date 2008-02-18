@@ -26,14 +26,13 @@ from org.innoscript.desktop.webmethods import baseitem
 
 @filter.i18n('org.innoscript.desktop.strings.resources')
 @webmethods.quixui(of_type=security.UsersFolder,
-                   qs="org.innoscript.desktop.schema.security.User",
-                   template='../ui.Frm_UserNew.quix')
+                   qs="cc=org.innoscript.desktop.schema.security.User",
+                   template='../ui.Frm_UserNew.quix',
+                   max_age=1200)
 def new(self):
     "Displays the form for creating a new user"
     context = HttpContext.current()
-    context.response.setExpiration(1200)
     oUser = security.User()
-    
     return {
         'CC' : oUser.contentclass,
         'URI' : self.id,
@@ -46,13 +45,12 @@ def new(self):
 
 @filter.i18n('org.innoscript.desktop.strings.resources')
 @webmethods.quixui(of_type=security.UsersFolder,
-                   qs="org.innoscript.desktop.schema.security.Group",
-                   template='../ui.Frm_GroupNew.quix')
+                   qs="cc=org.innoscript.desktop.schema.security.Group",
+                   template='../ui.Frm_GroupNew.quix',
+                   max_age=1200)
 def new(self):
     context = HttpContext.current()
-    context.response.setExpiration(1200)
     oGroup = security.Group()
-    
     return {
         'CC' : oGroup.contentclass,
         'URI' : self.id,
@@ -60,6 +58,6 @@ def new(self):
         'ICON' : oGroup.__image__,
         'SELECT_FROM_POLICIES' : 'policies',
         'POLICIES_REL_CC' : '|'.join(oGroup.policies.relCc),
-        'SECURITY_TAB' : self.getSecurity(self, context.session.user)
+        'SECURITY_TAB' : baseitem._getSecurity(self, context.session.user)
     }
     

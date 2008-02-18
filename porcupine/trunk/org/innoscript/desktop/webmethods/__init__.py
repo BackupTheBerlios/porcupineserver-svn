@@ -22,9 +22,7 @@ Contains all the required HTTP interfaces
 for the Porcupine Desktop content classes.
 """
 
-__all__ = ['baseitem',
-           'basecontainer',
-           'rootfolder',
+__all__ = ['rootfolder',
            'recyclebin',
            'usersfolder',
            'appsfolder',
@@ -33,4 +31,6 @@ __all__ = ['baseitem',
            'group',
            'deleteditem',
            'category',
-           'document']
+           'document',
+           'baseitem',
+           'basecontainer']
