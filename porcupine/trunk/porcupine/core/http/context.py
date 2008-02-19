@@ -88,7 +88,7 @@ class HttpContext(object):
         if '_nojavascript' in query_string:
             root_url = self.request.getRootUrl()
             path = self.request.serverVariables['PATH_INFO']
-            self.context.response.redirect(
+            self.response.redirect(
                 '%(root_url)s/{%(session_id)s}%(path)s' % locals()
             )
         

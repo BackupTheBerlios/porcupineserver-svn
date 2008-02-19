@@ -40,14 +40,14 @@ class PorcupineThread(BaseServerThread):
     def get_response(self, raw_request):
         response = HttpResponse()
         request = HttpRequest(raw_request)
-        self.context = HttpContext(request, response)
-        
+                
         item = None
         registration = None
         
         try:
-            sPath = request.serverVariables['PATH_INFO']
             try:
+                self.context = HttpContext(request, response)
+                sPath = request.serverVariables['PATH_INFO']
                 try:
                     item = dbEnv.getItem(sPath)
                 except exceptions.ObjectNotFound:
