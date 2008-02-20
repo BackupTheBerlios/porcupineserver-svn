@@ -19,17 +19,22 @@ Porcupine server cache implementation.
 Used by OQL parser to cache ASTs of most commonly used queries
 It could be used as object cache also...
 """
+import copy
 
 class Cache(dict):
-    def __init__(self, cache_size):
+    def __init__(self, cache_size, readonly=False):
         self.size = cache_size
+        self.readonly = readonly
         self.__accesslist = []
         
     def __getitem__(self, key):
         self.__accesslist.append(key)
         self.__accesslist.remove(key)
         #print self.__accesslist
-        return dict.__getitem__(self, key)
+        if self.readonly:
+            return copy.deepcopy(dict.__getitem__(self, key), {'df':False})
+        else:
+            return dict.__getitem__(self, key)
         
     def __setitem__(self, key, value):
         if key in self:

@@ -30,7 +30,8 @@ object_cache = None
 def open(db_handleClass):
     global db_handle, object_cache
     db_handle = db_handleClass()
-    object_cache = cache.Cache(int(settings['store']['object_cache_size']))
+    object_cache = cache.Cache(int(settings['store']['object_cache_size']),
+                               readonly=True)
     
 def __getItemByPath(lstPath, trans=None):
     oItem = getItem('')
