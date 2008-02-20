@@ -101,12 +101,13 @@ OutlookBar.prototype.addPane = function(params) {
 	this.appendChild(w1);
 
 	if (this.panes.length!=0)
-		w1.setDisplay('none');
+		w1.hide();
 	w1.setPosition('relative');
 
 	this.panes.push(w1);
 
 	w1.header = header;
+	w1.onactivate = QuiX.getEventListener(params.onactivate);
 	w1.setCaption = OutlookBarPane__setCaption;
 	w1.getCaption = OutlookBarPane__getCaption;
 	w1.destroy = OutlookBarPane__destroy;
@@ -114,10 +115,15 @@ OutlookBar.prototype.addPane = function(params) {
 }
 
 OutlookBar.prototype.activatePane = function(iPane) {
-	if (this.activePane > -1)
-		this.panes[this.activePane].setDisplay('none');
-	this.panes[iPane].setDisplay();
-	this.activePane = iPane;
+	if (this.activePane != iPane) {
+		if (this.activePane > -1)
+			this.panes[this.activePane].hide();
+		this.panes[iPane].show();
+		this.redraw(true);
+		this.activePane = iPane;
+		if (this.panes[iPane].onactivate)
+			this.panes[iPane].onactivate(this.panes[iPane]);
+	}
 }
 
 function OutlookBarHeader__onclick(evt, w) {
