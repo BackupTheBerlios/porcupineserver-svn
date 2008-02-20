@@ -219,12 +219,12 @@ XMLRPCRequest.prototype.toObject = function(data) {
 	//alert(data.tagName);
 	switch(data.tagName) {
 		case "string":
-			return (data.firstChild) ? new String(data.firstChild.nodeValue) : "";
+			return (data.firstChild)? data.firstChild.nodeValue.toString():"";
 			break;
 		case "int":
 		case "i4":
 		case "double":
-			return (data.firstChild) ? new Number(data.firstChild.nodeValue) : 0;
+			return (data.firstChild)? new Number(data.firstChild.nodeValue):0;
 			break;
 		case "dateTime.iso8601":
 			/*
@@ -280,7 +280,7 @@ XMLRPCRequest.prototype.toObject = function(data) {
 		case "value":
 			child = this.getNode(data, 0);
 			return (!child)? ((data.firstChild)?
-				new String(data.firstChild.nodeValue) : ""):this.toObject(child);
+				data.firstChild.nodeValue.toString():""):this.toObject(child);
 			break;
 		default:
 			throw new QuiX.Exception('Malformed XMLRPC response',
