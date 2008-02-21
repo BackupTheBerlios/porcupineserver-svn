@@ -143,6 +143,10 @@ class PorcupineThread(BaseServerThread):
                                  if meth[:4+len(method_name)] == \
                                  'WM_%s_' % method_name]
             
+            candidate_methods.sort(
+                cmp=lambda x,y:-cmp(len(getattr(item,x).func_dict['cnd'][3]),
+                                    len(getattr(item,y).func_dict['cnd'][3])))
+            
             for method_name in candidate_methods:
                 http_method, client, lang, qs = \
                     getattr(item, method_name).func_dict['cnd']
