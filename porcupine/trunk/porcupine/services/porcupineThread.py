@@ -15,8 +15,8 @@
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #===============================================================================
 "Porcupine Server Thread"
-
 import re
+import md5
 
 from porcupine.config.settings import settings
 from porcupine.config import pubdirs
@@ -134,8 +134,9 @@ class PorcupineThread(BaseServerThread):
         r_qs = self.context.request.serverVariables['QUERY_STRING']
         r_lang = self.context.request.getLang()
         
-        method_key = (item.__class__, method_name, r_http_method,
-                      r_qs, r_browser, r_lang)
+        method_key = md5.new(''.join((str(hash(item.__class__)),
+                                      method_name, r_http_method,
+                                      r_qs, r_browser, r_lang))).digest()
         
         method = self._method_cache.get(method_key, None)
         if method == None:
