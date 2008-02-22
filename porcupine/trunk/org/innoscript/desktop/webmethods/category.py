@@ -17,20 +17,18 @@
 """
 Web methods for the category content class
 """
-from porcupine import HttpContext
 from porcupine import webmethods
 
 from org.innoscript.desktop.schema.common import Category
+from org.innoscript.desktop.webmethods.basecontainer \
+    import getInfo as s_getInfo
 
 @webmethods.remotemethod(of_type=Category)
 def getInfo(self):
     "Retutns info about the category's contents"
-    context = HttpContext.current()
     # call super method for getting the container's info
-    info = getattr(super(Category, self), getInfo.func_name)(context)
-    # and clear the response
-    context.response.clear()
-    
+    info = s_getInfo(self)
+        
     lstObjects = []
     category_objects = self.category_objects.getItems()
     for item in category_objects:

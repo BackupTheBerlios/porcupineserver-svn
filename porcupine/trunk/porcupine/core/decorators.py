@@ -41,7 +41,10 @@ class WebMethodDescriptor(object):
         # guerilla patching
         self.of_type = of_type
         setattr(of_type, self.func_name, self)
-
+        
+    def __call__(self, *args, **kwargs):
+        return self.func(*args, **kwargs)
+    
     def __get__(self, item, item_class):
         def wm_wrapper(item, context):
             context.response.content_type = self.content_type
@@ -72,6 +75,9 @@ class WebMethodWrapper(object):
         # guerilla patching
         self.of_type =  decorator.of_type
         setattr(self.of_type, self.func_name, self)
+        
+    def __call__(self, *args, **kwargs):
+        return self.func(*args, **kwargs)
 
     def __get__(self, item, item_class):
         wrapper = self.get_wrapper()
