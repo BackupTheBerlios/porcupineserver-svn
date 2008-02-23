@@ -64,7 +64,11 @@ class DataType(object):
         
         @returns: None
         """
-        assert (not self.isRequired or self.value), \
+        assert isinstance(self.value, self._safetype), \
+               'Invalid data type for "%s". Got "%s" instead of "%s".' % \
+               (self.__class__.__name__, self.value.__class__.__name__,
+                self._safetype.__class__.__name__)
+        assert not self.isRequired or self.value, \
                '"%s" attribute is mandatory' % self.__class__.__name__
             
 class String(DataType):
@@ -74,6 +78,7 @@ class String(DataType):
     @type value: str
     """
     __slots__ = ('value', )
+    _safetype = str
     
     def __init__(self):
         self.value = ''
@@ -85,6 +90,7 @@ class Integer(DataType):
     @type value: int
     """
     __slots__ = ('value', )
+    _safetype = int
     
     def __init__(self):
         self.value = 0
@@ -96,6 +102,7 @@ class Float(DataType):
     @type value: float
     """
     __slots__ = ('value', )
+    _safetype = float
     
     def __init__(self):
         self.value = 0.0
@@ -107,6 +114,8 @@ class Boolean(DataType):
     @type value: bool
     """
     __slots__ = ('value', )
+    _safetype = bool
+    
     def __init__(self):
         self.value = False
 
@@ -117,12 +126,16 @@ class Dictionary(DataType):
     @type value: dict
     """
     __slots__ = ('value', )
+    _safetype = dict
+    
     def __init__(self):
         self.value = {}
 
 class Date(DataType, date.Date):
     "Date data type"
     __slots__ = ()
+    _safetype = float
+    
     def __init__(self):
         date.Date.__init__(self)
         
@@ -146,7 +159,7 @@ class Password(DataType):
         self._value = BLANK_PASSWORD
 
     def validate(self):
-        assert (not self.isRequired or not self._value == BLANK_PASSWORD), \
+        assert not self.isRequired or not self._value == BLANK_PASSWORD, \
                '"%s" attribute is mandatory' % self.__class__.__name__
     
     def getValue(self):
@@ -172,6 +185,7 @@ class Reference1(DataType):
 
     """
     __slots__ = ('value', )
+    _safetype = str
     relCc = ()
     
     def __init__(self):
@@ -210,6 +224,7 @@ class ReferenceN(DataType):
                  classes that the instances of this type can reference.
     """
     __slots__ = ('value', )
+    _safetype = list
     relCc = ()
 
     def __init__(self):
@@ -283,6 +298,7 @@ class Composition(DataType):
     @see: L{porcupine.systemObjects.Composite}
     """
     __slots__ = ('value', )
+    _safetype = list
     _eventHandler = datatypesEventHandlers.CompositionEventHandler
     compositeClass = ''
 
@@ -306,15 +322,15 @@ class Composition(DataType):
 
 class ExternalAttribute(DataType):
     """
-    Subclass I{ExternalAttribute} when dealing with large attributes lengths.
-    
+    Subclass I{ExternalAttribute} when dealing with large attribute lengths.
     These kind of attributes are not stored on the same database as
     all other object attributes.
     
     @type isDirty: bool
-    @type value: type
+    @type value: str
     """
     __slots__ = ('_id', '_value', '_isDirty')
+    _safetype = str
     _eventHandler = datatypesEventHandlers.ExternalAttributeEventHandler
     
     def __init__(self):
@@ -373,7 +389,7 @@ class Text(ExternalAttribute):
         return(self._size)
 
     def validate(self):
-        assert (not self.isRequired or self._size), \
+        assert not self.isRequired or self._size, \
                '"%s" attribute is mandatory' % self.__class__.__name__
         
 class File(Text):
