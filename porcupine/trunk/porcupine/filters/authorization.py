@@ -20,7 +20,7 @@ Porcupine authorization pre-processing filters
 import re
 
 from porcupine import exceptions
-from porcupine.filters import PreProcessFilter
+from porcupine.filters.filter import PreProcessFilter
 from porcupine.db import db
 
 class RequiresLogin(PreProcessFilter):

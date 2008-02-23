@@ -19,12 +19,12 @@ Web methods for the apps' container class
 """
 from porcupine import HttpContext
 from porcupine import webmethods
-from porcupine import filter
+from porcupine import filters
 
 from org.innoscript.desktop.schema import common
 from org.innoscript.desktop.webmethods import baseitem
 
-@filter.i18n('org.innoscript.desktop.strings.resources')
+@filters.i18n('org.innoscript.desktop.strings.resources')
 @webmethods.quixui(of_type=common.AppsFolder, template='../ui.Frm_AppNew.quix')
 def new(self):
     "Displays the form for creating a new application"

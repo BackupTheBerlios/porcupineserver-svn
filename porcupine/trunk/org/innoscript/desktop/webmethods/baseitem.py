@@ -25,7 +25,7 @@ import os
 
 from porcupine import HttpContext
 from porcupine import webmethods
-from porcupine import filter
+from porcupine import filters
 from porcupine import datatypes
 
 from porcupine.systemObjects import Item
@@ -181,7 +181,7 @@ def _getControlFromAttribute(item, attrname, attr, readonly, isNew=False):
     
     return (sControl, sTab)
 
-@filter.i18n('org.innoscript.desktop.strings.resources')
+@filters.i18n('org.innoscript.desktop.strings.resources')
 @webmethods.quixui(of_type=Item, template='../ui.Frm_AutoProperties.quix')
 def properties(self):
     "Displays a generic edit form based on the object's schema"
@@ -221,7 +221,7 @@ def properties(self):
         
     return params
 
-@filter.i18n('org.innoscript.desktop.strings.resources')
+@filters.i18n('org.innoscript.desktop.strings.resources')
 @webmethods.quixui(of_type=Item, template='../ui.Dlg_Rename.quix')
 def rename(self):
     "Displays the rename dialog"
@@ -233,7 +233,7 @@ def rename(self):
         'DN': self.displayName.value,
     }
 
-@filter.i18n('org.innoscript.desktop.strings.resources')
+@filters.i18n('org.innoscript.desktop.strings.resources')
 @webmethods.quixui(of_type=GenericItem, template='../ui.Dlg_SelectContainer.quix') 
 def selectcontainer(self):
     "Displays a dialog for selecting the destination container"

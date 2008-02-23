@@ -25,7 +25,7 @@ import os
 
 from porcupine import HttpContext
 from porcupine import webmethods
-from porcupine import filter
+from porcupine import filters
 from porcupine import datatypes
 
 from porcupine.systemObjects import Container
@@ -36,7 +36,7 @@ from porcupine.utils import date, misc
 from org.innoscript.desktop.strings import resources
 from org.innoscript.desktop.webmethods import baseitem
 
-@filter.i18n('org.innoscript.desktop.strings.resources')
+@filters.i18n('org.innoscript.desktop.strings.resources')
 @webmethods.quixui(of_type=Container,
                    template='../ui.ContainerList.quix',
                    max_age=1200)
@@ -47,7 +47,7 @@ def list(self):
         'PARENT_ID' : self.parentid
     }
     
-@filter.i18n('org.innoscript.desktop.strings.resources')
+@filters.i18n('org.innoscript.desktop.strings.resources')
 @webmethods.quixui(of_type=Container,
                    template='../ui.Frm_AutoNew.quix',
                    max_age=1200)
@@ -173,7 +173,7 @@ def getSubtree(self):
         l.append(o)
     return l
 
-@filter.i18n('org.innoscript.desktop.strings.resources')
+@filters.i18n('org.innoscript.desktop.strings.resources')
 @webmethods.quixui(of_type=Container, template='../ui.Dlg_SelectObjects.quix')
 def selectobjects(self):
     "Displays the select objects dialog"

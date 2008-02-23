@@ -19,12 +19,12 @@ Web methods for the recycle bin class
 """
 from porcupine import HttpContext
 from porcupine import webmethods
-from porcupine import filter
+from porcupine import filters
 from porcupine.utils import date
 
 from org.innoscript.desktop.schema.common import RecycleBin
 
-@filter.i18n('org.innoscript.desktop.strings.resources')
+@filters.i18n('org.innoscript.desktop.strings.resources')
 @webmethods.quixui(of_type=RecycleBin, template='../ui.RecycleList.quix')
 def list(self):
     "Displays the recycle bin's window"
@@ -60,5 +60,4 @@ def empty(self):
     txn = context.server.store.getTransaction()
     self.empty(txn)
     txn.commit()
-
     return True

@@ -15,14 +15,29 @@
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #===============================================================================
 """
-Web methods for the document content class
+Porcupine filters base classes.
 """
-from porcupine import HttpContext
-from porcupine import webmethods
+import ConfigParser
 
-from org.innoscript.desktop.schema.common import Document
+class BaseFilter(object):
+    @classmethod
+    def loadConfig(cls):
+        config_file = ConfigParser.RawConfigParser()
+        config_file.readfp(open('conf/filters.ini'))
+        section = cls.__module__ + '.' + cls.__name__
+        settings = config_file.items(section)
+        config = {}
+        for setting in settings:
+            config[setting[0]] = setting[1]
+        return(config)
 
-@webmethods.webmethod(of_type=Document)
-def getfile(self):
-    HttpContext.current().response.writeFile(self.file.filename,
-                                             self.file.value)
+    @staticmethod
+    def apply(context, registration, **kwargs):
+        raise NotImplementedError
+    
+
+class PostProcessFilter(BaseFilter):
+    type = 'post'
+    
+class PreProcessFilter(BaseFilter):
+    type = 'pre'

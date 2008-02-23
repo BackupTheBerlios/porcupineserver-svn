@@ -20,14 +20,14 @@ Web methods for the user content class
 
 from porcupine import HttpContext
 from porcupine import webmethods
-from porcupine import filter
+from porcupine import filters
 from porcupine.security import objectAccess
 from porcupine.utils import date, xml
 
 from org.innoscript.desktop.schema.security import User
 from org.innoscript.desktop.webmethods import baseitem
 
-@filter.i18n('org.innoscript.desktop.strings.resources')
+@filters.i18n('org.innoscript.desktop.strings.resources')
 @webmethods.quixui(of_type=User,
                    template='../ui.Frm_UserProperties.quix')
 def properties(self):
@@ -76,7 +76,7 @@ def properties(self):
     params['SECURITY_TAB'] = baseitem._getSecurity(self, user)
     return params
 
-@filter.i18n('org.innoscript.desktop.strings.resources')
+@filters.i18n('org.innoscript.desktop.strings.resources')
 @webmethods.quixui(of_type=User,
                    template='../ui.Frm_UserResetPassword.quix')
 def resetpsw(self):

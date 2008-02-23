@@ -22,7 +22,7 @@ import base64
 
 from porcupine import HttpContext
 from porcupine import webmethods
-from porcupine import filter
+from porcupine import filters
 
 from porcupine.oql.command import OqlCommand
 from org.innoscript.desktop.schema.common import RootFolder
@@ -36,7 +36,7 @@ DESKSTOP_PANE = '''<rect height="-1" overflow="hidden">
     %s
 </rect>'''
 
-@filter.runas('system')
+@filters.runas('system')
 @webmethods.remotemethod(of_type=RootFolder)
 def login(self, username, password):
     "Remote method for authenticating users"
@@ -49,7 +49,7 @@ def login(self, username, password):
             return True
     return False
 
-@filter.i18n('org.innoscript.desktop.strings.resources')
+@filters.i18n('org.innoscript.desktop.strings.resources')
 @webmethods.quixui(of_type=RootFolder, isPage=True,
                    template='../ui.LoginPage.quix')
 def login(self):
@@ -58,7 +58,7 @@ def login(self):
         'URI': HttpContext.current().request.SCRIPT_NAME
     }
     
-@filter.i18n('org.innoscript.desktop.strings.resources')
+@filters.i18n('org.innoscript.desktop.strings.resources')
 @webmethods.quixui(of_type=RootFolder,
                    template='../ui.Dlg_LoginAs.quix')
 def loginas(self):
@@ -67,7 +67,7 @@ def loginas(self):
         'URI': HttpContext.current().request.SCRIPT_NAME + '/?cmd=login'
     }
 
-@filter.i18n('org.innoscript.desktop.strings.resources')
+@filters.i18n('org.innoscript.desktop.strings.resources')
 @webmethods.quixui(of_type=RootFolder,
                    template='../ui.AboutDialog.quix')
 def about(self):
@@ -76,7 +76,7 @@ def about(self):
     context.response.setExpiration(1200)
     return {'VERSION': context.server.version}
 
-@filter.i18n('org.innoscript.desktop.strings.resources')
+@filters.i18n('org.innoscript.desktop.strings.resources')
 @webmethods.quixui(of_type=RootFolder,
                    template='../ui.Dlg_UserSettings.quix')
 def user_settings(self):
@@ -128,7 +128,7 @@ def user_settings(self):
     
     return params
 
-@filter.runas('system')
+@filters.runas('system')
 @webmethods.remotemethod(of_type=RootFolder)
 def applySettings(self, data):
     "Saves user's preferences"
@@ -141,8 +141,8 @@ def applySettings(self, data):
     txn.commit()
     return True
 
-@filter.requires_login('/?cmd=login')
-@filter.i18n('org.innoscript.desktop.strings.resources')
+@filters.requires_login('/?cmd=login')
+@filters.i18n('org.innoscript.desktop.strings.resources')
 @webmethods.quixui(of_type=RootFolder,
                    isPage=True,
                    template='../ui.Desktop.quix')
@@ -247,7 +247,7 @@ def logoff(self):
     context.session.terminate()
     return True
 
-@filter.requires_policy('uploadpolicy')
+@filters.requires_policy('uploadpolicy')
 @webmethods.remotemethod(of_type=RootFolder)
 def upload(self, chunk, fname):
     context = HttpContext.current()

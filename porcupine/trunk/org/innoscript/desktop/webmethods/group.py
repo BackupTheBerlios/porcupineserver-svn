@@ -20,14 +20,14 @@ Web methods for the group content class
 
 from porcupine import HttpContext
 from porcupine import webmethods
-from porcupine import filter
+from porcupine import filters
 from porcupine.security import objectAccess
 from porcupine.utils import date, xml
 
 from org.innoscript.desktop.schema.security import Group
 from org.innoscript.desktop.webmethods import baseitem
 
-@filter.i18n('org.innoscript.desktop.strings.resources')
+@filters.i18n('org.innoscript.desktop.strings.resources')
 @webmethods.quixui(of_type=Group, template='../ui.Frm_GroupProperties.quix')
 def properties(self):
     "Displays the group's properties form"

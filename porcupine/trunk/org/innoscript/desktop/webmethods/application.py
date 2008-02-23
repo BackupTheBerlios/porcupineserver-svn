@@ -20,14 +20,14 @@ Web methods for the application content class
 
 from porcupine import HttpContext
 from porcupine import webmethods
-from porcupine import filter
+from porcupine import filters
 from porcupine.security import objectAccess
 from porcupine.utils import date, xml
 
 from org.innoscript.desktop.schema.common import Application
 from org.innoscript.desktop.webmethods import baseitem
 
-@filter.i18n('org.innoscript.desktop.strings.resources')
+@filters.i18n('org.innoscript.desktop.strings.resources')
 @webmethods.quixui(of_type=Application,
                    template='../ui.Frm_AppProperties.quix')
 def properties(self):

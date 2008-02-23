@@ -19,12 +19,12 @@ Web methods for the users' container class
 """
 from porcupine import HttpContext
 from porcupine import webmethods
-from porcupine import filter
+from porcupine import filters
 
 from org.innoscript.desktop.schema import security
 from org.innoscript.desktop.webmethods import baseitem
 
-@filter.i18n('org.innoscript.desktop.strings.resources')
+@filters.i18n('org.innoscript.desktop.strings.resources')
 @webmethods.quixui(of_type=security.UsersFolder,
                    qs="cc=org.innoscript.desktop.schema.security.User",
                    template='../ui.Frm_UserNew.quix',
@@ -43,7 +43,7 @@ def new(self):
         'SECURITY_TAB' : baseitem._getSecurity(self, context.session.user)
     }
 
-@filter.i18n('org.innoscript.desktop.strings.resources')
+@filters.i18n('org.innoscript.desktop.strings.resources')
 @webmethods.quixui(of_type=security.UsersFolder,
                    qs="cc=org.innoscript.desktop.schema.security.Group",
                    template='../ui.Frm_GroupNew.quix',

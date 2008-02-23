@@ -24,7 +24,7 @@ import gzip
 import cStringIO
 import re
 
-from porcupine.filters import PostProcessFilter
+from porcupine.filters.filter import PostProcessFilter
 from porcupine.utils import misc
 
 class Gzip(PostProcessFilter):
