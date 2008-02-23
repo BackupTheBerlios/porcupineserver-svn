@@ -109,9 +109,6 @@ class PorcupineThread(BaseServerThread):
         except exceptions.PorcupineException, e:
             e.emit(self.context, item)
                 
-        except exceptions.ProxyRequest, e:
-            raise e
-        
         except:
             e = exceptions.InternalServerError()
             e.emit(self.context, item)

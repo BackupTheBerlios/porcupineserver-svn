@@ -103,11 +103,6 @@ class ReferentialIntegrityError(InternalServerError):
         InternalServerError.__init__(self, info, False)
         self.severity = logging.WARNING
         
-class ValidationError(InternalServerError):
-    def __init__(self, info=''):
-        InternalServerError.__init__(self, info, False)
-        self.severity = logging.WARNING
-
 class NotFound(PorcupineException):
     def __init__(self, info=''):
         PorcupineException.__init__(self, info, True)
@@ -129,15 +124,3 @@ class DBTransactionIncomplete(InternalServerError):
         InternalServerError.__init__(self,
             'Exceeded maximum retries for transcation.')
         self.severity = logging.CRITICAL
-
-# replication exceptions
-
-class ProxyRequest(Exception):
-    pass
-
-class ReplicationError(PorcupineException):
-    def __init__(self, code):
-        PorcupineException.__init__(self)
-        self.code = code
-
-        

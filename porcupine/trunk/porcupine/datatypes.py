@@ -19,10 +19,12 @@ Porcupine datatypes
 ===================
 Base classes for custom data types and schema properties.
 
-See also the L{org.innoscript.desktop.schema.properties} module as a usage guideline.
+See also the L{org.innoscript.desktop.schema.properties} module as
+a usage guideline.
 """
 
-import copy, md5
+import copy
+import md5
 import os.path
 import shutil
 import cStringIO
@@ -57,14 +59,13 @@ class DataType(object):
         instance attribute of an object, whenever this object
         is appended or updated.
         
-        @raise porcupine.exceptions.ValidationError:
+        @raise AssertionError:
             if the datatype is required and is empty.
         
         @returns: None
         """
-        if self.isRequired and not(self.value):
-            raise exceptions.ValidationError, \
-                '"%s" attribute is mandatory' % self.__class__.__name__
+        assert (not self.isRequired or self.value), \
+               '"%s" attribute is mandatory' % self.__class__.__name__
             
 class String(DataType):
     """String data type
@@ -145,10 +146,9 @@ class Password(DataType):
         self._value = BLANK_PASSWORD
 
     def validate(self):
-        if self.isRequired and self._value == BLANK_PASSWORD:
-            raise exceptions.ValidationError, \
-                '"%s" attribute is mandatory' % self.__class__.__name__
-
+        assert (not self.isRequired or not self._value == BLANK_PASSWORD), \
+               '"%s" attribute is mandatory' % self.__class__.__name__
+    
     def getValue(self):
         return self._value
     
@@ -349,7 +349,8 @@ class ExternalAttribute(DataType):
     def getIsDirty(self):
         "L{isDirty} property getter"
         return self._isDirty
-    isDirty = property(getIsDirty, None, None, "boolean indicating if the value has changed")
+    isDirty = property(getIsDirty, None, None,
+                       "boolean indicating if the value has changed")
 
 class Text(ExternalAttribute):
     """Data type to use for large text streams
@@ -372,9 +373,8 @@ class Text(ExternalAttribute):
         return(self._size)
 
     def validate(self):
-        if self.isRequired and not(self._size):
-            raise exceptions.ValidationError, \
-                '"%s" attribute is mandatory' % self.__class__.__name__
+        assert (not self.isRequired or self._size), \
+               '"%s" attribute is mandatory' % self.__class__.__name__
         
 class File(Text):
     """Data type to use for file objects
