@@ -55,7 +55,7 @@ def login(self, username, password):
 def login(self):
     "Displays the login page"
     return {
-        'URI': HttpContext.current().request.SCRIPT_NAME
+        'URI': HttpContext.current().request.SCRIPT_NAME or '.'
     }
     
 @filters.i18n('org.innoscript.desktop.strings.resources')
