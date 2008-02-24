@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #===============================================================================
-#    Copyright 2005-2007, Tassos Koutsovassilis
+#    Copyright 2005-2008, Tassos Koutsovassilis
 #
 #    This file is part of Porcupine.
 #    Porcupine is free software; you can redistribute it and/or modify

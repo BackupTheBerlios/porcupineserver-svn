@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #===============================================================================
-#    Copyright 2005-2007, Tassos Koutsovassilis
+#    Copyright 2005-2008, Tassos Koutsovassilis
 #
 #    This file is part of Porcupine.
 #    Porcupine is free software; you can redistribute it and/or modify
@@ -35,7 +35,7 @@ from porcupine.db import db
 from porcupine.security import SessionManager
 
 warnings.filterwarnings('ignore', '', exceptions.Warning, 'logging')
-__version__ = '0.1.1 build(20070828)'
+__version__ = '0.5 build(20080223)'
 PID_FILE = 'conf/.pid'
 
 class Controller(object):

@@ -1,5 +1,5 @@
 //===============================================================================
-//    Copyright 2005, 2006 Tassos Koutsovassilis and Contributors
+//    Copyright 2005-2008 Tassos Koutsovassilis and Contributors
 //
 //    This file is part of Porcupine.
 //    Porcupine is free software; you can redistribute it and/or modify
@@ -24,7 +24,7 @@ function Clipboard() {
 }
 
 var QuiX = {};
-QuiX.version = '0.9 build 20070805';
+QuiX.version = '0.9 build 20080216';
 QuiX.namespace = 'http://www.innoscript.org/quix';
 QuiX.startX = 0;
 QuiX.startY = 0;
