@@ -54,9 +54,9 @@ Create package:
     python pakager.py --create --def=PACKAGE_DEFINITION_FILE
 """
 
-TMP_FOLDER = settings['services'][0]['parameters']['temp_folder']
 
 class Package(object):
+    tmp_folder = settings['global']['temp_folder']
     def __init__(self, package_file=None, ini_file=None):
         self.package_files = []
         self.db = None
@@ -85,7 +85,7 @@ class Package(object):
     
     
     def _exportItem(self, id, clearRolesInherited=True):
-        it_file = file(TMP_FOLDER + '/' + id, 'wb')
+        it_file = file(self.tmp_folder + '/' + id, 'wb')
         item = self.db.getItem(id)
         if clearRolesInherited:
             item.inheritRoles = False
@@ -171,9 +171,9 @@ class Package(object):
         # pre-install script
         if '_pre.py' in contents:
             print 'INFO: running pre installation script...'
-            self.package_file.extract('_pre.py', TMP_FOLDER)
-            execfile(TMP_FOLDER + '/_pre.py')
-            os.remove(TMP_FOLDER + '/_pre.py')
+            self.package_file.extract('_pre.py', self.tmp_folder)
+            execfile(self.tmp_folder + '/_pre.py')
+            os.remove(self.tmp_folder + '/_pre.py')
         
         # registrations
 #        if '_regs.xml' in contents:
@@ -223,11 +223,11 @@ class Package(object):
             try:
                 for dbfile in dbfiles:
                     print 'INFO: importing object ' + os.path.basename(dbfile)
-                    actual_fn = TMP_FOLDER + '/' + dbfile
+                    actual_fn = self.tmp_folder + '/' + dbfile
                     objfile = None
                     try:
                         try:
-                            self.package_file.extract(dbfile, TMP_FOLDER)
+                            self.package_file.extract(dbfile, self.tmp_folder)
                             objfile = file(actual_fn, 'rb')
                             self._importItem(objfile, txn)
                         except Exception, e:
@@ -242,15 +242,15 @@ class Package(object):
                 txn.commit()
             finally:
                 offlinedb.close()
-                if os.path.exists(TMP_FOLDER + '/_db'):
-                    os.rmdir(TMP_FOLDER + '/_db')
+                if os.path.exists(self.tmp_folder + '/_db'):
+                    os.rmdir(self.tmp_folder + '/_db')
             
         # post-install script
         if '_post.py' in contents:
             print 'INFO: running post installation script...'
-            self.package_file.extract('_post.py', TMP_FOLDER)
-            execfile(TMP_FOLDER + '/_post.py')
-            os.remove(TMP_FOLDER + '/_post.py')
+            self.package_file.extract('_post.py', self.tmp_folder)
+            execfile(self.tmp_folder + '/_post.py')
+            os.remove(self.tmp_folder + '/_post.py')
             
     def uninstall(self):
         print 'INFO: uninstalling [%s-%s] package...' % (self.name, self.version)
@@ -290,9 +290,9 @@ class Package(object):
         contents = self.package_file.getnames()
         if '_uninstall.py' in contents:
             print 'INFO: running uninstallation script...'
-            self.package_file.extract('_uninstall.py', TMP_FOLDER)
-            execfile(TMP_FOLDER + '/_uninstall.py')
-            os.remove(TMP_FOLDER + '/_uninstall.py')
+            self.package_file.extract('_uninstall.py', self.tmp_folder)
+            execfile(self.tmp_folder + '/_uninstall.py')
+            os.remove(self.tmp_folder + '/_uninstall.py')
         
         # files
         files = self.config_file.options('files')
@@ -394,7 +394,7 @@ class Package(object):
                     print 'WARNING: published directory "%s" does not exist' % appname
             
             if dir_nodes:
-                dirsFile = file(TMP_FOLDER + '/_pubdir.xml', 'w')
+                dirsFile = file(self.tmp_folder + '/_pubdir.xml', 'w')
                 dirsFile.write('<?xml version="1.0" encoding="utf-8"?><dirs>')
                 for dir_node in dir_nodes:
                     dirsFile.write(dir_node.toxml('utf-8'))
@@ -465,7 +465,7 @@ class Package(object):
             if tarinfo.isfile():
                 self.package_file.addfile(tarinfo, file(fname, 'rb'))
                 # remove temporary
-                if fname[:len(TMP_FOLDER)] == TMP_FOLDER:
+                if fname[:len(self.tmp_folder)] == self.tmp_folder:
                     os.remove(fname)
             else:
                 if type(fname) == unicode:
