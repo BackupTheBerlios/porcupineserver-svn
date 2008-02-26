@@ -153,6 +153,23 @@ function ContextMenu(params, owner) {
 		onmousedown : QuiX.stopPropag,
 		onshow : params.onshow
 	});
+	this.div.className = 'contextmenu';
+	if (QuiX.browser == 'moz' && QuiX.getOS() == 'MacOS')
+	{
+		var c = new Widget({
+			width : '100%',
+			height : '100%',
+			overflow : 'auto'
+		});
+		this.appendChild(c);
+		c = new Widget({
+			width : '100%',
+			height : '100%',
+			overflow : 'hidden'
+		});
+		this.appendChild(c);
+	}
+	
 	var rect = new Widget({
 		width: '22',
 		height: '100%',
@@ -160,8 +177,7 @@ function ContextMenu(params, owner) {
 		overflow: 'hidden'
 	});
 	this.appendChild(rect);
-	this.div.className = 'contextmenu';
-
+	
 	this.options = [];
 	this.owner = owner;
 	this.target = null;
