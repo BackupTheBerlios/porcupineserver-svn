@@ -103,10 +103,10 @@ MenuOption.prototype.select = function() {
 }
 
 MenuOption.prototype.expand = function() {
-	if (this.parent.activeSub) {
+	if (this.parent.activeSub && this.parent.activeSub != this.subMenu) {
 		this.parent.activeSub.close();
 	}
-	if (this.subMenu) {
+	if (this.subMenu && !this.subMenu.isOpen) {
 		this.parent.activeSub = this.subMenu;
 		this.subMenu.show(
 			this.parent,
