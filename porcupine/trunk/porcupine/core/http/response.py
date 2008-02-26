@@ -148,7 +148,7 @@ class HttpResponse(object):
             sPrefix = ''
         sFileExt = sFilename.split('.')[-1]
         self.content_type = mimetypes.guess_type(sFilename, False)[0] or 'text/plain'
-        self.setHeader('Content-Disposition', sPrefix + 'filename=' + sFilename)
+        self.setHeader('Content-Disposition', '%sfilename="%s"' % (sPrefix, sFilename))
         self.clear()
         self.write(sStream)
 
