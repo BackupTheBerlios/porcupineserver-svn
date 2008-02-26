@@ -104,6 +104,7 @@ ListView.prototype.addHeader = function(params, w) {
 			}
 			target = target.parentElement || target.parentNode;
 		}
+		QuiX.cancelDefault(evt);
 	}
 	var tbody = ce('TBODY');
 	oTable.appendChild(tbody);

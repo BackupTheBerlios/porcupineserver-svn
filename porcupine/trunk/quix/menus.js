@@ -266,7 +266,6 @@ ContextMenu.prototype.addOption = function(params) {
 		oOption.destroy = MenuOption.prototype.destroy;
 		oOption.div.className = 'separator';
 		oOption.setPosition('relative');
-		oOption._isContainer = false;
 	}
 	this.appendChild(oOption);
 	oOption.redraw();

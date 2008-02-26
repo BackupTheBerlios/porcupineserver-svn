@@ -1,3 +1,7 @@
+/************************
+Timer widget
+************************/
+
 function Timer(params) {
 	params = params || {};
 
@@ -16,8 +20,6 @@ function Timer(params) {
 		this.timeout = parseInt(params.timeout);
 	else if (params.interval)
 		this.interval = parseInt(params.interval);
-	else
-		throw new QuiX.Exception("Timer Error", "Timer should define a timeout or an interval");
 
 	this.auto = (params.auto==true || params.auto=='true');
 	if (this.auto) {
