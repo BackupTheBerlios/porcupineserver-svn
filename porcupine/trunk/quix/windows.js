@@ -323,6 +323,7 @@ Window.prototype.maximize = function() {
 }
 
 Window.prototype.bringToFront = function() {
+	QuiX.cleanupOverlays();
 	if (this.div.style.zIndex < this.parent.maxz) {
 		var sw, dt;
 		var macff = QuiX.browser == 'moz' && QuiX.getOS() == 'MacOS';
