@@ -33,4 +33,7 @@ class SessionManager(GenericSessionManager):
 
     def removeSession(self, sessionid):
         del self.activeSessions[sessionid]
+        
+    def close(self):
+        pass
 
