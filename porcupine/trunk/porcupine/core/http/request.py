@@ -79,7 +79,7 @@ class HttpRequest(object):
                     self.type = 'xmlrpc'
             elif self.serverVariables['CONTENT_TYPE'] == 'application/x-www-form-urlencoded':
                 # http form post
-                self.form = FieldStorage(fp=req.input, environ=req.serverVariables)
+                self.form = FieldStorage(fp=self.input, environ=self.serverVariables)
         
         
     def getLang(self):
