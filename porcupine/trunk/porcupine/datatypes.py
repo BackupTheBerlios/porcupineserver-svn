@@ -67,7 +67,7 @@ class DataType(object):
         assert isinstance(self.value, self._safetype), \
                'Invalid data type for "%s". Got "%s" instead of "%s".' % \
                (self.__class__.__name__, self.value.__class__.__name__,
-                self._safetype.__class__.__name__)
+                self._safetype.__name__)
         assert not self.isRequired or self.value, \
                '"%s" attribute is mandatory' % self.__class__.__name__
             
