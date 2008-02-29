@@ -169,6 +169,17 @@ ListView.prototype._selectline = function (evt, row) {
 	}
 }
 
+ListView.prototype.select = function(i) {
+	var tr = this.list.rows[i];
+	if (!tr.isSelected) {
+		this._selrow(this.list.rows[i]);
+		if (!this.multiple)
+			this.selection = [i];
+		else
+			this.selection.push(i);
+	}
+}
+
 ListView.prototype.clearSelection = function() {
 	var selRow;
 	for (var i=0; i<this.selection.length; i++) {
