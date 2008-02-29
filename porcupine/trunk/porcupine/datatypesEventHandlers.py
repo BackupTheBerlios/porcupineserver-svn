@@ -20,6 +20,7 @@ import os
 
 from porcupine import exceptions
 from porcupine.core import eventHandlers
+from porcupine.utils import misc
 
 class CompositionEventHandler(eventHandlers.DatatypeEventHandler):
     "Composition datatype event handler"
@@ -33,10 +34,11 @@ class CompositionEventHandler(eventHandlers.DatatypeEventHandler):
     @classmethod
     def on_update(cls, item, new_attr, old_attr, trans):
         # check containment
+        compositeClass = misc.getCallableByName(new_attr.compositeClass)
         if [obj for obj in new_attr.value
-                if obj.getContentclass() != new_attr.compositeClass]:
+                if not isinstance(obj, compositeClass)]:
             raise exceptions.ContainmentError, \
-                'Invalid content class in composition.'
+                'Invalid content class "%s" in composition.' % obj.getContentclass()
                 
         dctObjects = {}
         for obj in new_attr.value:
