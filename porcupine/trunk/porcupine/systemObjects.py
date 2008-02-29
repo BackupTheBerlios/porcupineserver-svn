@@ -111,7 +111,7 @@ class Cloneable(object):
         @return: None
         """
         oTarget = db.getItem(targetId, trans)
-        if self.isCollection and oTarget.isContainedIn(self._id):
+        if self.isCollection and oTarget.isContainedIn(self._id, trans):
             raise exceptions.ContainmentError, \
                 'Cannot copy item to destination.\n' + \
                 'The destination is contained in the source.'
@@ -160,7 +160,7 @@ class Moveable(object):
     
         iUserRole2 = objectAccess.getAccess(oTarget, oUser)
     
-        if self.isCollection and oTarget.isContainedIn(self._id):
+        if self.isCollection and oTarget.isContainedIn(self._id, trans):
             raise exceptions.ContainmentError, \
                 'Cannot move item to destination.\n' + \
                 'The destination is contained in the source.'
@@ -495,7 +495,7 @@ class GenericItem(object):
         oParent._addItemReference(self)
         db.putItem(oParent, trans)
 
-    def isContainedIn(self, itemId):
+    def isContainedIn(self, itemId, trans=None):
         """
         Checks if the item is contained in the specified container.
         
@@ -508,7 +508,7 @@ class GenericItem(object):
         while oItem._id is not '':
             if oItem._id==itemId:
                 return True
-            oItem = db.getItem(oItem.parentid)
+            oItem = db.getItem(oItem.parentid, trans)
         return False
 
     def getParent(self, trans=None):
