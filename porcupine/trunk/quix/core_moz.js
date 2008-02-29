@@ -435,13 +435,13 @@ Widget.prototype.enable = function(w) {
 	}
 }
 
-Widget.prototype.detach = function() {
-	this.parent.widgets.removeItem(this);
-	if (this._id)
-		this._removeIdRef();
-	this.parent = null;
-	this.div = QuiX.removeNode(this.div);
-	
+Widget.prototype.detach = function(w) {
+	var w = w || this;
+	w.parent.widgets.removeItem(w);
+	if (w._id)
+		w._removeIdRef();
+	w.parent = null;
+	w.div = QuiX.removeNode(w.div);
 }
 
 Widget.prototype.parse = function(dom, callback) {

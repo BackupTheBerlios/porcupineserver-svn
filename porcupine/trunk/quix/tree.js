@@ -10,7 +10,7 @@ function TreeNode(params) {
 	this.base(params);
 
 	this.isExpanded = false;
-	this.hasChildren = (params.haschildren=='true' || params.haschildren==true)?true:false;
+	this._hasChildren = (params.haschildren=='true' || params.haschildren==true)?true:false;
 	this.img = params.img || null;
 	
 	if (params.imgheight)
@@ -31,6 +31,8 @@ function TreeNode(params) {
 	this.div.appendChild(oA);
 	this.anchor = oA;
 	this.setCaption(params.caption || '');
+	
+	this.attachEvent('onmousedown', QuiX.cancelDefault);
 }
 
 QuiX.constructors['treenode'] = TreeNode;
@@ -64,20 +66,24 @@ TreeNode.prototype.redraw = function(bForceAll) {
 		}
 	}
 	
-	if (this.hasChildren || this.childNodes.length > 0)
+	if (this.hasChildren())
 		this._addExpandImg();
 		
 	if (this.parent instanceof TreeNode) {
 		//sub node
-		if (!this.parent.hasChildren)
+		if (!this.parent._hasChildren) {
 			this.parent._addExpandImg();
+			this.parent._hasChildren = true;
+		}
 		this.div.style.margin = '2px 0px 0px ' + this.tree.levelpadding + 'px';
 		if (this.parent.isExpanded)
-			this.setDisplay();
+			this.show();
+		else
+			this.hide();
 	}
 	else {
 		// root node
-		this.setDisplay();
+		this.show();
 	}
 	
 	if (this._isDisabled)
@@ -88,12 +94,22 @@ TreeNode.prototype.redraw = function(bForceAll) {
 	Widget.prototype.redraw(bForceAll, this);
 }
 
-TreeNode.prototype.destroy = function() {
+TreeNode.prototype._updateParent = function() {
 	var p = this.parent;
-	Widget.prototype.destroy(this);
-	if (p instanceof TreeNode && p.childNodes.length == 0 && !p.hasChildren) {
+	if (p instanceof TreeNode && p.childNodes.length == 1) {
 		p._removeExpandImg();
+		p._hasChildren = false;
 	}
+}
+
+TreeNode.prototype.destroy = function() {
+	this._updateParent();
+	Widget.prototype.destroy(this);
+}
+
+TreeNode.prototype.detach = function() {
+	this._updateParent();
+	Widget.prototype.detach(this);
 }
 
 TreeNode.prototype._addExpandImg = function() {
@@ -112,11 +128,8 @@ TreeNode.prototype._addExpandImg = function() {
 		};
 		img.style.marginRight = '4px';
 		img.style.verticalAlign = 'middle';
-		
 		this.div.insertBefore(img, this.div.firstChild);
-		
 		this._expandImg = img;
-		this.attachEvent('ondblclick', TreeNode_bdlclick);
 	}
 }
 
@@ -140,20 +153,24 @@ TreeNode.prototype.setCaption = function(sCaption) {
 
 TreeNode.prototype.toggle = function() {
 	if (!this.isExpanded) {
-		if (this.tree._customRegistry.onexpand)
-			this.tree._customRegistry.onexpand(this);
 		for (var i=0; i < this.childNodes.length; i++) {
-			this.childNodes[i].setDisplay();
+			this.childNodes[i].show();
 		}
 		this._expandImg.src = '__quix/images/collapse.gif';
+		if (this.tree._customRegistry.onexpand)
+			this.tree._customRegistry.onexpand(this);
 	}
 	else {
 		for (var i=0; i < this.childNodes.length; i++) {
-			this.childNodes[i].setDisplay('none');
+			this.childNodes[i].hide();
 		}
 		this._expandImg.src = '__quix/images/expand.gif';
 	}
 	this.isExpanded = !this.isExpanded;
+}
+
+TreeNode.prototype.hasChildren = function() {
+	return this._hasChildren || this.childNodes.length > 0;
 }
 
 TreeNode.prototype.disable = function() {
@@ -169,11 +186,6 @@ TreeNode.prototype.enable = function() {
 	this.anchor.className = '';
 	this.anchor.onclick = function(){oTreeNode.tree.selectNode(oTreeNode)};
 	Widget.prototype.enable(this);
-}
-
-function TreeNode_bdlclick(evt, w) {
-	w.toggle();
-	QuiX.stopPropag(evt);
 }
 
 /************************
@@ -231,6 +243,9 @@ FolderTree.prototype.loadSubfolders = function(treeNode) {
 	var xmlrpc = new XMLRPCRequest(QuiX.root + sID);
 	xmlrpc.oncomplete = treeNode.tree.load_oncomplete;
 	xmlrpc.callback_info = treeNode;
+	for (var i=0; i< treeNode.childNodes.length; i++ ) {
+		treeNode.childNodes[i].hide();
+	}
 	xmlrpc.callmethod(treeNode.tree.method);
 }
 
