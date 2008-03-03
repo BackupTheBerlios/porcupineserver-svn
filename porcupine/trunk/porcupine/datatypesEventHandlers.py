@@ -34,11 +34,11 @@ class CompositionEventHandler(eventHandlers.DatatypeEventHandler):
         
     @classmethod
     def on_update(cls, item, new_attr, old_attr, trans):
-        from porcupine import systemObjects
+        from porcupine.systemObjects import Composite
         # load objects
         dctObjects = {}
-        for i,obj in enumerate(new_attr.value):
-            if isinstance(obj, systemObjects.Composite):
+        for i, obj in enumerate(new_attr.value):
+            if isinstance(obj, Composite):
                 obj._containerid = item._id
             elif isinstance(obj, str):
                 obj = cls.db.getItem(obj, trans)
