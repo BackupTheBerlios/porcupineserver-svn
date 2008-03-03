@@ -28,50 +28,61 @@ class CompositionEventHandler(eventHandlers.DatatypeEventHandler):
     @classmethod
     def on_create(cls, item, attr, trans):
         if item._isDeleted:
-            attr.value = [cls.db.getDeletedItem(sID, trans) for sID in attr.value]
+            attr.value = [cls.db.getDeletedItem(sID, trans)
+                          for sID in attr.value]
         CompositionEventHandler.on_update(item, attr, None, trans)
         
     @classmethod
     def on_update(cls, item, new_attr, old_attr, trans):
+        from porcupine import systemObjects
+        # load objects
+        dctObjects = {}
+        for i,obj in enumerate(new_attr.value):
+            if isinstance(obj, systemObjects.GenericItem):
+                obj._containerid = item._id
+            else:
+                obj = cls.db.getItem(obj, trans)
+                new_attr.value[i] = obj
+            dctObjects[obj._id] = obj
+        
         # check containment
         compositeClass = misc.getCallableByName(new_attr.compositeClass)
-        if [obj for obj in new_attr.value
+        
+        if [obj for obj in dctObjects.values()
                 if not isinstance(obj, compositeClass)]:
             raise exceptions.ContainmentError, \
-                'Invalid content class "%s" in composition.' % obj.getContentclass()
-                
-        dctObjects = {}
-        for obj in new_attr.value:
-            obj._containerid = item._id
-            dctObjects[obj._id] = obj
-            
-        new_ids = set([obj._id for obj in new_attr.value])
+                'Invalid content class "%s" in composition.' % \
+                obj.getContentclass()
         
         # get previous value
-        if old_attr:
+        if old_attr != None:
             old_ids = set(old_attr.value)
         else:
             old_ids = set()
-
+        
+        new_ids = set([obj._id for obj in new_attr.value])
+        
         # calculate added composites
         lstAdded = list(new_ids - old_ids)
-        for sID in lstAdded:
-            cls.db.handle_update(dctObjects[sID], None, trans)
-            dctObjects[sID]._isDeleted = False
-            cls.db.putItem(dctObjects[sID], trans)
-            
+        for obj_id in lstAdded:
+            cls.db.handle_update(dctObjects[obj_id], None, trans)
+            dctObjects[obj_id]._isDeleted = False
+            cls.db.putItem(dctObjects[obj_id], trans)
+        
         # calculate constant composites
         lstConstant = list(new_ids & old_ids)
-        for sID in lstConstant:
-            cls.db.handle_update(dctObjects[sID], cls.db.getItem(sID, trans) , trans)
-            cls.db.putItem(dctObjects[sID], trans)
-
+        for obj_id in lstConstant:
+            cls.db.handle_update(dctObjects[obj_id],
+                                 cls.db.getItem(obj_id, trans),
+                                 trans)
+            cls.db.putItem(dctObjects[obj_id], trans)
+        
         # calculate removed composites
         lstRemoved = list(old_ids - new_ids)
-        for sID in lstRemoved:
-            composite4removal = cls.db.getItem(sID, trans)
+        for obj_id in lstRemoved:
+            composite4removal = cls.db.getItem(obj_id, trans)
             cls.removeComposite(composite4removal, trans)
-            
+        
         new_attr.value = list(new_ids)
     
     @classmethod
@@ -183,7 +194,6 @@ class RelatorNEventHandler(eventHandlers.DatatypeEventHandler):
             oItem = cls.store.getItem(sID, trans)
             # do not replay in case of txn abort
             del trans.actions[-1]
-            
             if not(oItem):
                 lstNoAccess.append(sID)
         return lstNoAccess
