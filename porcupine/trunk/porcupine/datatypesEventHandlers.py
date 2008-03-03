@@ -38,11 +38,15 @@ class CompositionEventHandler(eventHandlers.DatatypeEventHandler):
         # load objects
         dctObjects = {}
         for i,obj in enumerate(new_attr.value):
-            if isinstance(obj, systemObjects.GenericItem):
+            if isinstance(obj, systemObjects.Composite):
                 obj._containerid = item._id
-            else:
+            elif isinstance(obj, str):
                 obj = cls.db.getItem(obj, trans)
                 new_attr.value[i] = obj
+            else:
+                raise exceptions.ContainmentError, \
+                    'Invalid object type "%s" in composition.' % \
+                    obj.__class__.__name__
             dctObjects[obj._id] = obj
         
         # check containment
