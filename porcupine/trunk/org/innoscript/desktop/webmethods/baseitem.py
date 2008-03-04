@@ -274,7 +274,7 @@ def update(self, data):
             # see if the user has uploaded a new file
             if data[prop]['tempfile']:
                 oAttr.filename = data[prop]['filename']
-                sPath = self.server.temp_folder + '/' + data[prop]['tempfile']
+                sPath = context.server.temp_folder + '/' + data[prop]['tempfile']
                 oAttr.loadFromFile(sPath)
                 os.remove(sPath)
         else:
