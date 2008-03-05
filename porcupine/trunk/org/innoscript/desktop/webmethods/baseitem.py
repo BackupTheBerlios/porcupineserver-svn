@@ -116,7 +116,7 @@ def _getControlFromAttribute(item, attrname, attr, readonly, isNew=False):
     if isinstance(attr, datatypes.String):
         sControl = AUTO_CONTROLS[datatypes.String] % \
             (attrlabel, attrname,
-             attr.value, str(readonly).lower())
+             xml.xml_encode(attr.value), str(readonly).lower())
 
     elif isinstance(attr, datatypes.Boolean):
         sControl = AUTO_CONTROLS[datatypes.Boolean] % \
@@ -198,7 +198,7 @@ def properties(self):
     params = {
         'ID': self.id,
         'ICON': self.__image__,
-        'NAME': self.displayName.value,
+        'NAME': xml.xml_encode(self.displayName.value),
         'MODIFIED': modified.format(DATES_FORMAT, sLang),
         'MODIFIED_BY': self.modifiedBy,
         'CONTENTCLASS': self.contentclass,
