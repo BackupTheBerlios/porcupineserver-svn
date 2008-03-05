@@ -56,12 +56,20 @@ TabPane.prototype.addTab = function(params) {
 	return(w);
 }
 
-TabPane.prototype.activateTab = function(iTab) {
+TabPane.prototype.activateTab = function(tab) {
 	var activeTabButton;
 	var iActive = this.activeTab;
+	var iTab;
+	if (typeof tab == 'number')
+		iTab = tab;
+	else {
+		for (iTab=0; iTab<this.tabs.length; iTab++)
+			if (this.tabs[iTab] == tab) break;
+	}
+	
 	var oTab = this.tabs[iTab];
 	oTab.bringToFront();
-
+	
 	oTab.tabButton.bringToFront();
 	oTab.tabButton.div.style.top='-2px';
 	oTab.tabButton.div.className='tab';
@@ -69,7 +77,7 @@ TabPane.prototype.activateTab = function(iTab) {
 	oTab.tabButton.detachEvent('onmouseout');
 	oTab.tabButton.detachEvent('onmouseover');
 	oTab.tabButton.detachEvent('onclick');
-
+	
 	if (iActive != iTab) {
 		activeTabButton = this.tabs[iActive].tabButton;
 		activeTabButton.div.style.top=0;
@@ -78,7 +86,7 @@ TabPane.prototype.activateTab = function(iTab) {
 		activeTabButton.attachEvent('onclick');
 		activeTabButton.div.style.cursor='';
 	}
-
+	
 	this.activeTab = iTab;
 	if (iActive!=iTab && oTab.onactivate) {
 		QuiX.getEventListener(oTab.onactivate)(this, iTab);
