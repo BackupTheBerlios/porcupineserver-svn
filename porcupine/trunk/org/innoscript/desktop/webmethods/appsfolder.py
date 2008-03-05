@@ -35,5 +35,5 @@ def new(self):
         'CC': oApp.contentclass,
         'URI': self.id,
         'ICON': oApp.__image__,
-        'SECURITY_TAB': baseitem._getSecurity(self, context.session.user)
+        'SECURITY_TAB': baseitem._getSecurity(self, context.session.user, True)
     }

@@ -40,7 +40,7 @@ def new(self):
         'ICON' : oUser.__image__,
         'SELECT_FROM_POLICIES' : 'policies',
         'POLICIES_REL_CC' : '|'.join(oUser.policies.relCc),
-        'SECURITY_TAB' : baseitem._getSecurity(self, context.session.user)
+        'SECURITY_TAB' : baseitem._getSecurity(self, context.session.user, True)
     }
 
 @filters.i18n('org.innoscript.desktop.strings.resources')
@@ -58,6 +58,6 @@ def new(self):
         'ICON' : oGroup.__image__,
         'SELECT_FROM_POLICIES' : 'policies',
         'POLICIES_REL_CC' : '|'.join(oGroup.policies.relCc),
-        'SECURITY_TAB' : baseitem._getSecurity(self, context.session.user)
+        'SECURITY_TAB' : baseitem._getSecurity(self, context.session.user, True)
     }
     
