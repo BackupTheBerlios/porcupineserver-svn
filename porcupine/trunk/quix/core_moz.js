@@ -1139,7 +1139,8 @@ function Widget__showtooltip(w, x, y) {
 		top : y,
 		caption : w.tooltip,
 		border : 1,
-		bgcolor : 'lightyellow'
+		bgcolor : 'lightyellow',
+		wrap : true
 	});
 	tooltip.div.className = 'tooltip';
 	document.desktop.appendChild(tooltip);
