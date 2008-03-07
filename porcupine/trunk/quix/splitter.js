@@ -86,6 +86,7 @@ Splitter.prototype._endMoveHandle = function(evt, iHandle) {
 	this.detachEvent('onmouseup');
 	this.detachEvent('onmousemove');
 	this.div.style.cursor = '';
+	QuiX.attachFrames(this);
 	QuiX.dragging = false;
 }
 
@@ -124,6 +125,7 @@ function SplitterHandle__mousedown(evt, w) {
 	QuiX.startY = evt.clientY;
 	QuiX.cancelDefault(evt);
 	QuiX.dragging = true;
+	QuiX.detachFrames(splitter);
 	for (var idx=0; idx < splitter._handles.length; idx++) {
 		 if (splitter._handles[idx] == w)
 		 	break;
