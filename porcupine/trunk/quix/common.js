@@ -21,23 +21,30 @@ function IFrame(params) {
 	this.base(params);
 	this._isContainer = false;
 	this.div.className = 'ifrm';
-	var frame = ce("IFRAME");
-	frame.frameBorder = 0;
-	frame.src = params.src || "";
-	frame.style.width = "100%";
-	frame.style.height = "100%";
-	this.div.appendChild(frame);
+	this.frame = ce("IFRAME");
+	this.frame.frameBorder = 0;
+	this.frame.src = params.src || "";
+	this.frame.style.width = "100%";
+	this.frame.style.height = "100%";
+	
+	this.div.appendChild(this.frame);
 }
 
 QuiX.constructors['iframe'] = IFrame;
 IFrame.prototype = new Widget;
 
+IFrame.prototype.redraw = function(bForceAll) {
+	this.frame.style.visibility = 'hidden';
+	Widget.prototype.redraw(bForceAll, this);
+	this.frame.style.visibility = '';
+}
+
 IFrame.prototype.setSource = function(src) {
-	this.div.firstChild.src = src;
+	this.frame.src = src;
 }
 
 IFrame.prototype.getSource = function() {
-	return this.div.firstChild.src;
+	return this.frame.src;
 }
 
 // GroupBox
