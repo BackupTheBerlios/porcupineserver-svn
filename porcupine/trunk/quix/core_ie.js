@@ -818,25 +818,19 @@ Widget.prototype.clear = function() {
 	while (this.widgets.length > 0) this.widgets[0].destroy();
 }
 
-Widget.prototype.hide = function() {
-	if (!this.isHidden()) {
-		if (QuiX.modules[9].isLoaded) {
-			var frames = this.getWidgetsByType(IFrame);
-			for (var i=0; i<frames.length; i++)
-				frames[i].div.firstChild.style.display = 'none';
-		}
-		this._statedisplay = this.div.style.display;
-		this.div.style.display = 'none';
+Widget.prototype.hide = function(w) {
+	var w = w || this;
+	if (!w.isHidden()) {
+		QuiX.detachFrames(w);
+		this._statedisplay = w.div.style.display;
+		w.div.style.display = 'none';
 	}
 }
 
-Widget.prototype.show = function() {
-	this.div.style.display = this._statedisplay || '';
-	if (QuiX.modules[9].isLoaded) {
-		var frames = this.getWidgetsByType(IFrame);
-		for (var i=0; i<frames.length; i++)
-			frames[i].div.firstChild.style.display = '';
-	}
+Widget.prototype.show = function(w) {
+	var w = w || this;
+	QuiX.attachFrames(w);
+	w.div.style.display = w._statedisplay || '';
 }
 
 Widget.prototype.isHidden = function() {

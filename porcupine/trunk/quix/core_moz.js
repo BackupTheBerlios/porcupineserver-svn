@@ -824,15 +824,19 @@ Widget.prototype.clear = function() {
 	while (this.widgets.length > 0) this.widgets[0].destroy();
 }
 
-Widget.prototype.hide = function() {
-	if (!this.isHidden()) {
-		this._statedisplay = this.div.style.display;
-		this.div.style.display = 'none';
+Widget.prototype.hide = function(w) {
+	var w = w || this;
+	if (!w.isHidden()) {
+		QuiX.detachFrames(w);
+		w._statedisplay = w.div.style.display;
+		w.div.style.display = 'none';
 	}
 }
 
-Widget.prototype.show = function() {
-	this.div.style.display = this._statedisplay || '';
+Widget.prototype.show = function(w) {
+	var w = w || this;
+	QuiX.attachFrames(w);
+	w.div.style.display = w._statedisplay || '';
 }
 
 Widget.prototype.isHidden = function() {
