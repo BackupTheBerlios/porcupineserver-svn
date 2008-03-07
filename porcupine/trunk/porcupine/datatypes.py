@@ -118,6 +118,19 @@ class Boolean(DataType):
     
     def __init__(self):
         self.value = False
+        
+class List(DataType):
+    """List data type
+    
+    @ivar value: The datatype's value
+    @type value: list
+    """
+    __slots__ = ('value', )
+    _safetype = list
+    
+    def __init__(self):
+        self.value = []
+    
 
 class Dictionary(DataType):
     """Dictionary data type
