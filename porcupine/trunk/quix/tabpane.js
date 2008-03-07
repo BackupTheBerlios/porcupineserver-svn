@@ -69,6 +69,8 @@ TabPane.prototype.activateTab = function(tab) {
 	
 	var oTab = this.tabs[iTab];
 	oTab.bringToFront();
+	oTab.show();
+	oTab.redraw();
 	
 	oTab.tabButton.bringToFront();
 	oTab.tabButton.div.style.top='-2px';
@@ -85,6 +87,7 @@ TabPane.prototype.activateTab = function(tab) {
 		activeTabButton.attachEvent('onmouseover');
 		activeTabButton.attachEvent('onclick');
 		activeTabButton.div.style.cursor='';
+		this.tabs[iActive].hide();
 	}
 	
 	this.activeTab = iTab;
@@ -106,7 +109,7 @@ function Tab__destroy() {
 		if (oTab.tabs.length > 1)
 			oTab.activateTab(1);
 		else
-			oTab.activeTab = null;
+			oTab.activeTab = 0;
 	}
 	oTab.tabs.splice(idx, 1);
 	this.tabButton.destroy();
