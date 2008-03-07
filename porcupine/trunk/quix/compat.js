@@ -343,6 +343,22 @@ QuiX.getParentNode = function(el) {
 	return el.parentNode || el.parentElement;
 }
 
+QuiX.detachFrames = function(w) {
+	if (QuiX.modules[9].isLoaded) {
+		var frames = w.getWidgetsByType(IFrame);
+		for (var i=0; i<frames.length; i++)
+			frames[i].frame = QuiX.removeNode(frames[i].frame);
+	}
+}
+
+QuiX.attachFrames = function(w) {
+	if (QuiX.modules[9].isLoaded) {
+		var frames = w.getWidgetsByType(IFrame);
+		for (var i=0; i<frames.length; i++)
+			frames[i].div.appendChild(frames[i].frame);
+	}
+}
+
 function QModule(sName, sFile, d) {
 	this.isLoaded = false;
 	this.name = sName;
