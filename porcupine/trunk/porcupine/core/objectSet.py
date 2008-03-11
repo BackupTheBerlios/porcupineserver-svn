@@ -70,6 +70,9 @@ class ObjectSet(object):
             else:
                 for x in self._list:
                     yield dict(zip(self.schema, x))
+                
+    def __nonzero__(self):
+        return len(self._list)
     
     def __len__(self):
         """Returns the size of the objects set.
