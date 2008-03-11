@@ -152,7 +152,8 @@ TreeNode.prototype.setCaption = function(sCaption) {
 }
 
 TreeNode.prototype.toggle = function() {
-	if (!this.isExpanded) {
+	this.isExpanded = !this.isExpanded;
+	if (this.isExpanded) {
 		for (var i=0; i < this.childNodes.length; i++) {
 			this.childNodes[i].show();
 		}
@@ -166,7 +167,6 @@ TreeNode.prototype.toggle = function() {
 		}
 		this._expandImg.src = '__quix/images/expand.gif';
 	}
-	this.isExpanded = !this.isExpanded;
 }
 
 TreeNode.prototype.hasChildren = function() {
