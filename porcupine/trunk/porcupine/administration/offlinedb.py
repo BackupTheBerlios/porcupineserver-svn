@@ -24,7 +24,7 @@ from porcupine.config.settings import settings
 from porcupine.utils import misc
 from porcupine.db import db
 
-from porcupine.core.context import HttpContext
+from porcupine.core.http.context import HttpContext
 from porcupine.security import inMemorySessionManager
 from porcupine.security import SessionManager
 
