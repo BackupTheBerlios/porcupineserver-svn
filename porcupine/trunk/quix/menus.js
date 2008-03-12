@@ -54,9 +54,9 @@ MenuOption.prototype.redraw = function(bForceAll) {
 		bForceAll = true;
 	}
 	if (!this.img)
-		this.setPadding([22,8,3,2]);
+		this.setPadding([24,8,3,2]);
 	else
-		this.setPadding([4,8,3,2]);
+		this.setPadding([5,8,3,2]);
 	
 	Icon.prototype.redraw(bForceAll, this);
 }
