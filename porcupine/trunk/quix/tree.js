@@ -6,6 +6,8 @@ function TreeNode(params) {
 	params = params || {};
 	params.display = 'none';
 	params.padding = '13,0,1,1';
+	params.onmousedown = QuiX.cancelDefault;
+	
 	this.base = Widget;
 	this.base(params);
 
@@ -31,8 +33,6 @@ function TreeNode(params) {
 	this.div.appendChild(oA);
 	this.anchor = oA;
 	this.setCaption(params.caption || '');
-	
-	this.attachEvent('onmousedown', QuiX.cancelDefault);
 }
 
 QuiX.constructors['treenode'] = TreeNode;
