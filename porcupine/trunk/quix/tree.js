@@ -38,9 +38,15 @@ function TreeNode(params) {
 QuiX.constructors['treenode'] = TreeNode;
 TreeNode.prototype = new Widget;
 
-TreeNode.prototype.redraw = function(bForceAll) {
-	this.tree = this.parent.tree || this.parent;
+TreeNode.prototype.appendChild = function (w) {
+	w.tree = this.tree;
+	w.div.style.margin = '2px 0px 0px ' + this.tree.levelpadding + 'px';
+	Widget.prototype.appendChild(w, this);
+	if (!w._isDisabled)
+		w.enable();
+}
 
+TreeNode.prototype.redraw = function(bForceAll) {
 	if (this.img) {
 		if (this._imgElement != null)
 			this._imgElement.src = this.img;
@@ -75,7 +81,6 @@ TreeNode.prototype.redraw = function(bForceAll) {
 			this.parent._addExpandImg();
 			this.parent._hasChildren = true;
 		}
-		this.div.style.margin = '2px 0px 0px ' + this.tree.levelpadding + 'px';
 		if (this.parent.isExpanded)
 			this.show();
 		else
@@ -85,12 +90,6 @@ TreeNode.prototype.redraw = function(bForceAll) {
 		// root node
 		this.show();
 	}
-	
-	if (this._isDisabled)
-		this.disable();
-	else
-		this.enable();
-
 	Widget.prototype.redraw(bForceAll, this);
 }
 
@@ -208,6 +207,13 @@ QuiX.constructors['tree'] = Tree;
 Tree.prototype = new Widget;
 
 Tree.prototype.customEvents = Widget.prototype.customEvents.concat(['onexpand', 'onselect']);
+
+Tree.prototype.appendChild = function (w) {
+	w.tree = this;
+	Widget.prototype.appendChild(w, this);
+	if (!w._isDisabled)
+		w.enable();
+}
 
 Tree.prototype.selectNode = function(w) {
 	if (this.selectedWidget)
