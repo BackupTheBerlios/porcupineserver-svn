@@ -185,6 +185,7 @@ Window.prototype.removeControlButton = function(iWhich) {
 }
 
 Window.prototype.close = function() {
+	QuiX.cleanupOverlays();
 	if (this._customRegistry.onclose)
 		QuiX.getEventListener(this._customRegistry.onclose)(this);
 	while (this.childWindows.length != 0)
