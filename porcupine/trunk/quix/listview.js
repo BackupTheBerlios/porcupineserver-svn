@@ -292,7 +292,7 @@ ListView.prototype.addColumn = function(params, w) {
 	oCol.columnAlign = params.align || 'left';
 	
 	var resizer = new Widget({
-		width : 4,
+		width : 6,
 		height : oListView.header._calcHeight(true),
 		left : 'this.parent.parent._calcResizerOffset(this)',
 		overflow : 'hidden'
@@ -326,7 +326,7 @@ ListView.prototype._calcResizerOffset = function(w) {
 		if (oHeader.widgets[i - this._deadCells]==w) break;
 	}
 	left += (2*i);
-	return left;
+	return left - 1;
 }
 
 ListView.prototype._moveResizer = function(evt, iResizer) {
