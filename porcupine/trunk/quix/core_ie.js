@@ -385,7 +385,7 @@ Widget.prototype.appendChild = function(w, p) {
 	w.parent = p;
 	if (w._id)
 		w._addIdRef();
-	p.div.appendChild(w.div);
+	w.div = p.div.appendChild(w.div);
 	if (w.height=='100%' && w.width=='100%')
 		p.setOverflow('hidden');
 
@@ -444,12 +444,12 @@ Widget.prototype.parseFromString = function(s, oncomplete) {
 }
 
 Widget.prototype.parseFromUrl = function(url, oncomplete) {
-	var xmlhttp = QuiX.XMLHttpRequest();
+	var xmlhttp = QuiX.XHRPool.getInstance();
 	var oWidget = this;
 	xmlhttp.onreadystatechange = function() {
 		if (xmlhttp != null && xmlhttp.readyState==4) {
 			oWidget.parse(xmlhttp.responseXML, oncomplete);
-			xmlhttp = null;
+			QuiX.XHRPool.release(xmlhttp);
 		}
 	}
 	xmlhttp.open('GET', url, true);

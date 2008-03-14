@@ -43,10 +43,10 @@ function Window(params) {
 	this.title = new Box({
 		height : 22,
 		padding :'1,1,1,1',
-		childrenalign : 'center'
+		childrenalign : 'center',
+		onmousedown : WindowTitle__onmousedown
 	});
 	this.title.div.className = 'header';
-	this.title.attachEvent('onmousedown', WindowTitle__onmousedown);
 	box.appendChild(this.title);
 	var t = new Icon({
 		id : '_t',

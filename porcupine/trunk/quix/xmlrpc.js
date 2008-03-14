@@ -129,7 +129,8 @@ function _getXml(obj) {
 function XMLRPCRequest(sUrl,async) {
 	this.async = ((typeof async) == "undefined")?true:async;
 	this.url = sUrl;
-	this.xmlhttp = QuiX.XMLHttpRequest();
+	this.xmlhttp = QuiX.XHRPool.getInstance();
+	
 	this.onreadystatechange = null;
 	this.oncomplete = null;
 	
@@ -137,23 +138,9 @@ function XMLRPCRequest(sUrl,async) {
 	this.response = null;
 	
 	this.onerror = null;
-
-	var req = this;
-
-	this.xmlhttp.onreadystatechange = function() {
-		if (req.xmlhttp.readyState==4) {
-			// parse response...
-			retVal = req.processResult();
-			if (retVal!=null && req.oncomplete) {
-				req.response = retVal;
-				req.oncomplete(req);
-			}
-		}
-		else {
-			if (req.onreadystatechange) req.onreadystatechange(req);
-		}
-	}
 }
+
+//XMLRPCRequest.prototype.XHRFactory = QuiX.XHRFactory(5);
 
 XMLRPCRequest.prototype.handleError = function (e) {
 	__displayError__(e);
@@ -294,16 +281,30 @@ XMLRPCRequest.prototype.callmethod = function(method_name) {
 		if (this._validateMethodName(method_name)) {
 			var message = '<?xml version="1.0"?><methodCall><methodName>' +
 						  method_name + '</methodName><params>';
-	
-		   	for(var i=1;i<arguments.length;i++)
+		   	for (var i=1; i<arguments.length; i++)
 		   		message += '<param><value>' + _getXml(arguments[i]) +
 		   				   '</value></param>';
-		   	
 			message += '</params></methodCall>';
+			
 			this.xmlhttp.open('POST', this.url, this.async);
-			this.xmlhttp.setRequestHeader("User-Agent", "vcXMLRPC running on " +
-										  navigator.userAgent);
 			this.xmlhttp.setRequestHeader("Content-type", "text/xml");
+			
+			var req = this;
+			this.xmlhttp.onreadystatechange = function() {
+				if (req.xmlhttp.readyState==4) {
+					// parse response...
+					retVal = req.processResult();
+					if (retVal != null && req.oncomplete) {
+						req.response = retVal;
+						req.oncomplete(req);
+					}
+					QuiX.XHRPool.release(req.xmlhttp);
+				}
+				else {
+					if (req.onreadystatechange)
+						req.onreadystatechange(req);
+				}
+			}
 			this.xmlhttp.send(message);
 		}
 		else

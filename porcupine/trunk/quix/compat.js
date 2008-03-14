@@ -290,14 +290,37 @@ QuiX.cancelDefault = function(evt) {
 	else if (window.event) window.event.returnValue = false;
 }
 
-QuiX.XMLHttpRequest = function() {
-	if (window.XMLHttpRequest)
-		return new XMLHttpRequest;
-	else if (window.ActiveXObject)
-		return new ActiveXObject('microsoft.xmlhttp');
-	else
-		return null;
-}
+QuiX.XHRPool = (
+	function() {
+		var stack = [];
+		var poolSize = 10;
+		var nullFunction = function(){};
+		function createXHR() {
+			if (window.XMLHttpRequest)
+				return new XMLHttpRequest();
+			else if (window.ActiveXObject)
+				return new ActiveXObject('Microsoft.XMLHTTP');
+		}
+		for (var i = 0; i<poolSize; i++)
+			stack.push(createXHR());
+		return ({
+			release : function(xhr) {
+				xhr.onreadystatechange = nullFunction;
+				xhr.abort();
+				stack.push(xhr);
+			},
+			getInstance : function() {
+				if (stack.length < 1)
+	    			return createXHR();
+				else
+					return stack.pop();
+	  		},
+	  		toString : function() {
+				return "stack size = " + stack.length;
+			}
+	 	});
+	}
+)();
 
 QuiX.domFromString = function(s)
 {
@@ -321,6 +344,7 @@ QuiX.removeWidget = function(w) {
 	
 	while (w.widgets.length>0)
 		QuiX.removeWidget(w.widgets[0]);
+	
 	if (w.parent) {
 		w.parent.widgets.removeItem(w);
 		if (w._id)
@@ -332,10 +356,10 @@ QuiX.removeWidget = function(w) {
 	parentElement = w.div.parentNode || w.div.parentElement;
 	if (parentElement)
 		QuiX.removeNode(w.div);
-
-	w._registry = null;
-	w._customRegistry = null;
-	w.div = null;
+	
+	w.div.widget = null;
+	for (var v in w)
+		w[v] = null;
 	w = null;
 }
 
