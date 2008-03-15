@@ -209,13 +209,14 @@ containerList.copyMove = function(evt, w) {
 
 containerList.doCopyMove = function(dlg) {
 	if (dlg.buttonIndex == 0) {
+		var p_win = dlg.opener;
 		var method = (dlg.attributes.method=='copy')?'copyTo':'moveTo';
 		var targetid = dlg.getWidgetById('tree').getSelection().getId();
 		
 		var xmlrpc = new XMLRPCRequest(QuiX.root + dlg.attributes.ID);
 		xmlrpc.oncomplete = function(req) {
 			if (method!='copyTo') {
-				containerList.getContainerInfo(dlg.opener);
+				containerList.getContainerInfo(p_win);
 			}
 		}
 		xmlrpc.callmethod(method, targetid);
@@ -234,11 +235,12 @@ containerList.rename = function(evt, w) {
 
 containerList.doRename = function(dlg) {
 	if (dlg.buttonIndex == 0) {
+		var p_win = dlg.opener;
 		var new_name = dlg.getWidgetById('new_name').getValue();
 		
 		var xmlrpc = new XMLRPCRequest(QuiX.root + dlg.attributes.ID);
-		xmlrpc.oncomplete = function(req) {
-			containerList.getContainerInfo(dlg.opener);
+		xmlrpc.oncomplete = function() {
+			containerList.getContainerInfo(p_win);
 		}
 		xmlrpc.callmethod('rename', new_name);
 	}
