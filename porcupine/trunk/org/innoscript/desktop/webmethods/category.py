@@ -18,6 +18,7 @@
 Web methods for the category content class
 """
 from porcupine import webmethods
+from porcupine.utils import date
 
 from org.innoscript.desktop.schema.common import Category
 from org.innoscript.desktop.webmethods.basecontainer \
