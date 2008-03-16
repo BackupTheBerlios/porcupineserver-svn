@@ -25,16 +25,16 @@
 						<hr top="112" width="100%"/>
 						
 						<label top="126" left="5" width="100" height="20" caption="@@password@@:"/>
-						<field id="password" name="password" type="password" top="124" left="115" width="230"/>
+						<field id="password" name="password" type="password" top="124" left="135" width="210"/>
 	
-						<label top="151" left="5" width="100" height="20" caption="Re-enter password:"/>
-						<field id="password2" type="password" top="150" left="115" width="230"/>
+						<label top="151" left="5" width="100" height="20" caption="@@REENTER_PASSWORD@@:"/>
+						<field id="password2" type="password" top="150" left="135" width="210"/>
 				</tab>
 				<tab caption="@@memberof@@">
 					<custom classname="ReferenceN" width="100%" height="100%"
 						root="$URI" cc="$REL_CC" name="memberof"/>
 				</tab>
-				<tab caption="Policies">
+				<tab caption="@@policies@@">
 					<custom classname="ReferenceN" width="100%" height="100%"
 						root="$SELECT_FROM_POLICIES" cc="$POLICIES_REL_CC" name="policies"/>
 				</tab>
