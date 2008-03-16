@@ -159,8 +159,8 @@ class PorcupineThread(BaseServerThread):
             self._method_cache[method_key] = method
     
         if method == None:
-            raise exceptions.NotFound, \
-                'Invalid method call "%s"' % method_name
+            raise exceptions.NotImplemented, \
+                'Unknown method call "%s"' % method_name
         else:
             # execute method
             getattr(item, method)(self.context)

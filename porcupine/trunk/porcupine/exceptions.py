@@ -93,6 +93,13 @@ class InternalServerError(PorcupineException):
         self.description = 'Internal Server Error'
         self.severity = logging.ERROR
         
+class NotImplemented(InternalServerError):
+    def __init__(self, info=''):
+        InternalServerError.__init__(self, info)
+        self.code = 501
+        self.description = 'Not Implemented'
+        self.severity = logging.WARNING
+        
 class ContainmentError(InternalServerError):
     def __init__(self, info=''):
         InternalServerError.__init__(self, info, False)
