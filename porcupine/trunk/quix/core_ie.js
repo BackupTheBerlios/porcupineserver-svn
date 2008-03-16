@@ -1146,6 +1146,7 @@ function Widget__startdrag(evt, w) {
 			function _draghandler() {w._startDrag(x, y)}, 150);
 		QuiX.cancelDefault(evt);
 		QuiX.stopPropag(evt);
+		QuiX.cleanupOverlays();
 		QuiX.dragging = true;
 	}
 }
