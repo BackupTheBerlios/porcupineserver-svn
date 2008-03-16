@@ -135,15 +135,15 @@ queryPerformer.expandArray = function(w, array, options) {
 }
 
 queryPerformer.getType = function(obj) {
-    var typ = 'Unknown';
+    var typ = 'Object';
     if (obj instanceof Date) {
         typ = 'Date';
     } else if (typeof obj == 'boolean') {
         typ = 'Boolean';
+    } else if (typeof obj == 'string') {
+        typ = 'String';
     } else if (obj instanceof Array) {
         typ = 'Array';
-    } else if (obj instanceof String) {
-        typ = 'String';
     } else if (obj instanceof Number) {
         typ = 'Number';
     }
