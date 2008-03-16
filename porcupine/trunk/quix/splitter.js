@@ -120,21 +120,23 @@ function SplitterPane__destroy() {
 }
 
 function SplitterHandle__mousedown(evt, w) {
-	var splitter = w.parent;
-	QuiX.startX = evt.clientX;
-	QuiX.startY = evt.clientY;
-	QuiX.cancelDefault(evt);
-	QuiX.dragging = true;
-	QuiX.detachFrames(splitter);
-	for (var idx=0; idx < splitter._handles.length; idx++) {
-		 if (splitter._handles[idx] == w)
-		 	break;
+	if (!w._isCollapsed) {
+		var splitter = w.parent;
+		QuiX.startX = evt.clientX;
+		QuiX.startY = evt.clientY;
+		QuiX.cancelDefault(evt);
+		QuiX.dragging = true;
+		QuiX.detachFrames(splitter);
+		for (var idx=0; idx < splitter._handles.length; idx++) {
+			 if (splitter._handles[idx] == w)
+			 	break;
+		}
+		splitter.attachEvent('onmouseup',
+			function(evt, w){w._endMoveHandle(evt, idx)});
+		splitter.attachEvent('onmousemove',
+			function(evt, w){w._handleMoving(evt, idx)});
+		splitter.div.style.cursor = (w.parent.orientation == "h")?'e-resize':'n-resize';
 	}
-	splitter.attachEvent('onmouseup',
-		function(evt, w){w._endMoveHandle(evt, idx)});
-	splitter.attachEvent('onmousemove',
-		function(evt, w){w._handleMoving(evt, idx)});
-	splitter.div.style.cursor = (w.parent.orientation == "h")?'e-resize':'n-resize';
 }
 
 function SplitterHandle__dblclick(evt, w) {
@@ -143,9 +145,15 @@ function SplitterHandle__dblclick(evt, w) {
 		 if (splitter._handles[idx] == w)
 		 	break;
 	}
-	if (splitter.panes[idx].isHidden())
+	if (splitter.panes[idx].isHidden()) {
+		w._isCollapsed = false;
+		w.div.style.cursor = (splitter.orientation == "h")?'e-resize':'n-resize';
 		splitter.panes[idx].show();
-	else
+	}
+	else {
+		w._isCollapsed = true;
+		w.div.style.cursor = 'default';
 		splitter.panes[idx].hide();
+	}
 	splitter.redraw();
 }
