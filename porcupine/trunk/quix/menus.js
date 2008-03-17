@@ -151,7 +151,8 @@ function ContextMenu(params, owner) {
 		width : 100,
 		border : 1,
 		onmousedown : QuiX.stopPropag,
-		onshow : params.onshow
+		onshow : params.onshow,
+		onclose : params.onclose
 	});
 	this.div.className = 'contextmenu';
 	if (QuiX.browser == 'moz' && QuiX.getOS() == 'MacOS')
@@ -192,7 +193,14 @@ function ContextMenu(params, owner) {
 QuiX.constructors['contextmenu'] = ContextMenu;
 ContextMenu.prototype = new Widget;
 
-ContextMenu.prototype.customEvents = Widget.prototype.customEvents.concat(['onshow']);
+ContextMenu.prototype.customEvents =
+	Widget.prototype.customEvents.concat(['onshow', 'onclose']);
+
+ContextMenu.prototype.destroy = function() {
+	this.owner.detachEvent('oncontextmenu');
+	this.owner.contextMenu = null;
+	Widget.prototype.destroy(this);
+}
 
 ContextMenu.prototype.redraw = function(bForceAll) {
 	var oOption, optionWidth;
@@ -248,6 +256,8 @@ ContextMenu.prototype.close = function() {
 		document.desktop.overlays.removeItem(this);
 	this.detach();
 	this.isOpen = false;
+	if (this._customRegistry.onclose)
+		this._customRegistry.onclose(this);
 }
 
 ContextMenu.prototype.addOption = function(params) {
