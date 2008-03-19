@@ -103,6 +103,8 @@ TreeNode.prototype._updateParent = function() {
 
 TreeNode.prototype.destroy = function() {
 	this._updateParent();
+	if (this.tree.selectedWidget == this)
+		this.tree.selectedWidget = null;
 	Widget.prototype.destroy(this);
 }
 
@@ -249,10 +251,10 @@ FolderTree.prototype.loadSubfolders = function(treeNode) {
 	var xmlrpc = new XMLRPCRequest(QuiX.root + sID);
 	xmlrpc.oncomplete = treeNode.tree.load_oncomplete;
 	xmlrpc.callback_info = treeNode;
+	xmlrpc.callmethod(treeNode.tree.method);
 	for (var i=0; i< treeNode.childNodes.length; i++ ) {
 		treeNode.childNodes[i].hide();
 	}
-	xmlrpc.callmethod(treeNode.tree.method);
 }
 
 FolderTree.prototype.load_oncomplete = function(req) {
