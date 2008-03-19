@@ -335,7 +335,6 @@ def h_200(params, variables, forObject = None):
             elif expr != alias:
                 if (expr, aggr) in expressions:
                     order_by[ind] = select_fields[ expressions.index((expr, aggr)) ]
-#                    print 'caching expression: ' + repr(order_by[ind])
                 else:
                     variables[alias] = (expr, None, None)
                     aliases.append(alias)
@@ -351,7 +350,6 @@ def h_200(params, variables, forObject = None):
             elif expr != alias:
                 if (expr, aggr) in expressions:
                     group_by[ind] = select_fields[ expressions.index((expr, aggr)) ]
-#                    print 'caching expression: ' + repr(group_by[ind])
                 else:
                     variables[alias] = (expr, None, None)
                     aliases.append(alias)
@@ -366,12 +364,14 @@ def h_200(params, variables, forObject = None):
     
     for deep, object_id in select_from:
         if deep==2:
-            # this.attr
+            # this:attr
             if not forObject:
-                raise TypeError, 'Inner scopes using "this:" are valid only in subqueries'
+                raise TypeError, 'Inner scopes using "this:" are valid only in sub-queries'
             if hasattr(forObject, object_id):
                 refObjects = getattr(forObject, object_id).value
-                r = select(0, refObjects, all_fields, where_condition, variables)
+                if type(refObjects) == str:
+                    refObjects = [refObjects]
+                r = select(False, refObjects, all_fields, where_condition, variables)
                 results.extend(r)
         else:
             # swallow-deep
