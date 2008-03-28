@@ -77,7 +77,7 @@ class HttpRequest(object):
                 if method_match:
                     self.method = method_match.groups()[0]
                     self.type = 'xmlrpc'
-            elif self.serverVariables['CONTENT_TYPE'] == 'application/x-www-form-urlencoded':
+            else:
                 # http form post
                 self.form = FieldStorage(fp=self.input, environ=self.serverVariables)
         
