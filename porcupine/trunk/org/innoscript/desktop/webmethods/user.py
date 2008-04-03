@@ -17,7 +17,7 @@
 """
 Web methods for the user content class
 """
-
+from porcupine import db
 from porcupine import HttpContext
 from porcupine import webmethods
 from porcupine import filters
@@ -89,8 +89,7 @@ def resetpsw(self):
 @webmethods.remotemethod(of_type=User)
 def resetPassword(self, new_password):
     "Resets the user's password"
-    context = HttpContext.current()
-    txn = context.server.store.getTransaction()
+    txn = db.getTransaction()
     self.password.value = new_password
     self.update(txn)
     txn.commit()

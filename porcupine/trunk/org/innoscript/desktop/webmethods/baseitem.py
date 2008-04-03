@@ -23,6 +23,7 @@ unless overriden.
 """
 import os
 
+from porcupine import db
 from porcupine import HttpContext
 from porcupine import webmethods
 from porcupine import filters
@@ -238,7 +239,7 @@ def rename(self):
 def selectcontainer(self):
     "Displays a dialog for selecting the destination container"
     context = HttpContext.current()
-    rootFolder = context.server.store.getItem('')
+    rootFolder = db.getItem('')
     params = {
         'ROOT_ID': '/',
         'ROOT_IMG': rootFolder.__image__,
@@ -279,7 +280,7 @@ def update(self, data):
                 os.remove(sPath)
         else:
             oAttr.value = data[prop]
-    txn = context.server.store.getTransaction()
+    txn = db.getTransaction()
     self.update(txn)
     txn.commit()
     return True
@@ -287,8 +288,7 @@ def update(self, data):
 @webmethods.remotemethod(of_type=Item)
 def rename(self, newName):
     "Changes the display name of an object"
-    context = HttpContext.current()
-    txn = context.server.store.getTransaction()
+    txn = db.getTransaction()
     self.displayName.value = newName
     self.update(txn)
     txn.commit()
@@ -297,44 +297,40 @@ def rename(self, newName):
 @webmethods.remotemethod(of_type=Item)
 def getSecurity(self):
     "Returns information about the object's security descriptor"
-    context = HttpContext.current()
     l = []
-    store = context.server.store
     for sID in self.security:
-        oUser = store.getItem(sID)
-        l.append(
-            {
+        oUser = db.getItem(sID)
+        l.append({
                 'id': sID,
                 'displayName': oUser.displayName.value,
                 'role': str(self.security[sID])
-            }
-        )
-    return(l)
+        })
+    return l
 
 @webmethods.remotemethod(of_type=Item)
 def copyTo(self, targetid):
-    txn = HttpContext.current().server.store.getTransaction()
+    txn = db.getTransaction()
     self.copyTo(targetid, txn)
     txn.commit()
     return True
 
 @webmethods.remotemethod(of_type=Item)
 def moveTo(self, targetid):
-    txn = HttpContext.current().server.store.getTransaction()
+    txn = db.getTransaction()
     self.moveTo(targetid, txn)
     txn.commit()
     return True
 
 @webmethods.remotemethod(of_type=Item)
 def delete(self):
-    txn = HttpContext.current().server.store.getTransaction()
+    txn = db.getTransaction()
     self.recycle('rb', txn)
     txn.commit()
     return True
 
 @webmethods.remotemethod(of_type=GenericItem)
 def deletePermanent(self):
-    txn = HttpContext.current().server.store.getTransaction()
+    txn = db.getTransaction()
     self.delete(txn)
     txn.commit()
     return True

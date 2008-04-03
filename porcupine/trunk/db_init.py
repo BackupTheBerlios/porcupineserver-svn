@@ -10,7 +10,7 @@ def main_is_frozen():
 if main_is_frozen():
     sys.path.insert(0, '')
 
-from porcupine.db import db
+from porcupine.db import _db
 from porcupine.utils import misc
 
 answer = raw_input('''WARNING: Please ensure that Porcupine Server is stopped!
@@ -20,7 +20,7 @@ Are you sure you want to initialize the database(Y/N)?''')
 if (answer == 'Y'):
     try:
         from porcupine.config.settings import settings
-        db.open(misc.getCallableByName(settings['store']['interface']))
+        _db.open(misc.getCallableByName(settings['store']['interface']))
     except Exception, e:
         sys.exit(e[0])
 
@@ -30,7 +30,7 @@ if (answer == 'Y'):
 
     # truncate database
     sys.stdout.write('Deleting existing database...')
-    db.db_handle._truncate()
+    _db.db_handle._truncate()
     sys.stdout.write('[OK]\n')
 
     sOwner = 'SYSTEM'
@@ -52,7 +52,7 @@ if (answer == 'Y'):
         'Personal folders':'personal'
     }
     rootFolder.security = {'everyone':1, 'administrators':8}
-    db.putItem(rootFolder, None)
+    _db.putItem(rootFolder, None)
     sys.stdout.write('[OK]\n')
 
     sys.stdout.write('Creating recycle bin...')
@@ -67,7 +67,7 @@ if (answer == 'Y'):
     rb.modified = ftime
     rb.inheritRoles = False
     rb.security = {'administrators':8}
-    db.putItem(rb, None)
+    _db.putItem(rb, None)
     sys.stdout.write('[OK]\n')
 
     sys.stdout.write('Creating Categories folder...')
@@ -80,7 +80,7 @@ if (answer == 'Y'):
     catFolder._created = ftime
     catFolder.modified = ftime
     catFolder.security = {'everyone':1, 'administrators':8}
-    db.putItem(catFolder, None)
+    _db.putItem(catFolder, None)
     sys.stdout.write('[OK]\n')
 
     sys.stdout.write('Creating container for users\' personal storage...')
@@ -96,7 +96,7 @@ if (answer == 'Y'):
         'admin':'adminstorage',
     }
     perFolder.security = {'everyone':1, 'administrators':8}
-    db.putItem(perFolder, None)
+    _db.putItem(perFolder, None)
     sys.stdout.write('[OK]\n')
     
     sys.stdout.write('Creating admin\'s personal storage...')
@@ -111,7 +111,7 @@ if (answer == 'Y'):
     adminFolder.modified = ftime
     adminFolder.inheritRoles = False
     adminFolder.security = {'admin':2, 'administrators':8}
-    db.putItem(adminFolder, None)
+    _db.putItem(adminFolder, None)
     sys.stdout.write('[OK]\n')
 
     sys.stdout.write('Creating Administrative Tools folder...')
@@ -130,7 +130,7 @@ if (answer == 'Y'):
         'Policies':'policies'
     }
     adminFolder.security = {'administrators':8}
-    db.putItem(adminFolder, None)
+    _db.putItem(adminFolder, None)
     sys.stdout.write('[OK]\n')
 
     sys.stdout.write('Creating Users folder...')
@@ -154,7 +154,7 @@ if (answer == 'Y'):
     }
     userFolder.security = {'authusers':1, 'administrators':8}
     userFolder.description.value = 'Users and Groups container'
-    db.putItem(userFolder, None)
+    _db.putItem(userFolder, None)
     sys.stdout.write('[OK]\n')
 
     sys.stdout.write('Creating Admin user...')
@@ -173,7 +173,7 @@ if (answer == 'Y'):
     admin.password.value = 'admin'
     admin.security = userFolder.security
     admin.settings.value = {'TASK_BAR_POS' : 'bottom'}
-    db.putItem(admin, None)
+    _db.putItem(admin, None)
     sys.stdout.write('[OK]\n')
 
     sys.stdout.write('Creating SYSTEM user...')
@@ -188,7 +188,7 @@ if (answer == 'Y'):
     system.modified = ftime
     system.description.value = 'System account'
     system.security = userFolder.security
-    db.putItem(system, None)
+    _db.putItem(system, None)
     sys.stdout.write('[OK]\n')
 
     sys.stdout.write('Creating GUEST user...')
@@ -203,7 +203,7 @@ if (answer == 'Y'):
     guest.modified = ftime
     guest.description.value = 'Guest account'
     guest.security = userFolder.security
-    db.putItem(guest, None)
+    _db.putItem(guest, None)
     sys.stdout.write('[OK]\n')
 
     sys.stdout.write('Creating Everyone group...')
@@ -218,7 +218,7 @@ if (answer == 'Y'):
     everyone.modified = ftime
     everyone.description.value = 'Everyone group'
     everyone.security = userFolder.security
-    db.putItem(everyone, None)
+    _db.putItem(everyone, None)
     sys.stdout.write('[OK]\n')
 
     sys.stdout.write('Creating Authenticated Users group...')
@@ -234,7 +234,7 @@ if (answer == 'Y'):
     auth.policies.value = ['uploadpolicy']
     auth.description.value = 'Authenticated Users group'
     auth.security = userFolder.security
-    db.putItem(auth, None)
+    _db.putItem(auth, None)
     sys.stdout.write('[OK]\n')
 
     sys.stdout.write('Creating Administrators Group...')
@@ -250,7 +250,7 @@ if (answer == 'Y'):
     admins.members.value = ['admin']
     admins.description.value = 'Administrators group'
     admins.security = userFolder.security
-    db.putItem(admins, None)
+    _db.putItem(admins, None)
     sys.stdout.write('[OK]\n')
 
     sys.stdout.write('Creating Server Policies folder...')
@@ -269,7 +269,7 @@ if (answer == 'Y'):
     }
     polFolder.security = adminFolder.security
     polFolder.description.value = 'Server Security Policies '
-    db.putItem(polFolder, None)
+    _db.putItem(polFolder, None)
     sys.stdout.write('[OK]\n')
 
     sys.stdout.write('Creating Upload Policy...')
@@ -285,7 +285,7 @@ if (answer == 'Y'):
     policy.policyGranted.value = ['authusers']
     policy.description.value = 'Policy for uploading documents to server temporary folder'
     policy.security = polFolder.security
-    db.putItem(policy, None)
+    _db.putItem(policy, None)
     sys.stdout.write('[OK]\n')
 
     sys.stdout.write('Creating QuiX Applications folder...')
@@ -305,7 +305,7 @@ if (answer == 'Y'):
     }
     appFolder.security = {'authusers':1, 'administrators':8}
     appFolder.description.value = 'Installed applications container'
-    db.putItem(appFolder, None)
+    _db.putItem(appFolder, None)
     sys.stdout.write('[OK]\n')
 
     sys.stdout.write('Creating Users and Groups Management application...')
@@ -322,7 +322,7 @@ if (answer == 'Y'):
     app.icon.value = 'usermgmnt/images/icon.gif'
     app.inheritRoles = False
     app.security = {'administrators': 8}
-    db.putItem(app, None)
+    _db.putItem(app, None)
     sys.stdout.write('[OK]\n')
 
     sys.stdout.write('Creating OQL Query Performer application...')
@@ -339,10 +339,10 @@ if (answer == 'Y'):
     app.icon.value = 'queryperformer/images/icon.gif'
     app.inheritRoles = False
     app.security = {'administrators': 8}
-    db.putItem(app, None)
+    _db.putItem(app, None)
     sys.stdout.write('[OK]\n')
 
-    db.close()
+    _db.close()
     sys.stdout.write('Store initialization completed successfully.\n')
 
     sys.exit()

@@ -18,14 +18,14 @@
 import copy
 import time
 
-from porcupine.db import db
+from porcupine.db import _db
 from porcupine import exceptions
 
 class Transaction(object):
     "The main type of a Porcupine transaction."
     def __init__(self):
         self.actions = []
-        self.txn = db.createTransaction()
+        self.txn = _db.createTransaction()
         self._iscommited = False
         self._retries = 0
 
@@ -39,11 +39,11 @@ class Transaction(object):
             if the maximum number of transaction retries has been reached,
             as defined in the C{porcupine.ini} file.
         """
-        while self._retries < db.db_handle.trans_max_retries:
-            db.abortTransaction(self.txn)
+        while self._retries < _db.db_handle.trans_max_retries:
+            _db.abortTransaction(self.txn)
             self._retries += 1
             time.sleep(0.05)
-            self.txn = db.createTransaction()
+            self.txn = _db.createTransaction()
             try:
                 tmpActions, self.actions = copy.copy(self.actions), []
                 dummy = [func(*args) for func,args in tmpActions]
@@ -63,11 +63,11 @@ class Transaction(object):
             if the maximum number of transaction retries has been reached,
             as defined in the C{porcupine.ini} file.
         """
-        while self._retries < db.db_handle.trans_max_retries:
+        while self._retries < _db.db_handle.trans_max_retries:
             try:
 #                if self._retries == 1:
 #                    raise exceptions.DBTransactionIncomplete
-                db.commitTransaction(self.txn)
+                _db.commitTransaction(self.txn)
                 self._iscommited = True
                 return
             except exceptions.DBTransactionIncomplete:
@@ -81,4 +81,4 @@ class Transaction(object):
         
         @return: None
         """
-        db.abortTransaction(self.txn)
+        _db.abortTransaction(self.txn)

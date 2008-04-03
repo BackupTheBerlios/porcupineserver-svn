@@ -23,6 +23,7 @@ Generic interfaces applying to all container types unless overriden.
 
 import os
 
+from porcupine import db
 from porcupine import HttpContext
 from porcupine import webmethods
 from porcupine import filters
@@ -116,7 +117,7 @@ def create(self, data):
         else:
             oAttr.value = data[prop]
             
-    txn = context.server.store.getTransaction()
+    txn = db.getTransaction()
     oNewItem.appendTo(self, txn)
     txn.commit()
     return oNewItem.id

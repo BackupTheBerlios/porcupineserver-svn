@@ -17,6 +17,7 @@
 """
 Web methods for the recycle bin class
 """
+from porcupine import db
 from porcupine import HttpContext
 from porcupine import webmethods
 from porcupine import filters
@@ -56,8 +57,7 @@ def getInfo(self):
 @webmethods.remotemethod(of_type=RecycleBin)
 def empty(self):
     "Empties the bin"
-    context = HttpContext.current()
-    txn = context.server.store.getTransaction()
+    txn = db.getTransaction()
     self.empty(txn)
     txn.commit()
     return True

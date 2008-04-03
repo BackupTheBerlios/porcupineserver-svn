@@ -22,7 +22,7 @@ from threading import currentThread
 
 from porcupine.config.settings import settings
 from porcupine.utils import misc
-from porcupine.db import db
+from porcupine.db import _db
 
 from porcupine.core.http.context import HttpContext
 from porcupine.security import inMemorySessionManager
@@ -30,28 +30,28 @@ from porcupine.security import SessionManager
 
 def getHandle():
     #open database
-    db.open(misc.getCallableByName(settings['store']['interface']))
+    _db.open(misc.getCallableByName(settings['store']['interface']))
     #create in-memory session manager
     SessionManager.open(inMemorySessionManager.SessionManager, 1200)
-    oSystemUser = db.getItem('system')
+    oSystemUser = _db.getItem('system')
     context = HttpContext()
     context.session = SessionManager.create(oSystemUser)
     
     currentThread().context = context
     currentThread().trans = None
-    return db
+    return _db
 
 def close():
     SessionManager.close()
-    db.close()
+    _db.close()
     
 class OfflineTransaction(object):
     def __init__(self):
         self.actions = []
-        self.txn = db.createTransaction()
+        self.txn = _db.createTransaction()
 
     def commit(self):
-        db.commitTransaction(self.txn)
+        _db.commitTransaction(self.txn)
 
     def abort(self):
-        db.abortTransaction(self.txn)
+        _db.abortTransaction(self.txn)

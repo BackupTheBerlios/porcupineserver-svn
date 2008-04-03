@@ -24,7 +24,8 @@ Use these as base classes to create you own custom objects.
 import time, copy
 from threading import currentThread
 
-from porcupine.db import db, dbEnv
+from porcupine import db
+from porcupine.db import _db
 from porcupine.db.transactional import transactional
 from porcupine.security import objectAccess
 from porcupine import exceptions
@@ -69,18 +70,18 @@ class Cloneable(object):
         oCopy.modified = time.time()
         oCopy._parentid = target._id
         
-        db.handle_update(oCopy, None, trans)
-        db.putItem(oCopy, trans)
+        _db.handle_update(oCopy, None, trans)
+        _db.putItem(oCopy, trans)
 
         if self.isCollection:
             lstChildrentIds = self._items.values() + self._subfolders.values()
             for sId in lstChildrentIds:
-                child = db.getItem(sId, trans)
+                child = _db.getItem(sId, trans)
                 if child and objectAccess.getAccess(child, oUser):
                     child._copy(oCopy, trans)
 
         target._addItemReference(oCopy)
-        db.putItem(target, trans)
+        _db.putItem(target, trans)
 
     def clone(self):
         """
@@ -110,7 +111,7 @@ class Cloneable(object):
             
         @return: None
         """
-        oTarget = db.getItem(targetId, trans)
+        oTarget = _db.getItem(targetId, trans)
         if self.isCollection and oTarget.isContainedIn(self._id, trans):
             raise exceptions.ContainmentError, \
                 'Cannot copy item to destination.\n' + \
@@ -156,7 +157,7 @@ class Moveable(object):
         bCanMove = (iUserRole > objectAccess.AUTHOR)## or (iUserRole == objectAccess.AUTHOR and oItem.owner == oUser.id)
 
         parentId = self._parentid
-        oTarget = db.getItem(targetId, trans)
+        oTarget = _db.getItem(targetId, trans)
     
         iUserRole2 = objectAccess.getAccess(oTarget, oUser)
     
@@ -173,16 +174,16 @@ class Moveable(object):
 
             self._parentid = targetId
             self.inheritRoles = False
-            db.putItem(self, trans)
+            _db.putItem(self, trans)
 
             #update target
             oTarget._addItemReference(self)
-            db.putItem(oTarget, trans)
+            _db.putItem(oTarget, trans)
 
             #update parent
-            oParent = db.getItem(parentId, trans)
+            oParent = _db.getItem(parentId, trans)
             oParent._removeItemReference(self)
-            db.putItem(oParent, trans)
+            _db.putItem(oParent, trans)
         else:
             raise exceptions.PermissionDenied, \
                 'The object was not moved.\n' + \
@@ -207,13 +208,13 @@ class Removeable(object):
         
         Returns: None
         """
-        db.handle_delete(self, trans, True)
-        db.deleteItem(self, trans)
+        _db.handle_delete(self, trans, True)
+        _db.deleteItem(self, trans)
         
         if self.isCollection:
             lstChildren = self._items.values() + self._subfolders.values()
             for sID in lstChildren:
-                oChild = db.getItem(sID, trans)
+                oChild = _db.getItem(sID, trans)
                 oChild._delete(trans)
 
     @transactional
@@ -226,7 +227,7 @@ class Removeable(object):
         @return: None
         """
         oUser = currentThread().context.session.user
-        self = db.getItem(self._id, trans)
+        self = _db.getItem(self._id, trans)
 
         iUserRole = objectAccess.getAccess(self, oUser)
         bCanDelete = (iUserRole > objectAccess.AUTHOR) or \
@@ -236,9 +237,9 @@ class Removeable(object):
             # delete item physically
             self._delete(trans)
             # update container
-            oParent = db.getItem(self._parentid, trans)
+            oParent = _db.getItem(self._parentid, trans)
             oParent._removeItemReference(self)
-            db.putItem(oParent, trans)
+            _db.putItem(oParent, trans)
         else:
             raise exceptions.PermissionDenied, \
                 'The object was not deleted.\n' + \
@@ -250,16 +251,16 @@ class Removeable(object):
         
         Returns: None
         """
-        db.handle_delete(self, trans, False)
+        _db.handle_delete(self, trans, False)
         self._isDeleted = True
         
         if self.isCollection:
             lstChildren = self._items.values() + self._subfolders.values()
             for sID in lstChildren:
-                oChild = db.getItem(sID, trans)
+                oChild = _db.getItem(sID, trans)
                 oChild._recycle(trans)
         
-        db.putItem(self, trans)
+        _db.putItem(self, trans)
 
     @transactional
     def recycle(self, rbID, trans):
@@ -277,7 +278,7 @@ class Removeable(object):
         @return: None
         """
         oUser = currentThread().context.session.user
-        self = db.getItem(self._id, trans)
+        self = _db.getItem(self._id, trans)
         
         iUserRole = objectAccess.getAccess(self, oUser)
         bCanDelete = (iUserRole > objectAccess.AUTHOR) or \
@@ -291,25 +292,25 @@ class Removeable(object):
             oDeleted.modifiedBy = oUser.displayName.value
             oDeleted.modified = time.time()
             oDeleted._parentid = rbID
-            db.handle_update(oDeleted, None, trans)
-            db.putItem(oDeleted, trans)
+            _db.handle_update(oDeleted, None, trans)
+            _db.putItem(oDeleted, trans)
             
             # delete item logically
             self._recycle(trans)
             
             # save container
-            oParent = db.getItem(self._parentid, trans)
+            oParent = _db.getItem(self._parentid, trans)
             oParent._removeItemReference(self)
-            db.putItem(oParent, trans)
+            _db.putItem(oParent, trans)
             
             #update recycle bin
-            oRecycleBin = db.getItem(rbID, trans)
+            oRecycleBin = _db.getItem(rbID, trans)
             if not(oDeleted.getContentclass() in oRecycleBin.containment):
                 raise exceptions.ContainmentError, \
                     'The target container does not accept ' + \
                     'objects of type "%s".' % oDeleted.getContentclass()
             oRecycleBin._addItemReference(oDeleted)
-            db.putItem(oRecycleBin, trans)
+            _db.putItem(oRecycleBin, trans)
         else:
             raise exceptions.PermissionDenied, \
                 'The object was not deleted.\n' + \
@@ -351,7 +352,7 @@ class Composite(object):
         
         @rtype: dict
         """
-        return(db.getItem(self._containerid).security)
+        return(_db.getItem(self._containerid).security)
     security = property(getSecurity)
 
     def getId(self):
@@ -440,10 +441,10 @@ class GenericItem(object):
             self.security = oParent.security
         if self.isCollection:
             for sID in self._subfolders.values() + self._items.values():
-                oItem = db.getItem(sID, trans)
+                oItem = _db.getItem(sID, trans)
                 if oItem.inheritRoles:
                     oItem._applySecurity(self, trans)
-                    db.putItem(oItem, trans)
+                    _db.putItem(oItem, trans)
 
     @transactional
     def appendTo(self, parent, trans):
@@ -459,7 +460,7 @@ class GenericItem(object):
         @return: None
         """
         if type(parent)==str:
-            oParent = db.getItem(parent, trans)
+            oParent = _db.getItem(parent, trans)
         else:
             oParent = parent
         oUser = currentThread().context.session.user
@@ -489,11 +490,11 @@ class GenericItem(object):
         self.modifiedBy = oUser.displayName.value
         self.modified = time.time()
         self._parentid = oParent._id
-        db.handle_update(self, None, trans)
-        db.putItem(self, trans)
+        _db.handle_update(self, None, trans)
+        _db.putItem(self, trans)
         # update container
         oParent._addItemReference(self)
-        db.putItem(oParent, trans)
+        _db.putItem(oParent, trans)
 
     def isContainedIn(self, itemId, trans=None):
         """
@@ -508,7 +509,7 @@ class GenericItem(object):
         while oItem._id is not '':
             if oItem._id==itemId:
                 return True
-            oItem = db.getItem(oItem.parentid, trans)
+            oItem = _db.getItem(oItem.parentid, trans)
         return False
 
     def getParent(self, trans=None):
@@ -520,7 +521,7 @@ class GenericItem(object):
         @return: the parent container object
         @rtype: type
         """
-        return(dbEnv.getItem(self._parentid, trans))
+        return(db.getItem(self._parentid, trans))
 
     def getAllParents(self):
         """
@@ -633,16 +634,16 @@ class DeletedItem(GenericItem, Removeable):
         
         Returns: None
         """
-        db.handle_update(deletedItem, None, trans)
+        _db.handle_update(deletedItem, None, trans)
         deletedItem._isDeleted = False
         
         if deletedItem.isCollection:
             lstChildren = deletedItem._items.values() + deletedItem._subfolders.values()
             for sID in lstChildren:
-                oChild = db.getDeletedItem(sID, trans)
+                oChild = _db.getDeletedItem(sID, trans)
                 self._undelete(oChild, trans)
 
-        db.putItem(deletedItem, trans)
+        _db.putItem(deletedItem, trans)
 
     def _restore(self, deletedItem, target, trans):
         """
@@ -670,7 +671,7 @@ class DeletedItem(GenericItem, Removeable):
         @return: the deleted item
         @rtype: type
         """
-        oDeleted = db.getDeletedItem(self._deletedId)
+        oDeleted = _db.getDeletedItem(self._deletedId)
         return(oDeleted)
 
     def appendTo(self, *args):
@@ -702,8 +703,8 @@ class DeletedItem(GenericItem, Removeable):
             If the original location no longer exists.
         """
         ## TODO: check if oDeleted exists
-        oDeleted = db.getDeletedItem(self._deletedId, trans)
-        oOriginalParent = db.getItem(oDeleted._parentid, trans)
+        oDeleted = _db.getDeletedItem(self._deletedId, trans)
+        oOriginalParent = _db.getItem(oDeleted._parentid, trans)
         
         # try to restore original item
         self._restore(oDeleted, oOriginalParent, trans)
@@ -712,7 +713,7 @@ class DeletedItem(GenericItem, Removeable):
         
         # update container
         oOriginalParent._addItemReference(oDeleted)
-        db.putItem(oOriginalParent, trans)
+        _db.putItem(oOriginalParent, trans)
     
     @transactional
     def restoreTo(self, sParentId, trans):
@@ -728,8 +729,8 @@ class DeletedItem(GenericItem, Removeable):
         @return: None
         """
         ## TODO: check if oDeleted exists
-        oDeleted = db.getDeletedItem(self._deletedId, trans)
-        oParent = db.getItem(sParentId, trans)
+        oDeleted = _db.getDeletedItem(self._deletedId, trans)
+        oParent = _db.getItem(sParentId, trans)
         
         if not(oDeleted.getContentclass() in oParent.containment):
             raise exceptions.ContainmentError, \
@@ -743,7 +744,7 @@ class DeletedItem(GenericItem, Removeable):
         
         # update container
         oParent._addItemReference(oDeleted)
-        db.putItem(oParent, trans)
+        _db.putItem(oParent, trans)
 
     def delete(self, trans, _removeDeleted=True):
         """
@@ -758,8 +759,8 @@ class DeletedItem(GenericItem, Removeable):
         if _removeDeleted:
             # we got a direct call. remove deleted item
             ## TODO: check if oDeleted exists
-            oDeleted = db.getDeletedItem(self._deletedId, trans)
-            db.removeDeletedItem(oDeleted, trans)
+            oDeleted = _db.getDeletedItem(self._deletedId, trans)
+            _db.removeDeletedItem(oDeleted, trans)
         else:
             # we got a call from "restore" or "restoreTo"
             # do not replay in case of txn abort
@@ -788,7 +789,7 @@ class Item(GenericItem, Cloneable, Moveable, Removeable):
             
         @return: None
         """
-        oOldItem = db.getItem(self._id, trans)
+        oOldItem = _db.getItem(self._id, trans)
         
         oUser = currentThread().context.session.user
         iUserRole = objectAccess.getAccess(oOldItem, oUser)
@@ -799,23 +800,23 @@ class Item(GenericItem, Cloneable, Moveable, Removeable):
                 # user is COORDINATOR
                 if (self.inheritRoles != oOldItem.inheritRoles) or \
                 (not self.inheritRoles and self.security != oOldItem.security):
-                    oParent = db.getItem(self._parentid, trans)
+                    oParent = _db.getItem(self._parentid, trans)
                     self._applySecurity(oParent, trans)
             else:
                 # restore previous ACL
                 self.security = oOldItem.security
                 self.inheritRoles = oOldItem.inheritRoles
 
-            db.handle_update(self, oOldItem, trans)
+            _db.handle_update(self, oOldItem, trans)
             self.modifiedBy = oUser.displayName.value
             self.modified = time.time()
-            db.putItem(self, trans)
+            _db.putItem(self, trans)
             
             if self.displayName.value != oOldItem.displayName.value:
-                oParent = db.getItem(self._parentid, trans)
+                oParent = _db.getItem(self._parentid, trans)
                 oParent._removeItemReference(oOldItem)
                 oParent._addItemReference(self)
-                db.putItem(oParent, trans)
+                _db.putItem(oParent, trans)
         else:
             raise exceptions.PermissionDenied, \
                     'The user does not have update permissions.'
@@ -902,10 +903,10 @@ class Container(Item):
         @rtype: type
         """
         if (self._items.has_key(name)):
-            oChild = dbEnv.getItem(self._items[name], trans)
+            oChild = db.getItem(self._items[name], trans)
             return(oChild)
         elif (self._subfolders.has_key(name)):
-            oChild = dbEnv.getItem(self._subfolders[name], trans)
+            oChild = db.getItem(self._subfolders[name], trans)
             return(oChild)
         else:
             return(None)

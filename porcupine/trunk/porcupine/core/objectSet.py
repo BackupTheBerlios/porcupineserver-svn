@@ -20,8 +20,8 @@ Porcupine Object Set
 import types
 
 from porcupine import exceptions
-from porcupine.db import db
-from porcupine.db import dbEnv
+from porcupine import db
+from porcupine.db import _db
 
 class ObjectSet(object):
     """
@@ -152,19 +152,19 @@ class ObjectSet(object):
         
     def __getItemSafe(self, id):
         try:
-            return dbEnv.getItem(id, self._txn)
+            return db.getItem(id, self._txn)
         except exceptions.ObjectNotFound:
             return None
 
     def __loadcache(self, istart):
         if self._resolved:
             self.__cache = [
-                db.getItem(id, self._txn)
+                _db.getItem(id, self._txn)
                 for id in self._list[istart:istart + self._cachesize]]
         else:
             if self._safe:
                 self.__cache = filter(None,
-                    [dbEnv.getItem(id, self._txn)
+                    [db.getItem(id, self._txn)
                      for id in self._list[istart:istart + self._cachesize]])
             else:
                 self.__cache = filter(None,

@@ -30,7 +30,8 @@ import shutil
 import cStringIO
 from threading import currentThread
 
-from porcupine.db import db, dbEnv
+from porcupine import db
+from porcupine.db import _db
 from porcupine.utils import misc, date
 from porcupine.core import objectSet
 from porcupine import exceptions
@@ -219,7 +220,7 @@ class Reference1(DataType):
         oItem = None
         if self.value:
             try:
-                oItem = dbEnv.getItem(self.value, trans)
+                oItem = db.getItem(self.value, trans)
             except exceptions.ObjectNotFound:
                 pass
         return(oItem)
@@ -326,7 +327,7 @@ class Composition(DataType):
         
         @rtype: L{ObjectSet<porcupine.core.objectSet.ObjectSet>}
         """
-        lstItems = [db.getItem(sID, trans) for sID in self.value]
+        lstItems = [_db.getItem(sID, trans) for sID in self.value]
         return(objectSet.ObjectSet(lstItems))
 
 #===============================================================================
@@ -364,7 +365,7 @@ class ExternalAttribute(DataType):
         "L{value} property getter"
         if self._value is None:
             trans = currentThread().trans
-            self._value = db.db_handle._getExternalAttribute(self._id, trans) \
+            self._value = _db.db_handle._getExternalAttribute(self._id, trans) \
                           or ''
         return(self._value)
 

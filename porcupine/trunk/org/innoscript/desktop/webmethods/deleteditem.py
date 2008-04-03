@@ -17,7 +17,7 @@
 """
 Web methods for the deleted item content class
 """
-
+from porcupine import db
 from porcupine import HttpContext
 from porcupine import webmethods
 from porcupine import filters
@@ -45,8 +45,7 @@ def properties(self):
 @webmethods.remotemethod(of_type=DeletedItem)
 def restore(self):
     "Restores the deleted item to its orginal location"
-    context = HttpContext.current()
-    txn = context.server.store.getTransaction()
+    txn = db.getTransaction()
     self.restore(txn)
     txn.commit()
     return True
@@ -54,8 +53,7 @@ def restore(self):
 @webmethods.remotemethod(of_type=DeletedItem)
 def restoreTo(self, targetid):
     "Restores the deleted item to the designated target container"
-    context = HttpContext.current()
-    txn = context.server.store.getTransaction()
+    txn = db.getTransaction()
     self.restoreTo(targetid, txn)
     txn.commit()
     return True
@@ -63,8 +61,7 @@ def restoreTo(self, targetid):
 @webmethods.remotemethod(of_type=DeletedItem)
 def delete(self):
     "Removes the deleted item"
-    context = HttpContext.current()
-    txn = context.server.store.getTransaction()
+    txn = db.getTransaction()
     self.delete(txn)
     txn.commit()
     return True

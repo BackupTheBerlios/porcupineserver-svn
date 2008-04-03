@@ -24,7 +24,7 @@ from porcupine.utils.date import Date
 from porcupine.utils import misc
 from porcupine import datatypes
 from porcupine.core import objectSet
-from porcupine.db import dbEnv
+from porcupine import db
 
 NEG         = 1
 
@@ -291,7 +291,7 @@ def h_100(params, variables):
 def select(deep, children, fields, condition, variables):
     results = []
     
-    for child in [dbEnv.getItem(child_id) for child_id in children]:
+    for child in [db.getItem(child_id) for child_id in children]:
         if child:
             if condition:
                 res = evaluateStack(condition[:], variables, child)
@@ -375,8 +375,8 @@ def h_200(params, variables, forObject = None):
                 results.extend(r)
         else:
             # swallow-deep
-            obj = dbEnv.getItem(object_id)    
-            if obj and obj.isCollection:
+            obj = db.getItem(object_id)    
+            if obj != None and obj.isCollection:
                 children = obj._subfolders.values() + obj._items.values()
                 r = select(deep, children, all_fields, 
                                 where_condition, variables)

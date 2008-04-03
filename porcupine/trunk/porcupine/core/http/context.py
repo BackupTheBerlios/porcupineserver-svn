@@ -20,7 +20,7 @@ import re
 from porcupine.core import serverProxy
 from porcupine.security import SessionManager
 from porcupine.config.settings import settings
-from porcupine.db import db
+from porcupine.db import _db
 
 class HttpContext(object):
     """Http context class
@@ -79,7 +79,7 @@ class HttpContext(object):
 
     def __create_guest_session(self):
         # create new session with the specified guest user
-        guest_user = db.getItem(settings['sessionmanager']['guest'])
+        guest_user = _db.getItem(settings['sessionmanager']['guest'])
         new_session = SessionManager.create(guest_user)
         
         session_id = new_session.sessionid

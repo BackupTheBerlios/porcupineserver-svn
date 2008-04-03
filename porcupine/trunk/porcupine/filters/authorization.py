@@ -21,7 +21,7 @@ import re
 
 from porcupine import exceptions
 from porcupine.filters.filter import PreProcessFilter
-from porcupine.db import db
+from porcupine.db import _db
 
 class RequiresLogin(PreProcessFilter):
     @staticmethod
@@ -42,7 +42,7 @@ class RequiresPolicy(PreProcessFilter):
     @staticmethod
     def apply(context, registration, **kwargs):
         policyid = kwargs['policyid']
-        policy = db.getItem(policyid)
+        policy = _db.getItem(policyid)
         user = context.session.user
         policyGrantedTo = policy.policyGranted.value
         

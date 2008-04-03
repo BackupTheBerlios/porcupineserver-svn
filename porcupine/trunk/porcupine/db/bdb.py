@@ -22,6 +22,7 @@ import logging
 from bsddb import db
 from threading import Thread
 
+from porcupine.db import _db
 from porcupine.config.settings import settings
 from porcupine.db.genericDb import GenericDBInterface
 from porcupine.utils import backup
@@ -198,8 +199,7 @@ class DbInterface(GenericDBInterface):
             try:
                 aborted = self._env.lock_detect(db.DB_LOCK_RANDOM, db.DB_LOCK_CONFLICT)
                 if aborted:
-                    from porcupine.db import db as dbhandle
-                    dbhandle._activeTxns -= aborted
+                    _db._activeTxns -= aborted
                     logger.critical("Deadlock: Aborted %d deadlocked transaction(s)" % aborted)
             except db.DBError:
                 pass

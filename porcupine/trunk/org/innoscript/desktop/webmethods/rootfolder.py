@@ -20,6 +20,7 @@ Web methods for the root folder class
 import os
 import base64
 
+from porcupine import db
 from porcupine import HttpContext
 from porcupine import webmethods
 from porcupine import filters
@@ -41,7 +42,7 @@ DESKSTOP_PANE = '''<rect height="-1" overflow="hidden">
 def login(self, username, password):
     "Remote method for authenticating users"
     http_context = HttpContext.current()
-    users_container = http_context.server.store.getItem('users')
+    users_container = db.getItem('users')
     user = users_container.getChildByName(username)
     if user and hasattr(user, 'authenticate'):
         if user.authenticate(password):
@@ -136,7 +137,7 @@ def applySettings(self, data):
     activeUser = context.original_user
     for key in data:
         activeUser.settings.value[key] = data[key]
-    txn = context.server.store.getTransaction()
+    txn = db.getTransaction()
     activeUser.update(txn)
     txn.commit()
     return True
@@ -181,7 +182,7 @@ def __blank__(self):
     
     # has the user access to recycle bin?
     rb_icon = ''
-    rb = context.server.store.getItem('rb')
+    rb = db.getItem('rb')
     if rb:
         rb_icon = '''
             <icon top="80" left="10" width="80" height="80"

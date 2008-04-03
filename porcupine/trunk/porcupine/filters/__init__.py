@@ -17,7 +17,7 @@
 """
 Porcupine post and pre processing filters.
 """
-from porcupine.db import db
+from porcupine.db import _db
 from porcupine.core.decorators import WebMethodWrapper
 
 from porcupine.filters import output
@@ -44,7 +44,7 @@ def runas(userid):
     class RunAs(WebMethodWrapper):
         def get_wrapper(self):
             def runas_wrapper(item, context):
-                user = db.getItem(userid)
+                user = _db.getItem(userid)
                 context.original_user = context.session.user
                 context.session.user = user
                 try:

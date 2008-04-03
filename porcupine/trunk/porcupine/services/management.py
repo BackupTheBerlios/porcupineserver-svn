@@ -20,7 +20,7 @@ from threading import Thread
 from cPickle import dumps, loads
 
 from porcupine.core.services import asyncBaseServer
-from porcupine.db import db
+from porcupine.db import _db
 
 logger = logging.getLogger('serverlog')
 
@@ -87,22 +87,22 @@ class ManagementRequestHandler(asyncBaseServer.BaseRequestHandler):
         if cmd=='DB_BACKUP':
             output_file = request.data
             try:
-                db.lock()
+                _db.lock()
                 try:
-                    backfiles = db.db_handle._backup(output_file)
+                    backfiles = _db.db_handle._backup(output_file)
                 except IOError:
                     return (-1, 'The specified folder doer not exist.')
                 except NotImplementedError:
                     return (-1, 'Not implemented.')
             finally:
-                db.unlock()
-            return (0,'Database backup completed successfuly.')
+                _db.unlock()
+            return (0, 'Database backup completed successfuly.')
         
         elif cmd=='DB_RESTORE':
             backup_set = request.data
             try:
-                db.db_handle._restore(backup_set)
-                return (0,'Database restore completed successfully.')
+                _db.db_handle._restore(backup_set)
+                return (0, 'Database restore completed successfully.')
             except IOError:
                 return (-1, 'The specified file does not exist.')
             except NotImplementedError:
@@ -110,11 +110,11 @@ class ManagementRequestHandler(asyncBaseServer.BaseRequestHandler):
         
         elif cmd=='DB_SHRINK':
             try:
-                iLogs = db.db_handle._shrink()
+                iLogs = _db.db_handle._shrink()
                 if iLogs:
-                    return (0,'Successfully removed %d log files.' % iLogs)
+                    return (0, 'Successfully removed %d log files.' % iLogs)
                 else:
-                    return (0,'No log files removed.')
+                    return (0, 'No log files removed.')
             except NotImplementedError:
                 return (-1, 'Not implemented.')
 

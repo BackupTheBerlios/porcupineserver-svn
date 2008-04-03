@@ -24,7 +24,7 @@ Server proxy class module
 """
 from porcupineserver import __version__
 from porcupine.config.settings import settings
-from porcupine.db import dbEnv
+from porcupine import db
 
 class Server(object):
     """
@@ -34,12 +34,12 @@ class Server(object):
     execution of HTTP requests mainly for providing
     access to the server's database.
     
-    @type store: L{dbEnv<porcupine.db.dbEnv>}
+    @type db: L{db<porcupine.db>}
     @type temp_folder: str
     @type version: str
     """
     def __init__(self):
-        self.__dbenv = dbEnv
+        self.__db = db
 
     def getTempFolder(self):
         """Getter of the L{temp_folder} property.
@@ -50,13 +50,13 @@ class Server(object):
     temp_folder = property(getTempFolder, None, None,
                            'The server\'s temporary folder')
 
-    def getStore(self):
+    def getDb(self):
         """Getter of the L{store} property.
         
-        @rtype: L{dbEnv<porcupine.db.dbEnv>}
+        @rtype: L{db<porcupine.db>}
         """
-        return self.__dbenv
-    store = property(getStore, None, None, 'Porcupine database handle')
+        return self.__db
+    db = property(getDb, None, None, 'Porcupine database handle')
     
     def getVersion(self):
         """Getter of the L{version} property.

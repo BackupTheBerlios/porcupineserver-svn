@@ -26,7 +26,7 @@ from porcupine.core.http.request import HttpRequest
 from porcupine.core.http.response import HttpResponse
 from porcupine.core.http import ServerPage
 
-from porcupine.db import dbEnv
+from porcupine import db
 from porcupine import exceptions
 from porcupine.core.services.asyncBaseServer import BaseServerThread
 
@@ -49,7 +49,7 @@ class PorcupineThread(BaseServerThread):
                 self.context = HttpContext(request, response)
                 sPath = request.serverVariables['PATH_INFO']
                 try:
-                    item = dbEnv.getItem(sPath)
+                    item = db.getItem(sPath)
                 except exceptions.ObjectNotFound:
                     # dir request
                     lstPath = sPath.split('/')
