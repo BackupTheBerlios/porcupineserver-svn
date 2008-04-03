@@ -40,17 +40,15 @@ def getItem(sPath, trans=None):
     """
     if (trans):
         trans.actions.append( (getItem, (sPath, trans)) )
-    
     try:
         oItem = _db.getItem(sPath, trans)
     except exceptions.DBTransactionIncomplete:
         trans.retry()
-
     # check read permissions
     if objectAccess.getAccess(oItem, currentThread().context.session.user) != 0:
-        return(oItem)
+        return oItem
     else:
-        return(None)
+        return None
 
 def getTransaction():
     """
@@ -62,7 +60,5 @@ def getTransaction():
     """
     txn = currentThread().trans
     if not txn or txn._iscommited:
-        # create transaction
         txn = currentThread().trans = _db.db_handle.transaction()
-    
     return txn
