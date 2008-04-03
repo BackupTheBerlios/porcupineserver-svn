@@ -51,7 +51,7 @@ class Server(object):
                            'The server\'s temporary folder')
 
     def getDb(self):
-        """Getter of the L{store} property.
+        """Getter of the L{db} property.
         
         @rtype: L{db<porcupine.db>}
         """
