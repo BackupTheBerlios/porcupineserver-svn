@@ -16,12 +16,8 @@
 #===============================================================================
 "Porcupine server event handlers base classes"
 from porcupine import db
-from porcupine.db import _db
 
 class DatatypeEventHandler(object):
-    db = _db
-    store = db
-
     @classmethod
     def on_create(cls, item, attr, trans):
         pass
