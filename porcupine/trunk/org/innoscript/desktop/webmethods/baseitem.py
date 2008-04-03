@@ -64,14 +64,14 @@ AUTO_CONTROLS = {
     datatypes.Text: '''
         <tab caption="%s">
                 <field type="textarea" name="%s" width="100%%" height="100%%"
-                readonly="%s">%s</field>
+                    readonly="%s">%s</field>
         </tab>
         ''',
 
     datatypes.Date: '''
         <rect height="24">
-            <label top="%d" width="100" height="20" caption="%s:"/>
-            <datepicker name="%s" left="105" top="%d" width="140" value="%s"
+            <label width="100" height="20" caption="%s:"/>
+            <datepicker name="%s" left="105" width="140" value="%s"
                 readonly="%s"/>
         </rect>
         ''',
@@ -87,14 +87,15 @@ AUTO_CONTROLS = {
     datatypes.ReferenceN: '''
         <tab caption="%s">
             <custom classname="ReferenceN" width="100%%" height="100%%"
-                    root="" cc="%s" name="%s" disabled="%s" value="%s"/>
+                root="" cc="%s" name="%s" disabled="%s" value="%s"/>
         </tab>
         '''
 }
 
 SECURITY_TAB = '''
 <tab caption="@@SECURITY@@" onactivate="generic.getSecurity">
-    <custom classname="ACLEditor" width="100%%" height="100%%" rolesinherited="%s"/>
+    <custom classname="ACLEditor" width="100%%" height="100%%"
+        rolesinherited="%s"/>
 </tab>
 '''
 
