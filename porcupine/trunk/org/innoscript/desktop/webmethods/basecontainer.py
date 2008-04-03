@@ -114,6 +114,8 @@ def create(self, data):
                 os.remove(sPath)
         elif isinstance(oAttr, datatypes.Date):
             oAttr.value = data[prop].value
+        elif isinstance(oAttr, datatypes.Integer):
+            oAttr.value = int(data[prop])
         else:
             oAttr.value = data[prop]
             

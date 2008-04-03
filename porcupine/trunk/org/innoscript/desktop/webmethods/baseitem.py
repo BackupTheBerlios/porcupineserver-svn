@@ -279,6 +279,8 @@ def update(self, data):
                 sPath = context.server.temp_folder + '/' + data[prop]['tempfile']
                 oAttr.loadFromFile(sPath)
                 os.remove(sPath)
+        elif isinstance(oAttr, datatypes.Integer):
+            oAttr.value = int(data[prop])
         else:
             oAttr.value = data[prop]
     txn = db.getTransaction()
