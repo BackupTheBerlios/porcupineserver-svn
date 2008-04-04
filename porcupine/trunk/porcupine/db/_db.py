@@ -46,7 +46,7 @@ def __getItemByPath(lstPath, trans=None):
 
 def getItem(sOID, trans=None):
     # [itemID]
-    if sOID in object_cache and not trans:
+    if sOID in object_cache and trans == None:
         return object_cache[sOID]
     else:
         sItem = db_handle._getItem(sOID, trans)
@@ -69,7 +69,8 @@ def getItem(sOID, trans=None):
         if oItem._isDeleted:
             raise exceptions.ObjectNotFound, \
                 'The object "%s" does not exist' % sOID
-        object_cache[oItem._id] = oItem
+        if trans == None:
+            object_cache[oItem._id] = oItem
         return oItem
     else:
         raise exceptions.ObjectNotFound, \
