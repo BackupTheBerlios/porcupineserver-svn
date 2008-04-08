@@ -15,8 +15,6 @@
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #===============================================================================
 "Porcupine server event handlers base classes"
-from porcupine import db
-
 class DatatypeEventHandler(object):
     @classmethod
     def on_create(cls, item, attr, trans):
@@ -31,8 +29,6 @@ class DatatypeEventHandler(object):
         pass
     
 class ContentclassEventHandler(object):
-    store = db
-    
     @classmethod
     def on_create(cls, item, trans):
         pass
