@@ -19,7 +19,7 @@ import logging
 from threading import Thread
 from cPickle import dumps, loads
 
-from porcupine.core.services import asyncBaseServer
+from porcupine.core.servicetypes import asyncBaseServer
 from porcupine.db import _db
 
 logger = logging.getLogger('serverlog')

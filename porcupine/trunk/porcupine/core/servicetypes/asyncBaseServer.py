@@ -22,8 +22,8 @@ import time
 from threading import Thread, currentThread, RLock
 from errno import EINTR, EISCONN, EADDRINUSE
 
-from porcupine.core.services import asyncore
-from porcupine.core.services.service import BaseService
+from porcupine.core.servicetypes import asyncore
+from porcupine.core.servicetypes.service import BaseService
 
 USE_POLL = False
 if hasattr(select, 'poll'):

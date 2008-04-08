@@ -22,7 +22,7 @@ from porcupine import exceptions
 from porcupine.db import _db
 from porcupine.core.http.context import HttpContext
 from porcupine.security import SessionManager
-from porcupine.core.services.service import BaseService
+from porcupine.core.servicetypes.service import BaseService
 
 class _TaskThread(Thread):
     def __init__(self, name, target, identity):

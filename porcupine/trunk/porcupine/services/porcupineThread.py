@@ -28,7 +28,7 @@ from porcupine.core.http import ServerPage
 
 from porcupine import db
 from porcupine import exceptions
-from porcupine.core.services.asyncBaseServer import BaseServerThread
+from porcupine.core.servicetypes.asyncBaseServer import BaseServerThread
 
 class PorcupineThread(BaseServerThread):
     _method_cache = {}
