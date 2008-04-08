@@ -966,6 +966,8 @@ Widget.prototype.print = function(expand) {
 		var iframe = ce('IFRAME');
 		iframe.name = '_print';
 		iframe.id = '_print';
+		iframe.style.width = '0px';
+		iframe.style.height = '0px';
 		document.body.appendChild(iframe);
 		iframe.attachEvent('onload', function() {
 			var n;
