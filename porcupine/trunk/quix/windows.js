@@ -12,6 +12,7 @@ function Window(params) {
 	var overflow = params.oveflow;
 	params.border = 1;
 	params.padding = '1,1,1,1';
+	params.opacity = (QuiX.effectsEnabled)?0:1;
 	params.onmousedown = QuiX.getEventWrapper(Window__onmousedown,
 												params.onmousedown);
 	params.oncontextmenu = QuiX.getEventWrapper(Window__oncontextmenu,
@@ -63,8 +64,10 @@ function Window(params) {
 	var canMaxi = (params.maximize=='true'||params.maximize==true)?true:false;
 	if (!canMini)
 		this.title.getWidgetById('2').hide();
-	if (!canMaxi)
+	if (!canMaxi) {
 		this.title.getWidgetById('1').hide();
+		this.title.detachEvent('ondblclick');
+	}
 	if (!canClose)
 		this.title.getWidgetById('0').hide();
 	//client area
@@ -81,6 +84,31 @@ function Window(params) {
 	// resize handle
 	var resizable = (params.resizable=="true"||params.resizable==true)?true:false;
 	this.setResizable(resizable);
+	if (QuiX.effectsEnabled) {
+		var effect = new Effect({
+			type : 'fade-in',
+			auto : true,
+			steps : 4
+		});
+		this.appendChild(effect);
+		var mini_effect = new Effect({
+			id : '_eff_mini',
+			type : 'wipe-out',
+			interval : 10,
+			end : 0.1,
+			steps : 5,
+			oncomplete : Window__onminimize
+		});
+		this.appendChild(mini_effect);
+		var maxi_effect = new Effect({
+			id : '_eff_maxi',
+			type : 'wipe-in',
+			interval : 10,
+			steps : 5,
+			oncomplete : Window__onmaximize
+		});
+		this.appendChild(maxi_effect);
+	}
 }
 
 QuiX.constructors['window'] = Window;
@@ -125,6 +153,7 @@ Window.prototype.setResizable = function(bResizable) {
 		this._resizer.attachEvent('onmousedown',
 			function(evt){
 				oWindow._startResize(evt);
+				QuiX.cancelDefault(evt);
 				QuiX.stopPropag(evt);
 			});
 	}
@@ -192,7 +221,20 @@ Window.prototype.close = function() {
 		this.childWindows[0].close();
 	if (this.opener)
 		this.opener.childWindows.removeItem(this);
-	this.destroy();
+	if (QuiX.effectsEnabled) {
+		var oWindow = this;
+		var effect = new Effect({
+			type : 'fade-out',
+			auto : true,
+			steps : 4,
+			oncomplete : function() {
+				oWindow.destroy();
+			}
+		});
+		this.appendChild(effect);
+	}
+	else	
+		this.destroy();
 }
 
 Window.prototype.setTitle = function(s) {
@@ -251,11 +293,14 @@ Window.prototype.minimize = function() {
 	var maxControl = w.title.getWidgetById('1');
 	var minControl = w.title.getWidgetById('2');
 	var childWindow;
+	var effect;
 	if (minControl) {
 		if (!w.isMinimized) {
 			var padding = w.getPadding();
-			for (var i=1; i<w.widgets.length; i++)
-				w.widgets[i].hide();
+			for (var i=1; i<w.widgets[0].widgets.length; i++)
+				w.widgets[0].widgets[i].hide();
+			if (w._resizer)
+				w._resizer.hide();
 			w._stateh = w.getHeight(true);
 			w.height = w.title.getHeight(true) + 2*w.getBorderWidth() +
 						padding[2] + padding[3];
@@ -269,21 +314,32 @@ Window.prototype.minimize = function() {
 				}
 			}
 			w.isMinimized = true;
+			if (QuiX.effectsEnabled) {
+				effect = w.getWidgetById('_eff_mini');
+				effect.play();
+			}
+			else
+				w.redraw();
 		}
 		else {
 			w.bringToFront();
-			for (var i=1; i<w.widgets.length; i++)
-				w.widgets[i].show();
 			w.height = w._stateh;
+			w.isMinimized = false;
+			if (QuiX.effectsEnabled) {
+				effect = w.getWidgetById('_eff_maxi');
+				effect.play();
+			}
+			else
+				Window__onmaximize(w);
+			w.redraw();
+			
 			if (maxControl)
 				maxControl.enable();
 			while (w._childwindows.length > 0) {
 				childWindow = w._childwindows.pop();
 				childWindow.show();
 			}
-			w.isMinimized = false;
 		}
-		w.redraw();
 	}
 }
 
@@ -387,6 +443,20 @@ Window__onmousedown = function(evt, w) {
 Window__oncontextmenu = function(evt, w) {
 	QuiX.stopPropag(evt);
 	return false;
+}
+
+Window__onminimize = function(eff) {
+	eff.parent.div.style.clip = 'rect(auto,auto,auto,auto)';
+	eff.parent.redraw();
+}
+
+Window__onmaximize = function(w) {
+	if (!(w instanceof Window))
+		w = w.parent;
+	for (var i=1; i<w.widgets[0].widgets.length; i++)
+		w.widgets[0].widgets[i].show();
+	if (w._resizer)
+		w._resizer.show();
 }
 
 //Dialog class
