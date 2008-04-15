@@ -1,3 +1,145 @@
+-----------
+Version 0.5
+-----------
+NEW: Ability to define image dimensions explicitily for Icon and
+     TreeNode widgets using the "imgwidth" and "imgheight" attributes.
+     Accepted values are an integer or a percentage.
+NEW: Added "onmousedown" to the list of supported QuiX events.
+NEW: Added "focus" method to Field widgets.
+NEW: Added "maxlength" and "textalign" attributes to fields.
+NEW: Added "getFile" method to the internal file data type.
+NEW: Support for pre-processing filters.
+NEW: New pre-processing filter
+     "porcupine.filters.authorization.RequiresLogin". As the name denotes
+     this filter protects assets from non authenticated users.
+     Ability to redirect such users to a predefined url if the optional
+     "redirect" argument is used.
+NEW: Added new "QuiX.getTargetWidget" function.
+NEW: New "QuiX.getOS" function.
+NEW: QuiX context menus now have a new "target" attribute which contains
+     the target widget.
+NEW: Added new "getWidgetsByAttributeValue" method applying to all widgets.
+NEW: OQL now has two new functions "upper" and "lower". Useful when
+     performing case-insensitive searches on string attributes.
+NEW: QuiX now has a universal mouse button detection method
+     (QuiX.getMouseButton)
+NEW: Added "deletePermanent" remote method applying to all content classes.
+NEW: ListView widget now have a "select" method that selects items by index.
+NEW: New "List" data type.
+NEW: New "onclose" custom event for ContextMenu widgets.
+
+OPT: Service oriented architecture. Currently, the supported services
+     include an asynchronous network server and a scheduler used for
+     executing Python code at fixed intervals.
+OPT: Data types are now type safe.
+OPT: The porcupine database singleton is now accessible from everywhere
+     by using "from porcupine import db".
+OPT: The main Porcupine configuration file is now a Python dict.
+OPT: The "config.xml" configuration files can now contain smart
+     registrations with regular expressions matching providing
+     with a powerful rewriting engine.
+OPT: QuiX is now using a pooled set of XmlHttp objects for better resource
+     usage on the client side.
+OPT: Enhanced detection method for droppables.
+OPT: Using the standard "mimetypes" Python module for guessing
+     response content types.
+OPT: Changed the default mode of the "getFile" method of the 
+     external files datatypes to 'rb'.
+OPT: Session objects are now using __slots__ for more efficient memory
+     usage.
+OPT: Added the required hooks that allow the integration of other
+     popular Python template engines easily.
+OPT: The cookie detect page is removed. The code is transferred inside
+     the "porcupine.webmethods.quixui" decorator when this is defined
+     as a page (by using the isPage=True directive).
+OPT: The Porcupine exceptions module has been greatly simplified. The error
+     codes have become equivalent to those of the HTTP protocol.
+OPT: Object sets have become far more memory efficient.
+OPT: The date locales are transfered inside the "porcupine.utils.date"
+     module.
+OPT: Ability to define custom attributes to tree nodes of FolderTree
+     widgets if and only when the remote call returns an
+     "attributes" parameter for each tree node.
+OPT: Allow more than one non-nested transactions per request.
+OPT: Fixed scroll bars bleed through on MacOS Firefox.
+OPT: QuiX FlowBox now supports multiple selection by using
+     "multiple=true".
+OPT: Allow alternate row colors for ListView widgets by using the
+     "altcolors" attribute. Ability to define highlight colors by
+     using the "hightlightcolors" attribute.
+OPT: Added the missing email field on the user's form.
+OPT: Ability to define accepted file types for each QuiX file control
+     by using the "filetypes" attribute.
+OPT: File controls now have an "oncomplete" event which is fired when
+     upload is finished.
+OPT: Removed limitation that required file controls to be placed inside
+     a QuiX window.
+OPT: New "reset" method for MultiFile widgets.
+OPT: The main widget for all QuiX Window is now a vertical Box in order
+     to support themes in a simpler way.
+OPT: Enhanced resolution of QuiX modules' dependencies.
+OPT: The object cache returns deep copies of objects, so that each request
+     is accessing its own copies.
+OPT: The "Composition" data type now accepts subclasses of the
+     designated type.
+OPT: TabPane's "activateTab" now accepts both an integer or a tab widget as
+     argument.
+OPT: Wrapped tooltips.
+OPT: Automatically generated forms now support date data types.
+OPT: The "create" and "update" remote methods handle integer data types.
+OPT: The remote method "update" now handles date data types.
+
+FIX: The XML-RPC module now encodes unicode keys of dict types
+     using the appropriate encoding.
+FIX: Fixed the "Content-Disposition" header when the filename contains
+     spaces.
+FIX: Fixed the "getCaption" method of QuiX Labels when these contain
+     special characters such as &,<,>.
+FIX: Remove the active editing widget when refreshing a Datagrid.
+FIX: Fixed the "getImageURL" and "setImageURL" methods for icons that
+     do not have initially an image set.
+FIX: Fixed error when packaging directories with unicode paths using the
+     pakager utility.
+FIX: Fixed row dragging of list views on IE.
+FIX: Added missing __slots__ class attribure to ExternalFile data type
+     and PersonalFolder content class.
+FIX: Tree widget's "getSelection" now returns null if no tree node is selected.
+FIX: Fixed list view's header placement when padding top is other than 0.
+FIX: No more orphaned context menus.
+FIX: Fixed length distribution after removing a child of a Box.
+FIX: Fixed box display if the first child is hidden.
+FIX: Fixed filenames for duplicated external files when cloning an object.
+FIX: Fixed date formatting when using the "yy" parameter on the server side.
+FIX: Fixed the "iconpadding" parameter for QuiX buttons.
+FIX: Fixed possible transaction deadlock when moving or copying
+     multiple items.
+FIX: Fixed selection of "Reference1" data types with OQL.
+FIX: The server side XML-RPC module serializes composites.
+FIX: Content classes' event handlers are called before datatype event handlers
+     to reflect any possible data type updates.
+FIX: Do not update the object cache if a transaction handle is given on read
+     operations.
+
+DEP: The servlets are completely replaced by smart decorators. These
+     decorators can be found inside the "porcupine.webmethods" module.
+     This means the the "HTTPServlet", "XULServlet" and "XMLRPCServlet"
+     classes no longer exist.
+DEP: You cannot bind Python Server Pages to objects but you can still use
+     them stand alone.
+DEP: All system objects inside a PSP page now begin with a capital letter;
+     i.e. Response instead of response, Item instead of item etc.
+DEP: The store.xml configuration file no longer exists.
+DEP: The @policymethod descriptor is now implemented as a pre-processing
+     filter ("porcupine.filters.authorization.RequiresPolicy").
+DEP: The Gzip post processing filter is now referenced as
+     "porcupine.filters.output.Gzip"
+DEP: The Multilingual post processing filter is now referenced as
+     "porcupine.filters.output.I18n".
+DEP: The "porcupine.utils.xmlUtils" module is renamed to "porcupine.utils.xml".
+     The "XMLEncode" function is renamed to "xml_encode".
+DEP: The "porcupine.serverExceptions" module is renamed to
+     "porcupine.exceptions".
+
 -------------
 Version 0.1.1
 -------------
@@ -26,6 +168,9 @@ OPT: QImage class now includes width and height info of the preloaded
      image.
 OPT: Select lists are selected with onmousedown instead of
      onmouseclick.
+OPT: Splitter widget now derives from Box. As a result the "pane" nodes
+     are no longer valid.
+OPT: Tooltips get disabled while dragging a widget.
 
 FIX: Fixed guest user desktop access.
 FIX: Root level objects can now be created.
@@ -39,6 +184,9 @@ FIX: Fixed cursor style state for initialy disabled buttons.
 FIX: Displaying a context menu over a list view with multiple
      items selected does not clear the selection.
 FIX: Fixed composite objects' event handler.
+FIX: Fixed "canselect" attribute of Labels on FF.
+FIX: Fixed "onexpand" event of FolderTree widgets.
+
 
 DEP: QuiX forms no longer have an "elements" array attribute. Use
      the "getElements" method instead.
