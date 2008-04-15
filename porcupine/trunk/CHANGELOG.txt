@@ -3,23 +3,22 @@ Version 0.5
 -----------
 NEW: Ability to define image dimensions explicitily for Icon and
      TreeNode widgets using the "imgwidth" and "imgheight" attributes.
-     Accepted values are an integer or a percentage.
+     Accepted values are integers or percentages.
 NEW: Added "onmousedown" to the list of supported QuiX events.
 NEW: Added "focus" method to Field widgets.
 NEW: Added "maxlength" and "textalign" attributes to fields.
 NEW: Added "getFile" method to the internal file data type.
 NEW: Support for pre-processing filters.
-NEW: New pre-processing filter
-     "porcupine.filters.authorization.RequiresLogin". As the name denotes
-     this filter protects assets from non authenticated users.
-     Ability to redirect such users to a predefined url if the optional
+NEW: New pre-processing filter "porcupine.filters.authorization.RequiresLogin".
+     As the name denotes this filter protects assets from non authenticated
+     users. Ability to redirect such users to a predefined url if the optional
      "redirect" argument is used.
 NEW: Added new "QuiX.getTargetWidget" function.
 NEW: New "QuiX.getOS" function.
 NEW: QuiX context menus now have a new "target" attribute which contains
      the target widget.
 NEW: Added new "getWidgetsByAttributeValue" method applying to all widgets.
-NEW: OQL now has two new functions "upper" and "lower". Useful when
+NEW: POQL now has two new functions "upper" and "lower". Useful when
      performing case-insensitive searches on string attributes.
 NEW: QuiX now has a universal mouse button detection method
      (QuiX.getMouseButton)
@@ -113,7 +112,7 @@ FIX: Fixed date formatting when using the "yy" parameter on the server side.
 FIX: Fixed the "iconpadding" parameter for QuiX buttons.
 FIX: Fixed possible transaction deadlock when moving or copying
      multiple items.
-FIX: Fixed selection of "Reference1" data types with OQL.
+FIX: Fixed selection of "Reference1" data types with POQL.
 FIX: The server side XML-RPC module serializes composites.
 FIX: Content classes' event handlers are called before datatype event handlers
      to reflect any possible data type updates.
