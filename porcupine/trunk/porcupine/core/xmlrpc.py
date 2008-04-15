@@ -129,7 +129,8 @@ class XMLRPCParams(list):
                 sArray += self.__serializeParam(rec)
             sArray += '</data></array></value>'
             return sArray
-        elif isinstance(param, systemObjects.GenericItem):
+        elif isinstance(param, systemObjects.GenericItem) or \
+                isinstance(param, systemObjects.Composite):
             xmlrpc_object = {}
             for attr in param.__props__ + DEFAULT_PROPS:
                 try:
