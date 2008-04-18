@@ -60,8 +60,17 @@ Splitter.prototype._handleMoving = function(evt, iHandle) {
 	var offset_var = (this.orientation == 'h')?'X':'Y';
 	var min_length_var = (this.orientation == 'h')?'_calcMinWidth':'_calcMinHeight';
 
-	var pane1 = this.panes[iHandle];
-	var pane2 = this.panes[iHandle + 1];
+	var offset = evt['client' + offset_var] - QuiX['start' + offset_var];
+	var pane1, pane2;
+	if (this.panes[iHandle + 1].attributes._collapse) {
+		pane1 = this.panes[iHandle + 1];
+		pane2 = this.panes[iHandle];
+		offset = -offset;
+	}
+	else {
+		pane1 = this.panes[iHandle];
+		pane2 = this.panes[iHandle + 1];
+	}
 	var length1 = pane1[length_func](true);
 	var length2 = pane2[length_func](true);
 	var limit1 = pane1[length_func]();
@@ -69,11 +78,10 @@ Splitter.prototype._handleMoving = function(evt, iHandle) {
 	var min1 = pane1[min_length_var]();
 	var min2 = pane2[min_length_var]();
 
-	var offset = evt['client' + offset_var] - QuiX['start' + offset_var];
 	if (-offset < limit1 && offset < limit2) {
-		this.panes[iHandle][length_var] = Math.max(length1 + offset, min1);
-		if (this.panes[iHandle+1][length_var] != 'this.parent._calcWidgetLength()')
-			this.panes[iHandle + 1][length_var] = Math.max(length2 - offset, min2);
+		pane1[length_var] = Math.max(length1 + offset, min1);
+		if (pane2[length_var] != 'this.parent._calcWidgetLength()')
+			pane2[length_var] = Math.max(length2 - offset, min2);
 		this.redraw();
 		if (length1 + offset >= min1 && length2 - offset >= min2)
 			QuiX['start' + offset_var] = evt['client' + offset_var];
@@ -145,15 +153,19 @@ function SplitterHandle__dblclick(evt, w) {
 		 if (splitter._handles[idx] == w)
 		 	break;
 	}
-	if (splitter.panes[idx].isHidden()) {
+	if (splitter.panes[idx+1].attributes._collapse) {
+		idx = idx + 1;		
+	}
+	var pane = splitter.panes[idx];
+	if (pane.isHidden()) {
 		w._isCollapsed = false;
 		w.div.style.cursor = (splitter.orientation == "h")?'e-resize':'n-resize';
-		splitter.panes[idx].show();
+		pane.show();
 	}
 	else {
 		w._isCollapsed = true;
 		w.div.style.cursor = 'default';
-		splitter.panes[idx].hide();
+		pane.hide();
 	}
 	splitter.redraw();
 }
