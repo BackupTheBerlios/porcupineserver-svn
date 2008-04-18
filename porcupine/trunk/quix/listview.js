@@ -22,6 +22,7 @@ function ListView(params) {
 	this.sortfunc = QuiX.getEventListener(params.sortfunc);
 	this.altColors = (params.altcolors || ',').split(',');
 	this.highlightColors = (params.highlightcolors || 'white,#6699FF').split(',');
+	this.rowHeight = params.rowheight; 
 
 	this.hasSelector = false;
 	this.selection = [];
@@ -375,6 +376,14 @@ ListView.prototype.refresh = function(w) {
 		oRow.isSelected = false;
 		rowBgColor = w.altColors[i%2];
 		oRow.style.backgroundColor = rowBgColor;
+		if (w.rowHeight) {
+			var offset;
+			if (QuiX.browser == 'ie')
+				offset = 2 * parseInt(w.cellPadding);
+			else
+				offset = 0;
+			oRow.style.height = (parseInt(w.rowHeight) - offset) + 'px';
+		}
 		if (w.hasSelector) {
 			selector = w._getSelector();
 			selector.style.width = (8 - 2*w.cellPadding + 2) + 'px';
