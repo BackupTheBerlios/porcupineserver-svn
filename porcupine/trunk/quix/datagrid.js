@@ -13,6 +13,7 @@ function DataGrid(params) {
 	
 	this.name = params.name;
 	this.hasSelector = true;
+	this.editUndef = (params.editundef==false || params.editundef=='false')?false:true;
 }
 
 QuiX.constructors['datagrid'] = DataGrid;
@@ -63,6 +64,8 @@ function DataGrid__onclick(evt, w) {
 		ridx = (target.parentElement || target.parentNode).rowIndex;
 		if (idx>0 && idx<w.parent.columns.length-1 && w.parent.columns[idx].editable) {
 			editValue = w.parent.dataSet[ridx][w.parent.columns[idx].name];
+			if (typeof editValue == 'undefined' && !w.parent.editUndef)
+				return;
 			switch (w.parent.columns[idx].columnType) {
 				case 'optionlist':
 					w2 = new Combo({
