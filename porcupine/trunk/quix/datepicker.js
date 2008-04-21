@@ -45,8 +45,12 @@ Datepicker.prototype.setValue = function(val) {
 		else
 			this.dt = new Date().parseIso8601(val);
 	}
-	else
+	else {
+		var old_dt = this.dt;
 		this.dt = new Date(val);
+		if (old_dt != this.dt && this._customRegistry.onchange)
+			QuiX.getEventListener(this._customRegistry.onchange)(this);
+	}
 	this._navdt = new Date(this.dt);
 	this.div.firstChild.value = this.dt.format(this.format);
 }
