@@ -62,26 +62,43 @@ Splitter.prototype._handleMoving = function(evt, iHandle) {
 
 	var offset = evt['client' + offset_var] - QuiX['start' + offset_var];
 	var pane1, pane2;
-	if (this.panes[iHandle + 1].attributes._collapse) {
-		pane1 = this.panes[iHandle + 1];
-		pane2 = this.panes[iHandle];
-		offset = -offset;
-	}
-	else {
+	//if (this.panes[iHandle + 1].attributes._collapse) {
+	//	pane1 = this.panes[iHandle + 1];
+	//	pane2 = this.panes[iHandle];
+	//	offset = -offset;
+	//}
+	//else {
 		pane1 = this.panes[iHandle];
 		pane2 = this.panes[iHandle + 1];
-	}
+	//}
 	var length1 = pane1[length_func](true);
 	var length2 = pane2[length_func](true);
 	var limit1 = pane1[length_func]();
 	var limit2 = pane2[length_func]();
 	var min1 = pane1[min_length_var]();
 	var min2 = pane2[min_length_var]();
+	var free1 = (pane1[length_var] == 'this.parent._calcWidgetLength()')?1:0;
+	var free2 = (pane2[length_var] == 'this.parent._calcWidgetLength()')?1:0;
 
 	if (-offset < limit1 && offset < limit2) {
-		pane1[length_var] = Math.max(length1 + offset, min1);
-		if (pane2[length_var] != 'this.parent._calcWidgetLength()')
-			pane2[length_var] = Math.max(length2 - offset, min2);
+		var fc = this._getFillersCount();
+		if (!free1 || (fc >= free1 + free2))
+			pane1[length_var] = Math.max(length1 + offset, min1);
+		if (!free2 || (fc > free1 + free2))
+			pane2[length_var] = Math.max(length2 - offset, min2);	
+/*		
+		if (free1 && free2) {
+			pane1[length_var] = Math.max(length1 + offset, min1);
+			if (this._getFillersCount() > 2)
+				pane2[length_var] = Math.max(length2 - offset, min2);
+		}
+		else {
+			if (!free1)
+				pane1[length_var] = Math.max(length1 + offset, min1);
+			if (!free2)
+				pane2[length_var] = Math.max(length2 - offset, min2);
+		}
+*/
 		this.redraw();
 		if (length1 + offset >= min1 && length2 - offset >= min2)
 			QuiX['start' + offset_var] = evt['client' + offset_var];
@@ -96,6 +113,17 @@ Splitter.prototype._endMoveHandle = function(evt, iHandle) {
 	this.div.style.cursor = '';
 	QuiX.attachFrames(this);
 	QuiX.dragging = false;
+}
+
+Splitter.prototype._getFillersCount = function() {
+	var c = 0;
+	var length_var = (this.orientation == 'h')?'width':'height';
+	for (var i=0; i< this.panes.length; i++) {
+		if (this.panes[i][length_var] == 'this.parent._calcWidgetLength()'
+				&& !this.panes[i].isHidden())
+			c += 1;
+	}
+	return c;
 }
 
 function SplitterPane__destroy() {
@@ -149,22 +177,49 @@ function SplitterHandle__mousedown(evt, w) {
 
 function SplitterHandle__dblclick(evt, w) {
 	var splitter = w.parent;
+	var length_var = (splitter.orientation == 'h')?'width':'height';
+	var length_func = (splitter.orientation == 'h')?'getWidth':'getHeight';
+	
 	for (var idx=0; idx < splitter._handles.length; idx++) {
 		 if (splitter._handles[idx] == w)
 		 	break;
 	}
+	var ns = 1;
 	if (splitter.panes[idx+1].attributes._collapse) {
-		idx = idx + 1;		
+		idx = idx + 1;
+		ns = -1;
 	}
 	var pane = splitter.panes[idx];
+	var pane2 = splitter.panes[idx + ns];
+	
 	if (pane.isHidden()) {
 		w._isCollapsed = false;
 		w.div.style.cursor = (splitter.orientation == "h")?'e-resize':'n-resize';
+		if (pane2._statelength) {
+			pane2[length_var] = pane2._statelength;
+			pane2._statelength = null;
+		}
+		if (splitter._getFillersCount() == 0)
+			pane[length_var] = 'this.parent._calcWidgetLength()';
 		pane.show();
 	}
 	else {
+		while (pane2.isHidden()) {
+			ns += (ns>0)?1:-1;
+			pane2 = splitter.panes[idx + ns];
+		}
 		w._isCollapsed = true;
 		w.div.style.cursor = 'default';
+		if (!pane2.isHidden()) {
+			if (!pane2._statelength)
+				pane2._statelength = pane2[length_var];//(true); 
+			if (pane[length_var] == 'this.parent._calcWidgetLength()') {
+				pane2[length_var] = 'this.parent._calcWidgetLength()';
+			}
+			else if (pane2[length_var] != 'this.parent._calcWidgetLength()'){
+				pane2[length_var] = pane[length_func](true) + pane2[length_func](true);
+			}
+		}
 		pane.hide();
 	}
 	splitter.redraw();
