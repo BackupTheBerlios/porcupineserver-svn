@@ -18,6 +18,8 @@ function Splitter(params) {
 QuiX.constructors['splitter'] = Splitter;
 Splitter.prototype = new Box;
 
+Splitter.prototype.free_length = 'this.parent._calcWidgetLength()';
+
 Splitter.prototype.appendChild = function(w) {
 	if (this.panes.length > 0) {
 		this._addHandle();
@@ -61,44 +63,24 @@ Splitter.prototype._handleMoving = function(evt, iHandle) {
 	var min_length_var = (this.orientation == 'h')?'_calcMinWidth':'_calcMinHeight';
 
 	var offset = evt['client' + offset_var] - QuiX['start' + offset_var];
-	var pane1, pane2;
-	//if (this.panes[iHandle + 1].attributes._collapse) {
-	//	pane1 = this.panes[iHandle + 1];
-	//	pane2 = this.panes[iHandle];
-	//	offset = -offset;
-	//}
-	//else {
-		pane1 = this.panes[iHandle];
-		pane2 = this.panes[iHandle + 1];
-	//}
+
+	var	pane1 = this.panes[iHandle];
+	var	pane2 = this.panes[iHandle + 1];
 	var length1 = pane1[length_func](true);
 	var length2 = pane2[length_func](true);
 	var limit1 = pane1[length_func]();
 	var limit2 = pane2[length_func]();
 	var min1 = pane1[min_length_var]();
 	var min2 = pane2[min_length_var]();
-	var free1 = (pane1[length_var] == 'this.parent._calcWidgetLength()')?1:0;
-	var free2 = (pane2[length_var] == 'this.parent._calcWidgetLength()')?1:0;
+	var free1 = (pane1[length_var] == this.free_length);
+	var free2 = (pane2[length_var] == this.free_length);
 
 	if (-offset < limit1 && offset < limit2) {
 		var fc = this._getFillersCount();
-		if (!free1 || (fc >= free1 + free2))
+		if (!free1 || (free1 && free2) || fc > 1)
 			pane1[length_var] = Math.max(length1 + offset, min1);
-		if (!free2 || (fc > free1 + free2))
+		if (!free2 || (fc > 1 && !(free1 && free2)))
 			pane2[length_var] = Math.max(length2 - offset, min2);	
-/*		
-		if (free1 && free2) {
-			pane1[length_var] = Math.max(length1 + offset, min1);
-			if (this._getFillersCount() > 2)
-				pane2[length_var] = Math.max(length2 - offset, min2);
-		}
-		else {
-			if (!free1)
-				pane1[length_var] = Math.max(length1 + offset, min1);
-			if (!free2)
-				pane2[length_var] = Math.max(length2 - offset, min2);
-		}
-*/
 		this.redraw();
 		if (length1 + offset >= min1 && length2 - offset >= min2)
 			QuiX['start' + offset_var] = evt['client' + offset_var];
@@ -119,7 +101,7 @@ Splitter.prototype._getFillersCount = function() {
 	var c = 0;
 	var length_var = (this.orientation == 'h')?'width':'height';
 	for (var i=0; i< this.panes.length; i++) {
-		if (this.panes[i][length_var] == 'this.parent._calcWidgetLength()'
+		if (this.panes[i][length_var] == this.free_length
 				&& !this.panes[i].isHidden())
 			c += 1;
 	}
@@ -133,8 +115,7 @@ function SplitterPane__destroy() {
 		 if (oSplitter.panes[idx] == this)
 		 	break;
 	}
-	if (this[length_var] == 'this.parent._calcWidgetLength()' &&
-			oSplitter.panes.length > 1) {
+	if (this[length_var] == oSplitter.free_length && oSplitter.panes.length > 1) {
 		if (idx == 0)
 			oSplitter.panes[1][length_var] = '-1';
 		else
@@ -192,6 +173,11 @@ function SplitterHandle__dblclick(evt, w) {
 	var pane = splitter.panes[idx];
 	var pane2 = splitter.panes[idx + ns];
 	
+	while (pane2.isHidden()) {
+		ns += (ns>0)?1:-1;
+		pane2 = splitter.panes[idx + ns];
+	}
+	
 	if (pane.isHidden()) {
 		w._isCollapsed = false;
 		w.div.style.cursor = (splitter.orientation == "h")?'e-resize':'n-resize';
@@ -200,27 +186,25 @@ function SplitterHandle__dblclick(evt, w) {
 			pane2._statelength = null;
 		}
 		if (splitter._getFillersCount() == 0)
-			pane[length_var] = 'this.parent._calcWidgetLength()';
+			pane[length_var] = splitter.free_length;
 		pane.show();
 	}
 	else {
-		while (pane2.isHidden()) {
-			ns += (ns>0)?1:-1;
-			pane2 = splitter.panes[idx + ns];
-		}
 		w._isCollapsed = true;
 		w.div.style.cursor = 'default';
+		pane.hide();
+		var fc = splitter._getFillersCount();
+		var islastfree = (fc == 1 && pane2[length_var] == splitter.free_length);
 		if (!pane2.isHidden()) {
-			if (!pane2._statelength)
-				pane2._statelength = pane2[length_var];//(true); 
-			if (pane[length_var] == 'this.parent._calcWidgetLength()') {
-				pane2[length_var] = 'this.parent._calcWidgetLength()';
+			if (!pane2._statelength && !islastfree)
+				pane2._statelength = pane2[length_func](true);
+			if (fc == 0) {
+				pane2[length_var] = splitter.free_length;
 			}
-			else if (pane2[length_var] != 'this.parent._calcWidgetLength()'){
+			else if (!islastfree) {
 				pane2[length_var] = pane[length_func](true) + pane2[length_func](true);
 			}
 		}
-		pane.hide();
 	}
 	splitter.redraw();
 }
