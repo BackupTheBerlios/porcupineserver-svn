@@ -6,6 +6,7 @@ function Splitter(params) {
 	var spacing = parseInt(params.spacing) || 6;
 	params.overflow = 'hidden';
 	params.spacing = 0;
+	params.onresize = Splitter__resize
 	this.base = Box;
 	this.base(params);
 	
@@ -207,4 +208,33 @@ function SplitterHandle__dblclick(evt, w) {
 		}
 	}
 	splitter.redraw();
+}
+
+function Splitter__resize(splitter) {
+	var length_var = (splitter.orientation == 'h')?'width':'height';
+	var length_func = (splitter.orientation == 'h')?'getWidth':'getHeight';
+	
+	var ol = 0;
+	for (var i=0; i<splitter.widgets.length; i++) {
+		if (!splitter.widgets[i].isHidden())
+			ol += splitter.widgets[i][length_func](true);
+	}
+	var nl = splitter[length_func](true);
+	if (ol > nl)
+	{
+		var pane;
+		var perc = 1 - (nl / ol);
+		for (i=0; i<splitter.panes.length; i++) {
+			pane = splitter.panes[i];
+			if (pane._statelength) {
+				pane._statelength = parseInt(perc * pane._statelength) -
+									(splitter._handles.length * splitter.spacing);
+			}
+			if (pane[length_var] != splitter.free_length) {
+				pane[length_var] = parseInt(perc * pane[length_var]) -
+									(splitter._handles.length * splitter.spacing);
+			}
+		}
+		splitter.redraw();
+	}
 }
