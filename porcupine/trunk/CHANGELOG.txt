@@ -10,6 +10,7 @@ NEW: Added "maxlength" and "textalign" attributes to fields.
 NEW: Added "getFile" method to the internal file data type.
 NEW: Support for pre-processing filters.
 NEW: New pre-processing filter "porcupine.filters.authorization.RequiresLogin".
+     Use "porcupine.filters.requires_login" decorator for web methods.
      As the name denotes this filter protects assets from non authenticated
      users. Ability to redirect such users to a predefined url if the optional
      "redirect" argument is used.
