@@ -23,7 +23,12 @@ NEW: POQL now has two new functions "upper" and "lower". Useful when
 NEW: QuiX now has a universal mouse button detection method
      (QuiX.getMouseButton)
 NEW: Added "deletePermanent" remote method applying to all content classes.
-NEW: ListView widget now have a "select" method that selects items by index.
+NEW: ListView widgets now have a "select" method that selects items by index.
+NEW: New "rowheight" parameter for ListView widgets.
+NEW: Ability to specify which splitter pane collapses by using the "_collapse"
+     custom attribute.
+NEW: New "editundef" attribute for data grids. If set to "true" then the
+     dataset's corresponing values which are undefined are not editable.
 NEW: New "List" data type.
 NEW: New "onclose" custom event for ContextMenu widgets.
 
@@ -100,13 +105,13 @@ FIX: Fixed the "getImageURL" and "setImageURL" methods for icons that
 FIX: Fixed error when packaging directories with unicode paths using the
      pakager utility.
 FIX: Fixed row dragging of list views on IE.
-FIX: Added missing __slots__ class attribure to ExternalFile data type
+FIX: Added missing "__slots__" class attribure to ExternalFile data type
      and PersonalFolder content class.
 FIX: Tree widget's "getSelection" now returns null if no tree node is selected.
 FIX: Fixed list view's header placement when padding top is other than 0.
 FIX: No more orphaned context menus.
 FIX: Fixed length distribution after removing a child of a Box.
-FIX: Fixed box display if the first child is hidden.
+FIX: Boxes now display correctly if the first child is hidden.
 FIX: Fixed filenames for duplicated external files when cloning an object.
 FIX: Fixed date formatting when using the "yy" parameter on the server side.
 FIX: Fixed the "iconpadding" parameter for QuiX buttons.
@@ -118,6 +123,7 @@ FIX: Content classes' event handlers are called before datatype event handlers
      to reflect any possible data type updates.
 FIX: Do not update the object cache if a transaction handle is given on read
      operations.
+FIX: The "onchange" event for date pickers is now fired.
 
 DEP: The servlets are completely replaced by smart decorators. These
      decorators can be found inside the "porcupine.webmethods" module.
@@ -129,11 +135,15 @@ DEP: All system objects inside a PSP page now begin with a capital letter;
      i.e. Response instead of response, Item instead of item etc.
 DEP: The store.xml configuration file no longer exists.
 DEP: The @policymethod descriptor is now implemented as a pre-processing
-     filter ("porcupine.filters.authorization.RequiresPolicy").
+     filter ("porcupine.filters.authorization.RequiresPolicy" for "config.xml"
+     files or "porcuine.filters.requires_policy" when used as a descriptor).
 DEP: The Gzip post processing filter is now referenced as
-     "porcupine.filters.output.Gzip"
+     "porcupine.filters.output.Gzip" when used inside "config.xml"
+     configuration files or "porcupine.filters.gzip" when used as a
+     descriptor.
 DEP: The Multilingual post processing filter is now referenced as
-     "porcupine.filters.output.I18n".
+     "porcupine.filters.output.I18n" for "config.xml" files or
+     "porcupine.filters.i18n" when used as a descriptor.
 DEP: The "porcupine.utils.xmlUtils" module is renamed to "porcupine.utils.xml".
      The "XMLEncode" function is renamed to "xml_encode".
 DEP: The "porcupine.serverExceptions" module is renamed to
