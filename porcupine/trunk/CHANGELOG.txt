@@ -28,8 +28,8 @@ NEW: ListView widgets now have a "select" method that selects items by index.
 NEW: New "rowheight" parameter for ListView widgets.
 NEW: Ability to specify which splitter pane collapses by using the "_collapse"
      custom attribute.
-NEW: New "editundef" attribute for data grids. If set to "true" then the
-     dataset's corresponing values which are undefined are not editable.
+NEW: New "editundef" attribute for data grids. If set to "false" then the
+     dataset's undefined values are not editable.
 NEW: New "List" data type.
 NEW: New "onclose" custom event for ContextMenu widgets.
 
