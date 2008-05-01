@@ -210,31 +210,21 @@ function SplitterHandle__dblclick(evt, w) {
 	splitter.redraw();
 }
 
-function Splitter__resize(splitter) {
+function Splitter__resize(splitter, w, h) {
 	var length_var = (splitter.orientation == 'h')?'width':'height';
 	var length_func = (splitter.orientation == 'h')?'getWidth':'getHeight';
-	
-	var ol = 0;
-	for (var i=0; i<splitter.widgets.length; i++) {
-		if (!splitter.widgets[i].isHidden())
-			ol += splitter.widgets[i][length_func](true);
-	}
-	var nl = splitter[length_func](true);
-	if (ol > nl)
-	{
-		var pane;
-		var perc = 1 - (nl / ol);
-		for (i=0; i<splitter.panes.length; i++) {
-			pane = splitter.panes[i];
-			if (pane._statelength) {
-				pane._statelength = parseInt(perc * pane._statelength) -
-									(splitter._handles.length * splitter.spacing);
-			}
-			if (pane[length_var] != splitter.free_length) {
-				pane[length_var] = parseInt(perc * pane[length_var]) -
-									(splitter._handles.length * splitter.spacing);
-			}
+	var ol = (splitter.orientation == 'h')?w:h;
+	var nl = parseInt(splitter.div.style[length_var]);
+	var pane;
+	var perc = nl / ol;
+	for (i=0; i<splitter.panes.length; i++) {
+		pane = splitter.panes[i];
+		if (pane._statelength) {
+			pane._statelength = Math.round(perc * pane._statelength);
 		}
-		splitter.redraw();
+		if (pane[length_var] != splitter.free_length) {
+			pane[length_var] = Math.round(perc * pane[length_var])
+		}
 	}
+	splitter.redraw();
 }

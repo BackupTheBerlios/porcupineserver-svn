@@ -928,7 +928,7 @@ Widget.prototype._startDrag = function(x, y) {
 }
 
 Widget.prototype.redraw = function(bForceAll, w) {
-	w = w || this;
+	var w = w || this;
 	var container = w.div.parentElement;
 	if (container &&  w.div.style.display != 'none') {
 		var wdth = w.div.style.width;
@@ -953,7 +953,7 @@ Widget.prototype.redraw = function(bForceAll, w) {
 		if ((wdth && wdth != w.div.style.width) ||
 			(hght && hght != w.div.style.height)) {
 			if (w._customRegistry.onresize)
-				w._customRegistry.onresize(this);
+				w._customRegistry.onresize(w, parseInt(wdth), parseInt(hght));
 		}
 	}
 }
