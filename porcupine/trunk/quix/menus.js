@@ -10,7 +10,7 @@ function MenuOption(params) {
 	params.padding = '4,0,3,2';
 	params.onmouseover = MenuOption__onmouseover;
 	params.onmouseout = MenuOption__onmouseout;
-	params.onclick = QuiX.getEventWrapper(params.onclick, MenuOption__onclick);
+	params.onclick = QuiX.getEventWrapper(MenuOption__onclick, params.onclick);
 
 	this.base = Icon;
 	this.base(params);
