@@ -222,8 +222,8 @@ function Splitter__resize(splitter, w, h) {
 		if (pane._statelength) {
 			pane._statelength = Math.round(perc * pane._statelength);
 		}
-		if (pane[length_var] != splitter.free_length) {
-			pane[length_var] = Math.round(perc * pane[length_var])
+		if (typeof pane[length_var] != 'string') {
+			pane[length_var] = Math.round(perc * pane[length_var]);
 		}
 	}
 	splitter.redraw();
