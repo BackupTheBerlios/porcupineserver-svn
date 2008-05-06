@@ -42,12 +42,12 @@ def properties(self):
     return {
         'ID' : self.id,
         'IMG' : self.__image__,
-        'NAME' : self.displayName.value,
-        'DESCRIPTION' : self.description.value,
+        'NAME' : xml.xml_encode(self.displayName.value),
+        'DESCRIPTION' : xml.xml_encode(self.description.value),
         'ICON' : self.icon.value,
         'LAUNCH_URL' : xml.xml_encode(self.launchUrl.value),
         'MODIFIED' : modified.format(baseitem.DATES_FORMAT, sLang),
-        'MODIFIED_BY' : self.modifiedBy,
+        'MODIFIED_BY' : xml.xml_encode(self.modifiedBy),
         'CONTENTCLASS' : self.contentclass,
         'SECURITY_TAB' : baseitem._getSecurity(self, context.session.user),
         'READONLY' : str(readonly).lower()

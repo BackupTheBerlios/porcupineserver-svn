@@ -21,7 +21,7 @@ from porcupine import db
 from porcupine import HttpContext
 from porcupine import webmethods
 from porcupine import filters
-from porcupine.utils import date
+from porcupine.utils import date, xml
 from porcupine.systemObjects import DeletedItem
 
 from org.innoscript.desktop.webmethods import baseitem
@@ -35,10 +35,10 @@ def properties(self):
     modified = date.Date(self.modified)
     return {
         'ICON': self.__image__,
-        'NAME': self.originalName,
-        'LOC': self.originalLocation,
+        'NAME': xml.xml_encode(self.originalName),
+        'LOC': xml.xml_encode(self.originalLocation),
         'MODIFIED': modified.format(baseitem.DATES_FORMAT, sLang),
-        'MODIFIED_BY': self.modifiedBy,
+        'MODIFIED_BY': xml.xml_encode(self.modifiedBy),
         'CONTENTCLASS': self.getDeletedItem().contentclass
     }
     

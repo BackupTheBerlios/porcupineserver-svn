@@ -202,7 +202,7 @@ def properties(self):
         'ICON': self.__image__,
         'NAME': xml.xml_encode(self.displayName.value),
         'MODIFIED': modified.format(DATES_FORMAT, sLang),
-        'MODIFIED_BY': self.modifiedBy,
+        'MODIFIED_BY': xml.xml_encode(self.modifiedBy),
         'CONTENTCLASS': self.contentclass,
         'PROPERTIES_TAB': '',
         'EXTRA_TABS': '',
