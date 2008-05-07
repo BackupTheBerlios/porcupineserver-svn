@@ -160,9 +160,6 @@ class Package(object):
         self.package_files.append(
             (self.package_file.gettarinfo(path, path), path)
         )
-        for subdir in [f for f in os.listdir(path)
-             if os.path.isdir(os.path.join(path, f))]:
-             self._addtree(path + '/' + subdir)
 
     def install(self):
         print 'INFO: installing [%s-%s] package...' % (self.name, self.version)
