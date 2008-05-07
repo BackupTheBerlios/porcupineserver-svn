@@ -52,11 +52,7 @@ top="center" onload="containerList.getContainerInfo">
 				<combo id="path" editable="true"/>
 				<flatbutton width="28" caption="Go" onclick="containerList.navigateTo"/>
 			</box>
-			<listview id="itemslist"
-					dragable="true"
-					multiple="true"
-					width="100%"
-					height="100%"
+			<listview id="itemslist" dragable="true" multiple="true"
 					ondblclick="containerList.loadItem">
 				<contextmenu id="contextmenu" onshow="containerList.listMenu_show">
 					<menuoption caption="@@CREATE@@" img="desktop/images/filenew.gif"/>
