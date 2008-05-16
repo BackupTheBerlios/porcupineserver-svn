@@ -1,12 +1,10 @@
 <%
-	import re
-	
 	Response.content_type = 'text/css'
 	browser = Request.serverVariables['HTTP_USER_AGENT']
 	background = ''
 	# allow background image only on IE7 and FF
-	if re.search('MSIE 7|(Mozilla/5.0.+rv:1.[7-9])', browser):
-		background = 'background-image : url(images/bc_brown.jpg);'
+	if not 'MSIE 6' in browser:
+		background = 'background-image : url(images/desktop.jpg);'
 	end
 %>
 HTML {
