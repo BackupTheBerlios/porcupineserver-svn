@@ -13,8 +13,8 @@ function ListView(params) {
 	this.base = Widget;
 	this.base(params);
 	this.div.className = 'listview';
-	this.cellPadding = params.cellpadding || 4;
-	this.cellBorder = params.cellborder || 0;
+	this.cellPadding = parseInt(params.cellpadding) || 4;
+	this.cellBorder = parseInt(params.cellborder) || 0;
 	this.multiple = (params.multiple==true || params.multiple=="true")?true:false;
 	this.nullText = params.nulltext || '&nbsp;';
 	this.dateFormat = params.dateformat || 'ddd dd/mmm/yyyy time';
@@ -22,7 +22,7 @@ function ListView(params) {
 	this.sortfunc = QuiX.getEventListener(params.sortfunc);
 	this.altColors = (params.altcolors || ',').split(',');
 	this.highlightColors = (params.highlightcolors || 'white,#6699FF').split(',');
-	this.rowHeight = params.rowheight; 
+	this.rowHeight = parseInt(params.rowheight); 
 
 	this.hasSelector = false;
 	this.selection = [];
@@ -250,9 +250,9 @@ ListView.prototype.addColumn = function(params, w) {
 
 	if (params.width) {
 		if (params.width.slice(params.width.length-1) == '%') {
-			header_width = oListView.header.getWidth();
+			header_width = oListView._calcWidth();
 			perc = parseInt(params.width) / 100;
-			var wi = parseInt(header_width * perc) - 2*this.cellPadding - 2;
+			var wi = parseInt(header_width * perc) - 2*oListView.cellPadding - 2;
 			oCol.style.width = (wi>0?wi:0) + 'px';
 			oCol.proportion = perc;
 		}
@@ -314,7 +314,7 @@ ListView.prototype.addColumn = function(params, w) {
 ListView.prototype._calcResizerOffset = function(w) {
 	var oHeader = this.header;
 	var left = (this.hasSelector)?10:0;
-	var offset = 2 * parseInt(this.cellPadding);
+	var offset = 2 * this.cellPadding;
 	var column_width;
 	for (var i=this._deadCells; i<this.columns.length; i++) {
 		column_width = parseInt(this.columns[i].style.width);
@@ -364,7 +364,7 @@ ListView.prototype._endMoveResizer = function(evt, iResizer) {
 }
 
 ListView.prototype.refresh = function(w) {
-	w = w || this;
+	var w = w || this;
 	var oRow, oCell, selector, sPad, oFiller, oListTable;
 	var oValue, column_width, offset;
 	var tbody = document.createElement("tbody");
@@ -379,10 +379,10 @@ ListView.prototype.refresh = function(w) {
 		if (w.rowHeight) {
 			var offset;
 			if (QuiX.browser == 'ie')
-				offset = 2 * parseInt(w.cellPadding);
+				offset = 2 * w.cellPadding;
 			else
 				offset = 0;
-			oRow.style.height = (parseInt(w.rowHeight) - offset) + 'px';
+			oRow.style.height = (w.rowHeight - offset) + 'px';
 		}
 		if (w.hasSelector) {
 			selector = w._getSelector();
