@@ -516,11 +516,11 @@ function ListColumn__getCaption(s) {
 
 function ListViewHeader__redraw(bForceAll) {
 	var columns = this.parent.columns;
-	var header_width = this._calcWidth();
+	var header_width = this.parent._calcWidth();
 	for (var i = this.parent._deadCells; i<columns.length; i++) {
 		if (columns[i].proportion) {
-			columns[i].style.width = parseInt(header_width * columns[i].proportion) -
-									 2*this.parent.cellPadding - 2 + 'px';
+			columns[i].style.width = (parseInt(header_width * columns[i].proportion) -
+									  2*this.parent.cellPadding - 2) + 'px';
 		}
 	}
 	Widget.prototype.redraw(bForceAll, this);
