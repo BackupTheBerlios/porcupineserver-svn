@@ -194,6 +194,11 @@ Combo.prototype.reset = function() {
 	}	
 }
 
+Combo.prototype.clearOptions = function() {
+	this.dropdown.widgets[0].clear();
+	this.div.firstChild.value = '';
+}
+
 Combo.prototype.showDropdown = function(w) {
 	var oCombo = w || this;
 
