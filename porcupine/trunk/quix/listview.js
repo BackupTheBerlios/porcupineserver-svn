@@ -379,6 +379,7 @@ ListView.prototype._resizerMoving = function(evt, iResizer) {
 	if (nw > 2*this.cellPadding) {
 		this.columns[iColumn].style.width = nw + 'px';
 		this.header.redraw();
+		ListView__onscroll(null, this);
 		QuiX.startX = evt.clientX;
 	}
 }
@@ -387,7 +388,6 @@ ListView.prototype._endMoveResizer = function(evt, iResizer) {
 	var iColumn = iResizer + this._deadCells;
 	if (this.columns[iColumn].proportion)
 		this.columns[iColumn].proportion = null;
-	ListView__onscroll(null, this);
 	this.detachEvent('onmouseup');
 	this.detachEvent('onmousemove');
 }
