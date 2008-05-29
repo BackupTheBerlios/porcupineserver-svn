@@ -523,7 +523,7 @@ class GenericItem(object):
         """
         return(db.getItem(self._parentid, trans))
 
-    def getAllParents(self):
+    def getAllParents(self, trans=None):
         """
         Returns all the parents of the item traversing the
         hierarchy up to the root folder.
@@ -534,7 +534,7 @@ class GenericItem(object):
         oItem = self
         while oItem and oItem._id:
             parents.append(oItem)
-            oItem = oItem.getParent()
+            oItem = oItem.getParent(trans)
         parents.reverse()
         return(objectSet.ObjectSet(parents))
 
