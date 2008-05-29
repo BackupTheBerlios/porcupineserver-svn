@@ -15,13 +15,15 @@ function ListView(params) {
 	this.div.className = 'listview';
 	this.cellPadding = parseInt(params.cellpadding) || 4;
 	this.cellBorder = parseInt(params.cellborder) || 0;
-	this.multiple = (params.multiple==true || params.multiple=="true")?true:false;
+	this.multiple = (params.multiple==true || params.multiple=="true")?
+					true:false;
 	this.nullText = params.nulltext || '&nbsp;';
 	this.dateFormat = params.dateformat || 'ddd dd/mmm/yyyy time';
 	this.trueImg = params.trueimg || '__quix/images/check16.gif';
 	this.sortfunc = QuiX.getEventListener(params.sortfunc);
 	this.altColors = (params.altcolors || ',').split(',');
-	this.highlightColors = (params.highlightcolors || 'white,#6699FF').split(',');
+	this.highlightColors =
+		(params.highlightcolors || 'white,#6699FF').split(',');
 	this.rowHeight = parseInt(params.rowheight); 
 
 	this.hasSelector = false;
@@ -33,12 +35,15 @@ function ListView(params) {
 	this._sortimg = null;
 	
 	this._dragable = dragable;
+	
+	//this.attachEvent('onresize', ListViewHeader__redraw);
 }
 
 QuiX.constructors['listview'] = ListView;
 ListView.prototype = new Widget;
 
-ListView.prototype.customEvents = Widget.prototype.customEvents.concat(['onselect']);
+ListView.prototype.customEvents =
+	Widget.prototype.customEvents.concat(['onselect']);
 
 ListView.prototype._registerHandler = function(eventType, handler, isCustom) {
 	var wrapper;
@@ -47,8 +52,11 @@ ListView.prototype._registerHandler = function(eventType, handler, isCustom) {
 			case "onclick":
 			case "ondblclick":
 				//if it not wrapped wrap it...
-				if(handler && handler.toString().lastIndexOf('return handler(evt || event, w)')==-1)
-					wrapper = function(evt, w){ return ListView__onclick(evt, w, handler) };
+				if(handler && handler.toString().lastIndexOf(
+						'return handler(evt || event, w)')==-1)
+					wrapper = function(evt, w) {
+						return ListView__onclick(evt, w, handler)
+					};
 				break;
 		}
 	wrapper = wrapper || handler;
@@ -58,14 +66,18 @@ ListView.prototype._registerHandler = function(eventType, handler, isCustom) {
 ListView.prototype.addHeader = function(params, w) {
 	var oListview = w || this;
 	params.width = '100%';
-	params.height = (!params.height || params.height<22)?22:parseInt(params.height);
+	params.height = (!params.height || params.height<22)?
+					22:parseInt(params.height);
 	
 	oListview.header = new Widget(params);
 	oListview.appendChild(oListview.header);
 	oListview.header.div.className = 'listheader';
-	oListview.header.div.innerHTML = '<table cellspacing="0" width="100%" height="100%"><tr><td class="column filler">&nbsp;</td></tr></table>';
-	oListview.header.div.style.backgroundPosition = '0px ' + (params.height-22) + 'px';
-	oListview.header.redraw = ListViewHeader__redraw;
+	oListview.header.div.innerHTML =
+		'<table cellspacing="0" width="100%" height="100%"><tr>' +
+		'<td class="column filler">&nbsp;</td></tr></table>';
+	oListview.header.div.style.backgroundPosition =
+		'0px ' + (params.height-22) + 'px';
+	//oListview.header.redraw = ListViewHeader__redraw;
 	
 	var oRow = oListview.header.div.firstChild.rows[0];
 	oListview.columns = oRow.cells;
@@ -80,7 +92,8 @@ ListView.prototype.addHeader = function(params, w) {
 
 	var list = new Widget({
 		top : function() {
-			return oListview.header.isHidden()?0:oListview.header._calcHeight(true);
+			return oListview.header.isHidden()?
+				0:oListview.header._calcHeight(true);
 		},
 		width : 'this.parent.getWidth()-1',
 		height : 'this.parent.getHeight()-' + (parseInt(params.height) + 1),
@@ -118,6 +131,23 @@ ListView.prototype.addHeader = function(params, w) {
 
 	oListview.header.bringToFront();
 	return(oListview.header);
+}
+
+ListView.prototype.redraw = function(bForceAll) {
+	var columns = this.columns;
+	var header_width = this._calcWidth();
+	var wdth;
+	// resize proportional cells
+	for (var i = this._deadCells; i<columns.length; i++) {
+		if (columns[i].proportion) {
+			wdth = (parseInt(header_width * columns[i].proportion) -
+					2*this.cellPadding - 2) + 'px';
+			columns[i].style.width = wdth;
+			if (this.list.firstChild.rows.length > 0)
+				this.list.rows[0].cells[i].style.width = wdth;
+		}
+	}
+	Widget.prototype.redraw(bForceAll, this);
 }
 
 ListView.prototype._getSelector = function() {
@@ -166,7 +196,8 @@ ListView.prototype._selectline = function (evt, row) {
 	}
 	
 	if (fire && this._customRegistry.onselect) {
-		QuiX.getEventListener(this._customRegistry.onselect)(evt, this, this.dataSet[row.rowIndex]);
+		QuiX.getEventListener(this._customRegistry.onselect)(
+			evt, this, this.dataSet[row.rowIndex]);
 	}
 }
 
@@ -224,7 +255,8 @@ ListView.prototype.sort = function(column) {
 
 	if (this._sortimg) QuiX.removeNode(this._sortimg);
 	this._sortimg = new Image;
-	this._sortimg.src = (this.sortorder=='ASC')?'__quix/images/asc8.gif':'__quix/images/desc8.gif';
+	this._sortimg.src = (this.sortorder=='ASC')?
+						'__quix/images/asc8.gif':'__quix/images/desc8.gif';
 	this._sortimg.align = 'absmiddle';
 	column.appendChild(this._sortimg);
 	
@@ -246,18 +278,15 @@ ListView.prototype.addColumn = function(params, w) {
 	oCol.className = 'column';
 	oCol._isContainer = false;
 	oCol.columnBgColor = params.bgcolor || '';
-	oCol.style.padding = '0px ' + oListView.cellPadding + 'px 0px ' + oListView.cellPadding + 'px';
+	oCol.style.padding = '0px ' + oListView.cellPadding + 'px';
 
 	if (params.width) {
-		if (params.width.slice(params.width.length-1) == '%') {
-			header_width = oListView._calcWidth();
-			perc = parseInt(params.width) / 100;
-			var wi = parseInt(header_width * perc) - 2*oListView.cellPadding - 2;
-			oCol.style.width = (wi>0?wi:0) + 'px';
-			oCol.proportion = perc;
-		}
+		if (params.width.slice(params.width.length-1) == '%')
+			oCol.proportion = parseInt(params.width) / 100;
 		else
-			oCol.style.width = (params.width - 2*oListView.cellPadding - 2*oListView.cellBorder) + 'px';
+			oCol.style.width = (params.width -
+								2*oListView.cellPadding -
+								2*oListView.cellBorder) + 'px';
 	}
 
 	oCol.setCaption = ListColumn__setCaption;
@@ -273,7 +302,8 @@ ListView.prototype.addColumn = function(params, w) {
 		oCol._xform = QuiX.getEventListener(oCol.xform);
 	}
 	
-	oCol.sortable = (params.sortable=='false' || params.sortable==false)?false:true;
+	oCol.sortable = (params.sortable=='false' || params.sortable==false)?
+					false:true;
 	if (oCol.sortable) {
 		oCol.style.cursor = 'pointer';
 		oCol.onclick = function(evt){
@@ -300,7 +330,8 @@ ListView.prototype.addColumn = function(params, w) {
 	});
 	oListView.header.appendChild(resizer);
 	
-	oCol.isResizable = (params.resizable=='false' || params.resizable==false)?false:true;
+	oCol.isResizable =
+		(params.resizable=='false' || params.resizable==false)?false:true;
 	if (oCol.isResizable) {
 		var iColumn = oListView.columns.length - 1;
 		resizer.div.className = 'resizer';
@@ -335,14 +366,19 @@ ListView.prototype._moveResizer = function(evt, iResizer) {
 	QuiX.startX = evt.clientX;
 	QuiX.startY = evt.clientY;
 	QuiX.tmpWidget = QuiX.createOutline(this.header.widgets[iResizer]);
-	this.attachEvent('onmouseup', function(evt){oWidget._endMoveResizer(evt, iResizer)});
-	this.attachEvent('onmousemove', function(evt){oWidget._resizerMoving(evt, iResizer)});
+	this.attachEvent('onmouseup', function(evt){
+		oWidget._endMoveResizer(evt, iResizer)});
+	this.attachEvent('onmousemove', function(evt){
+		oWidget._resizerMoving(evt, iResizer)});
 }
 
 ListView.prototype._resizerMoving = function(evt, iResizer) {
 	var offsetX = evt.clientX - QuiX.startX;
-	if ( offsetX > -(this.columns[iResizer + this._deadCells].offsetWidth - 2*this.cellPadding - this.cellBorder) )
-		QuiX.tmpWidget.moveTo(this.header.widgets[iResizer]._calcLeft() + offsetX,
+	if (offsetX > - (this.columns[iResizer +
+					this._deadCells].offsetWidth -
+					2*this.cellPadding - this.cellBorder))
+		QuiX.tmpWidget.moveTo(
+			this.header.widgets[iResizer]._calcLeft() + offsetX,
 			this.header.widgets[iResizer]._calcTop());
 }
 
@@ -354,8 +390,8 @@ ListView.prototype._endMoveResizer = function(evt, iResizer) {
 	
 	this.columns[iColumn].style.width = nw + 'px';
 	if (this.columns[iColumn].proportion)
-		this.columns[iColumn].proportion = 0;
-	this.header.redraw(true);
+		this.columns[iColumn].proportion = null;
+	this.header.redraw();
 	
 	ListView__onscroll(null, this);
 	QuiX.tmpWidget.destroy();
@@ -394,13 +430,21 @@ ListView.prototype.refresh = function(w) {
 			oCell.className = 'cell';
 			column_width = w.columns[j].style.width;
 			if (i==0 && column_width) {
-				oCell.style.width = parseInt(column_width) - w.cellBorder + 'px';
+				if (w.columns[j].proportion) {
+					oCell.style.width =
+						(parseInt(w._calcWidth() * w.columns[j].proportion) -
+						2*w.cellPadding - 2) + 'px';
+				}
+				else
+					oCell.style.width = parseInt(column_width) -
+										w.cellBorder + 'px';
 			}
 
 			oCell.style.borderWidth = w.cellBorder + 'px';
 			sPad = (w.cellPadding + 1) + 'px';
 			oCell.style.padding = '4px ' + sPad + ' 4px ' + sPad;
-			if (w.columns[j].columnBgColor) oCell.bgColor = w.columns[j].columnBgColor;
+			if (w.columns[j].columnBgColor)
+				oCell.bgColor = w.columns[j].columnBgColor;
 			oRow.appendChild(oCell);
 			oValue = w.dataSet[i][w.columns[j].name];
 			w._renderCell(oCell, j, oValue, w.dataSet[i])
@@ -514,18 +558,6 @@ function ListColumn__getCaption(s) {
 	return this.firstChild.innerHTML;
 }
 
-function ListViewHeader__redraw(bForceAll) {
-	var columns = this.parent.columns;
-	var header_width = this.parent._calcWidth();
-	for (var i = this.parent._deadCells; i<columns.length; i++) {
-		if (columns[i].proportion) {
-			columns[i].style.width = (parseInt(header_width * columns[i].proportion) -
-									  2*this.parent.cellPadding - 2) + 'px';
-		}
-	}
-	Widget.prototype.redraw(bForceAll, this);
-}
-
 function List__startDrag(x, y) {
 	var dragable = new Widget({
 		width : this.getWidth(true),
@@ -553,8 +585,9 @@ function List__startDrag(x, y) {
 		row = src_row.cloneNode(true);
 		if (i==0) {
 			for (var j=0; j<row.cells.length; j++) {
-				row.cells[j].style.width = srcTable.rows[0].cells[j].style.width;
-			}			
+				row.cells[j].style.width =
+					srcTable.rows[0].cells[j].style.width;
+			}	
 		}
 		table.firstChild.appendChild(row);
 	}
