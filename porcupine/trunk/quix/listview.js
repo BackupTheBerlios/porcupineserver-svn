@@ -364,8 +364,6 @@ ListView.prototype._calcResizerOffset = function(w) {
 ListView.prototype._moveResizer = function(evt, iResizer) {
 	var oWidget = this;
 	QuiX.startX = evt.clientX;
-	QuiX.startY = evt.clientY;
-	QuiX.tmpWidget = QuiX.createOutline(this.header.widgets[iResizer]);
 	this.attachEvent('onmouseup', function(evt){
 		oWidget._endMoveResizer(evt, iResizer)});
 	this.attachEvent('onmousemove', function(evt){
@@ -373,28 +371,23 @@ ListView.prototype._moveResizer = function(evt, iResizer) {
 }
 
 ListView.prototype._resizerMoving = function(evt, iResizer) {
+	var nw;
+	var iColumn = iResizer + this._deadCells;
 	var offsetX = evt.clientX - QuiX.startX;
-	if (offsetX > - (this.columns[iResizer +
-					this._deadCells].offsetWidth -
-					2*this.cellPadding - this.cellBorder))
-		QuiX.tmpWidget.moveTo(
-			this.header.widgets[iResizer]._calcLeft() + offsetX,
-			this.header.widgets[iResizer]._calcTop());
+	nw = parseInt(this.columns[iColumn].style.width) + offsetX;
+	nw = (nw < 2*this.cellPadding)?2*this.cellPadding:nw;
+	if (nw > 2*this.cellPadding) {
+		this.columns[iColumn].style.width = nw + 'px';
+		this.header.redraw();
+		QuiX.startX = evt.clientX;
+	}
 }
 
 ListView.prototype._endMoveResizer = function(evt, iResizer) {
 	var iColumn = iResizer + this._deadCells;
-	var offsetX = evt.clientX - QuiX.startX;
-	var nw = parseInt(this.columns[iColumn].style.width) + offsetX;
-	nw = (nw < 2*this.cellPadding)?2*this.cellPadding:nw;
-	
-	this.columns[iColumn].style.width = nw + 'px';
 	if (this.columns[iColumn].proportion)
 		this.columns[iColumn].proportion = null;
-	this.header.redraw();
-	
 	ListView__onscroll(null, this);
-	QuiX.tmpWidget.destroy();
 	this.detachEvent('onmouseup');
 	this.detachEvent('onmousemove');
 }
