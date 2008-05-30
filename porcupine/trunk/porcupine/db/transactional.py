@@ -39,12 +39,8 @@ class transactional(object):
         def transactional_wrapper(*args):
             # the transaction handle should always be the last argument
             trans = args[-1]
-            method = types.MethodType(transactional_wrapper, item, item_class)
-            trans.actions.append( (method, args) )
-            try:
-                return self.func(*args)
-            except exceptions.DBTransactionIncomplete:
-                trans.retry()
+            trans.actions.append( (self.func, args) )
+            return self.func(*args)
         transactional_wrapper.func_name = self.func.func_name
         return types.MethodType(transactional_wrapper, item, item_class)
 

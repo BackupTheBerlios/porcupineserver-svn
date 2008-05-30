@@ -29,30 +29,6 @@ class Transaction(object):
         self._iscommited = False
         self._retries = 0
 
-    def retry(self):
-        """
-        Called by the application server whenever a transaction commit fails.
-        
-        @return: None
-        
-        @raise porcupine.exceptions.DBTransactionIncomplete:
-            if the maximum number of transaction retries has been reached,
-            as defined in the C{porcupine.ini} file.
-        """
-        while self._retries < _db.db_handle.trans_max_retries:
-            _db.abortTransaction(self.txn)
-            self._retries += 1
-            time.sleep(0.05)
-            self.txn = _db.createTransaction()
-            try:
-                tmpActions, self.actions = copy.copy(self.actions), []
-                dummy = [func(*args) for func,args in tmpActions]
-                return
-            except exceptions.DBTransactionIncomplete:
-                pass
-        else:
-            raise exceptions.DBTransactionIncomplete
-
     def commit(self):
         """
         Commits the transaction.
@@ -61,17 +37,22 @@ class Transaction(object):
         
         @raise porcupine.exceptions.DBTransactionIncomplete:
             if the maximum number of transaction retries has been reached,
-            as defined in the C{porcupine.ini} file.
+            as defined in the C{porcupine.conf} file.
         """
         while self._retries < _db.db_handle.trans_max_retries:
             try:
-#                if self._retries == 1:
-#                    raise exceptions.DBTransactionIncomplete
+                #if self._retries < 11:
+                #    raise exceptions.DBTransactionIncomplete
                 _db.commitTransaction(self.txn)
                 self._iscommited = True
                 return
             except exceptions.DBTransactionIncomplete:
-                self.retry()
+                #replay the transaction
+                _db.abortTransaction(self.txn)
+                self._retries += 1
+                time.sleep(0.05)
+                self.txn = _db.createTransaction()
+                [func(*args) for func,args in self.actions]
         else:
             raise exceptions.DBTransactionIncomplete
 
