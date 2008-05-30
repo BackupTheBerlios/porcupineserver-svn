@@ -852,7 +852,8 @@ class Container(Item):
     def _addItemReference(self, oItem):            
         if self.childExists(oItem.displayName.value):
             raise exceptions.ContainmentError, \
-                'Cannot create item "%s".\n' % oItem.displayName.value + \
+                'Cannot create item "%s" in container "%s".\n' % \
+                (oItem.displayName.value, self.displayName.value) + \
                 'An item with the specified name already exists.'
         if oItem.isCollection:
             self._subfolders[oItem.displayName.value] = oItem._id
