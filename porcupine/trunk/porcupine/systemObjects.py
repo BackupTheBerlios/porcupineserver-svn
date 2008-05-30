@@ -462,9 +462,9 @@ class GenericItem(object):
         if type(parent)==str:
             oParent = _db.getItem(parent, trans)
         else:
-            oParent = parent
+            oParent = _db.getItem(parent._id, trans)
+        
         oUser = currentThread().context.session.user
-
         iUserRole = objectAccess.getAccess(oParent, oUser)
         if iUserRole == objectAccess.READER:
             raise exceptions.PermissionDenied, \
