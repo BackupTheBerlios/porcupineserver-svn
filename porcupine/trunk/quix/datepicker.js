@@ -11,15 +11,20 @@ function Datepicker(params) {
 	this.base(params);
 	
 	this.format = params.dateformat || 'ddd dd/mmm/yyyy';
+	this.utc = (params.utc==true || params.utc=='true')?true:false;
 	this.setValue(params.value || '');
-	
 	this.dropdown.parseFromString(
-		'<box orientation="v" xmlns="http://www.innoscript.org/quix" width="100%" height="100%" spacing="4" childrenalign="center">' +
+		'<box orientation="v" xmlns="http://www.innoscript.org/quix" ' +
+				'width="100%" height="100%" spacing="4" ' +
+				'childrenalign="center">' +
 			'<rect height="26" width="195" padding="2,2,2,2">' + 
 				'<flatbutton width="22" height="100%" caption="&lt;&lt;"/>' +
-				'<combo id="month" left="22" width="100" height="100%" editable="false"/>' +
-				'<spinbutton id="year" maxlength="4" left="121" width="50" height="100%" editable="true"/>' +
-				'<flatbutton left="171" width="22" height="100%" caption="&gt;&gt;"/>' +
+				'<combo id="month" left="22" width="100" height="100%" ' +
+					'editable="false"/>' +
+				'<spinbutton id="year" maxlength="4" left="121" width="50" ' +
+					'height="100%" editable="true"/>' +
+				'<flatbutton left="171" width="22" height="100%" ' +
+					'caption="&gt;&gt;"/>' +
 			'</rect>' +
 			'<rect/>' +
 		'</box>', Datepicker__fill);
@@ -34,25 +39,38 @@ function Datepicker(params) {
 QuiX.constructors['datepicker'] = Datepicker;
 Datepicker.prototype = new Combo;
 
-Datepicker.prototype.getValue = function() {
-	return this.dt;
+Datepicker.prototype.getValue = function(local) {
+	if (!local && this.utc) {
+		var val = new Date(
+			this._dt.getTime() + (
+			this._dt.getTimezoneOffset() * 60000));
+		return val
+	}
+	else
+		return this._dt;
 }
 
 Datepicker.prototype.setValue = function(val) {
 	if (!(val instanceof Date)) {
 		if (val == '')
-			this.dt = new Date();
-		else
-			this.dt = new Date().parseIso8601(val);
+			this._dt = new Date();
+		else {
+			this._dt = new Date().parseIso8601(val);
+			if (this.utc) {
+				this._dt = new Date(
+					this._dt.getTime() - (
+					this._dt.getTimezoneOffset() * 60000));
+			}
+		}
 	}
 	else {
-		var old_dt = this.dt;
-		this.dt = new Date(val);
-		if (old_dt != this.dt && this._customRegistry.onchange)
+		var old_dt = this._dt;
+		this._dt = new Date(val);
+		if (old_dt != this._dt && this._customRegistry.onchange)
 			QuiX.getEventListener(this._customRegistry.onchange)(this);
 	}
-	this._navdt = new Date(this.dt);
-	this.div.firstChild.value = this.dt.format(this.format);
+	this._navdt = new Date(this._dt);
+	this.div.firstChild.value = this._dt.format(this.format);
 }
 
 Datepicker.prototype.render = function(container) {
@@ -102,9 +120,9 @@ Datepicker.prototype.fill = function() {
 		cell = this._dayTable.rows[nRow + 1].cells[nCol];
 		cell.innerHTML = d.getDate();
 		cell.className = 'DatePickerBtn';
-		if (iDate == this.dt.getDate() &&
-			 m == this.dt.getMonth() &&
-			 d.getYear() == this.dt.getYear()){
+		if (iDate == this._dt.getDate() &&
+			 m == this._dt.getMonth() &&
+			 d.getYear() == this._dt.getYear()){
 			cell.className = 'DatePickerBtnSelect';
 			this._selectedCell = cell;
 		}
@@ -249,15 +267,19 @@ function Datepicker__fill(box) {
 	oDatepicker.year.attachEvent('onkeyup', DatepickerYear__change);
 
 	oDatepicker.month = box.getWidgetById('month');
-	for (var i=0; i<oDatepicker.dt.Months.length; i++)
-		oDatepicker.month.addOption({caption:oDatepicker.dt.Months[i], value:i});
+	for (var i=0; i<oDatepicker._dt.Months.length; i++)
+		oDatepicker.month.addOption({
+			caption:oDatepicker._dt.Months[i],
+			value:i});
 	oDatepicker.month.attachEvent('onchange', DatepickerMonth__change);
 	
 	oDatepicker.month.div.firstChild.onclick = DatepickerMonth__click;
 	oDatepicker.month.button.attachEvent('onclick', DatepickerMonth__click);
 	
-	box.getWidgetsByType(FlatButton)[0].attachEvent('onclick', DatepickerPrev__click);
-	box.getWidgetsByType(FlatButton)[1].attachEvent('onclick', DatepickerNext__click);
+	box.getWidgetsByType(FlatButton)[0].attachEvent('onclick',
+													DatepickerPrev__click);
+	box.getWidgetsByType(FlatButton)[1].attachEvent('onclick',
+													DatepickerNext__click);
 	
 	oDatepicker.render(box.widgets[1].div);
 	oDatepicker.fill();
