@@ -79,6 +79,18 @@ Date.prototype.Days = [<%Response.write(sDays)%>];
 Date.prototype.AM = '<%Response.write(sAM)%>';
 Date.prototype.PM = '<%Response.write(sPM)%>';
 
+Date.prototype.toUtc = function() {
+	return new Date(
+		this.getTime() + (
+		this.getTimezoneOffset() * 60000));
+}
+
+Date.prototype.toLocal = function() {
+	return new Date(
+		this.getTime() - (
+		this.getTimezoneOffset() * 60000));
+}
+
 Date.prototype.format = dateFormat;
 function dateFormat(format) {
    var dateString = format;
