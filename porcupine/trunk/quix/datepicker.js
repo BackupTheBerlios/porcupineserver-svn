@@ -40,12 +40,8 @@ QuiX.constructors['datepicker'] = Datepicker;
 Datepicker.prototype = new Combo;
 
 Datepicker.prototype.getValue = function(local) {
-	if (!local && this.utc) {
-		var val = new Date(
-			this._dt.getTime() + (
-			this._dt.getTimezoneOffset() * 60000));
-		return val
-	}
+	if (!local && this.utc)
+		return this._dt.toUtc();
 	else
 		return this._dt;
 }
@@ -56,11 +52,8 @@ Datepicker.prototype.setValue = function(val) {
 			this._dt = new Date();
 		else {
 			this._dt = new Date().parseIso8601(val);
-			if (this.utc) {
-				this._dt = new Date(
-					this._dt.getTime() - (
-					this._dt.getTimezoneOffset() * 60000));
-			}
+			if (this.utc)
+				this._dt = this._dt.toLocal();
 		}
 	}
 	else {
