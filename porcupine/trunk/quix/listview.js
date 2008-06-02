@@ -7,7 +7,7 @@ function ListView(params) {
 	params.bgcolor = params.bgcolor || 'white';
 	params.overflow = 'auto';
 	
-	var dragable = (params.dragable == 'true' || params.dragable == true);
+	var dragable = (params.dragable=='true' || params.dragable==true);
 	delete params.dragable;
 	
 	this.base = Widget;
@@ -15,8 +15,7 @@ function ListView(params) {
 	this.div.className = 'listview';
 	this.cellPadding = parseInt(params.cellpadding) || 4;
 	this.cellBorder = parseInt(params.cellborder) || 0;
-	this.multiple = (params.multiple==true || params.multiple=="true")?
-					true:false;
+	this.multiple = (params.multiple==true || params.multiple=="true");
 	this.nullText = params.nulltext || '&nbsp;';
 	this.dateFormat = params.dateformat || 'ddd dd/mmm/yyyy time';
 	this.trueImg = params.trueimg || '__quix/images/check16.gif';
@@ -35,8 +34,6 @@ function ListView(params) {
 	this._sortimg = null;
 	
 	this._dragable = dragable;
-	
-	//this.attachEvent('onresize', ListViewHeader__redraw);
 }
 
 QuiX.constructors['listview'] = ListView;
@@ -400,7 +397,7 @@ ListView.prototype.refresh = function(w) {
 	var docFragment = document.createDocumentFragment();
 	var rowBgColor;
 	// create rows
-	for (i=0; i<w.dataSet.length; i++) {
+	for (var i=0; i<w.dataSet.length; i++) {
 		oRow = document.createElement("tr");
 		oRow.isSelected = false;
 		rowBgColor = w.altColors[i%2];
