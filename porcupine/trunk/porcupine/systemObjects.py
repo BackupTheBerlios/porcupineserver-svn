@@ -490,11 +490,11 @@ class GenericItem(object):
         self.modifiedBy = oUser.displayName.value
         self.modified = time.time()
         self._parentid = oParent._id
-        _db.handle_update(self, None, trans)
-        _db.putItem(self, trans)
         # update container
         oParent._addItemReference(self)
         _db.putItem(oParent, trans)
+        _db.putItem(self, trans)
+        _db.handle_update(self, None, trans)
 
     def isContainedIn(self, itemId, trans=None):
         """
