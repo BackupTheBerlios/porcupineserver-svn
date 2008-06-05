@@ -71,32 +71,36 @@ def transactional(auto_commit=False):
             if c_thread.trans == None:
                 txn = _db.db_handle.transaction()
                 c_thread.trans = txn
+                is_first = True
             else:
                 txn = c_thread.trans
+                is_first = False
             retries = 0
             try:
                 while retries < _db.db_handle.trans_max_retries:
                     try:
                         #if retries == 0:
                         #    raise exceptions.DBTransactionIncomplete
-                        val = function(*args)
-                        if auto_commit:
-                            ac = kwargs.get('commit', auto_commit)
-                            if ac:
-                                txn.commit()
+                        val = function(*args, **kwargs)
+                        if is_first and auto_commit:
+                            txn.commit()
                         return val
                     except exceptions.DBTransactionIncomplete:
-                        txn.abort()
-                        time.sleep(0.05)
-                        retries += 1
-                        txn._retry()
+                        if is_first:
+                            txn.abort()
+                            time.sleep(0.05)
+                            retries += 1
+                            txn._retry()
+                        else:
+                            raise
                 else:
                     raise exceptions.DBTransactionIncomplete
             finally:
-                # abort uncommitted transactions
-                if not txn._iscommited:
-                    txn.abort()
-                c_thread.trans = None
+                if is_first:
+                    # abort uncommitted transactions
+                    if not txn._iscommited:
+                        txn.abort()
+                    c_thread.trans = None
         transactional_wrapper.func_name = function.func_name
         transactional_wrapper.func_doc = function.func_doc
         return transactional_wrapper
