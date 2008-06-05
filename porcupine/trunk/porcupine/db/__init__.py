@@ -72,10 +72,10 @@ def transactional(auto_commit=False):
             if c_thread.trans == None:
                 txn = _db.db_handle.transaction()
                 c_thread.trans = txn
-                is_first = True
+                is_top_level = True
             else:
                 txn = c_thread.trans
-                is_first = False
+                is_top_level = False
             retries = 0
             
             try:
@@ -83,16 +83,16 @@ def transactional(auto_commit=False):
                     try:
                         #if retries == 0:
                         #    raise exceptions.DBTransactionIncomplete
-                        if is_first:
+                        if is_top_level:
                             cargs = copy.deepcopy(args, {'df':False})
                         else:
                             cargs = args
                         val = function(*cargs)
-                        if is_first and auto_commit:
+                        if is_top_level and auto_commit:
                             txn.commit()
                         return val
                     except exceptions.DBTransactionIncomplete:
-                        if is_first:
+                        if is_top_level:
                             txn.abort()
                             time.sleep(0.05)
                             retries += 1
@@ -102,12 +102,13 @@ def transactional(auto_commit=False):
                 else:
                     raise exceptions.DBTransactionIncomplete
             finally:
-                if is_first:
+                if is_top_level:
                     # abort uncommitted transactions
                     if not txn._iscommited:
                         txn.abort()
                     c_thread.trans = None
         transactional_wrapper.func_name = function.func_name
         transactional_wrapper.func_doc = function.func_doc
+        transactional_wrapper.__module__ = function.__module__
         return transactional_wrapper
     return transactional_decorator
