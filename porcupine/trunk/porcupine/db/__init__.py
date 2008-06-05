@@ -18,6 +18,7 @@
 Porcupine database package
 """
 import time
+import copy
 from threading import currentThread
 
 from porcupine.db import _db
@@ -66,7 +67,7 @@ def transactional(auto_commit=False):
         This is the descriptor for making a method of a content class
         transactional.
         """
-        def transactional_wrapper(*args, **kwargs):
+        def transactional_wrapper(*args):
             c_thread = currentThread()
             if c_thread.trans == None:
                 txn = _db.db_handle.transaction()
@@ -76,12 +77,17 @@ def transactional(auto_commit=False):
                 txn = c_thread.trans
                 is_first = False
             retries = 0
+            
             try:
                 while retries < _db.db_handle.trans_max_retries:
                     try:
                         #if retries == 0:
                         #    raise exceptions.DBTransactionIncomplete
-                        val = function(*args, **kwargs)
+                        if is_first:
+                            cargs = copy.deepcopy(args, {'df':False})
+                        else:
+                            cargs = args
+                        val = function(*cargs)
                         if is_first and auto_commit:
                             txn.commit()
                         return val
