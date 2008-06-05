@@ -456,7 +456,7 @@ class GenericItem(object):
         if type(parent)==str:
             oParent = _db.getItem(parent, trans)
         else:
-            oParent = _db.getItem(parent._id, trans)
+            oParent = parent
         
         oUser = currentThread().context.session.user
         iUserRole = objectAccess.getAccess(oParent, oUser)
