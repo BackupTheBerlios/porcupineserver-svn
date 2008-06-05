@@ -43,7 +43,7 @@ def properties(self):
     }
     
 @webmethods.remotemethod(of_type=DeletedItem)
-@db.transactional
+@db.transactional()
 def restore(self):
     "Restores the deleted item to its orginal location"
     txn = db.getTransaction()
@@ -52,7 +52,7 @@ def restore(self):
     return True
 
 @webmethods.remotemethod(of_type=DeletedItem)
-@db.transactional
+@db.transactional()
 def restoreTo(self, targetid):
     "Restores the deleted item to the designated target container"
     txn = db.getTransaction()
@@ -61,7 +61,7 @@ def restoreTo(self, targetid):
     return True
 
 @webmethods.remotemethod(of_type=DeletedItem)
-@db.transactional
+@db.transactional()
 def delete(self):
     "Removes the deleted item"
     txn = db.getTransaction()

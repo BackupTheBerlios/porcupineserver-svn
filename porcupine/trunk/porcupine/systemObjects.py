@@ -26,7 +26,6 @@ from threading import currentThread
 
 from porcupine import db
 from porcupine.db import _db
-#from porcupine.db.transactional import transactional
 from porcupine.security import objectAccess
 from porcupine import exceptions
 from porcupine.core import objectSet

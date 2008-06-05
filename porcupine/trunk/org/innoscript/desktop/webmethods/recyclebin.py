@@ -55,7 +55,7 @@ def getInfo(self):
     }
 
 @webmethods.remotemethod(of_type=RecycleBin)
-@db.transactional
+@db.transactional()
 def empty(self):
     "Empties the bin"
     txn = db.getTransaction()

@@ -131,7 +131,7 @@ def user_settings(self):
 
 @filters.runas('system')
 @webmethods.remotemethod(of_type=RootFolder)
-@db.transactional
+@db.transactional()
 def applySettings(self, data):
     "Saves user's preferences"
     context = HttpContext.current()

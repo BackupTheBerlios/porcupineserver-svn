@@ -86,7 +86,7 @@ def new(self):
     return params
 
 @webmethods.remotemethod(of_type=Container)
-@db.transactional
+@db.transactional()
 def create(self, data):
     "Creates a new item"
     context = HttpContext.current()

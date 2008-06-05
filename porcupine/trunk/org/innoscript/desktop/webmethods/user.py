@@ -87,7 +87,7 @@ def resetpsw(self):
     }
     
 @webmethods.remotemethod(of_type=User)
-@db.transactional
+@db.transactional()
 def resetPassword(self, new_password):
     "Resets the user's password"
     txn = db.getTransaction()
