@@ -66,11 +66,13 @@ def transactional(auto_commit=False):
         This is the descriptor for making a method of a content class
         transactional.
         """
-        def transactional_wrapper(*args):
+        def transactional_wrapper(*args, **kwargs):
             c_thread = currentThread()
             if c_thread.trans == None:
                 txn = _db.db_handle.transaction()
                 c_thread.trans = txn
+            else:
+                txn = c_thread.trans
             retries = 0
             try:
                 while retries < _db.db_handle.trans_max_retries:
@@ -79,7 +81,9 @@ def transactional(auto_commit=False):
                         #    raise exceptions.DBTransactionIncomplete
                         val = function(*args)
                         if auto_commit:
-                            txn.commit()
+                            ac = kwargs.get('commit', auto_commit)
+                            if ac:
+                                txn.commit()
                         return val
                     except exceptions.DBTransactionIncomplete:
                         txn.abort()
