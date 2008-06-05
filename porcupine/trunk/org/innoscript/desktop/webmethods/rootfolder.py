@@ -131,7 +131,7 @@ def user_settings(self):
 
 @filters.runas('system')
 @webmethods.remotemethod(of_type=RootFolder)
-@db.transactional()
+@db.transactional(auto_commit=True)
 def applySettings(self, data):
     "Saves user's preferences"
     context = HttpContext.current()
@@ -140,7 +140,6 @@ def applySettings(self, data):
         activeUser.settings.value[key] = data[key]
     txn = db.getTransaction()
     activeUser.update(txn)
-    txn.commit()
     return True
 
 @filters.requires_login('/?cmd=login')

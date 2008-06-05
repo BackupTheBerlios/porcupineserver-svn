@@ -255,7 +255,7 @@ def selectcontainer(self):
 
 
 @webmethods.remotemethod(of_type=Item)
-@db.transactional()
+@db.transactional(auto_commit=True)
 def update(self, data):
     "Updates an object based on values contained inside the data dictionary"
     context = HttpContext.current()
@@ -287,17 +287,15 @@ def update(self, data):
             oAttr.value = data[prop]
     txn = db.getTransaction()
     self.update(txn)
-    txn.commit()
     return True
 
 @webmethods.remotemethod(of_type=Item)
-@db.transactional()
+@db.transactional(auto_commit=True)
 def rename(self, newName):
     "Changes the display name of an object"
     txn = db.getTransaction()
     self.displayName.value = newName
     self.update(txn)
-    txn.commit()
     return True
 
 @webmethods.remotemethod(of_type=Item)
@@ -314,33 +312,29 @@ def getSecurity(self):
     return l
 
 @webmethods.remotemethod(of_type=Item)
-@db.transactional()
+@db.transactional(auto_commit=True)
 def copyTo(self, targetid):
     txn = db.getTransaction()
     self.copyTo(targetid, txn)
-    txn.commit()
     return True
 
 @webmethods.remotemethod(of_type=Item)
-@db.transactional()
+@db.transactional(auto_commit=True)
 def moveTo(self, targetid):
     txn = db.getTransaction()
     self.moveTo(targetid, txn)
-    txn.commit()
     return True
 
 @webmethods.remotemethod(of_type=Item)
-@db.transactional()
+@db.transactional(auto_commit=True)
 def delete(self):
     txn = db.getTransaction()
     self.recycle('rb', txn)
-    txn.commit()
     return True
 
 @webmethods.remotemethod(of_type=GenericItem)
-@db.transactional()
+@db.transactional(auto_commit=True)
 def deletePermanent(self):
     txn = db.getTransaction()
     self.delete(txn)
-    txn.commit()
     return True
