@@ -47,7 +47,6 @@ def close():
     
 class OfflineTransaction(object):
     def __init__(self):
-        self.actions = []
         self.txn = _db.createTransaction()
 
     def commit(self):

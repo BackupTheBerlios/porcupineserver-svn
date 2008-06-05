@@ -17,6 +17,7 @@
 """
 Porcupine database package
 """
+import time
 from threading import currentThread
 
 from porcupine.db import _db
@@ -38,12 +39,7 @@ def getItem(sPath, trans=None):
     @raise porcupine.exceptions.ObjectNotFound: if the item does
            not exist
     """
-    if (trans):
-        trans.actions.append( (getItem, (sPath, trans)) )
-    try:
-        oItem = _db.getItem(sPath, trans)
-    except exceptions.DBTransactionIncomplete:
-        trans.retry()
+    oItem = _db.getItem(sPath, trans)
     # check read permissions
     if objectAccess.getAccess(oItem, currentThread().context.session.user) != 0:
         return oItem
@@ -52,13 +48,48 @@ def getItem(sPath, trans=None):
 
 def getTransaction():
     """
-    Creates a transaction required for database updates. Currently, nested
-    transactions are not supported. Subsequent calls to C{getTransaction}
-    without commiting the first transaction will return the same handle.
+    Returns a transaction handle required for database updates.
+    Currently, nested transactions are not supported.
+    Subsequent calls to C{getTransaction} will return the same handle.
     
     @rtype: L{Transaction<porcupine.db.transaction.Transaction>}
     """
     txn = currentThread().trans
-    if not txn or txn._iscommited:
-        txn = currentThread().trans = _db.db_handle.transaction()
+    if txn == None:
+        raise exceptions.InternalServerError, \
+            "The specified method is not defined as transactional."
     return txn
+
+def transactional(function):
+    """
+    This is the descriptor for making a method of a content class
+    transactional.
+    """
+    def transactional_wrapper(*args):
+        c_thread = currentThread()
+        if c_thread.trans == None:
+            txn = _db.db_handle.transaction()
+            c_thread.trans = txn
+        retries = 0
+        try:
+            while retries < _db.db_handle.trans_max_retries:
+                try:
+                    #if retries == 0:
+                    #    raise exceptions.DBTransactionIncomplete
+                    val = function(*args)
+                    return val
+                except exceptions.DBTransactionIncomplete:
+                    txn.abort()
+                    time.sleep(0.05)
+                    retries += 1
+                    txn._retry()
+            else:
+                raise exceptions.DBTransactionIncomplete
+        finally:
+            # abort uncommitted transactions
+            if not txn._iscommited:
+                txn.abort()
+            c_thread.trans = None
+    transactional_wrapper.func_name = function.func_name
+    transactional_wrapper.func_doc = function.func_doc
+    return transactional_wrapper

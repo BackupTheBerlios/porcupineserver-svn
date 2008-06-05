@@ -113,11 +113,6 @@ class PorcupineThread(BaseServerThread):
             e = exceptions.InternalServerError()
             e.emit(self.context, item)
         
-        # abort uncommited transaction
-        if self.trans != None and not self.trans._iscommited:
-            self.trans.abort()
-        self.trans = None
-        
         settings['requestinterfaces'][request.interface](
               self.requestHandler, response)
 

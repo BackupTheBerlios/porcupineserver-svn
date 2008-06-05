@@ -198,7 +198,7 @@ class RelatorNEventHandler(eventHandlers.DatatypeEventHandler):
         for sID in attr.value:
             oItem = db.getItem(sID, trans)
             # do not replay in case of txn abort
-            del trans.actions[-1]
+            # del trans.actions[-1]
             if not(oItem):
                 lstNoAccess.append(sID)
         return lstNoAccess

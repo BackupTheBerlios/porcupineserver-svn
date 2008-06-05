@@ -115,8 +115,6 @@ def handle_update(oItem, oOldItem, trans):
             # create
             [handler.on_create(oItem, trans)
              for handler in oItem._eventHandlers]
-        # update object
-        putItem(oItem, trans)
     for attr_name in oItem.__props__:
         try:
             oAttr = getattr(oItem, attr_name)

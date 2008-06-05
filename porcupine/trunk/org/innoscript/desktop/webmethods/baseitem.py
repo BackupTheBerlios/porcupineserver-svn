@@ -255,6 +255,7 @@ def selectcontainer(self):
 
 
 @webmethods.remotemethod(of_type=Item)
+@db.transactional
 def update(self, data):
     "Updates an object based on values contained inside the data dictionary"
     context = HttpContext.current()
@@ -278,7 +279,6 @@ def update(self, data):
                 oAttr.filename = data[prop]['filename']
                 sPath = context.server.temp_folder + '/' + data[prop]['tempfile']
                 oAttr.loadFromFile(sPath)
-                os.remove(sPath)
         elif isinstance(oAttr, datatypes.Date):
             oAttr.value = data[prop].value
         elif isinstance(oAttr, datatypes.Integer):
@@ -291,6 +291,7 @@ def update(self, data):
     return True
 
 @webmethods.remotemethod(of_type=Item)
+@db.transactional
 def rename(self, newName):
     "Changes the display name of an object"
     txn = db.getTransaction()
@@ -313,6 +314,7 @@ def getSecurity(self):
     return l
 
 @webmethods.remotemethod(of_type=Item)
+@db.transactional
 def copyTo(self, targetid):
     txn = db.getTransaction()
     self.copyTo(targetid, txn)
@@ -320,6 +322,7 @@ def copyTo(self, targetid):
     return True
 
 @webmethods.remotemethod(of_type=Item)
+@db.transactional
 def moveTo(self, targetid):
     txn = db.getTransaction()
     self.moveTo(targetid, txn)
@@ -327,6 +330,7 @@ def moveTo(self, targetid):
     return True
 
 @webmethods.remotemethod(of_type=Item)
+@db.transactional
 def delete(self):
     txn = db.getTransaction()
     self.recycle('rb', txn)
@@ -334,6 +338,7 @@ def delete(self):
     return True
 
 @webmethods.remotemethod(of_type=GenericItem)
+@db.transactional
 def deletePermanent(self):
     txn = db.getTransaction()
     self.delete(txn)

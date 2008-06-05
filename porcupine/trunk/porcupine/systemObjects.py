@@ -26,7 +26,7 @@ from threading import currentThread
 
 from porcupine import db
 from porcupine.db import _db
-from porcupine.db.transactional import transactional
+#from porcupine.db.transactional import transactional
 from porcupine.security import objectAccess
 from porcupine import exceptions
 from porcupine.core import objectSet
@@ -99,7 +99,6 @@ class Cloneable(object):
             oCopy._items = {}
         return(oCopy)
     
-    @transactional
     def copyTo(self, targetId, trans):
         """
         Copies the item to the designated target.
@@ -140,7 +139,6 @@ class Moveable(object):
     """
     __slots__ = ()
     
-    @transactional
     def moveTo(self, targetId, trans):
         """
         Moves the item to the designated target.
@@ -217,7 +215,6 @@ class Removeable(object):
                 oChild = _db.getItem(sID, trans)
                 oChild._delete(trans)
 
-    @transactional
     def delete(self, trans):
         """
         Deletes the item permanently.
@@ -262,7 +259,6 @@ class Removeable(object):
         
         _db.putItem(self, trans)
 
-    @transactional
     def recycle(self, rbID, trans):
         """
         Moves the item to the specified recycle bin.
@@ -446,7 +442,6 @@ class GenericItem(object):
                     oItem._applySecurity(self, trans)
                     _db.putItem(oItem, trans)
 
-    @transactional
     def appendTo(self, parent, trans):
         """
         Adds the item to the specified container.
@@ -490,11 +485,11 @@ class GenericItem(object):
         self.modifiedBy = oUser.displayName.value
         self.modified = time.time()
         self._parentid = oParent._id
+        _db.handle_update(self, None, trans)
+        _db.putItem(self, trans)
         # update container
         oParent._addItemReference(self)
         _db.putItem(oParent, trans)
-        _db.putItem(self, trans)
-        _db.handle_update(self, None, trans)
 
     def isContainedIn(self, itemId, trans=None):
         """
@@ -689,7 +684,6 @@ class DeletedItem(GenericItem, Removeable):
             'Cannot directly add this item to the store.\n' + \
             'Use the "recycle" method instead.'
 
-    @transactional
     def restore(self, trans):
         """
         Restores the deleted item to its original location, if
@@ -715,7 +709,6 @@ class DeletedItem(GenericItem, Removeable):
         oOriginalParent._addItemReference(oDeleted)
         _db.putItem(oOriginalParent, trans)
     
-    @transactional
     def restoreTo(self, sParentId, trans):
         """
         Restores the deleted object to the specified container.
@@ -761,10 +754,10 @@ class DeletedItem(GenericItem, Removeable):
             ## TODO: check if oDeleted exists
             oDeleted = _db.getDeletedItem(self._deletedId, trans)
             _db.removeDeletedItem(oDeleted, trans)
-        else:
+        #else:
             # we got a call from "restore" or "restoreTo"
             # do not replay in case of txn abort
-            del trans.actions[-1]
+        #    del trans.actions[-1]
 
 class Item(GenericItem, Cloneable, Moveable, Removeable):
     """
@@ -780,7 +773,6 @@ class Item(GenericItem, Cloneable, Moveable, Removeable):
     def __init__(self):
         GenericItem.__init__(self)
 
-    @transactional
     def update(self, trans):
         """
         Updates the item.

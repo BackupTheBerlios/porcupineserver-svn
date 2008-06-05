@@ -15,46 +15,27 @@
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #===============================================================================
 "Porcupine Server Transaction classes"
-import time
 
 from porcupine.db import _db
-from porcupine import exceptions
 
 class Transaction(object):
     "The main type of a Porcupine transaction."
     def __init__(self):
-        self.actions = []
         self.txn = _db.createTransaction()
         self._iscommited = False
-        self._retries = 0
+    
+    def _retry(self):
+        self.txn = _db.createTransaction()
 
     def commit(self):
         """
         Commits the transaction.
         
         @return: None
-        
-        @raise porcupine.exceptions.DBTransactionIncomplete:
-            if the maximum number of transaction retries has been reached,
-            as defined in the C{porcupine.conf} file.
         """
-        while self._retries < _db.db_handle.trans_max_retries:
-            try:
-                #if self._retries < 11:
-                #    raise exceptions.DBTransactionIncomplete
-                _db.commitTransaction(self.txn)
-                self._iscommited = True
-                return
-            except exceptions.DBTransactionIncomplete:
-                #replay the transaction
-                _db.abortTransaction(self.txn)
-                self._retries += 1
-                time.sleep(0.05)
-                self.txn = _db.createTransaction()
-                [func(*args) for func,args in self.actions]
-        else:
-            raise exceptions.DBTransactionIncomplete
-
+        _db.commitTransaction(self.txn)
+        self._iscommited = True
+    
     def abort(self):
         """
         Aborts the transaction.
