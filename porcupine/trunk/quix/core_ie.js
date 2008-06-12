@@ -810,7 +810,7 @@ Widget.prototype.resize = function(x,y) {
 }
 
 Widget.prototype.destroy = function(w) {
-	w = w || this;
+	var w = w || this;
 	QuiX.removeWidget(w);
 }
 
