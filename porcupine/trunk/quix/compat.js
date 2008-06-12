@@ -343,7 +343,7 @@ QuiX.removeWidget = function(w) {
 		Widget__tooltipout(null, w);
 	
 	while (w.widgets.length>0)
-		w.widgets[0].destroy();
+		QuiX.removeWidget(w.widgets[0]);
 	
 	if (w.parent) {
 		w.parent.widgets.removeItem(w);
