@@ -103,9 +103,10 @@ TreeNode.prototype._updateParent = function() {
 
 TreeNode.prototype.destroy = function() {
 	this._updateParent();
-	if (this.tree.selectedWidget == this)
-		this.tree.selectedWidget = null;
+	var tree = this.tree; 
 	Widget.prototype.destroy(this);
+	if (tree.selectedWidget.div == null)
+		tree.selectedWidget = null;
 }
 
 TreeNode.prototype.detach = function() {
