@@ -42,7 +42,7 @@ QuiX.constructors = {
 };
 
 QuiX.progress = '<rect id="quix_progress" xmlns="http://www.innoscript.org/quix" ' +
-	'width="320" height="56" overflow="auto" display="none" top="center" left="center" ' +
+	'width="320" height="56" overflow="auto" top="center" left="center" ' +
 	'border="2" bgcolor="white" style="border-color:#999999;border-style:solid" '+
 	'padding="4,4,4,4"><rect width="100%" height="100%" overflow="hidden">' +
 	'<xhtml><![CDATA[<center>Please wait...<br/><br/>' +
