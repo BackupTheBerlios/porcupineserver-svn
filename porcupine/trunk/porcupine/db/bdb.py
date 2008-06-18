@@ -47,7 +47,7 @@ class DbInterface(GenericDBInterface):
             self.trans_max_retries = int(settings['store']['trans_max_retries'])
         except KeyError:
             # trans max retries default setting is 12
-            trans_max_retries = 12
+            self.trans_max_retries = 12
 
         try:
             self.checkpoint_interval = int(settings['store']['checkpoint_interval'])
