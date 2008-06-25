@@ -71,7 +71,7 @@ class HttpRequest(object):
         self.type = 'http'
         
         if self.serverVariables['REQUEST_METHOD'] == 'POST':
-            if self.serverVariables['CONTENT_TYPE'] == 'text/xml':
+            if self.serverVariables['CONTENT_TYPE'][:8] == 'text/xml':
                 # xmlrpc request?
                 method_match = re.search(XMLRPC_METHOD, self.input.getvalue())
                 if method_match:
