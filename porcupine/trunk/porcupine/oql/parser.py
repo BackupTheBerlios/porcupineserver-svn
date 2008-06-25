@@ -53,9 +53,9 @@ reserved = (
 #===============================================================================
     'SLICE',
 #===============================================================================
-# class functions
+# object functions
 #===============================================================================
-    'INSTANCEOF',
+    'INSTANCEOF', 'GETPARENT'
 )
 
 functions = (
@@ -70,7 +70,11 @@ functions = (
 #===============================================================================
 # conversion functions
 #===============================================================================
-    'str', 'date', 'lower', 'upper'
+    'str', 'date', 'lower', 'upper',
+#===============================================================================
+# object functions
+#===============================================================================
+    'getattr'
 )
 
 reserved_map = { }
@@ -93,13 +97,12 @@ tokens = reserved + (
     'LPAREN','RPAREN', 'LSB', 'RSB',
 
     'INT', 'FLOAT', 'NAME', 'STRING',
-    
 )
     
 # Tokens
-t_COLON              = r':'
-t_COMMA            = r','
-t_STRING           = r'\'([^\\\n]|(\\.))*?\''
+t_COLON             = r':'
+t_COMMA             = r','
+t_STRING            = r'\'([^\\\n]|(\\.))*?\''
     
 #===============================================================================
 # comparison operators
@@ -198,7 +201,7 @@ class OqlParser:
 
     def __init__(self, debug=0):
         self.debug = debug
-        self.debugfile = "porcupine/oql/parser.out"
+        self.debugfile = "parser.out"
         self.tabmodule = "oql_parsetab"
 
         self.expr_index = 0
@@ -441,10 +444,17 @@ class OqlParser:
         'expression : INSTANCEOF LPAREN expression RPAREN'
         p[0] = [ [ core.INSTANCEOF, [p[3]] ] ]
         
+    def p_expression_getparent_1(self, p):
+        'expression : GETPARENT LPAREN expression RPAREN'
+        p[0] = [ [ core.GETPARENT, [p[3]] ] ]
+    
+    def p_expression_getparent_2(self, p):
+        'expression : GETPARENT LPAREN RPAREN'
+        p[0] = [ [ core.GETPARENT, [] ] ]
+        
 #===============================================================================
 # logical expression grammar
 #===============================================================================
-
     def p_expression_boolean_1(self, p):
         """
         expression : expression OR expression

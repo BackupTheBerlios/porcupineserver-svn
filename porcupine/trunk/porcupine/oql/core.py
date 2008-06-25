@@ -37,6 +37,7 @@ HASATTR     = 63
 SLICE       = 64
 IF          = 65
 INSTANCEOF  = 66
+GETPARENT   = 67
 
 CMD_ASSIGN  = 100
 OQL_SELECT  = 200
@@ -45,26 +46,25 @@ SYSTEM_DATES = ('created', 'modified')
 
 # map operator symbols to corresponding operations
 opn2 = { 
-    '+' : (lambda a,b: a + b),
-    '-' : (lambda a,b: a - b),
-    '*' : (lambda a,b: a * b),
-    '/' : (lambda a,b: a / b),
-    '^' : (lambda a,b: a ** b),
+    '+' : lambda a,b: a + b,
+    '-' : lambda a,b: a - b,
+    '*' : lambda a,b: a * b,
+    '/' : lambda a,b: a / b,
+    '^' : lambda a,b: a ** b,
     
-    '=' : (lambda a,b: a == b),
-    '<>' : (lambda a,b: a != b),
-    '<=' : (lambda a,b: a <= b),
-    '>=' : (lambda a,b: a >= b),
-    '>' : (lambda a,b: a > b),
-    '<' : (lambda a,b: a < b),
+    '=' : lambda a,b: a == b,
+    '<>' : lambda a,b: a != b,
+    '<=' : lambda a,b: a <= b,
+    '>=' : lambda a,b: a >= b,
+    '>' : lambda a,b: a > b,
+    '<' : lambda a,b: a < b,
 
-    'or' : (lambda a,b: a or b),
-    'and' : (lambda a,b: a and b),
-    
+    'or' : lambda a,b: a or b,
+    'and' : lambda a,b: a and b,
 }
 
 opn1 = {
-    "not": (lambda a: not a)
+    "not": lambda a: not a
 }
 
 operators2 = opn2.keys()
@@ -74,13 +74,14 @@ fn  = {
     'len' : len,
     'abs' : abs,
     'str' : str,
-    'lower' : ( lambda a: a.lower() ),
-    'upper' : ( lambda a: a.upper() ),
-    'date' : ( lambda a: Date(time.mktime(time.strptime(a, '%Y-%m-%dT%H:%M:%S'))) ),
-    'trunc' : ( lambda a: int(a) ),
-    'round' : ( lambda a: int(a+0.5) ),
-    'sgn' : ( lambda a: ( (a<0 and -1) or (a>0 and 1) or 0 ) ),
-    'isnone' : ( lambda a,b: a or b )
+    'lower' : lambda a: a.lower(),
+    'upper' : lambda a: a.upper(),
+    'date' : lambda a: Date(time.mktime(time.strptime(a, '%Y-%m-%dT%H:%M:%S'))),
+    'trunc' : lambda a: int(a),
+    'round' : lambda a: int(a+0.5),
+    'sgn' : lambda a: ( (a<0 and -1) or (a>0 and 1) or 0 ),
+    'isnone' : lambda a,b: a or b,
+    'getattr' : lambda a,b : getAttribute(a, [b])
 }
 
 def evaluateStack(stack, variables, forObject=None):
@@ -276,6 +277,16 @@ def h_65(params, variables, forObject):
 def h_66(params, variables, forObject):
     className = evaluateStack(params[0][:], variables, forObject)
     return isinstance(forObject, misc.getCallableByName(className))
+
+#================================================================================
+# GETPARENT command handler
+#================================================================================
+def h_67(params, variables, forObject):
+    if (params):
+        obj = evaluateStack(params[0][:], variables, forObject)
+    else:
+        obj = forObject
+    return obj.getParent()
 
 #================================================================================
 # assignment command handler
