@@ -84,7 +84,7 @@ def transactional(auto_commit=False):
                         #if retries == 0:
                         #    raise exceptions.DBTransactionIncomplete
                         if is_top_level:
-                            cargs = copy.deepcopy(args, {'df':False})
+                            cargs = copy.deepcopy(args)
                         else:
                             cargs = args
                         val = function(*cargs)

@@ -449,7 +449,7 @@ class ExternalFile(String):
     
     def __deepcopy__(self, memo):
         clone = copy.copy(self)
-        duplicate_files = memo.get('df', True)
+        duplicate_files = memo.get('df', False)
         if (duplicate_files):
             # copy the external file
             fcounter = 1

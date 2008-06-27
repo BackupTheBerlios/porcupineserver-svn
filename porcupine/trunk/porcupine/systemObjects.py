@@ -82,7 +82,7 @@ class Cloneable(object):
         target._addItemReference(oCopy)
         _db.putItem(target, trans)
 
-    def clone(self):
+    def clone(self, dup_ext_files=True):
         """
         Creates an in-memory clone of the item.
         This is a shallow copy operation meaning that the item's
@@ -91,7 +91,7 @@ class Cloneable(object):
         @return: the clone object
         @rtype: type
         """
-        oCopy = copy.deepcopy(self)
+        oCopy = copy.deepcopy(self, {'df':dup_ext_files})
         oCopy._id = misc.generateOID()
         if self.isCollection:
             oCopy._subfolders = {}

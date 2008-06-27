@@ -32,7 +32,7 @@ class Cache(dict):
         self.__accesslist.remove(key)
         #print self.__accesslist
         if self.readonly:
-            return copy.deepcopy(dict.__getitem__(self, key), {'df':False})
+            return copy.deepcopy(dict.__getitem__(self, key))
         else:
             return dict.__getitem__(self, key)
         
