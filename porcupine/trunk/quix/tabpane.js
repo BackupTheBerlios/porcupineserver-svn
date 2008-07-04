@@ -108,8 +108,7 @@ function Tab__destroy() {
 	else {
 		if (oTab.tabs.length > 1)
 			oTab.activateTab(1);
-		else
-			oTab.activeTab = 0;
+		oTab.activeTab = 0;
 	}
 	oTab.tabs.splice(idx, 1);
 	this.tabButton.destroy();
