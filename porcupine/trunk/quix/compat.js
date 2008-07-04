@@ -369,17 +369,20 @@ QuiX.getParentNode = function(el) {
 
 QuiX.detachFrames = function(w) {
 	if (QuiX.modules[9].isLoaded) {
-		var frames = w.getWidgetsByType(IFrame);
-		for (var i=0; i<frames.length; i++)
-			frames[i].frame = QuiX.removeNode(frames[i].frame);
+		var frms = w.getWidgetsByType(IFrame);
+		for (var i=0; i<frms.length; i++) {
+			if (QuiX.getParentNode(frms[i].frame))
+				QuiX.removeNode(frms[i].frame);
+		}
 	}
 }
 
 QuiX.attachFrames = function(w) {
 	if (QuiX.modules[9].isLoaded) {
-		var frames = w.getWidgetsByType(IFrame);
-		for (var i=0; i<frames.length; i++)
-			frames[i].div.appendChild(frames[i].frame);
+		var frms = w.getWidgetsByType(IFrame);
+		for (var i=0; i<frms.length; i++)
+			if (!QuiX.getParentNode(frms[i].frame))
+				frms[i].div.appendChild(frms[i].frame);
 	}
 }
 
