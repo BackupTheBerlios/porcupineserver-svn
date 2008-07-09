@@ -91,7 +91,7 @@ TabPane.prototype.activateTab = function(tab) {
 	}
 	
 	this.activeTab = iTab;
-	if (iActive!=iTab && oTab.onactivate) {
+	if ((this.tabs.length==1 || iActive!=iTab) && oTab.onactivate) {
 		QuiX.getEventListener(oTab.onactivate)(this, iTab);
 	}
 }
