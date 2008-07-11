@@ -68,6 +68,7 @@ function Combo(params) {
 	});
 	this.dropdown.appendChild(resizer);
 	resizer.div.className = 'resize';
+	resizer.attachEvent('onclick', QuiX.stopPropag);
 	resizer.attachEvent('onmousedown', function(evt){
 		oCombo.dropdown._startResize(evt);
 	});
