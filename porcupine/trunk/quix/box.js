@@ -126,10 +126,7 @@ function BoxWidget__destroy() {
 	var oBox = this.parent;
 	var length_var = (oBox.orientation=='h')?'width':'height';
 	
-	for (var idx=0; idx < oBox.widgets.length; idx++) {
-		 if (oBox.widgets[idx] == this)
-		 	break;
-	}
+	var idx = oBox.widgets.indexOf(this);
 	if (this[length_var] == 'this.parent._calcWidgetLength()' &&
 			oBox.widgets.length == 2) {
 		if (idx == 0)
@@ -242,10 +239,7 @@ function FlowBoxWidget__destroy() {
 		if (fb._selection == this)
 			fb._selection = null;
 	}
-	for (var i=0; i<fb.widgets.length; i++) {
-		if (fb.widgets[i] == this)
-			break;
-	}
+	var i = fb.widgets.indexOf(this);
 	Widget.prototype.destroy(this);
 	if (i < fb.widgets.length)
 		fb._rearrange(i);

@@ -112,10 +112,7 @@ Splitter.prototype._getFillersCount = function() {
 function SplitterPane__destroy() {
 	var oSplitter = this.parent;
 	var length_var = (oSplitter.orientation == 'h')?'width':'height';
-	for (var idx=0; idx < oSplitter.panes.length; idx++) {
-		 if (oSplitter.panes[idx] == this)
-		 	break;
-	}
+	var idx = oSplitter.panes.indexOf(this);
 	if (this[length_var] == oSplitter.free_length && oSplitter.panes.length > 1) {
 		if (idx == 0)
 			oSplitter.panes[1][length_var] = '-1';
@@ -145,10 +142,7 @@ function SplitterHandle__mousedown(evt, w) {
 		QuiX.cancelDefault(evt);
 		QuiX.dragging = true;
 		QuiX.detachFrames(splitter);
-		for (var idx=0; idx < splitter._handles.length; idx++) {
-			 if (splitter._handles[idx] == w)
-			 	break;
-		}
+		var idx = splitter._handles.indexOf(w);
 		splitter.attachEvent('onmouseup',
 			function(evt, w){w._endMoveHandle(evt, idx)});
 		splitter.attachEvent('onmousemove',
@@ -161,11 +155,7 @@ function SplitterHandle__dblclick(evt, w) {
 	var splitter = w.parent;
 	var length_var = (splitter.orientation == 'h')?'width':'height';
 	var length_func = (splitter.orientation == 'h')?'getWidth':'getHeight';
-	
-	for (var idx=0; idx < splitter._handles.length; idx++) {
-		 if (splitter._handles[idx] == w)
-		 	break;
-	}
+	var idx = splitter._handles.indexOf(w);
 	var ns = 1;
 	if (splitter.panes[idx+1].attributes._collapse) {
 		idx = idx + 1;

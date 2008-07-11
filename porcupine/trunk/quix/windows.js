@@ -564,12 +564,7 @@ DialogButton.prototype._registerHandler = function(eventType, handler, isCustom)
 	var wrapper;
 	if(handler && handler.toString().lastIndexOf('return handler(evt || event, w)')==-1)
 		wrapper = function(evt, w) {
-			for (var i=0; i<w.dialog.buttons.length; i++) {
-				if (w.dialog.buttons[i] == w) {
-					w.dialog.buttonIndex = i;
-					break;
-				}
-			}
+			w.dialog.buttonIndex = w.dialog.buttons.indexOf(w);
 			handler(evt, w);
 		}
 	wrapper = wrapper || handler;
