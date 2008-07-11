@@ -475,37 +475,32 @@ Widget.prototype.getWidgetById = function(sid) {
 		return ws;
 }
 
-Widget.prototype.getWidgetsByType = function(wtype) {
+Widget.prototype.query = function(eval_condition, param, shallow) {
 	var w;
 	var ws = [];
 	for (var i=0; i<this.widgets.length; i++) {
 		w = this.widgets[i];
-		if (w instanceof wtype) ws.push(w);
-		ws = ws.concat(w.getWidgetsByType(wtype));
+		if (eval(eval_condition)) ws.push(w);
+		if (!shallow)
+			ws = ws.concat(w.query(eval_condition, param, shallow));
 	}
 	return ws;
 }
 
-Widget.prototype.getWidgetsByAttribute = function(attr_name) {
-	var w;
-	var ws = [];
-	for (var i=0; i<this.widgets.length; i++) {
-		w = this.widgets[i];
-		if (w[attr_name] != undefined) ws.push(w);
-		ws = ws.concat(w.getWidgetsByAttribute(attr_name));
-	}
-	return ws;
+Widget.prototype.getWidgetsByType = function(wtype, shallow) {
+	return this.query('w instanceof param', wtype, shallow);
 }
 
-Widget.prototype.getWidgetsByAttributeValue = function(attr_name, value) {
-	var w;
-	var ws = [];
-	for (var i=0; i<this.widgets.length; i++) {
-		w = this.widgets[i];
-		if (w[attr_name] == value) ws.push(w);
-		ws = ws.concat(w.getWidgetsByAttributeValue(attr_name, value));
-	}
-	return ws;
+Widget.prototype.getWidgetsByClassName = function(cssName, shallow) {
+	return this.query('w.div.className == param', cssName, shallow);
+} 
+
+Widget.prototype.getWidgetsByAttribute = function(attr_name, shallow) {
+	return this.query('w[param] != undefined', attr_name, shallow);
+}
+
+Widget.prototype.getWidgetsByAttributeValue = function(attr_name, value, shallow) {
+	return this.query('w[param[0]] == param[1]', [attr_name, value], shallow);
 }
 
 Widget.prototype._setAbsProps = function () {
