@@ -24,16 +24,20 @@ from porcupine.services import management
 
 __usage__ = """
 Backup database:
-    db_backup.py -b -s SERVERNAME:SERVERPORT -f BACKUPFILE or
-    db_backup.py --backup --server=SERVERNAME:SERVERPORT --file=BACKUPFILE
+    porcupineadmin.py -b -s SERVERNAME:SERVERPORT -f BACKUPFILE or
+    porcupineadmin.py --backup --server=SERVERNAME:SERVERPORT --file=BACKUPFILE
     
 Restore database:
-    db_backup.py -r -s SERVERNAME:SERVERPORT -f BACKUPFILE or
-    db_backup.py --restore --server=SERVERNAME:SERVERPORT --file=BACKUPFILE
+    porcupineadmin.py -r -s SERVERNAME:SERVERPORT -f BACKUPFILE or
+    porcupineadmin.py --restore --server=SERVERNAME:SERVERPORT --file=BACKUPFILE
     
 Shrink database:
-    db_backup.py -h -s SERVERNAME:SERVERPORT or
-    db_backup.py --shrink --server=SERVERNAME:SERVERPORT
+    porcupineadmin.py -h -s SERVERNAME:SERVERPORT or
+    porcupineadmin.py --shrink --server=SERVERNAME:SERVERPORT
+    
+Recover database:
+    porcupineadmin.py -c or
+    porcupineadmin.py --recover
 
 SERVERNAME:SERVERPORT - The management server address.
 BACKUPFILE - The path to the backup file.
@@ -46,7 +50,9 @@ def usage():
 # get arguments
 argv = sys.argv[1:]
 try:
-    opts, args = getopt.getopt(argv, "brhs:f:", ["backup","restore","shrink","server=","file="])
+    opts, args = getopt.getopt(argv, "brhcs:f:",
+                               ["backup","restore","shrink",
+                                "recover","server=","file="])
 except getopt.GetoptError:
     usage()
 
