@@ -56,7 +56,7 @@ class PorcupineThread(BaseServerThread):
                     dirName = lstPath[1]
                     # remove blank entry & app name to get the requested path
                     sDirPath = '/'.join(lstPath[2:])
-                    webApp = pubdirs.dirs.setdefault(dirName, None)
+                    webApp = pubdirs.dirs.get(dirName, None)
                     if webApp:
                         registration = webApp.getRegistration(
                             sDirPath,
@@ -137,8 +137,12 @@ class PorcupineThread(BaseServerThread):
                                  'WM_%s_' % method_name]
             
             candidate_methods.sort(
-                cmp=lambda x,y:-cmp(len(getattr(item,x).func_dict['cnd'][3]),
-                                    len(getattr(item,y).func_dict['cnd'][3])))
+                cmp=lambda x,y:-cmp(
+                    int(getattr(item,x).func_dict['cnd'][1]!='') +
+                    int(getattr(item,x).func_dict['cnd'][3]!=''),
+                    int(getattr(item,y).func_dict['cnd'][1]!='') +
+                    int(getattr(item,y).func_dict['cnd'][3]!=''))
+            )
             
             for method_name in candidate_methods:
                 http_method, client, lang, qs = \
