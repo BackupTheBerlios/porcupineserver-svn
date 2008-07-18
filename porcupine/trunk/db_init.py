@@ -17,7 +17,7 @@ answer = raw_input('''WARNING: Please ensure that Porcupine Server is stopped!
 All objects will be erased!
 Are you sure you want to initialize the database(Y/N)?''')
 
-if (answer == 'Y'):
+if (answer.upper() == 'Y'):
     try:
         from porcupine.config.settings import settings
         _db.open(misc.getCallableByName(settings['store']['interface']))
