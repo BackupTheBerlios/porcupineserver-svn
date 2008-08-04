@@ -806,6 +806,8 @@ Widget.prototype.resize = function(x,y) {
 
 Widget.prototype.destroy = function(w) {
 	var w = w || this;
+	if (w._customRegistry.onunload)
+		w._customRegistry.onunload(w);
 	QuiX.removeWidget(w);
 }
 
@@ -994,7 +996,7 @@ Widget.prototype.supportedEvents = [
 	'oncontextmenu', 'onscroll'
 ];
 
-Widget.prototype.customEvents = ['onload','onresize','ondrop'];
+Widget.prototype.customEvents = ['onload','onunload','onresize','ondrop'];
 
 Widget.prototype._registerHandler = function(evt_type, handler, isCustom, w) {
 	w = w || this;
