@@ -259,7 +259,6 @@ MultiFile.prototype.showUploadDialog = function(evt, w) {
 	var filenames = this.filecontrol.uploader.selectFiles(true, this.filetypes);
 	
 	if (filenames != '') {
-		var oWin = this.getParentByType(Window);
 		var fileid;
 		var files = new String(filenames).split(';');
 		files = files.slice(0, files.length-1).reverse();
