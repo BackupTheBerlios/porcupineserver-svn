@@ -27,9 +27,9 @@ _activeTxns = 0
 db_handle = None
 object_cache = None
 
-def open(db_handleClass):
+def open(db_handleClass, flags=0):
     global db_handle, object_cache
-    db_handle = db_handleClass()
+    db_handle = db_handleClass(flags=flags)
     object_cache = cache.Cache(int(settings['store']['object_cache_size']),
                                readonly=True)
     

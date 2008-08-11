@@ -34,7 +34,7 @@ class DbInterface(GenericDBInterface):
     """
     Porcupine server Berkeley DB interface
     """
-    def __init__(self):
+    def __init__(self, **kwargs):
         GenericDBInterface.__init__(self)
         
         self.dir = settings['store']['bdb_data_dir']
@@ -55,12 +55,14 @@ class DbInterface(GenericDBInterface):
             # default checkpoint interval set to 1 minute
             self.checkpoint_interval = 1
 
+        additional_flags = kwargs.get('flags', 0)
+
         # create db environment
         self._env = db.DBEnv()
         self._env.open(
             self.dir,
             db.DB_THREAD | db.DB_INIT_MPOOL | db.DB_INIT_LOCK |
-            db.DB_INIT_LOG | db.DB_INIT_TXN | db.DB_CREATE  | db.DB_RECOVER
+            db.DB_INIT_LOG | db.DB_INIT_TXN | db.DB_CREATE  | additional_flags
         )
 
         self._env.set_flags(db.DB_AUTO_COMMIT, 1)
