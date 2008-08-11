@@ -172,22 +172,6 @@ class Package(object):
             execfile(self.tmp_folder + '/_pre.py')
             os.remove(self.tmp_folder + '/_pre.py')
         
-        # registrations
-#        if '_regs.xml' in contents:
-#            print 'INFO: installing package registrations...'
-#            regsfile = self.package_file.extractfile('_regs.xml')
-#            _dom = minidom.parse(regsfile)
-#            package_node = _dom.getElementsByTagName('package')[0]
-#            package_node = package_node.cloneNode(True)
-#            conf_file = configfiles.ConfigFileManager('conf/store.xml')
-#            old_node = conf_file.getPackageNode(self.name)
-#            if old_node:
-#                conf_file.replacePackageNode(package_node, old_node)
-#            else:
-#                conf_file.addPackageNode(package_node)
-#            _dom.unlink()
-#            conf_file.close()
-
         # published directories
         if '_pubdir.xml' in contents:
             print 'INFO: installing published directories...'
@@ -251,14 +235,6 @@ class Package(object):
             
     def uninstall(self):
         print 'INFO: uninstalling [%s-%s] package...' % (self.name, self.version)
-        
-        # registrations
-#        conf_file = configfiles.ConfigFileManager('conf/store.xml')
-#        pkgnode = conf_file.getPackageNode(self.name)
-#        if pkgnode:
-#            print 'INFO: removing package registrations'
-#            conf_file.removePackageNode(pkgnode)
-#            conf_file.close()
         
         # database items
         items = self.config_file.options('items')
@@ -524,4 +500,3 @@ if __name__=='__main__':
     finally:
         if my_pkg != None:
             my_pkg.close()
-
