@@ -6,23 +6,21 @@ function MenuOption(params) {
 	params.height = params.height || 21;
 	params.align = 'left';
 	params.imgalign = 'left';
-	params.width = '100%';
+	params.width = null;
+	params.overflow = 'visible';
 	params.padding = '4,0,3,2';
 	params.onmouseover = MenuOption__onmouseover;
 	params.onmouseout = MenuOption__onmouseout;
-	params.onclick = QuiX.getEventWrapper(MenuOption__onclick, params.onclick);
+	params.onclick = QuiX.getEventWrapper(params.onclick, MenuOption__onclick);
 
 	this.base = Icon;
 	this.base(params);
-
 	this.div.style.whiteSpace = 'nowrap';
-	if (QuiX.browser == 'moz')
-		this.setDisplay('table');
 	this.setPosition('relative');
 
 	this.subMenu = null;
 	this.type = params.type;
-	this.selected = (params.selected=='true' || params.selected==true)?true:false;
+	this.selected = (params.selected=='true' || params.selected==true);
 }
 
 MenuOption.prototype = new Icon;
@@ -34,10 +32,12 @@ MenuOption.prototype.addOption = function(params) {
 }
 
 MenuOption.prototype.redraw = function(bForceAll) {
-	if (this.subMenu)
+	if (this.subMenu) {
 		this.div.className = 'submenu';
-	else
+	}
+	else {
 		this.div.className = '';
+	}
 
 	if (this.type) {
 		if (this.selected) {
@@ -150,6 +150,7 @@ function ContextMenu(params, owner) {
 		id : params.id,
 		width : 100,
 		border : 1,
+		overflow : 'visible',
 		onmousedown : QuiX.stopPropag,
 		onshow : params.onshow,
 		onclose : params.onclose
@@ -188,6 +189,16 @@ function ContextMenu(params, owner) {
 	
 	this.activeSub = null;
 	this.isOpen = false;
+	
+	if (QuiX.effectsEnabled) {
+		var show_effect = new Effect({
+			id : '_eff_show',
+			type : 'wipe-in',
+			steps : 6,
+			interval : 10
+		});
+		this.appendChild(show_effect);
+	}
 }
 
 QuiX.constructors['contextmenu'] = ContextMenu;
@@ -208,12 +219,15 @@ ContextMenu.prototype.redraw = function(bForceAll) {
 	
 	for (var i=0; i<this.options.length; i++) {
 		oOption = this.options[i];
-		if (oOption instanceof Icon && QuiX.browser == 'ie')
-			optionWidth = oOption.div.getElementsByTagName('SPAN')[0].offsetWidth + 26;
-		else
-			optionWidth = oOption.div.offsetWidth;
-		if (optionWidth + 2 > this.width)
-			this.width = optionWidth + 16;
+		if (oOption instanceof Icon) {
+			if (QuiX.browser == 'ie')
+				optionWidth = oOption.div.getElementsByTagName('SPAN')[0].offsetWidth + 26;
+			else
+				optionWidth = oOption.div.offsetWidth;
+			oOption.width = '100%';
+			if (optionWidth + 2 > this.width)
+				this.width = optionWidth + 16;
+		}
 		iHeight += oOption.div.offsetHeight;
 	}
 	
@@ -238,6 +252,11 @@ ContextMenu.prototype.show = function(w, x, y) {
 			this.left = x;
 			this.top = y;
 			w.appendChild(this);
+			this.div.style.zIndex = QuiX.maxz;
+			if (QuiX.effectsEnabled) {
+				var effect = this.getWidgetById('_eff_show');
+				effect.play();
+			}
 			this.redraw();
 			if (w==document.desktop)
 				document.desktop.overlays.push(this);
@@ -287,6 +306,7 @@ ContextMenu.prototype.addOption = function(params) {
 function Widget__contextmenu(evt, w) {
 	w.contextMenu.target = QuiX.getTargetWidget(evt);
 	w.contextMenu.show(document.desktop, evt.clientX, evt.clientY);
+	QuiX.cancelDefault(evt);
 }
 
 // Menu Bar

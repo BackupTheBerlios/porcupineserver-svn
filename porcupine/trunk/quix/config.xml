@@ -7,6 +7,14 @@
 		max-age="3600"/>
     <context path="xul_core.js"
 			method="GET"
+			client="Version/3.\d(.*)Safari"
+			lang=".*"
+			action="core_saf.js"
+			max-age="3600">
+		<filter type="porcupine.filters.output.Gzip"/>
+	</context>
+    <context path="xul_core.js"
+			method="GET"
 			client="Netscape/7|Mozilla/5.0"
 			lang=".*"
 			action="core_moz.js" max-age="3600">

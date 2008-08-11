@@ -65,6 +65,7 @@ ListView.prototype.addHeader = function(params, w) {
 	params.width = '100%';
 	params.height = (!params.height || params.height<22)?
 					22:parseInt(params.height);
+	params.overflow = 'hidden';
 	
 	oListview.header = new Widget(params);
 	oListview.appendChild(oListview.header);
@@ -74,7 +75,6 @@ ListView.prototype.addHeader = function(params, w) {
 		'<td class="column filler">&nbsp;</td></tr></table>';
 	oListview.header.div.style.backgroundPosition =
 		'0px ' + (params.height-22) + 'px';
-	//oListview.header.redraw = ListViewHeader__redraw;
 	
 	var oRow = oListview.header.div.firstChild.rows[0];
 	oListview.columns = oRow.cells;
@@ -280,10 +280,10 @@ ListView.prototype.addColumn = function(params, w) {
 	if (params.width) {
 		if (params.width.slice(params.width.length-1) == '%')
 			oCol.proportion = parseInt(params.width) / 100;
-		else
-			oCol.style.width = (params.width -
-								2*oListView.cellPadding -
-								2*oListView.cellBorder) + 'px';
+		else {
+			var offset = (QuiX.browser == 'saf')?0:2*oListView.cellPadding + 2*oListView.cellBorder;
+			oCol.style.width = (params.width - offset) + 'px';
+		}
 	}
 
 	oCol.setCaption = ListColumn__setCaption;
@@ -321,7 +321,7 @@ ListView.prototype.addColumn = function(params, w) {
 	
 	var resizer = new Widget({
 		width : 6,
-		height : oListView.header._calcHeight(true),
+		height : oListView.header._calcHeight(),
 		left : 'this.parent.parent._calcResizerOffset(this)',
 		overflow : 'hidden'
 	});
@@ -330,10 +330,11 @@ ListView.prototype.addColumn = function(params, w) {
 	oCol.isResizable =
 		(params.resizable=='false' || params.resizable==false)?false:true;
 	if (oCol.isResizable) {
-		var iColumn = oListView.columns.length - 1;
+		var iColumn = oHeaderRow.cells.length - 1;
 		resizer.div.className = 'resizer';
 		resizer.attachEvent('onmousedown', function(evt) {
 			oListView._moveResizer(evt, iColumn-1-oListView._deadCells);
+			QuiX.cancelDefault(evt);
 		});
 	}
 	return oCol;
@@ -342,7 +343,8 @@ ListView.prototype.addColumn = function(params, w) {
 ListView.prototype._calcResizerOffset = function(w) {
 	var oHeader = this.header;
 	var left = (this.hasSelector)?10:0;
-	var offset = 2 * this.cellPadding;
+	var offset = (QuiX.browser=='saf')?-2:2*this.cellPadding;
+	var offset2 = (QuiX.browser=='saf')?0:this.cellBorder;
 	var column_width;
 	for (var i=this._deadCells; i<this.columns.length; i++) {
 		column_width = parseInt(this.columns[i].style.width);
@@ -350,7 +352,7 @@ ListView.prototype._calcResizerOffset = function(w) {
 
 		if (this.list.rows.length > 0)
 			this.list.rows[0].cells[i].style.width =
-				column_width - this.cellBorder + 'px';
+				column_width - offset2 + 'px';
 
 		if (oHeader.widgets[i - this._deadCells]==w) break;
 	}
@@ -360,6 +362,7 @@ ListView.prototype._calcResizerOffset = function(w) {
 
 ListView.prototype._moveResizer = function(evt, iResizer) {
 	var oWidget = this;
+	QuiX.cancelDefault(evt);
 	QuiX.startX = evt.clientX;
 	this.attachEvent('onmouseup', function(evt){
 		oWidget._endMoveResizer(evt, iResizer)});
@@ -412,7 +415,8 @@ ListView.prototype.refresh = function(w) {
 		}
 		if (w.hasSelector) {
 			selector = w._getSelector();
-			selector.style.width = (8 - 2*w.cellPadding + 2) + 'px';
+			offset = (QuiX.browser=='saf')?0:2*w.cellPadding - 2;
+			selector.style.width = (8 - offset) + 'px';
 			oRow.appendChild(selector);
 		}
 		for (var j=0 + w._deadCells; j<w.columns.length-1; j++) {
@@ -420,14 +424,15 @@ ListView.prototype.refresh = function(w) {
 			oCell.className = 'cell';
 			column_width = w.columns[j].style.width;
 			if (i==0 && column_width) {
+				offset = (QuiX.browser=='saf')?0:w.cellBorder;
 				if (w.columns[j].proportion) {
 					oCell.style.width =
 						(parseInt(w._calcWidth() * w.columns[j].proportion) -
 						2*w.cellPadding - 2) + 'px';
 				}
 				else
-					oCell.style.width = parseInt(column_width) -
-										w.cellBorder + 'px';
+					oCell.style.width = (parseInt(column_width) -
+										offset) + 'px';
 			}
 
 			oCell.style.borderWidth = w.cellBorder + 'px';
@@ -582,6 +587,7 @@ function List__startDrag(x, y) {
 		table.firstChild.appendChild(row);
 	}
 	document.desktop.appendChild(dragable);
+	dragable.div.style.zIndex = QuiX.maxz;
 	dragable.redraw(true);
 
 	QuiX.tmpWidget = dragable;

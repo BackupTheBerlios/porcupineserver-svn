@@ -26,6 +26,7 @@ function Clipboard() {
 var QuiX = {};
 QuiX.version = '0.9 build 20080216';
 QuiX.namespace = 'http://www.innoscript.org/quix';
+QuiX.maxz = 9999999999999;
 QuiX.startX = 0;
 QuiX.startY = 0;
 QuiX.clipboard = new Clipboard();
@@ -40,19 +41,18 @@ QuiX.constructors = {
 	'module' : null,
 	'stylesheet' : null
 };
+QuiX._activeLoaders = 0;
+QuiX.effectsEnabled = true;
 
-QuiX.progress = '<rect id="quix_progress" xmlns="http://www.innoscript.org/quix" ' +
-	'width="320" height="56" overflow="auto" top="center" left="center" ' +
-	'border="2" bgcolor="white" style="border-color:#999999;border-style:solid" '+
-	'padding="4,4,4,4"><rect width="100%" height="100%" overflow="hidden">' +
-	'<xhtml><![CDATA[<center>Please wait...<br/><br/>' +
-	'<span></span></center>]]></xhtml>' +
-	'<progressbar id="pb" width="150" maxvalue="1" height="4" ' +
-	'top="center" left="center"></progressbar></rect></rect>';
+QuiX.progress = '<rect xmlns="http://www.innoscript.org/quix" display="none" ' +
+	'width="18" height="18" overflow="auto" top="center" left="center">' +
+	'<rect width="100%" height="100%" overflow="hidden"><xhtml><![CDATA[' +
+	'<img src="__quix/images/loader.gif">' +
+	']]></xhtml></rect></rect>';
 
 QuiX.modules = [
-	new QModule('Windows and Dialogs', '__quix/windows.js', [3,15]),
-	new QModule('Menus', '__quix/menus.js', [3]),
+	new QModule('Windows and Dialogs', '__quix/windows.js', [3,15,16]),
+	new QModule('Menus', '__quix/menus.js', [3,16]),
 	new QModule('Splitter', '__quix/splitter.js', [15]),
 	new QModule('Labels & Buttons', '__quix/buttons.js', []),
 	new QModule('Tab Pane', '__quix/tabpane.js', []),
@@ -67,11 +67,12 @@ QuiX.modules = [
 	new QModule('Timers', '__quix/timers.js', []),
 	new QModule('Forms & Fields 2', '__quix/formfields2.js', [3]),
 	new QModule('VBox & HBox', '__quix/box.js', []),
+	new QModule('Effects', '__quix/effects.js', [13]),
 ];
 
 QuiX.tags = {
 	'desktop':-1,'xhtml':-1,'script':-1,'prop':-1,'stylesheet':-1,
-	'rect':-1,'progressbar':-1,'module':-1,'custom':-1,
+	'rect':-1,'module':-1,'custom':-1,
 	'window':0,'dialog':0,
 	'menubar':1,'menu':1,'menuoption':1,'contextmenu':1,
 	'splitter':2,
@@ -81,14 +82,40 @@ QuiX.tags = {
 	'tree':6,'treenode':6,'foldertree':6,
 	'toolbar':7,'tbbutton':7,'outlookbar':7,'tool':7,
 	'field':8,'form':8,'spinbutton':8,
-	'hr':9, 'iframe':9, 'groupbox':9, 'slider':9,
+	'hr':9, 'iframe':9, 'groupbox':9, 'slider':9, 'progressbar':9,
 	'datagrid':10,
 	'file':11,'multifile':11,
 	'datepicker':12,
 	'timer':13,
 	'combo':14,'selectlist':14,
-	'box':15
+	'box':15,
+	'effect':16
 };
+
+QuiX.addLoader = function() {
+	if (QuiX._activeLoaders == 0) {
+		document.body.onmousemove = function(evt) {
+			var evt = evt || event;
+			var loader = document.desktop._loader;
+			if (loader.div.style.display == 'none') {
+				loader.show();
+				loader.redraw();
+			}
+			loader.moveTo(evt.clientX + 16, evt.clientY + 20);
+		}
+	}
+	QuiX._activeLoaders++;
+}
+
+QuiX.removeLoader = function() {
+	if (QuiX._activeLoaders > 0) {
+		QuiX._activeLoaders--;
+		if (QuiX._activeLoaders == 0) {
+			document.body.onmousemove = null;
+			document.desktop._loader.hide();
+		}
+	}
+}
 
 QuiX.getOS = function()
 {
@@ -139,9 +166,9 @@ QuiX.getTarget = function(evt) {
 
 QuiX.getTargetWidget = function(evt) {
 	var el = QuiX.getTarget(evt);
-	while (!el.widget)
+	while (el && !el.widget)
 		el = QuiX.getParentNode(el);
-	return el.widget;
+	return (el)?el.widget:null;
 }
 
 QuiX.removeNode = function(node) {
@@ -236,7 +263,7 @@ QuiX.getEventWrapper = function(f1, f2) {
 	f2 = QuiX.getEventListener(f2);
 	wrapper = function(evt, w) {
 		var r1, r2 = null;
-		r1 = f1(evt, w);
+		if (f1) r1 = f1(evt, w);
 		if (f2) r2 = f2(evt, w);
 		return((typeof(r1)!='undefined')?r1:r1||r2);
 	}
@@ -286,8 +313,10 @@ QuiX.stopPropag = function(evt) {
 }
 
 QuiX.cancelDefault = function(evt) {
-	if (evt && evt.preventDefault) evt.preventDefault();
-	else if (window.event) window.event.returnValue = false;
+	if (evt && evt.preventDefault)
+		evt.preventDefault();
+	else if (window.event)
+		window.event.returnValue = false;
 }
 
 QuiX.XHRPool = (
@@ -332,7 +361,6 @@ QuiX.domFromString = function(s)
 		dom = new ActiveXObject("msxml2.domdocument");
 		dom.loadXML(s);
 	}
-
 	return dom;
 }
 
@@ -403,6 +431,10 @@ QModule.prototype.load = function(callback) {
 		oElement.type = 'text/javascript';
 		oElement.defer = true;
 		oElement.src = this.file;
+		if (typeof oElement.onreadystatechange != 'undefined')
+			oElement.onreadystatechange = Resource_onstatechange;
+		else
+			oElement.onload = Resource_onstatechange;
 	}
 	else {
 		oElement = ce('LINK');
@@ -417,12 +449,6 @@ QModule.prototype.load = function(callback) {
 		this.isLoaded = true;
 		callback();
 	}
-	else {
-		if (typeof oElement.onreadystatechange != 'undefined')
-			oElement.onreadystatechange = Resource_onstatechange;
-		else
-			oElement.onload = Resource_onstatechange;
-	}
 }
 
 function QImage(url) {
@@ -435,7 +461,7 @@ function QImage(url) {
 
 QImage.prototype.load = function(callback) {
 	this.callback = callback;
-	var img = new Image;
+	var img = new Image();
 	QuiX.images.push(this.url);
 	img.resource = this;
 	img.onload = Resource_onstatechange;

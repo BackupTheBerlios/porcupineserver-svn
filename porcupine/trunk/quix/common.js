@@ -245,3 +245,37 @@ function Slider__mouseup(evt, desktop) {
 	if (slider._customRegistry.onchange && old_value != slider._value)
 		slider._customRegistry.onchange(slider);
 }
+
+// progress bar
+function ProgressBar(params) {
+	params = params || {};
+	this.base = Widget;
+	params.border = 1;
+	params.overflow = 'hidden';
+	this.base(params);
+	this.div.className = 'progressbar';
+	this.bar = new Widget({height:"100%",overflow:'hidden'});
+	this.appendChild(this.bar);
+	this.bar.div.className = 'bar';
+	this.maxvalue = parseInt(params.maxvalue) || 100;
+	this.value = parseInt(params.value) || 0;
+	this.setValue(this.value);
+}
+
+QuiX.constructors['progressbar'] = ProgressBar;
+ProgressBar.prototype = new Widget;
+
+ProgressBar.prototype._update = function() {
+	this.bar.width = parseInt((this.value/this.maxvalue)*100) + '%';
+	this.bar.redraw();
+}
+
+ProgressBar.prototype.setValue = function(v) {
+	this.value = parseInt(v);
+	if (this.value>this.maxvalue) this.value=this.maxvalue;
+	this._update();
+}
+
+ProgressBar.prototype.increase = function(amount) {
+	this.setValue(this.value + parseInt(amount));
+}

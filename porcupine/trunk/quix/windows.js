@@ -86,6 +86,7 @@ function Window(params) {
 	this.setResizable(resizable);
 	if (QuiX.effectsEnabled) {
 		var effect = new Effect({
+			id : '_eff_fade',
 			type : 'fade-in',
 			auto : true,
 			steps : 4
@@ -223,15 +224,11 @@ Window.prototype.close = function() {
 		this.opener.childWindows.removeItem(this);
 	if (QuiX.effectsEnabled) {
 		var oWindow = this;
-		var effect = new Effect({
-			type : 'fade-out',
-			auto : true,
-			steps : 4,
-			oncomplete : function() {
-				oWindow.destroy();
-			}
+		var eff = this.getWidgetById('_eff_fade');
+		eff.attachEvent('oncomplete', function() {
+			oWindow.destroy();
 		});
-		this.appendChild(effect);
+		eff.play(true);
 	}
 	else	
 		this.destroy();
@@ -405,7 +402,7 @@ Window.prototype.bringToFront = function() {
 
 Window.prototype.showWindow = function(sUrl, oncomplete) {
 	var oWin = this;
-	document.desktop.parseFromUrl(sUrl,
+	this.parent.parseFromUrl(sUrl,
 		function(w) {
 			oWin.childWindows.push(w);
 			w.opener = oWin;
@@ -416,7 +413,7 @@ Window.prototype.showWindow = function(sUrl, oncomplete) {
 
 Window.prototype.showWindowFromString = function(s, oncomplete) {
 	var oWin = this;
-	document.desktop.parseFromString(s, 
+	this.parent.parseFromString(s, 
 		function(w) {
 			oWin.childWindows.push(w);
 			w.opener = oWin;
@@ -437,6 +434,7 @@ Window__onmousedown = function(evt, w) {
 		w.bringToFront();
 		QuiX.stopPropag(evt);
 	}
+	QuiX.cancelDefault(evt);
 	QuiX.cleanupOverlays();
 }
 

@@ -70,6 +70,7 @@ function Combo(params) {
 	resizer.attachEvent('onclick', QuiX.stopPropag);
 	resizer.attachEvent('onmousedown', function(evt){
 		oCombo.dropdown._startResize(evt);
+		QuiX.cancelDefault(evt);
 	});
 	
 	this.button = new XButton({
@@ -245,7 +246,9 @@ Combo.prototype.setBgColor = function(color) {
 Combo.prototype.addOption = function(params, w) {
 	var w = w || this;
 	params.align = params.align || 'left';
-	params.width = params.width || '100%';
+	params.width = '100%';
+	params.height = params.height || 24;
+	params.overflow = 'hidden';
 	var opt = new Icon(params);
 	opt._isContainer = false;
 	opt.selected = false;
@@ -257,8 +260,7 @@ Combo.prototype.addOption = function(params, w) {
 	opt.attachEvent('onmouseover', ComboOption__mouseover);
 	opt.attachEvent('onmouseout', ComboOption__mouseout);
 	opt.attachEvent('onclick', ComboOption__onclick);
-	opt.setDisplay();
-	opt.setPosition();
+	opt.setPosition('relative');
 	return opt;
 }
 
@@ -430,23 +432,23 @@ QuiX.constructors['selectlist'] = SelectList;
 SelectList.prototype = new Widget;
 
 SelectList.prototype.addOption = function(params) {
-	var oSelectList = this;
 	params.imgalign = 'left';
 	params.align = 'left';
 	params.width = '100%';
+	params.height = params.height || 24;
+	params.overflow = 'hidden';
 	params.onmousedown = QuiX.getEventWrapper(SelectOption__onmousedown,
-		params.onmousedown);
+												params.onmousedown);
 	var w = new Icon(params);
 	this.appendChild(w);
-	w.redraw();
 	w.selected = false;
 	w.value = params.value;
 	if (params.selected == 'true' || params.selected == true) {
 		this.selectOption(w);
 	}
-	w.setDisplay();
-	w.setPosition();
-	w.div.style.whiteSpace = 'nowrap';
+	w.setPosition('relative');
+	w.redraw();
+	
 	this.options.push(w);
 	return(w);
 }

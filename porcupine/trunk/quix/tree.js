@@ -33,6 +33,7 @@ function TreeNode(params) {
 	this.div.appendChild(oA);
 	this.anchor = oA;
 	this.setCaption(params.caption || '');
+	this._putImage();
 }
 
 QuiX.constructors['treenode'] = TreeNode;
@@ -46,10 +47,12 @@ TreeNode.prototype.appendChild = function (w) {
 		w.enable();
 }
 
-TreeNode.prototype.redraw = function(bForceAll) {
+TreeNode.prototype._putImage = function() {
 	if (this.img) {
-		if (this._imgElement != null)
-			this._imgElement.src = this.img;
+		if (this._imgElement != null) {
+			if (this._imgElement.src != this.img)
+				this._imgElement.src = this.img;
+		}
 		else {
 			var nm = QuiX.getImage(this.img);
 			nm.border = 0;
@@ -71,10 +74,12 @@ TreeNode.prototype.redraw = function(bForceAll) {
 			this._imgElement = null;
 		}
 	}
-	
+}
+
+TreeNode.prototype.redraw = function(bForceAll) {
+	this._putImage();
 	if (this.hasChildren())
 		this._addExpandImg();
-		
 	if (this.parent instanceof TreeNode) {
 		//sub node
 		if (!this.parent._hasChildren) {
@@ -156,18 +161,18 @@ TreeNode.prototype.setCaption = function(sCaption) {
 TreeNode.prototype.toggle = function() {
 	this.isExpanded = !this.isExpanded;
 	if (this.isExpanded) {
+		this._expandImg.src = '__quix/images/collapse.gif';
 		for (var i=0; i < this.childNodes.length; i++) {
 			this.childNodes[i].show();
 		}
-		this._expandImg.src = '__quix/images/collapse.gif';
 		if (this.tree._customRegistry.onexpand)
 			this.tree._customRegistry.onexpand(this);
 	}
 	else {
+		this._expandImg.src = '__quix/images/expand.gif';
 		for (var i=0; i < this.childNodes.length; i++) {
 			this.childNodes[i].hide();
 		}
-		this._expandImg.src = '__quix/images/expand.gif';
 	}
 }
 
@@ -209,7 +214,8 @@ function Tree(params) {
 QuiX.constructors['tree'] = Tree;
 Tree.prototype = new Widget;
 
-Tree.prototype.customEvents = Widget.prototype.customEvents.concat(['onexpand', 'onselect']);
+Tree.prototype.customEvents =
+	Widget.prototype.customEvents.concat(['onexpand', 'onselect']);
 
 Tree.prototype.appendChild = function (w) {
 	w.tree = this;

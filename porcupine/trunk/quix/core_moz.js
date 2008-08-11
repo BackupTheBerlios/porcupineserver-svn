@@ -52,7 +52,6 @@ function XULParser() {
 	this.__imagesToLoad = [];
 	this.__onload = [];
 	this.dom = null;
-	this.progressWidget = null;
 	this.oncomplete = null;
 }
 
@@ -105,48 +104,33 @@ XULParser.prototype._addModule = function(iMod) {
 	}
 }
 
-XULParser.prototype.loadModules= function(w) {
+XULParser.prototype.loadModules= function() {
 	var oModule, imgurl, img;
 	var oParser = this;
-	if (w) {
-		this.progressWidget = w;
-		w.getWidgetById('pb').maxvalue = this.__modulesToLoad.length + this.__imagesToLoad.length;
-	}
 	if (this.__modulesToLoad.length > 0) {
 		oModule = this.__modulesToLoad.pop();
-		if (this.progressWidget) {
-			this.progressWidget.getWidgetById('pb').increase(1);
-			this.progressWidget.div.getElementsByTagName('SPAN')[0].innerHTML = oModule.name;
-		}
 		oModule.load(function(){oParser.loadModules()});
 	} else if (this.__imagesToLoad.length > 0) {
 		imgurl = this.__imagesToLoad.pop();
 		img = new QImage(imgurl);
-		if (this.progressWidget) {
-			this.progressWidget.getWidgetById('pb').increase(1);
-			this.progressWidget.div.getElementsByTagName('SPAN')[0].innerHTML = 'image "' + imgurl + '"';
-		}
 		img.load(function(){oParser.loadModules()});
 	} else {
-		if (this.progressWidget) this.progressWidget.destroy();
-		widget = this.beginRender();
+		QuiX.removeLoader();
+		this.beginRender();
 	}
 }
 
 XULParser.prototype.parse = function(oDom, parentW) {
-	var widget, parser;
 	this.dom = oDom;
 	this.parentWidget = parentW;
 	this.detectModules(oDom.documentElement);
 	if (this.__modulesToLoad.length + this.__imagesToLoad.length > 0) {
 		this.__modulesToLoad.reverse();
-		parser = this;
-		if (parentW) {
-			parentW.parseFromString(QuiX.progress, function(w){parser.loadModules(w);});
-		} else {
-			this.loadModules();
-		}
-	} else {
+		if (parentW)
+			QuiX.addLoader();
+		this.loadModules();
+	}
+	else {
 		this.beginRender();
 	}
 }
@@ -459,10 +443,12 @@ Widget.prototype.parseFromUrl = function(url, oncomplete) {
 	var oWidget = this;
 	xmlhttp.onreadystatechange = function() {
 		if (xmlhttp != null && xmlhttp.readyState==4) {
+			QuiX.removeLoader();
 			oWidget.parse(xmlhttp.responseXML, oncomplete);
 			QuiX.XHRPool.release(xmlhttp);
 		}
 	}
+	QuiX.addLoader();
 	xmlhttp.open('GET', url, true);
 	xmlhttp.send('');
 }
@@ -557,7 +543,7 @@ Widget.prototype.getId = function() {
 
 // bgColor attribute
 Widget.prototype.setBgColor = function(color,w) {
-	w = w || this;
+	var w = w || this;
 	w.div.style.backgroundColor = color;
 }
 Widget.prototype.getBgColor = function() {
@@ -921,6 +907,7 @@ Widget.prototype._startDrag = function(x, y) {
 	dragable.setOpacity(.5);
 	
 	document.desktop.appendChild(dragable);
+	dragable.div.style.zIndex = QuiX.maxz;
 	dragable.redraw();
 	
 	QuiX.tmpWidget = dragable;
@@ -964,6 +951,7 @@ Widget.prototype.redraw = function(bForceAll, w) {
 		}
 		finally {
 			container.appendChild(w.div);
+			if (frag) frag = null;
 		}
 		if ((wdth && wdth != w.div.style.width) ||
 			(hght && hght != w.div.style.height)) {
@@ -998,6 +986,20 @@ Widget.prototype.print = function(expand) {
 	else {
 		iframe.contentWindow.location.reload();
 	}
+}
+
+Widget.prototype.nextSibling = function() {
+	var next = this.div.nextSibling;
+	while (next && !next.tagName == 'DIV')
+		next = next.nextSibling;
+	return next?next.widget:null;
+}
+
+Widget.prototype.previousSibling = function() {
+	var prv = this.div.previousSibling;
+	while (prv && !prv.tagName == 'DIV')
+		prv = prv.previousSibling;
+	return prv?prv.widget:null;
 }
 
 //events sub-system
@@ -1223,18 +1225,24 @@ function Desktop(params, root) {
 	this.div.className = 'desktop';
 	document.desktop = this;
 	window.onresize = function() {document.desktop.redraw()};
-	
 	this.overlays = [];
+	this.parseFromString(QuiX.progress,
+		function(loader){
+			loader.div.style.zIndex = 9999999999 + 1;
+			document.desktop._loader = loader;
+		});
 }
 
 QuiX.constructors['desktop'] = Desktop;
 Desktop.prototype = new Widget;
 
-Desktop.prototype.msgbox = function(mtitle, message, buttons, image, mleft, mtop, mwidth, mheight) {
+Desktop.prototype.msgbox = function(mtitle, message, buttons,
+									image, mleft, mtop, mwidth, mheight, w) {
 	var sButtons = '';
 	var handler;
 	var oButton;
 	var dlg;
+	var w = w || this;
 	
 	mwidth = mwidth || 240;
 	mheight = mheight || 120;
@@ -1256,7 +1264,7 @@ Desktop.prototype.msgbox = function(mtitle, message, buttons, image, mleft, mtop
 		sButtons = '<dlgbutton onclick="__closeDialog__" caption="' +
 				   buttons + '" width="80" height="22"/>';
 
-	this.parseFromString('<dialog xmlns="http://www.innoscript.org/quix"' +
+	w.parseFromString('<dialog xmlns="http://www.innoscript.org/quix"' +
 		' title="' + mtitle + '" close="true"' +
 		' width="' + mwidth + '" height="' + mheight + '" left="' + mleft +'" top="' + mtop + '">' +
 		'<wbody><xhtml><![CDATA[<table cellpadding="4"><tr>' + innHTML +
@@ -1285,36 +1293,3 @@ function Desktop__oncontextmenu(evt, w) {
 	QuiX.cancelDefault(evt);
 }
 
-// progress bar
-function ProgressBar(params) {
-	params = params || {};
-	this.base = Widget;
-	params.border = 1;
-	params.overflow = 'hidden';
-	this.base(params);
-	this.div.className = 'progressbar';
-	this.bar = new Widget({height:"100%",overflow:'hidden'});
-	this.appendChild(this.bar);
-	this.bar.div.className = 'bar';
-	this.maxvalue = parseInt(params.maxvalue) || 100;
-	this.value = parseInt(params.value) || 0;
-	this.setValue(this.value);
-}
-
-QuiX.constructors['progressbar'] = ProgressBar;
-ProgressBar.prototype = new Widget;
-
-ProgressBar.prototype._update = function() {
-	this.bar.width = parseInt((this.value/this.maxvalue)*100) + '%';
-	this.bar.redraw();
-}
-
-ProgressBar.prototype.setValue = function(v) {
-	this.value = parseInt(v);
-	if (this.value>this.maxvalue) this.value=this.maxvalue;
-	this._update();
-}
-
-ProgressBar.prototype.increase = function(amount) {
-	this.setValue(this.value + parseInt(amount));
-}

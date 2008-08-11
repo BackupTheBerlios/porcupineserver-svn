@@ -140,9 +140,8 @@ function XMLRPCRequest(sUrl,async) {
 	this.onerror = null;
 }
 
-//XMLRPCRequest.prototype.XHRFactory = QuiX.XHRFactory(5);
-
 XMLRPCRequest.prototype.handleError = function (e) {
+	QuiX.removeLoader();
 	__displayError__(e);
 	if (this.onerror) this.onerror(this, e);
 }
@@ -286,6 +285,8 @@ XMLRPCRequest.prototype.callmethod = function(method_name) {
 		   				   '</value></param>';
 			message += '</params></methodCall>';
 			
+			QuiX.addLoader();
+			
 			this.xmlhttp.open('POST', this.url, this.async);
 			this.xmlhttp.setRequestHeader("Content-type", "text/xml");
 			
@@ -293,6 +294,7 @@ XMLRPCRequest.prototype.callmethod = function(method_name) {
 			this.xmlhttp.onreadystatechange = function() {
 				if (req.xmlhttp.readyState==4) {
 					// parse response...
+					QuiX.removeLoader();
 					retVal = req.processResult();
 					if (retVal != null && req.oncomplete) {
 						req.response = retVal;

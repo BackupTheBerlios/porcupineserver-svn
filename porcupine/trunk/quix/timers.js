@@ -15,13 +15,14 @@ function Timer(params) {
 	this.interval = null;
 	
 	this.handler = params.handler;
-	
+
 	if (params.timeout)
 		this.timeout = parseInt(params.timeout);
 	else if (params.interval)
 		this.interval = parseInt(params.interval);
 
 	this.auto = (params.auto==true || params.auto=='true');
+	
 	if (this.auto) {
 		if (this.interval) {
 			var h = QuiX.getEventListener(this.handler);
@@ -53,15 +54,20 @@ Timer.prototype.start = function() {
 	}
 }
 
-Timer.prototype.stop = function() {
-	if (this._timerid) {
-		if (this.timeout)
-			window.clearTimeout(this._timerid);
+Timer.prototype.stop = function(w) {
+	var w = w || this;
+	if (w._timerid) {
+		if (w.timeout)
+			window.clearTimeout(w._timerid);
 		else
-			window.clearInterval(this._timerid);		
-		this._timerid = null;
+			window.clearInterval(w._timerid);		
+		w._timerid = null;
 	}
 }
+
+Timer.prototype.isRunning = function() {
+	return (this._timerid != null);
+} 
 
 Timer.prototype._detachEvents = function() {
 	this.stop();

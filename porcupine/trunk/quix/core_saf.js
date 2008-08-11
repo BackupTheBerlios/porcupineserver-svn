@@ -18,18 +18,35 @@
 function __init__() {
 	try {
 		window.moveTo(0,0);
-		window.resizeTo(screen.availWidth,screen.availHeight);
+		if (window.outerHeight<screen.availHeight||window.outerWidth<screen.availWidth)
+		{
+			window.outerHeight = screen.availHeight;
+			window.outerWidth = screen.availWidth;
+		}
 	} catch(e) {}
-
-	var root = document.getElementById("xul");
+	var root = document.body.removeChild(document.getElementById("xul"));
 	var parser = new XULParser();
-	parser.parse(root.XMLDocument);
+	parser.parse(QuiX.domFromString(root.innerHTML));
 }
 
-QuiX.browser = 'ie';
-QuiX.root = (new RegExp("https?://[^/]+(?:/[^/\?]+)?(?:/\{[0-9a-f]{32}\})?", "i")).exec(document.location.href) + '/';
+QuiX.browser = 'saf';
+QuiX.root = (new RegExp("https?://[^/]+(?:/[^/\?]+)?(?:/%7B[0-9a-f]{32}%7D)?", "i")).exec(document.location.href) + '/';
 
-// xul parser
+function getNodeXml(oNode) {
+	var sXml = '';
+	var oSerializer = new XMLSerializer();
+	for (var i=0; i<oNode.childNodes.length; i++) {
+		sXml += oSerializer.serializeToString(oNode.childNodes[i])
+	}
+	if (sXml.slice(0, 11) == "<!--[CDATA[") {
+		sXml = sXml.slice(11, sXml.length - 5);
+	}
+	if (sXml.slice(0, 9) == "<![CDATA[") {
+		sXml = sXml.slice(9, sXml.length - 3);
+	}
+	return(sXml);
+}
+
 function XULParser() {
 	this.__modulesToLoad = [];
 	this.__imagesToLoad = [];
@@ -39,22 +56,17 @@ function XULParser() {
 }
 
 XULParser.prototype.detectModules = function(oNode) {
-	var sTag = oNode.tagName;
-	var arrTokens;
-	if (sTag) {
-		arrTokens = oNode.tagName.split(':');
-		sTag = (arrTokens.length==1) ? arrTokens[0]:arrTokens[1];
-	}
+	if (oNode.nodeType!=1) return;
+	var sTag = oNode.localName;
 	var iMod = QuiX.tags[sTag];
 	this._addModule(iMod);
-	
 	if (iMod && oNode.getAttribute('img')) {
 		src = oNode.getAttribute('img');
 		if (src!='' && !QuiX.images.hasItem(src)) {
 			this.__imagesToLoad.push(src);
 		}
 	}
-
+	
 	if (sTag == 'script' || sTag == 'module' || sTag == 'stylesheet') {
 		params = this.getNodeParams(oNode);
 		if (!document.getElementById(params.src)) {
@@ -91,7 +103,7 @@ XULParser.prototype._addModule = function(iMod) {
 	}
 }
 
-XULParser.prototype.loadModules= function(w) {
+XULParser.prototype.loadModules = function(w) {
 	var oModule, imgurl, img;
 	var oParser = this;
 	if (this.__modulesToLoad.length > 0) {
@@ -123,15 +135,15 @@ XULParser.prototype.parse = function(oDom, parentW) {
 }
 
 XULParser.prototype.beginRender = function() {
-	var on_load;
 	var widget = this.render();
-	widget.redraw(true);	
 
+	widget.redraw(true);
+	
 	while (this.__onload.length > 0) {
 		on_load = this.__onload.pop();
 		on_load[0](on_load[1]);
 	}
-
+	
 	if (this.oncomplete)
 		this.oncomplete(widget);
 }
@@ -166,11 +178,8 @@ XULParser.prototype.parseXul = function(oNode, parentW) {
 	if (oNode.nodeType!=1) return;
 	var oWidget = null;
 	var params = this.getNodeParams(oNode);
-	var sLocalName, arrTokens;
-	if (oNode.namespaceURI == QuiX.namespace) {
-		arrTokens = oNode.tagName.split(':');
-		sLocalName = (arrTokens.length==1) ? arrTokens[0]:arrTokens[1];
-		switch(sLocalName) {
+	if (oNode.namespaceURI==QuiX.namespace) {
+		switch(oNode.localName) {
 			case 'flatbutton':
 				oWidget = new FlatButton(params);
 				if (params.type=='menu') {
@@ -180,7 +189,7 @@ XULParser.prototype.parseXul = function(oNode, parentW) {
 				break;
 			case 'field':
 				if (params.type=='textarea')
-					params.value = oNode.text;
+					params.value = getNodeXml(oNode).trim().xmlDecode();
 				oWidget = new Field(params);
 				break;
 			case 'mfile':
@@ -208,8 +217,10 @@ XULParser.prototype.parseXul = function(oNode, parentW) {
 					options = oNode.childNodes;
 					oCol.options = [];
 					for (var k=0; k<options.length; k++) {
-						p = this.getNodeParams(options[k]);
-						oCol.options.push(p);
+						if (options[k].nodeType == 1) {
+							p = this.getNodeParams(options[k]);
+							oCol.options.push(p);
+						}
 					}
 				}
 				break;
@@ -268,14 +279,15 @@ XULParser.prototype.parseXul = function(oNode, parentW) {
 						' ' + params['name'] + '=' + params['value']);
 				break;
 			case 'xhtml':
-				parentW.div.innerHTML = oNode.text;
+				sHtml = getNodeXml(oNode);
+				parentW.div.innerHTML = sHtml;
 				break;
 			default:
-				var widget_contructor = QuiX.constructors[sLocalName];
+				var widget_contructor = QuiX.constructors[oNode.localName];
 				if (widget_contructor != null)
 					oWidget = new widget_contructor(params, parentW);
 		}
-
+		
 		if (oWidget) {
 			if (parentW && !oWidget.parent &&
 					!oWidget.owner && oWidget != document.desktop)
@@ -309,10 +321,10 @@ function Widget(params) {
 	this._isDisabled = false;
 	this._isContainer = true;
 	this.contextMenu = null;
-	
+
 	this.div = ce('DIV');
 	if (params.style)
-		this.div.style.cssText = params.style;
+		this.div.setAttribute('style', params.style);
 	this.div.widget = this;
 
 	this._id = undefined;
@@ -343,17 +355,17 @@ function Widget(params) {
 			params.onmouseout);
 	}
 	
-	if (typeof(params.opacity) != 'undefined') {
+	if (typeof params.opacity != 'undefined') {
 		this.setOpacity(parseFloat(params.opacity));
 	}
 	
 	this.dragable = (params.dragable == 'true' || params.dragable == true);
-	if  (this.dragable){
+	if (this.dragable){
 		params.onmousedown = QuiX.getEventWrapper(Widget__startdrag,
 			params.onmousedown);
 	}
 	this.dropable = (params.dropable == 'true' || params.dropable == true);
-
+	
 	this._buildEventRegistry(params);
 	this._attachEvents();
 
@@ -370,8 +382,6 @@ Widget.prototype.appendChild = function(w, p) {
 	if (w._id)
 		w._addIdRef();
 	w.div = p.div.appendChild(w.div);
-	if (w.height=='100%' && w.width=='100%')
-		p.setOverflow('hidden');
 
 	w.bringToFront();
 	if (p._isDisabled)
@@ -439,7 +449,7 @@ Widget.prototype.parseFromUrl = function(url, oncomplete) {
 	}
 	QuiX.addLoader();
 	xmlhttp.open('GET', url, true);
-	xmlhttp.send();
+	xmlhttp.send('');
 }
 
 Widget.prototype.getParentByType = function(wtype) {
@@ -573,16 +583,11 @@ Widget.prototype.getPosition = function() {
 
 //opacity attribute
 Widget.prototype.setOpacity = function(fOpacity) {
-	this.div.style.filter = 'alpha(opacity=' + fOpacity * 100 + ')';
+	this.div.style.opacity = fOpacity;
 }
 
 Widget.prototype.getOpacity = function() {
-	var re = /alpha\(opacity=(\d+)\)/;
-	var arrOpacity = re.exec(this.div.style.filter);
-	if (arrOpacity.length > 1)
-		return parseInt(arrOpacity[1]) / 100;
-	else
-		return 1;
+	return parseFloat(this.div.style.opacity);
 }
 
 //padding attribute
@@ -734,31 +739,30 @@ Widget.prototype._calcMinHeight = function() {
 Widget.prototype.getScreenLeft = function() {
 	var oElement = this.div;
 	var iX = 0, b;
-	while(oElement) {
-		if (oElement.tagName!='TR') {
+	while(oElement && oElement.tagName && oElement.tagName!='HTML')
+	{
+		if (oElement.tagName!='TR')
 			iX += oElement.offsetLeft - oElement.scrollLeft;
-			b = parseInt(oElement.style.borderWidth);
-			if (b)
-				iX += b;
-		}
-		oElement = oElement.parentElement;
+		b = parseInt(oElement.style.borderWidth);
+		if (b)
+			iX += b;
+		oElement = oElement.parentNode;
 	}
-	return(iX - 1);
+	return(iX);
 }
 
 Widget.prototype.getScreenTop = function() {
 	var oElement = this.div;
-	var iY = 0, b=0;
-	while(oElement) {
-		if (oElement.tagName!='TR') {
+	var iY = 0, b;
+	while(oElement && oElement.tagName && oElement.tagName!='HTML') {
+		if (oElement.tagName!='TR')
 			iY += oElement.offsetTop - oElement.scrollTop;
-			b = parseInt(oElement.style.borderWidth);
-			if (b)
-				iY += b;
-		}
-		oElement = oElement.parentElement;
+		b = parseInt(oElement.style.borderWidth);
+		if (b)
+			iY += b;
+		oElement = oElement.parentNode;
 	}
-	return(iY - 1);
+	return(iY);
 }
 
 Widget.prototype.bringToFront = function(w) {
@@ -769,7 +773,7 @@ Widget.prototype.bringToFront = function(w) {
 }
 
 Widget.prototype.click = function() {
-	QuiX.sendEvent(this.div,'MouseEvents','onclick');
+	QuiX.sendEvent(this.div, 'MouseEvents', 'onclick');
 }
 
 Widget.prototype.moveTo = function(x,y) {
@@ -805,7 +809,7 @@ Widget.prototype.hide = function(w) {
 	var w = w || this;
 	if (!w.isHidden()) {
 		QuiX.detachFrames(w);
-		this._statedisplay = w.div.style.display;
+		w._statedisplay = w.div.style.display;
 		w.div.style.display = 'none';
 	}
 }
@@ -903,7 +907,7 @@ Widget.prototype._startDrag = function(x, y) {
 	document.desktop.appendChild(dragable);
 	dragable.div.style.zIndex = QuiX.maxz;
 	dragable.redraw();
-		
+	
 	QuiX.tmpWidget = dragable;
 	QuiX.dragable = this;
 
@@ -911,10 +915,22 @@ Widget.prototype._startDrag = function(x, y) {
 	document.desktop.attachEvent('onmousemove', Widget__drag);
 }
 
+Widget.prototype._detach = function() {
+	var i;
+	var childWidgets = [];
+	for (i=0; i<this.widgets.length; i++) {
+		childWidgets.push(this.widgets[i]._detach());
+	}
+	this.div = this.div.parentNode.removeChild(this.div);
+	for (i=0; i<childWidgets.length; i++)
+		this.div.appendChild(childWidgets[i]);
+	return(this.div);
+}
+
 Widget.prototype.redraw = function(bForceAll, w) {
 	var w = w || this;
-	var container = w.div.parentElement;
-	if (container &&  w.div.style.display != 'none') {
+	var container = w.div.parentNode;
+	if (container && w.div.style.display != 'none') {
 		var wdth = w.div.style.width;
 		var hght = w.div.style.height;
 		if (w.div.clientWidth > 0)
@@ -924,7 +940,7 @@ Widget.prototype.redraw = function(bForceAll, w) {
 		}
 		try {
 			w._setCommonProps();
-			if (w.div.style.position != '')
+			if (w.getPosition() != '')
 				w._setAbsProps();
 			for (var i=0; i<w.widgets.length; i++) {
 				if (bForceAll || w.widgets[i]._mustRedraw())
@@ -949,25 +965,20 @@ Widget.prototype.print = function(expand) {
 	var iframe = document.getElementById('_print');
 	if (!iframe) {
 		var iframe = ce('IFRAME');
-		iframe.name = '_print';
 		iframe.id = '_print';
-		iframe.style.width = '0px';
-		iframe.style.height = '0px';
-		document.body.appendChild(iframe);
-		iframe.attachEvent('onload', function() {
+		iframe.onload = function() {
 			var n;
-			var frame = document.frames('_print');
-			var fbody = frame.document.body;
+			var doc = iframe.contentWindow.document;
 			n = oWidget.div.cloneNode(true);
 			n.style.position = '';
 			if (expand) {
 				n.style.width = '';
 				n.style.height = '';
 			}
-			fbody.innerHTML = n.outerHTML;
-			frame.focus();
-			frame.print();
-		});
+			doc.body.appendChild(n);
+			iframe.contentWindow.print();
+		}
+		document.body.appendChild(iframe);
 		iframe.src = '__quix/print.htm';
 	}
 	else {
@@ -1202,11 +1213,10 @@ function Desktop(params, root) {
 	params.id = 'desktop';
 	params.width = 'document.documentElement.clientWidth';
 	params.height = 'document.documentElement.clientHeight';
+	params.overflow = 'hidden';
 	params.onmousedown = Desktop__onmousedown;
 	params.oncontextmenu = Desktop__oncontextmenu;
 	this.base(params);
-	this.setPosition();
-	this.div.onselectstart = function(){return false};
 	this._setCommonProps();
 	this.div.innerHTML = '<p align="right" style="color:#666666;margin:0px;">QuiX v' + QuiX.version + '</p>';
 	root.appendChild(this.div);
