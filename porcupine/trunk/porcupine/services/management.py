@@ -79,46 +79,43 @@ class ManagementRequestHandler(asyncBaseServer.BaseRequestHandler):
         except:
             logger.log(logging.ERROR, 'Management Error:', *(), **{'exc_info':1})
             error_msg = MgtMessage(-1,
-                                   'Internal server error. See log for details.')
+                            'Internal server error. See server log for details.')
             self.write_buffer(error_msg.serialize())
 
     def executeCommand(self, cmd, request):        
         #DB maintenance commands
-        if cmd=='DB_BACKUP':
-            output_file = request.data
-            try:
-                _db.lock()
+        try:
+            if cmd=='DB_BACKUP':
+                output_file = request.data
                 try:
+                    _db.lock()
                     backfiles = _db.db_handle._backup(output_file)
-                except IOError:
-                    return (-1, 'The specified folder doer not exist.')
-                except NotImplementedError:
-                    return (-1, 'Not implemented.')
-            finally:
-                _db.unlock()
-            return (0, 'Database backup completed successfuly.')
-        
-        elif cmd=='DB_RESTORE':
-            backup_set = request.data
-            try:
+                finally:
+                    _db.unlock()
+                return (0, 'Database backup completed successfully.')
+            
+            elif cmd=='DB_RESTORE':
+                backup_set = request.data
                 _db.db_handle._restore(backup_set)
                 return (0, 'Database restore completed successfully.')
-            except IOError:
-                return (-1, 'The specified file does not exist.')
-            except NotImplementedError:
-                return (-1, 'Not implemented.')
-        
-        elif cmd=='DB_SHRINK':
-            try:
+    
+            elif cmd=='DB_RECOVER':
+                _db.db_handle._recover()
+                return (0, 'Database recovery completed successfully.')
+            
+            elif cmd=='DB_SHRINK':
                 iLogs = _db.db_handle._shrink()
                 if iLogs:
                     return (0, 'Successfully removed %d log files.' % iLogs)
                 else:
                     return (0, 'No log files removed.')
-            except NotImplementedError:
-                return (-1, 'Not implemented.')
-
-        # unknown command
-        else:
-            logger.warning('Management service received unknown command: %s' % cmd)
-            return (-1, 'Unknown command.')
+            
+            # unknown command
+            else:
+                logger.warning(
+                    'Management service received unknown command: %s' % cmd)
+                return (-1, 'Unknown command.')
+        except IOError:
+            return (-1, 'Invalid file path.')
+        except NotImplementedError:
+            return (-1, 'Unsupported command.')

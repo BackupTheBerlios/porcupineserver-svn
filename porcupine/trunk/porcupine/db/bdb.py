@@ -25,7 +25,7 @@ from threading import Thread
 from porcupine.db import _db
 from porcupine.config.settings import settings
 from porcupine.db.genericDb import GenericDBInterface
-from porcupine.utils import backup
+from porcupine.utils.db import backup
 from porcupine import exceptions
 
 logger = logging.getLogger('serverlog')
@@ -114,7 +114,11 @@ class DbInterface(GenericDBInterface):
             # remove old database files
             self.__removeFiles()
             # reinitialize db
-            self.__init__()            
+            self.__init__()
+            
+    def _recover(self):
+        self.close()
+        self.__init__(flags=db.DB_RECOVER)
 
     def _getItem(self, sOID, trans=None):
         try:

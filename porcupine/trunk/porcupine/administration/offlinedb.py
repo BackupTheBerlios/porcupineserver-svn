@@ -15,22 +15,19 @@
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #===============================================================================
 """This modules provides an offline handle for database access through
-Porcupine API.
+the Porcupine API.
 """
-
 from threading import currentThread
 
-from porcupine.config.settings import settings
-from porcupine.utils import misc
 from porcupine.db import _db
-
 from porcupine.core.http.context import HttpContext
 from porcupine.security import inMemorySessionManager
 from porcupine.security import SessionManager
 
 def getHandle():
     #open database
-    _db.open(misc.getCallableByName(settings['store']['interface']))
+    _db.open()
+    
     #create in-memory session manager
     SessionManager.open(inMemorySessionManager.SessionManager, 1200)
     oSystemUser = _db.getItem('system')

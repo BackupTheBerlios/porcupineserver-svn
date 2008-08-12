@@ -14,4 +14,9 @@
 #    along with Porcupine; if not, write to the Free Software
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #===============================================================================
-"Porcupine utilities package"
+"Porcupine database utilities used by the system"
+import time
+
+def initialize_db():
+    "Initializes the Porcupine database"
+    

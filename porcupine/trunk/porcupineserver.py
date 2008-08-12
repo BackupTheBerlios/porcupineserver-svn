@@ -73,8 +73,7 @@ class Controller(object):
 
             # open database
             self.logger.info('Opening database...')
-            _db.open(misc.getCallableByName(
-                     settings['store']['interface']))
+            _db.open()
 
             # create session manager
             self.logger.info('Creating session manager...')
@@ -172,7 +171,7 @@ def main(args):
         controller = Controller()
         controller.start()
     except Exception, e:
-        sys.exit(e[0])
+        sys.exit(e)
 
     if (os.name=='nt'):
         try:

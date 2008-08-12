@@ -17,30 +17,35 @@
 #===============================================================================
 "Utility for Porcupine Server database backup"
 
-import getopt, sys, socket
+import getopt
+import sys
+import socket
 
 from porcupine.utils import misc
 from porcupine.services import management
 
 __usage__ = """
-Backup database:
-    porcupineadmin.py -b -s SERVERNAME:SERVERPORT -f BACKUPFILE or
-    porcupineadmin.py --backup --server=SERVERNAME:SERVERPORT --file=BACKUPFILE
-    
-Restore database:
-    porcupineadmin.py -r -s SERVERNAME:SERVERPORT -f BACKUPFILE or
-    porcupineadmin.py --restore --server=SERVERNAME:SERVERPORT --file=BACKUPFILE
-    
-Shrink database:
-    porcupineadmin.py -h -s SERVERNAME:SERVERPORT or
-    porcupineadmin.py --shrink --server=SERVERNAME:SERVERPORT
-    
-Recover database:
-    porcupineadmin.py -c or
-    porcupineadmin.py --recover
+DATABASE COMMANDS
+=================
 
-SERVERNAME:SERVERPORT - The management server address.
-BACKUPFILE - The path to the backup file.
+    Backup database:
+        $ python porcupineadmin.py -b -s SERVERNAME:SERVERPORT -f BACKUPFILE or
+        $ python porcupineadmin.py --backup --server=SERVERNAME:SERVERPORT --file=BACKUPFILE
+        
+    Restore database:
+        $ python porcupineadmin.py -r -s SERVERNAME:SERVERPORT -f BACKUPFILE or
+        $ python porcupineadmin.py --restore --server=SERVERNAME:SERVERPORT --file=BACKUPFILE
+        
+    Shrink database:
+        $ python porcupineadmin.py -h -s SERVERNAME:SERVERPORT or
+        $ python porcupineadmin.py --shrink --server=SERVERNAME:SERVERPORT
+        
+    Recover database:
+        $ python porcupineadmin.py -c -s SERVERNAME:SERVERPORT or
+        $ python porcupineadmin.py --recover --server=SERVERNAME:SERVERPORT
+    
+    SERVERNAME:SERVERPORT - The management server address (i.e. localhost:6001)
+    BACKUPFILE - The server local path to the backup file
 """
 
 def usage():
@@ -68,6 +73,8 @@ if opts:
             command = 'DB_RESTORE'
         elif opt in ('-h', '--shrink'):
             command = 'DB_SHRINK'
+        elif opt in ('-c', '--recover'):
+            command = 'DB_RECOVER'
         elif opt in ('-s', '--server'):
             address = arg
         elif opt in ('-f', '--file'):
@@ -77,7 +84,7 @@ else:
 
 if not command or not address:
     usage()
-
+    
 try:
     address = misc.getAddressFromString(address)
 except:

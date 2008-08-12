@@ -61,5 +61,8 @@ class GenericDBInterface(object):
     def _shrink(self):
         raise NotImplementedError
 
+    def _recover(self):
+        raise NotImplementedError
+
     def close(self):
         raise NotImplementedError

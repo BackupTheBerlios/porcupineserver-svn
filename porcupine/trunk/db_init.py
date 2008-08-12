@@ -11,7 +11,6 @@ if main_is_frozen():
     sys.path.insert(0, '')
 
 from porcupine.db import _db
-from porcupine.utils import misc
 
 answer = raw_input('''WARNING: Please ensure that Porcupine Server is stopped!
 All objects will be erased!
@@ -19,10 +18,9 @@ Are you sure you want to initialize the database(Y/N)?''')
 
 if (answer.upper() == 'Y'):
     try:
-        from porcupine.config.settings import settings
-        _db.open(misc.getCallableByName(settings['store']['interface']))
+        _db.open()
     except Exception, e:
-        sys.exit(e[0])
+        sys.exit(e)
 
     import porcupine.systemObjects
     import org.innoscript.desktop.schema.common
