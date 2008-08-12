@@ -1226,7 +1226,7 @@ function Desktop(params, root) {
 	this.overlays = [];
 	this.parseFromString(QuiX.progress,
 		function(loader){
-			loader.div.style.zIndex = 9999999999 + 1;
+			loader.div.style.zIndex = QuiX.maxz + 1;
 			document.desktop._loader = loader;
 		});
 }
