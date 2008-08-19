@@ -150,13 +150,13 @@ Icon.prototype.redraw = function(bForceAll, w) {
 	}
 	if (w.imageElement && (w.imgHeight || w.imgWidth)) {
 		if (w.imgHeight) {
-			percentage = w.imgHeight.toString().charAt(w.length-1);
-			this.imageElement.style.height =
+			percentage = w.imgHeight.toString().charAt(w.imgHeight.length-1);
+			w.imageElement.style.height =
 				(percentage == '%')?w.imgHeight:w.imgHeight + 'px';
 		}
 		if (w.imgWidth) {
-			percentage = w.imgWidth.toString().charAt(w.length-1);
-			this.imageElement.style.width =
+			percentage = w.imgWidth.toString().charAt(w.imgWidth.length-1);
+			w.imageElement.style.width =
 				(percentage == '%')?w.imgWidth:w.imgWidth + 'px';
 		}
 	}

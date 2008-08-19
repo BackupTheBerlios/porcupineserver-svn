@@ -27,16 +27,17 @@ Box.prototype.appendChild = function(w, p) {
 	Widget.prototype.appendChild(w, p);
 }
 
-Box.prototype.redraw = function(bForceAll) {
+Box.prototype.redraw = function(bForceAll, w) {
+	var w = w || this;
 	if (bForceAll) {
 		var oWidget;
-		var offset_var = (this.orientation=='h')?'left':'top';
-		var center_var = (this.orientation=='h')?'top':'left';
-		var length_var = (this.orientation=='h')?'width':'height';
-		var width_var = (this.orientation=='h')?'height':'width';
+		var offset_var = (w.orientation=='h')?'left':'top';
+		var center_var = (w.orientation=='h')?'top':'left';
+		var length_var = (w.orientation=='h')?'width':'height';
+		var width_var = (w.orientation=='h')?'height':'width';
 		
-		for (var i=0; i<this.widgets.length; i++) {
-			oWidget = this.widgets[i];
+		for (var i=0; i<w.widgets.length; i++) {
+			oWidget = w.widgets[i];
 			oWidget[offset_var] = 'this.parent._getWidgetOffset(' + i + ')';
 			oWidget[center_var] = 'this.parent._getWidgetPos(' + i + ')';
 
@@ -46,7 +47,7 @@ Box.prototype.redraw = function(bForceAll) {
 				oWidget[width_var] = 'this.parent._calcWidgetWidth()';
 		}
 	}
-	Widget.prototype.redraw(bForceAll, this);
+	Widget.prototype.redraw(bForceAll, w);
 }
 
 Box.prototype._getWidgetPos = function(iPane) {
