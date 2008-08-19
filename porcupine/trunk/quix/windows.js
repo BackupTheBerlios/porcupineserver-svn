@@ -9,7 +9,7 @@ function __closeDialog__(evt, w) {
 //Window class
 function Window(params) {
 	params = params || {};
-	var overflow = params.oveflow;
+	var overflow = params.overflow;
 	params.border = 1;
 	params.padding = '1,1,1,1';
 	params.opacity = (QuiX.effectsEnabled)?0:1;
