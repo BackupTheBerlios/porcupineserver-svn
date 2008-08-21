@@ -41,11 +41,11 @@ DATABASE COMMANDS
         $ python porcupineadmin.py --shrink --server=SERVERNAME:SERVERPORT
         
     Recover database:
-        $ python porcupineadmin.py -c -s SERVERNAME:SERVERPORT or
-        $ python porcupineadmin.py --recover --server=SERVERNAME:SERVERPORT
+        $ python porcupineadmin.py -c [-s SERVERNAME:SERVERPORT] or
+        $ python porcupineadmin.py --recover [--server=SERVERNAME:SERVERPORT]
     
     SERVERNAME:SERVERPORT - The management server address (i.e. localhost:6001)
-    BACKUPFILE - The server local path to the backup file
+    BACKUPFILE - The server's local path to the backup file
 """
 
 def usage():
@@ -82,11 +82,12 @@ if opts:
 else:
     usage()
 
-if not command or not address:
+if not command or (command != 'DB_RECOVER' and not address):
     usage()
     
 try:
-    address = misc.getAddressFromString(address)
+    if address:
+        address = misc.getAddressFromString(address)
 except:
     sys.exit('Invalid server address...')
 
@@ -95,6 +96,23 @@ if command in ('DB_BACKUP', 'DB_RESTORE'):
     if not(file):
         usage()
     msg = management.MgtMessage(command, file)
+elif command == 'DB_RECOVER' and not address:
+    answer = raw_input('''
+WARNING: You are about to perform an offline recovery.
+Please ensure that all Porcupine services are stopped,
+since database recovery requires a single-threaded environment.
+
+Are you sure you want proceed(Y/N)?''')
+    if (answer.upper() == 'Y'):
+        try:
+            from porcupine.db import _db
+            print 'Recovering database...'
+            _db._recover()
+            _db.close()
+            print 'Database recovery completed successfully.'
+        except Exception, e:
+            sys.exit(e)
+    sys.exit()
 else:
     msg = management.MgtMessage(command, '')
 

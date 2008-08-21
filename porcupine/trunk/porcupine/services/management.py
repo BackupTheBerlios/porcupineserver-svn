@@ -100,7 +100,8 @@ class ManagementRequestHandler(asyncBaseServer.BaseRequestHandler):
                 return (0, 'Database restore completed successfully.')
     
             elif cmd=='DB_RECOVER':
-                _db.db_handle._recover()
+                _db.close()
+                _db._recover()
                 return (0, 'Database recovery completed successfully.')
             
             elif cmd=='DB_SHRINK':

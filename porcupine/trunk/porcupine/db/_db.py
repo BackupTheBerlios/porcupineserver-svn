@@ -28,10 +28,10 @@ _activeTxns = 0
 db_handle = None
 object_cache = None
 
-def open(flags=0):
+def open():
     global db_handle, object_cache
     db_handle = misc.getCallableByName(
-                     settings['store']['interface'])(flags=flags)
+                     settings['store']['interface'])()
     object_cache = cache.Cache(int(settings['store']['object_cache_size']),
                                readonly=True)
     
@@ -175,3 +175,8 @@ def commitTransaction(txn):
 
 def close():
     db_handle.close()
+    
+def _recover():
+    global db_handle
+    db_handle = misc.getCallableByName(
+        settings['store']['interface'])._recover()

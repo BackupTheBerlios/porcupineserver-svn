@@ -115,10 +115,10 @@ class DbInterface(GenericDBInterface):
             self.__removeFiles()
             # reinitialize db
             self.__init__()
-            
-    def _recover(self):
-        self.close()
-        self.__init__(flags=db.DB_RECOVER)
+    
+    @classmethod        
+    def _recover(cls):
+        return cls(flags=db.DB_RECOVER)
 
     def _getItem(self, sOID, trans=None):
         try:
