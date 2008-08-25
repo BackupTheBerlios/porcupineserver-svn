@@ -56,7 +56,7 @@ Form.prototype.getData = function()
 function Field(params) {
 	params = params || {};
 	this.base = Widget;
-	params.border = params.border || 1;
+	params.border = (typeof params.border == 'undefined')?1:params.border;
 	params.overflow = 'hidden';
 	this.type = params.type || 'text';
 	if (this.type == 'radio') {
