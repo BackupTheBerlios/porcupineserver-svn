@@ -21,8 +21,10 @@ function File(params) {
 	this.href = params.href;
 	
 	this.cancelUpload = false;
-	this.readonly = (params.readonly=='true')?true:false;
-
+	this.readonly = (params.readonly=='true' ||
+					 params.readonly==true)?true:false;
+	this.maxFileSize = parseInt(params.maxfilesize) || 0;
+	
 	params.caption = '...';
 	params.type = 'menu';
 
@@ -73,6 +75,20 @@ File.prototype.openDocument = function() {
 	window.location.href = this.href;
 }
 
+File.prototype._checkFileSize = function(size) {
+	if (this.maxFileSize == 0)
+		return true;
+	if (size > parseInt(this.maxFileSize)) {
+		document.desktop.msgbox("Error", 
+			'The maximum allowed size per file is ' + this.maxFileSize + ' bytes.',
+			[['OK', 60]],
+			'desktop/images/messagebox_warning.gif', 'center', 'center', 280, 112);
+		this.cancelUpload = true;
+		return false;
+	}
+	return true;
+}
+
 File.prototype.showUploadDialog = function() {
 	var fileName = this.uploader.selectFiles(false, this.filetypes);
 	if (fileName != '') {
@@ -83,6 +99,8 @@ File.prototype.showUploadDialog = function() {
 }
 
 File.prototype.onbeginupload = function(filecontrol) {
+	if (!this._checkFileSize(filecontrol.size))
+		return;
 	document.desktop.parseFromString(
 		'<dialog xmlns="http://www.innoscript.org/quix" title="'
 				+ filecontrol.contextMenu.options[0].getCaption() + '" ' +
@@ -193,7 +211,8 @@ function MultiFile(params) {
 	params = params || {};
 	this.name = params.name;
 	this.method = params.method;
-	this.readonly = (params.readonly=='true')?true:false;
+	this.readonly = (params.readonly=='true' ||
+					 params.readonly==true)?true:false;
 	this.filetypes = params.filetypes || '*';
 	
 	this.base = Widget;
@@ -228,19 +247,13 @@ function MultiFile(params) {
 	
 	var oMultiFile = this;
 	if (!this.readonly) {
-		this.filecontrol = new File();
+		this.filecontrol = new File({maxfilesize:params.maxfilesize});
 		this.appendChild(this.filecontrol);
 		this.filecontrol.div.style.visibility = 'hidden';
 		this.filecontrol.onstatechange = this.statechange;
 		this.filecontrol.oncomplete = this.filecontrol.onerror = this.onfilecomplete;
-		this.addButton.attachEvent('onclick',
-			function(evt, w){
-				oMultiFile.showUploadDialog(evt, w);
-			});
-		this.removeButton.attachEvent('onclick',
-			function(){
-				oMultiFile.removeSelectedFiles();
-			});
+		this.addButton.attachEvent('onclick', oMultiFile.showUploadDialog);
+		this.removeButton.attachEvent('onclick', oMultiFile.removeSelectedFiles);
 	}
 	this.files = [];
 }
@@ -254,73 +267,79 @@ MultiFile.prototype.reset = function() {
 	this.selectlist.clear();
 }
 
-MultiFile.prototype.showUploadDialog = function(evt, w) {
+MultiFile.prototype.showUploadDialog = function(evt, btn) {
 	var file_size;
-	var filenames = this.filecontrol.uploader.selectFiles(true, this.filetypes);
+	var mf = btn.parent;
+	var filenames = mf.filecontrol.uploader.selectFiles(true, mf.filetypes);
 	
 	if (filenames != '') {
+		var oWin = mf.getParentByType(Window);
 		var fileid;
 		var files = new String(filenames).split(';');
 		files = files.slice(0, files.length-1).reverse();
-		this.files4upload = [];
+		mf.files4upload = [];
 		total_size = 0;
 		for (var i=0; i<files.length; i++) {
-			fileid = this.filecontrol.uploader.setFile(files[i]);
-			file_size = this.filecontrol.uploader.getFileSize(fileid);
-			this.files4upload.push({
+			fileid = mf.filecontrol.uploader.setFile(files[i]);
+			file_size = mf.filecontrol.uploader.getFileSize(fileid);
+			if (!mf.filecontrol._checkFileSize(file_size)) {
+				QuiX.stopPropag(evt);
+				return;
+			}
+			mf.files4upload.push({
 				path: files[i],
-				filename: this.filecontrol.getFileName(files[i]),
+				filename: mf.filecontrol.getFileName(files[i]),
 				size: file_size
 			});			
 			total_size += file_size;
-			this.filecontrol.uploader.closeFile(fileid);
+			mf.filecontrol.uploader.closeFile(fileid);
 		}
 		
-		this.current_file = this.files4upload.pop();
-		this.filecontrol.setFile(this.current_file.path);
-		this._tmpsize = this.current_file.size;
+		mf.current_file = mf.files4upload.pop();
+		mf.filecontrol.setFile(mf.current_file.path);
+		mf._tmpsize = mf.current_file.size;
 		
-		var oMultiFile = this;
 		document.desktop.parseFromString(
 			'<dialog xmlns="http://www.innoscript.org/quix" title="' +
-					this.filecontrol.contextMenu.options[0].getCaption() + '" ' +
+					mf.filecontrol.contextMenu.options[0].getCaption() + '" ' +
 					'width="240" height="140" left="center" top="center">' +
 				'<wbody>' +
 					'<progressbar width="90%" height="24" left="center" top="20" ' +
 							'maxvalue="' + total_size + '">' +
 						'<label align="center" width="100%" height="100%" caption="' +
-							this.current_file.filename + '"/>' +
+							mf.current_file.filename + '"/>' +
 					'</progressbar>' +
 					'<progressbar width="90%" height="24" left="center" top="50" ' +
-							'maxvalue="' + this.current_file.size + '">' +
+							'maxvalue="' + mf.current_file.size + '">' +
 						'<label align="center" width="100%" height="100%" caption="0%"/>' +
 					'</progressbar>' +
 				'</wbody>' +
 				'<dlgbutton width="70" height="22" caption="CANCEL"/>' +
 			'</dialog>',
 			function (w) {
-				oMultiFile.filecontrol.attributes.pbar1 = w.getWidgetsByType(ProgressBar)[0];
-				oMultiFile.filecontrol.attributes.pbar2 = w.getWidgetsByType(ProgressBar)[1];
-				oMultiFile.filecontrol.attributes.bytesRead = 0;
+				mf.filecontrol.attributes.pbar1 = w.getWidgetsByType(ProgressBar)[0];
+				mf.filecontrol.attributes.pbar2 = w.getWidgetsByType(ProgressBar)[1];
+				mf.filecontrol.attributes.bytesRead = 0;
 				w.buttons[0].attachEvent('onclick',
 					function (evt, w) {
-						oMultiFile.filecontrol.cancelUpload = true;
+						mf.filecontrol.cancelUpload = true;
 						w.getParentByType(Dialog).close();
 					}
 				);
-				oMultiFile.filecontrol.upload();
+				mf.filecontrol.upload();
 			}
 		);
 	}
 	QuiX.stopPropag(evt);
 }
 
-MultiFile.prototype.removeSelectedFiles = function() {
-	this.selectlist.removeSelected();
-	this.files = [];
-	var opts = this.selectlist.options;
+MultiFile.prototype.removeSelectedFiles = function(evt, btn) {
+	var mf = btn.parent
+	mf.selectlist.removeSelected();
+	mf.files = [];
+	var opts = mf.selectlist.options;
 	for (var i=0; i<opts.length; i++) {
-		this.files.push(opts[i].attributes.fileinfo);
+		mf.files.push(opts[i].attributes.fileinfo);
 	}
 }
 
