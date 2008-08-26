@@ -17,7 +17,6 @@
 """
 Porcupine Object Set
 """
-import types
 
 from porcupine import exceptions
 from porcupine import db
@@ -39,12 +38,12 @@ class ObjectSet(object):
     L{getItems<porcupine.datatypes.ReferenceN.getItems>}.
     
     The OQL C{select} statement always returns resolved object sets. Resolved
-    object sets provide enhanced functionality as they partialy emulate
+    object sets provide enhanced functionality as they partially emulate
     the list type. They provide the C{len} function, membership tests
     (C{in} operator) and slicing.
     """
     _cachesize = 100
-    def __init__(self,data, schema=None, txn=None,
+    def __init__(self, data, schema=None, txn=None,
                  resolved=True, safe=True):
         self.__cache = []
 
@@ -59,14 +58,14 @@ class ObjectSet(object):
     def __iter__(self):
         if len(self._list) > 0:
             if self.schema == None:
-                    if type(self._list[0]) == types.StringType:
-                        for x in range(len(self._list))[::self._cachesize]:
-                            self.__loadcache(x)
-                            while len(self.__cache) > 0:
-                                yield self.__cache.pop(0)
-                    else:
-                        for x in self._list:
-                            yield x
+                if type(self._list[0]) == str:
+                    for x in xrange(0, len(self._list), self._cachesize):
+                        self.__loadcache(x)
+                        while len(self.__cache) > 0:
+                            yield self.__cache.pop(0)
+                else:
+                    for x in self._list:
+                        yield x
             else:
                 for x in self._list:
                     yield dict(zip(self.schema, x))
@@ -78,7 +77,7 @@ class ObjectSet(object):
         """Returns the size of the objects set.
         Valid only for resolved object sets.
         
-        @raise TypeError: if the object set is unresloved
+        @raise TypeError: if the object set is unresolved
         """
         if self._resolved:
             return len(self._list)
@@ -100,8 +99,7 @@ class ObjectSet(object):
                                  txn = self._txn,
                                  resolved = self._resolved and
                                             objectset._resolved,
-                                 safe = self._safe and
-                                          objectset._safe)
+                                 safe = self._safe and objectset._safe)
             else:
                 raise TypeError, 'Unsupported operand (+). Object sets ' + \
                                  'do not share the same transaction'
@@ -118,7 +116,7 @@ class ObjectSet(object):
             1. C{row_tuple in objectset}
             2. C{value in objectset} if the object set contains one field
             
-        @raise TypeError: if the object set is unresloved
+        @raise TypeError: if the object set is unresolved
         """
         if self._resolved:
             if self.schema:
@@ -141,12 +139,25 @@ class ObjectSet(object):
         """Implements slicing. Valid only for resolved object sets.
         Useful for paging.
         
-        @raise TypeError: if the object set is unresloved
+        @raise TypeError: if the object set is unresolved
         """
         if self._resolved:
-            return ObjectSet(self._list[key],
-                             schema = self.schema,
-                             txn = self._txn)
+            if self.schema == None:
+                if type(key) == int:
+                    item = self._list[key]
+                    if type(item) == str:
+                        return _db.getItem(self._list[key], self._txn)
+                    else:
+                        return item 
+                else:
+                    return [item for item in ObjectSet(self._list[key],
+                                                       schema=None,
+                                                       txn=self._txn)]
+            else:
+                if type(key) == int:
+                    return dict(zip(self.schema, self._list[key]))
+                else:
+                    return [dict(zip(self.schema, x)) for x in self._list[key]]
         else:
             raise TypeError, 'unresolved object sets do not support slicing'
         

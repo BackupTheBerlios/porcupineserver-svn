@@ -235,12 +235,9 @@ def executeOqlCommand(self, command, range=None):
     oCmd = OqlCommand()
     oRes = oCmd.execute(command)
     if range == None:
-        retVal = [rec for rec in oRes]
-        return(retVal)
+        return [rec for rec in oRes]
     else:
-        total_recs = len(oRes)
-        slice = [rec for rec in oRes[range[0]:range[1]]]
-        return [slice,total_recs]
+        return [oRes[range[0]:range[1]], len(oRes)]
 
 @webmethods.remotemethod(of_type=RootFolder)
 def logoff(self):

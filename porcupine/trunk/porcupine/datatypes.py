@@ -327,8 +327,7 @@ class Composition(DataType):
         
         @rtype: L{ObjectSet<porcupine.core.objectSet.ObjectSet>}
         """
-        lstItems = [_db.getItem(sID, trans) for sID in self.value]
-        return(objectSet.ObjectSet(lstItems))
+        return objectSet.ObjectSet(self.value, txn=trans, resolved=True)
 
 #===============================================================================
 # External Attributes
