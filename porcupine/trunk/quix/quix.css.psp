@@ -267,6 +267,7 @@ BODY {
 	background-color: #F5F2EF;
 	background-image : url(images/list_header.gif);
 	background-repeat : repeat-x;
+	background-position : bottom left;
 }
 
 .listview .listheader .column {
@@ -297,7 +298,7 @@ BODY {
 .listview .listheader .resizer {
 	cursor : e-resize;
 	border-style : solid;
-	/*background-image : url(images/transp.gif);*/
+	background-image : url(images/transp.gif);
 }
 
 .listview .list TABLE TR .cell{

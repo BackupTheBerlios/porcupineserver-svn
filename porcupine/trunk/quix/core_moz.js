@@ -989,17 +989,25 @@ Widget.prototype.print = function(expand) {
 }
 
 Widget.prototype.nextSibling = function() {
-	var next = this.div.nextSibling;
-	while (next && !next.tagName == 'DIV')
-		next = next.nextSibling;
-	return next?next.widget:null;
+	var p = this.parent;
+	var ns = null;
+	if (p) {
+		var idx = p.widgets.indexOf(this);
+		if (idx < p.widgets.length - 1)
+			ns = p.widgets[idx + 1];
+	}
+	return ns;
 }
 
 Widget.prototype.previousSibling = function() {
-	var prv = this.div.previousSibling;
-	while (prv && !prv.tagName == 'DIV')
-		prv = prv.previousSibling;
-	return prv?prv.widget:null;
+	var p = this.parent;
+	var ns = null;
+	if (p) {
+		var idx = p.widgets.indexOf(this);
+		if (idx > 0)
+			ns = p.widgets[idx - 1];
+	}
+	return ns;
 }
 
 //events sub-system
@@ -1155,9 +1163,10 @@ function Widget__startdrag(evt, w) {
 	if (QuiX.getMouseButton(evt) == 0) {
 		var x = evt.clientX;
 		var y = evt.clientY;
+		var el = QuiX.getTarget(evt);
 		document.desktop.attachEvent('onmouseup', Widget__enddrag);
 		QuiX.dragTimer = window.setTimeout(
-			function _draghandler() {w._startDrag(x, y)}, 150);
+			function _draghandler() {w._startDrag(x, y, el)}, 200);
 		QuiX.cancelDefault(evt);
 		QuiX.stopPropag(evt);
 		QuiX.cleanupOverlays();

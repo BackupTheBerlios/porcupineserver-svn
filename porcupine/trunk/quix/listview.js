@@ -5,7 +5,7 @@ List View
 function ListView(params) {
 	params = params || {};
 	params.bgcolor = params.bgcolor || 'white';
-	params.overflow = 'auto';
+	params.overflow = 'hidden';
 	
 	var dragable = (params.dragable=='true' || params.dragable==true);
 	delete params.dragable;
@@ -72,29 +72,26 @@ ListView.prototype.addHeader = function(params, w) {
 	oListview.header.div.className = 'listheader';
 	oListview.header.div.innerHTML =
 		'<table cellspacing="0" width="100%" height="100%"><tr>' +
-		'<td class="column filler">&nbsp;</td></tr></table>';
-	oListview.header.div.style.backgroundPosition =
-		'0px ' + (params.height-22) + 'px';
-	
+		'<td class="column filler">&nbsp;</td><td width="32">&nbsp;</td></tr></table>';
+		
 	var oRow = oListview.header.div.firstChild.rows[0];
 	oListview.columns = oRow.cells;
 	oRow.ondblclick = QuiX.stopPropag;
 	
 	if (oListview.hasSelector) {
 		var selector = oListview._getSelector();
-		oRow.insertBefore(selector, oRow.lastChild);
+		oRow.insertBefore(selector, oRow.lastChild.previousSibling);
 		oListview._deadCells = 1;
 	} else
 		oListview._deadCells = 0;
 
 	var list = new Widget({
-		top : function() {
-			return oListview.header.isHidden()?
-				0:oListview.header._calcHeight(true);
-		},
+		top : oListview.header.isHidden()?
+			0:oListview.header._calcHeight(true),
 		width : 'this.parent.getWidth()-1',
 		height : 'this.parent.getHeight()-' + (parseInt(params.height) + 1),
-		dragable : oListview._dragable
+		dragable : oListview._dragable,
+		overflow : 'auto'
 	});
 	list._startDrag = List__startDrag;
 	oListview.appendChild(list);
@@ -103,7 +100,8 @@ ListView.prototype.addHeader = function(params, w) {
 	var oTable = ce('TABLE');
 	oTable.cellSpacing = 0;
 	oTable.cellPadding = oListview.cellPadding;
-	oTable.width = '100%';
+	if (QuiX.browser != 'ie')
+		oTable.width = '100%';
 	oTable.onmousedown = function(evt) {
 		var evt = evt || event;
 		if (oListview._isDisabled) return;
@@ -121,12 +119,11 @@ ListView.prototype.addHeader = function(params, w) {
 	oTable.appendChild(tbody);
 	list.div.appendChild(oTable);
 
-	oListview.attachEvent('onscroll', ListView__onscroll);
+	list.attachEvent('onscroll', ListView__onscroll);
 	oListview.list = list.div.firstChild;
 
 	this._deadCells = (this.hasSelector)?1:0;
 
-	oListview.header.bringToFront();
 	return(oListview.header);
 }
 
@@ -310,7 +307,7 @@ ListView.prototype.addColumn = function(params, w) {
 	}
 	
 	var oHeaderRow = oListView.header.div.firstChild.rows[0];
-	oHeaderRow.insertBefore(oCol, oHeaderRow.lastChild);
+	oHeaderRow.insertBefore(oCol, oHeaderRow.lastChild.previousSibling);
 	
 	if (oCol.columnType == 'bool')
 		oCol.trueImg = params.trueimg || oListView.trueImg;
@@ -330,7 +327,7 @@ ListView.prototype.addColumn = function(params, w) {
 	oCol.isResizable =
 		(params.resizable=='false' || params.resizable==false)?false:true;
 	if (oCol.isResizable) {
-		var iColumn = oHeaderRow.cells.length - 1;
+		var iColumn = oHeaderRow.cells.length - 2;
 		resizer.div.className = 'resizer';
 		resizer.attachEvent('onmousedown', function(evt) {
 			oListView._moveResizer(evt, iColumn-1-oListView._deadCells);
@@ -379,7 +376,6 @@ ListView.prototype._resizerMoving = function(evt, iResizer) {
 	if (nw > 2*this.cellPadding) {
 		this.columns[iColumn].style.width = nw + 'px';
 		this.header.redraw();
-		ListView__onscroll(null, this);
 		QuiX.startX = evt.clientX;
 	}
 }
@@ -419,7 +415,7 @@ ListView.prototype.refresh = function(w) {
 			selector.style.width = (8 - offset) + 'px';
 			oRow.appendChild(selector);
 		}
-		for (var j=0 + w._deadCells; j<w.columns.length-1; j++) {
+		for (var j=0 + w._deadCells; j<w.columns.length-2; j++) {
 			oCell = ce('TD');
 			oCell.className = 'cell';
 			column_width = w.columns[j].style.width;
@@ -455,7 +451,7 @@ ListView.prototype.refresh = function(w) {
 	
 	w.div.scrollTop = '0px';
 	w.selection = [];
-	ListView__onscroll(null, w);
+	w.redraw();
 }
 
 ListView.prototype._renderCell = function(cell, cellIndex, value, obj) {
@@ -541,8 +537,7 @@ function ListView__onclick (evt, w, f) {
 }
 
 function ListView__onscroll(evt, w) {
-	w.header.div.style.top = (w.div.scrollTop +
-							  parseInt(w.div.style.paddingTop)) + 'px';
+	w.parent.header.div.scrollLeft = w.div.scrollLeft;
 }
 
 function ListColumn__setCaption(s) {
@@ -553,7 +548,9 @@ function ListColumn__getCaption(s) {
 	return this.firstChild.innerHTML;
 }
 
-function List__startDrag(x, y) {
+function List__startDrag(x, y, el) {
+	if (el.tagName == 'DIV')
+		return;
 	var dragable = new Widget({
 		width : this.getWidth(true),
 		height : 1,
