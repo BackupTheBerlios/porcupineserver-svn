@@ -124,6 +124,7 @@ ListView.prototype.addHeader = function(params, w) {
 
 	this._deadCells = (this.hasSelector)?1:0;
 
+	//oListview.header.bringToFront();
 	return(oListview.header);
 }
 
@@ -368,7 +369,7 @@ ListView.prototype._moveResizer = function(evt, iResizer) {
 }
 
 ListView.prototype._resizerMoving = function(evt, iResizer) {
-	var nw;
+	var nw, sx;
 	var iColumn = iResizer + this._deadCells;
 	var offsetX = evt.clientX - QuiX.startX;
 	nw = parseInt(this.columns[iColumn].style.width) + offsetX;
@@ -376,6 +377,7 @@ ListView.prototype._resizerMoving = function(evt, iResizer) {
 	if (nw > 2*this.cellPadding) {
 		this.columns[iColumn].style.width = nw + 'px';
 		this.header.redraw();
+		this.header.div.scrollLeft = this.widgets[1].div.scrollLeft;
 		QuiX.startX = evt.clientX;
 	}
 }
