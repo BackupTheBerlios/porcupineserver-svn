@@ -159,7 +159,6 @@ function DataGrid__update(evt, w) {
 	var c = dg.attributes.__cellindex;
 	var cell = dg.list.firstChild.rows[r].cells[c];
 	var value = dg.attributes.__editwidget.getValue();
-	window.status = value;
 	dg.dataSet[r][dg.columns[c].name] = value;
 	dg._renderCell(cell, c, value);
 }
