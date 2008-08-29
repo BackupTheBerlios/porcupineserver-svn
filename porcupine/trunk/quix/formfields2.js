@@ -96,11 +96,12 @@ function Combo(params) {
 			}
 		}
 		else
-			e.readonly = true
+			e.readonly = true;
 	}
 	else {
 		e.readOnly = true;
 		e.style.cursor = 'default';
+		this._set = false;
 		if (!this.readonly) e.onclick = ComboBtn__onclick;
 	}
 	
@@ -162,12 +163,13 @@ Combo.prototype.setValue = function(value) {
 				this.selection = opt;
 				opt.selected = true;
 				this.div.firstChild.value = opt.getCaption();
-				if (value != old_value)
+				if (this._set && (value != old_value))
 					if (this._customRegistry.onchange)
 						QuiX.getEventListener(this._customRegistry.onchange)(this);
-				return;
+				break;
 			}
 		}
+		this._set = true;
 	}
 }
 
@@ -473,7 +475,6 @@ SelectList.prototype.clearSelection = function() {
 	for (var i=0; i<this.selection.length; i++) {
 		this.deSelectOption(this.selection[i]);
 	}
-	//this.selection = [];
 }
 
 SelectList.prototype.selectOption = function(option) {
@@ -487,7 +488,6 @@ SelectList.prototype.selectOption = function(option) {
 }
 
 SelectList.prototype.deSelectOption = function(option) {
-	//var oSelectList = this;
 	if (option.selected) {
 		option.div.className = 'label';
 		option.selected = false;
