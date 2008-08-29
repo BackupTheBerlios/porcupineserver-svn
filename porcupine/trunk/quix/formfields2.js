@@ -213,6 +213,10 @@ Combo.prototype.clearOptions = function() {
 	this.div.firstChild.value = '';
 }
 
+Combo.prototype.focus = function() {
+	this.div.firstChild.focus();
+}
+
 Combo.prototype.showDropdown = function(w) {
 	var w = w || this;
 	var iLeft = w.getScreenLeft();
