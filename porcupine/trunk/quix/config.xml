@@ -7,7 +7,7 @@
 		max-age="3600"/>
     <context path="xul_core.js"
 			method="GET"
-			client="Version/3.\d(.*)Safari"
+			client="Version/3.\d(.*)Safari|Chrome/\d.\d"
 			lang=".*"
 			action="core_saf.js"
 			max-age="3600">

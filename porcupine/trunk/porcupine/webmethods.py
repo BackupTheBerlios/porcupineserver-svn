@@ -40,7 +40,10 @@ def quixui(of_type, isPage=False, lang='', qs='',
     class WebMethod(WebMethodDescriptor):
         def __init__(self, function):
             WebMethodDescriptor.__init__(self, function, of_type,
-                ('GET', '(MSIE [6-7].+Windows NT)|(Mozilla/5.0.+rv:1.[7-9])|Version/3.\d(.*)Safari', lang, qs),
+                ('GET',
+                 '(MSIE [6-7].+Windows NT)|(Mozilla/5.0.+rv:1.[7-9])|Version/3.\d(.*)Safari|Chrome/\d.\d',
+                 lang,
+                 qs),
                 'text/xml', encoding, max_age, template, template_engine)
             
         def execute(self, item, context):
