@@ -34,6 +34,7 @@ function ListView(params) {
 	this._sortimg = null;
 	
 	this._dragable = dragable;
+	this._callback = null;
 }
 
 QuiX.constructors['listview'] = ListView;
@@ -390,15 +391,27 @@ ListView.prototype._endMoveResizer = function(evt, iResizer) {
 	this.detachEvent('onmousemove');
 }
 
-ListView.prototype.refresh = function(w) {
+ListView.prototype.refresh = function(callback, w) {
 	var w = w || this;
-	var oRow, oCell, selector, sPad, oFiller, oListTable;
+	var tbody = w.list.tBodies[0];
+	while(tbody.firstChild)
+		tbody.removeChild(tbody.firstChild);
+	w.selection = [];
+	w._callback = callback;
+	if (callback)
+		window.setTimeout(function(){w._refresh(0, 30)}, 0);
+	else
+		w._refresh(0, w.dataSet.length);
+}
+
+ListView.prototype._refresh = function(start, step) {
+	var oRow, oCell, selector, sPad, oFiller;
 	var oValue, column_width, offset;
-	var tbody = document.createElement("tbody");
-	var docFragment = document.createDocumentFragment();
+	var w = this;
+	var tbody = w.list.tBodies[0];
 	var rowBgColor;
 	// create rows
-	for (var i=0; i<w.dataSet.length; i++) {
+	for (var i=start; i < start + step && i < w.dataSet.length; i++) {
 		oRow = document.createElement("tr");
 		oRow.isSelected = false;
 		rowBgColor = w.altColors[i%2];
@@ -418,7 +431,7 @@ ListView.prototype.refresh = function(w) {
 			oRow.appendChild(selector);
 		}
 		for (var j=0 + w._deadCells; j<w.columns.length-2; j++) {
-			oCell = ce('TD');
+			oCell = document.createElement('td');
 			oCell.className = 'cell';
 			column_width = w.columns[j].style.width;
 			if (i==0 && column_width) {
@@ -435,7 +448,7 @@ ListView.prototype.refresh = function(w) {
 
 			oCell.style.borderWidth = w.cellBorder + 'px';
 			sPad = (w.cellPadding + 1) + 'px';
-			oCell.style.padding = '4px ' + sPad + ' 4px ' + sPad;
+			oCell.style.padding = '4px ' + sPad;
 			if (w.columns[j].columnBgColor)
 				oCell.bgColor = w.columns[j].columnBgColor;
 			oRow.appendChild(oCell);
@@ -445,15 +458,12 @@ ListView.prototype.refresh = function(w) {
 		oFiller = ce('TD');
 		oFiller.innerHTML = '&nbsp;';
 		oRow.appendChild(oFiller);
-		docFragment.appendChild(oRow);
+		tbody.appendChild(oRow);
 	}
-	tbody.appendChild(docFragment);
-	oListTable = w.widgets[1].div.firstChild;
-	oListTable.replaceChild(tbody, oListTable.tBodies[0]);
-	
-	w.div.scrollTop = '0px';
-	w.selection = [];
-	w.redraw();
+	if (i < w.dataSet.length)
+		window.setTimeout(function(){w._refresh(i, step)}, 100);
+	else
+		if (w._callback) w._callback(w);
 }
 
 ListView.prototype._renderCell = function(cell, cellIndex, value, obj) {

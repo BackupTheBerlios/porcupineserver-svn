@@ -50,9 +50,9 @@ DataGrid.prototype.disable = function() {
 	ListView.prototype.disable(this);
 }
 
-DataGrid.prototype.refresh = function() {
+DataGrid.prototype.refresh = function(callback) {
 	this._removeEditWidget();
-	ListView.prototype.refresh(this);
+	ListView.prototype.refresh(callback, this);
 }
 
 DataGrid.prototype.edit = function(cell) {
