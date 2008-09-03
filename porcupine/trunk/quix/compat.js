@@ -431,10 +431,8 @@ QModule.prototype.load = function(callback) {
 		oElement.type = 'text/javascript';
 		oElement.defer = true;
 		oElement.src = this.file;
-		if (typeof oElement.onload != 'undefined')
-			oElement.onload = Resource_onstatechange;
-		else
-			oElement.onreadystatechange = Resource_onstatechange;
+		var onload = (QuiX.browser == 'ie')?'onreadystatechange':'onload';
+		oElement[onload] = Resource_onstatechange;
 	}
 	else {
 		oElement = ce('LINK');
