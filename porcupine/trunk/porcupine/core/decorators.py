@@ -19,8 +19,9 @@ import md5
 import types
 import os.path
 import sys
-import re
 
+from porcupine import exceptions
+from porcupine.security import objectAccess
 from porcupine.config.settings import settings
 
 class WebMethodDescriptor(object):
@@ -38,7 +39,7 @@ class WebMethodDescriptor(object):
         #template parameters
         self.template = template
         self.t_engine = template_engine
-        # guerilla patching
+        # monkey patching
         self.of_type = of_type
         setattr(of_type, self.func_name, self)
         
@@ -47,6 +48,8 @@ class WebMethodDescriptor(object):
     
     def __get__(self, item, item_class):
         def wm_wrapper(item, context):
+            if objectAccess.getAccess(item, context.session.user) == 0:
+                raise exceptions.PermissionDenied
             context.response.content_type = self.content_type
             context.response.charset = self.encoding
             if self.max_age:
@@ -72,7 +75,7 @@ class WebMethodWrapper(object):
         self.func = decorator.func
         self.func_name = decorator.func_name
         self.conditions = decorator.conditions
-        # guerilla patching
+        # monkey patching
         self.of_type =  decorator.of_type
         setattr(self.of_type, self.func_name, self)
         

@@ -26,7 +26,7 @@ from porcupine.core.http.request import HttpRequest
 from porcupine.core.http.response import HttpResponse
 from porcupine.core.http import ServerPage
 
-from porcupine import db
+from porcupine.db import _db
 from porcupine import exceptions
 from porcupine.core.servicetypes.asyncBaseServer import BaseServerThread
 
@@ -49,7 +49,7 @@ class PorcupineThread(BaseServerThread):
                 self.context = HttpContext(request, response)
                 sPath = request.serverVariables['PATH_INFO']
                 try:
-                    item = db.getItem(sPath)
+                    item = _db.getItem(sPath)
                 except exceptions.ObjectNotFound:
                     # dir request
                     lstPath = sPath.split('/')
@@ -80,9 +80,6 @@ class PorcupineThread(BaseServerThread):
                         if registration.encoding:
                             response.charset = registration.encoding
                 else:
-                    # db request
-                    if (item == None):
-                        raise exceptions.PermissionDenied
                     self.dispatch_method(item)
             
             except exceptions.ResponseEnd, e:
