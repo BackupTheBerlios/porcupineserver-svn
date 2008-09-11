@@ -23,7 +23,7 @@ function ListView(params) {
 	this.altColors = (params.altcolors || ',').split(',');
 	this.highlightColors =
 		(params.highlightcolors || 'white,#6699FF').split(',');
-	this.rowHeight = parseInt(params.rowheight); 
+	this.rowHeight = parseInt(params.rowheight);
 
 	this.hasSelector = false;
 	this.selection = [];
@@ -41,7 +41,7 @@ QuiX.constructors['listview'] = ListView;
 ListView.prototype = new Widget;
 
 ListView.prototype.customEvents =
-	Widget.prototype.customEvents.concat(['onselect']);
+	Widget.prototype.customEvents.concat(['onselect', 'onrowprerender']);
 
 ListView.prototype._registerHandler = function(eventType, handler, isCustom) {
 	var wrapper;
@@ -458,6 +458,8 @@ ListView.prototype._refresh = function(start, step) {
 		oFiller = ce('TD');
 		oFiller.innerHTML = '&nbsp;';
 		oRow.appendChild(oFiller);
+		if (w._customRegistry.onrowprerender)
+			w._customRegistry.onrowprerender(w, oRow, w.dataSet[i]);
 		tbody.appendChild(oRow);
 	}
 	if (i < w.dataSet.length)
