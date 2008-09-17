@@ -124,8 +124,6 @@ ListView.prototype.addHeader = function(params, w) {
 	oListview.list = list.div.firstChild;
 
 	this._deadCells = (this.hasSelector)?1:0;
-
-	//oListview.header.bringToFront();
 	return(oListview.header);
 }
 
