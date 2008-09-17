@@ -29,8 +29,8 @@ function ListView(params) {
 	this.selection = [];
 	this.dataSet = [];
 	
-	this.orderby = null;
-	this.sortorder = null;
+	this._orderBy = null;
+	this._sortOrder = null;
 	this._sortimg = null;
 	
 	this._dragable = dragable;
@@ -242,30 +242,6 @@ ListView.prototype.getSelection = function() {
 		return sel;
 }
 
-ListView.prototype.sort = function(column) {
-	if (this.orderby == column.name)
-		this.sortorder = (this.sortorder=='ASC')?'DESC':'ASC';
-	else
-		this.sortorder = 'ASC';
-	this.orderby = column.name;
-
-	if (this._sortimg) QuiX.removeNode(this._sortimg);
-	this._sortimg = new Image;
-	this._sortimg.src = (this.sortorder=='ASC')?
-						'__quix/images/asc8.gif':'__quix/images/desc8.gif';
-	this._sortimg.align = 'absmiddle';
-	column.appendChild(this._sortimg);
-	
-	if (this.sortfunc) {
-		this.sortfunc(this);
-	} else {
-		// default sort behaviour
-		this.dataSet.sortByAttribute(column.name);
-		if (this.sortorder=='DESC') this.dataSet.reverse();
-		this.refresh();
-	}
-}
-
 ListView.prototype.addColumn = function(params, w) {
 	var oListView = w || this;
 	var oCol = ce('TD');
@@ -302,10 +278,7 @@ ListView.prototype.addColumn = function(params, w) {
 					false:true;
 	if (oCol.sortable) {
 		oCol.style.cursor = 'pointer';
-		oCol.onclick = function(evt){
-			oListView.sort(oCol);
-			QuiX.stopPropag(evt);
-		}
+		oCol.onclick = ListColumn__onclick;
 	}
 	
 	var oHeaderRow = oListView.header.div.firstChild.rows[0];
@@ -391,14 +364,69 @@ ListView.prototype._endMoveResizer = function(evt, iResizer) {
 	this.detachEvent('onmousemove');
 }
 
-ListView.prototype.refresh = function(callback, w) {
+ListView.prototype.getColumnByName = function(colName) {
+	for (var i=0; i<this.columns.length; i++)
+		if (this.columns[i].name == colName)
+			return this.columns[i];
+	return null;
+}
+
+ListView.prototype.sort = function(colName, order, oncomplete) {
+	var column = this.getColumnByName(colName);
+	if (this._sortimg) {
+		QuiX.removeNode(this._sortimg);
+		this._sortimg = null;
+	}
+	if (this.sortfunc)
+		this.sortfunc(this, colName, order);
+	else {
+		// default sort behaviour
+		this.dataSet.sortByAttribute(colName);
+		if (order.toUpperCase()=='DESC')
+			this.dataSet.reverse();
+		this.refresh(oncomplete);
+	}
+	if (column) {
+		this._sortimg = new Image;
+		this._sortimg.src = (order.toUpperCase()=='ASC')?
+							'__quix/images/asc8.gif':'__quix/images/desc8.gif';
+		this._sortimg.align = 'absmiddle';
+		column.appendChild(this._sortimg);
+	}
+	this._orderBy = colName;
+	this._sortOrder = order.toUpperCase();
+}
+
+ListView.prototype._isSorted = function() {
+	var field = this._orderBy;
+	var order = this._sortOrder;
+	for (var i=0; i<this.dataSet.length - 1; i++) {
+		if (order == 'ASC') {
+			if (this.dataSet[i][field] > this.dataSet[i+1][field])
+				return false;
+		}
+		else {
+			if (this.dataSet[i][field] < this.dataSet[i+1][field])
+				return false;
+		}
+	}
+	return true;
+}
+
+ListView.prototype.refresh = function(oncomplete, w) {
 	var w = w || this;
 	var tbody = w.list.tBodies[0];
 	while(tbody.firstChild)
 		tbody.removeChild(tbody.firstChild);
 	w.selection = [];
-	w._callback = callback;
-	if (callback)
+	if (w._sortimg && !w._isSorted()) {
+		QuiX.removeNode(w._sortimg);
+		w._sortimg = null;
+		w._orderBy = null;
+		w._sortOrder = null;
+	}
+	w._callback = oncomplete;
+	if (oncomplete)
 		window.setTimeout(function(){w._refresh(0, 30)}, 0);
 	else
 		w._refresh(0, w.dataSet.length);
@@ -463,7 +491,7 @@ ListView.prototype._refresh = function(start, step) {
 		tbody.appendChild(oRow);
 	}
 	if (i < w.dataSet.length)
-		window.setTimeout(function(){w._refresh(i, step)}, 100);
+		window.setTimeout(function(){w._refresh(i, step)}, 200);
 	else
 		if (w._callback) w._callback(w);
 }
@@ -560,6 +588,19 @@ function ListColumn__setCaption(s) {
 
 function ListColumn__getCaption(s) {
 	return this.firstChild.innerHTML;
+}
+
+function ListColumn__onclick(evt) {
+	var sortOrder, orderBy;
+	var evt = evt || event;
+	var lv = QuiX.getTargetWidget(evt).parent;
+	if (lv._orderBy == this.name)
+		sortOrder = (lv._sortOrder=='ASC')?'DESC':'ASC';
+	else
+		sortOrder = 'ASC';
+	orderBy = this.name;
+	lv.sort(orderBy, sortOrder);
+	QuiX.stopPropag(evt);
 }
 
 function List__startDrag(x, y, el) {
