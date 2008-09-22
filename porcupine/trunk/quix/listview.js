@@ -34,14 +34,16 @@ function ListView(params) {
 	this._sortimg = null;
 	
 	this._dragable = dragable;
-	this._callback = null;
 }
 
 QuiX.constructors['listview'] = ListView;
 ListView.prototype = new Widget;
 
 ListView.prototype.customEvents =
-	Widget.prototype.customEvents.concat(['onselect', 'onrowprerender']);
+	Widget.prototype.customEvents.concat(['onselect', 'onrowprerender',
+										'onrendercomplete']);
+
+ListView.prototype.cellThreshold = 5000;
 
 ListView.prototype._registerHandler = function(eventType, handler, isCustom) {
 	var wrapper;
@@ -101,21 +103,8 @@ ListView.prototype.addHeader = function(params, w) {
 	var oTable = ce('TABLE');
 	oTable.cellSpacing = 0;
 	oTable.cellPadding = oListview.cellPadding;
-	if (QuiX.browser != 'ie')
-		oTable.width = '100%';
-	oTable.onmousedown = function(evt) {
-		var evt = evt || event;
-		if (oListview._isDisabled) return;
-		var target = QuiX.getTarget(evt);
-		while (target.tagName!='DIV') {
-			if (target.tagName == 'TR') {
-				oListview._selectline(evt, target);
-				break;
-			}
-			target = target.parentElement || target.parentNode;
-		}
-		QuiX.cancelDefault(evt);
-	}
+	if (QuiX.browser != 'ie') oTable.width = '100%';
+	oTable.onmousedown = ListView__onmousedown;
 	var tbody = ce('TBODY');
 	oTable.appendChild(tbody);
 	list.div.appendChild(oTable);
@@ -170,25 +159,25 @@ ListView.prototype._unselrow = function(r) {
 			r.cells[i].bgColor = this.columns[i].columnBgColor;
 }
 
-ListView.prototype._selectline = function (evt, row) {
+ListView.prototype._selectline = function(evt, row) {
 	if (row.isSelected && QuiX.getMouseButton(evt)==2) {
-		return;
+		return false;
 	}
 	var fire = this.multiple || !row.isSelected;
-	
 	if (!row.isSelected) {
 		if (!this.multiple || !evt.shiftKey) this.clearSelection();
 		this._selrow(row);
 		this.selection.push(row.rowIndex);
-	} else if (this.multiple && evt.shiftKey) {
+	}
+	else if (this.multiple && evt.shiftKey) {
 		this._unselrow(row);
 		this.selection.removeItem(row.rowIndex);
-	} else {
+	}
+	else {
 		this.clearSelection();
 		this._selrow(row);
 		this.selection.push(row.rowIndex);
 	}
-	
 	if (fire && this._customRegistry.onselect) {
 		QuiX.getEventListener(this._customRegistry.onselect)(
 			evt, this, this.dataSet[row.rowIndex]);
@@ -411,7 +400,7 @@ ListView.prototype._isSorted = function() {
 	return true;
 }
 
-ListView.prototype.refresh = function(oncomplete, w) {
+ListView.prototype.refresh = function(w) {
 	var w = w || this;
 	var tbody = w.list.tBodies[0];
 	while(tbody.firstChild)
@@ -423,33 +412,37 @@ ListView.prototype.refresh = function(oncomplete, w) {
 		w._orderBy = null;
 		w._sortOrder = null;
 	}
-	w._callback = oncomplete;
-	if (oncomplete)
+	if (w.dataSet.length * w.columns.length > w.cellThreshold)
 		window.setTimeout(function(){w._refresh(0, 30)}, 0);
 	else
 		w._refresh(0, w.dataSet.length);
 }
 
 ListView.prototype._refresh = function(start, step) {
-	var oRow, oCell, selector, sPad, oFiller;
-	var oValue, column_width, offset;
+	var oRow, oCell, selector, oFiller;
+	var value, columnWidth, offset;
+	var rowHeight, offset;
 	var w = this;
 	var tbody = w.list.tBodies[0];
 	var rowBgColor;
+	var listBgColor = w.getBgColor();
+	if (w.rowHeight) {
+		if (QuiX.browser == 'ie')
+			offset = 2 * w.cellPadding;
+		else
+			offset = 0;
+		rowHeight = (w.rowHeight - offset) + 'px';
+	}
+	var cellPadding = '4px ' + (w.cellPadding + 1) + 'px';
+	var cellBorder = w.cellBorder + 'px';	
 	// create rows
 	for (var i=start; i < start + step && i < w.dataSet.length; i++) {
 		oRow = document.createElement("tr");
 		oRow.isSelected = false;
 		rowBgColor = w.altColors[i%2];
 		oRow.style.backgroundColor = rowBgColor;
-		if (w.rowHeight) {
-			var offset;
-			if (QuiX.browser == 'ie')
-				offset = 2 * w.cellPadding;
-			else
-				offset = 0;
-			oRow.style.height = (w.rowHeight - offset) + 'px';
-		}
+		if (rowHeight)
+			oRow.style.height = rowHeight;
 		if (w.hasSelector) {
 			selector = w._getSelector();
 			offset = (QuiX.browser=='saf')?0:2*w.cellPadding - 2;
@@ -457,41 +450,45 @@ ListView.prototype._refresh = function(start, step) {
 			oRow.appendChild(selector);
 		}
 		for (var j=0 + w._deadCells; j<w.columns.length-2; j++) {
-			oCell = document.createElement('td');
-			oCell.className = 'cell';
-			column_width = w.columns[j].style.width;
-			if (i==0 && column_width) {
+			cell = document.createElement('td');
+			cell.className = 'cell';
+			columnWidth = w.columns[j].style.width;
+			if (i==0 && columnWidth) {
 				offset = (QuiX.browser=='saf')?0:w.cellBorder;
 				if (w.columns[j].proportion) {
-					oCell.style.width =
+					cell.style.width =
 						(parseInt(w._calcWidth() * w.columns[j].proportion) -
-						2*w.cellPadding - 2) + 'px';
+						 2*w.cellPadding - 2) + 'px';
 				}
 				else
-					oCell.style.width = (parseInt(column_width) -
-										offset) + 'px';
+					cell.style.width = (parseInt(columnWidth) -
+										 offset) + 'px';
 			}
-
-			oCell.style.borderWidth = w.cellBorder + 'px';
-			sPad = (w.cellPadding + 1) + 'px';
-			oCell.style.padding = '4px ' + sPad;
+			cell.style.borderWidth = cellBorder;
+			cell.style.padding = cellPadding;
 			if (w.columns[j].columnBgColor)
-				oCell.bgColor = w.columns[j].columnBgColor;
-			oRow.appendChild(oCell);
-			oValue = w.dataSet[i][w.columns[j].name];
-			w._renderCell(oCell, j, oValue, w.dataSet[i])
+				cell.bgColor = w.columns[j].columnBgColor;
+			oRow.appendChild(cell);
+			value = w.dataSet[i][w.columns[j].name];
+			w._renderCell(cell, j, value, w.dataSet[i])
 		}
 		oFiller = ce('TD');
 		oFiller.innerHTML = '&nbsp;';
+		oFiller.className = 'cell';
+		oFiller.style.borderWidth = cellBorder;
+		oFiller.style.borderRight = 'none';
+		
 		oRow.appendChild(oFiller);
 		if (w._customRegistry.onrowprerender)
 			w._customRegistry.onrowprerender(w, oRow, w.dataSet[i]);
 		tbody.appendChild(oRow);
 	}
-	if (i < w.dataSet.length)
-		window.setTimeout(function(){w._refresh(i, step)}, 200);
+	if (i<w.dataSet.length)
+		window.setTimeout(function(){
+			if (w.div) w._refresh(i, step)}, 200);
 	else
-		if (w._callback) w._callback(w);
+		if (w._customRegistry.onrendercomplete)
+			w._customRegistry.onrendercomplete(w);
 }
 
 ListView.prototype._renderCell = function(cell, cellIndex, value, obj) {
@@ -511,8 +508,7 @@ ListView.prototype._renderCell = function(cell, cellIndex, value, obj) {
 			case 'optionlist':
 				for (var i=0; i<column.options.length; i++) {
 					if (value==column.options[i].value)
-						cell.innerHTML = '<span style="white-space:nowrap">' + 
-							column.options[i].caption + '</span>';
+						cell.innerHTML = column.options[i].caption;
 				}
 				return;
 			case 'img':
@@ -523,9 +519,8 @@ ListView.prototype._renderCell = function(cell, cellIndex, value, obj) {
 				return;
 			case 'bool':
 				if (value) {
-					while (cell.childNodes.length > 0) {
-						QuiX.removeNode(cell.childNodes[0]);					
-					}
+					while (cell.childNodes.length > 0)
+						QuiX.removeNode(cell.childNodes[0]);
 					elem = QuiX.getImage(column.trueImg)
 					elem.align = 'absmiddle';
 					cell.appendChild(elem);
@@ -534,8 +529,7 @@ ListView.prototype._renderCell = function(cell, cellIndex, value, obj) {
 					cell.innerHTML = '&nbsp;'
 				return;
 			case 'date':
-				cell.innerHTML = '<span style="white-space:nowrap">' + 
-					value.format(column.format) + '</span>';
+				cell.innerHTML = value.format(column.format);
 				return;
 			default:
 				if (typeof column_type == 'function') {
@@ -547,10 +541,9 @@ ListView.prototype._renderCell = function(cell, cellIndex, value, obj) {
 			value = column._xform(obj, value);
 	}
 	// auto-detect value type
-	if (value instanceof Date) {
-		cell.innerHTML = '<span style="white-space:nowrap">' + 
-			value.format(this.dateFormat) + '</span>';
-	} else if (typeof(value) == 'boolean') {
+	if (value instanceof Date)
+		cell.innerHTML = value.format(this.dateFormat);
+	else if (typeof(value) == 'boolean') {
 		if (value) {
 			elem = QuiX.getImage(this.trueImg)
 			elem.align = 'absmiddle';
@@ -558,22 +551,34 @@ ListView.prototype._renderCell = function(cell, cellIndex, value, obj) {
 		} else {
 			cell.innerHTML = '&nbsp;';
 		}
-	} else {
-		cell.innerHTML = '<span style="white-space:nowrap">' + 
-			((value == '' && value != 0)?'&nbsp;':value) + '</span>';
-	}
+	} else
+		cell.innerHTML = ((value == '' && value != 0)?'&nbsp;':value);
+}
+
+ListView.prototype._getRow = function(evt) {
+	var target = (QuiX.getTarget(evt));
+	while (target.tagName != 'TR')
+		target = QuiX.getParentNode(target);
+	return target;	
 }
 
 function ListView__onclick (evt, w, f) {
 	if (!evt) return;
-	var target = QuiX.getTarget(evt);
-	while (target.tagName!='DIV') {
-		if (target.tagName == 'TR') {
-			f(evt, w, w.dataSet[target.rowIndex]);
-			break;
-		}
-		target = target.parentElement || target.parentNode;
-	}
+	var row = w._getRow(evt);
+	if (row)
+		f(evt, w, w.dataSet[row.rowIndex]);
+	else
+		QuiX.cancelDefault(evt);
+}
+
+function ListView__onmousedown(evt) {
+	var evt = evt || event;
+	QuiX.cancelDefault(evt);
+	var lv = QuiX.getTargetWidget(evt).parent;
+	if (lv._isDisabled) return;
+	var row = lv._getRow(evt);
+	if (row)
+		lv._selectline(evt, row);
 }
 
 function ListView__onscroll(evt, w) {
