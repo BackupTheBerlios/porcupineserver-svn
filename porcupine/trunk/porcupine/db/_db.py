@@ -26,14 +26,11 @@ from porcupine.config.settings import settings
 _locks = 0
 _activeTxns = 0
 db_handle = None
-object_cache = None
 
 def open():
     global db_handle, object_cache
     db_handle = misc.getCallableByName(
                      settings['store']['interface'])()
-    object_cache = cache.Cache(int(settings['store']['object_cache_size']),
-                               readonly=True)
     
 def __getItemByPath(lstPath, trans=None):
     oItem = getItem('')
@@ -47,21 +44,14 @@ def __getItemByPath(lstPath, trans=None):
     return(db_handle._getItem(childId, trans))
 
 def getItem(sOID, trans=None):
-    # [itemID]
-    if sOID in object_cache and trans == None:
-        return object_cache[sOID]
-    else:
-        sItem = db_handle._getItem(sOID, trans)
+    sItem = db_handle._getItem(sOID, trans)
     if not sItem:
         lstPath = sOID.split('/')
         iPathDepth = len(lstPath)
         if iPathDepth > 1:
             # /[itemID]
             if iPathDepth == 2:
-                if lstPath[1] in object_cache and not trans:
-                    return object_cache[lstPath[1]]
-                else:
-                    sItem = db_handle._getItem(lstPath[1], trans)
+                sItem = db_handle._getItem(lstPath[1], trans)
             # /folder1/folder2/item
             if not sItem:
                 sItem = __getItemByPath(lstPath, trans)
@@ -71,8 +61,6 @@ def getItem(sOID, trans=None):
         if oItem._isDeleted:
             raise exceptions.ObjectNotFound, \
                 'The object "%s" does not exist' % sOID
-        if trans == None:
-            object_cache[oItem._id] = oItem
         return oItem
     else:
         raise exceptions.ObjectNotFound, \
@@ -80,13 +68,9 @@ def getItem(sOID, trans=None):
 
 def putItem(oItem, trans=None):
     db_handle._putItem(oItem._id, cPickle.dumps(oItem, 2), trans)
-    if oItem._id in object_cache:
-        del object_cache[oItem._id]
-
+    
 def deleteItem(oItem, trans):
     db_handle._deleteItem(oItem._id, trans)
-    if object_cache.has_key(oItem._id):
-        del object_cache[oItem._id]
 
 def getDeletedItem(sOID, trans=None):
     sItem = db_handle._getItem(sOID, trans)
