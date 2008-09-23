@@ -43,7 +43,7 @@ ListView.prototype.customEvents =
 	Widget.prototype.customEvents.concat(['onselect', 'onrowprerender',
 										'onrendercomplete']);
 
-ListView.prototype.cellThreshold = 5000;
+ListView.prototype.cellThreshold = 2000;
 
 ListView.prototype._registerHandler = function(eventType, handler, isCustom) {
 	var wrapper;
@@ -358,7 +358,7 @@ ListView.prototype.getColumnByName = function(colName) {
 	return null;
 }
 
-ListView.prototype.sort = function(colName, order, oncomplete) {
+ListView.prototype.sort = function(colName, order) {
 	var column = this.getColumnByName(colName);
 	if (this._sortimg) {
 		QuiX.removeNode(this._sortimg);
@@ -371,7 +371,7 @@ ListView.prototype.sort = function(colName, order, oncomplete) {
 		this.dataSet.sortByAttribute(colName);
 		if (order.toUpperCase()=='DESC')
 			this.dataSet.reverse();
-		this.refresh(oncomplete);
+		this.refresh();
 	}
 	if (column) {
 		this._sortimg = new Image;
@@ -412,8 +412,11 @@ ListView.prototype.refresh = function(w) {
 		w._orderBy = null;
 		w._sortOrder = null;
 	}
-	if (w.dataSet.length * w.columns.length > w.cellThreshold)
-		window.setTimeout(function(){w._refresh(0, 30)}, 0);
+	if (w.dataSet.length * w.columns.length > w.cellThreshold) {
+		if (w._timeout)
+			window.clearTimeout(w._timeout);
+		w._timeout = window.setTimeout(function(){w._refresh(0, 30)}, 0);
+	}
 	else
 		w._refresh(0, w.dataSet.length);
 }
@@ -484,8 +487,8 @@ ListView.prototype._refresh = function(start, step) {
 		tbody.appendChild(oRow);
 	}
 	if (i<w.dataSet.length)
-		window.setTimeout(function(){
-			if (w.div) w._refresh(i, step)}, 200);
+		w._timeout = window.setTimeout(function(){
+			if (w.div) w._refresh(i, step)}, 300);
 	else
 		if (w._customRegistry.onrendercomplete)
 			w._customRegistry.onrendercomplete(w);
