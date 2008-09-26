@@ -20,7 +20,7 @@ OQL command object
 
 #import hotshot
 from porcupine import exceptions
-from porcupine.oql import parser, core
+from porcupine.core.oql import parser, core
 
 #PROFILER = hotshot.Profile("profiler/hotshot.prof")
 

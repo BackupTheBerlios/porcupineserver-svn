@@ -17,11 +17,13 @@
 "Porcupine XML-RPC Library"
 
 import cStringIO
-from porcupine.utils import date, xml
-from porcupine.oql import core
-from porcupine.core import objectSet
-from porcupine import systemObjects, datatypes
 from xml.dom import minidom
+
+from porcupine import datatypes
+from porcupine import systemObjects
+from porcupine.core import objectSet
+from porcupine.core.oql import core
+from porcupine.utils import date, xml
 
 DEFAULT_PROPS = ('id', 'modified', 'owner', 'created', '__image__',
                  'contentclass', 'parentid', 'isCollection')
