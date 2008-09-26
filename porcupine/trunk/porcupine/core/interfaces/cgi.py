@@ -14,19 +14,21 @@
 #    along with Porcupine; if not, write to the Free Software
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #===============================================================================
-"Porcupine MOD_PYTHON interface"
+"Porcupine Server CGI Interface"
 
-from cPickle import dumps
+def cgi_handler(rh, response):
+    # write headers
+    for header, value in response._getHeaders().items():
+        rh.write_buffer('%s: %s\n' % (header, value))
 
-def interfaceHandler(rh, response):
-#    print response._getBody()
-    rh.write_buffer(response._getBody())
-    rh.write_buffer('\n\n---END BODY---\n\n')
-    rh.write_buffer(dumps(response._getHeaders()))
-    if len(response.cookies) > 0:
-        cookies = []
-        rh.write_buffer('\n\n---END BODY---\n\n')
-        for cookie_name in response.cookies:
-            cookies.append( response.cookies[cookie_name].OutputString() )
-        rh.write_buffer( dumps(cookies) )
+    sBody = response._getBody()
+    if sBody:
+        rh.write_buffer('Content-Length: %i\n' % len(sBody))
         
+    if len(response.cookies) > 0:
+        rh.write_buffer(response.cookies.output() + '\n')
+
+    rh.write_buffer('\n')
+
+    # write body
+    rh.write_buffer(sBody)

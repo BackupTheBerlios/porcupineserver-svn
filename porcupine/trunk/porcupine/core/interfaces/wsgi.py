@@ -18,7 +18,7 @@
 
 from cPickle import dumps
 
-def interfaceHandler(rh, response):
+def wsgi_handler(rh, response):
 #    print response._getBody()
     rh.write_buffer(response._getBody())
     rh.write_buffer('\n\n---END BODY---\n\n')
