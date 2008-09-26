@@ -19,7 +19,7 @@ OQL Parser
 """
 
 from porcupine.core import cache
-from porcupine.yacc import lex, yacc
+from porcupine.core.yacc import lex, yacc
 from porcupine.oql import core
 
 QUERY_CACHE = cache.Cache(100)
