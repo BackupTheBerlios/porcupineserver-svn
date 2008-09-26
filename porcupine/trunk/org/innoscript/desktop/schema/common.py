@@ -24,7 +24,7 @@ class File(system.Item):
     """Simple file object
 
     @ivar file: The file data type
-    @type file: L{RequiredFile<org.innoscript.desktop.schema.properties.RequiredFile>}
+    @type file: L{RequiredFile<porcupine.datatypes.RequiredFile>}
     """
     __image__ = "desktop/images/document.gif"
     __slots__ = ('file',)
@@ -32,7 +32,7 @@ class File(system.Item):
     
     def __init__(self):
         system.Item.__init__(self)
-        self.file = properties.RequiredFile()
+        self.file = datatypes.RequiredFile()
 
     def getSize(self):
         "Getter for L{size} property"
@@ -92,7 +92,7 @@ class Application(system.Item):
     
     @ivar launchUrl: The application's startup URL. This URL should point to
                      a valid QuiX definition file.
-    @type launchUrl: L{launchUrl<org.innoscript.desktop.schema.properties.LaunchUrl>}
+    @type launchUrl: L{RequiredString<porcupine.datatypes.RequiredString>}
 
     @ivar icon: The icon to appear on the desktop menus.
     @type icon: L{String<porcupine.datatypes.String>}
@@ -106,7 +106,7 @@ class Application(system.Item):
     
     def __init__(self):
         system.Item.__init__(self)
-        self.launchUrl = properties.LaunchUrl()
+        self.launchUrl = datatypes.RequiredString()
         self.icon = datatypes.String()
 
 class Folder(system.Container):

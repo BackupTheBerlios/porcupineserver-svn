@@ -130,7 +130,7 @@ class User(GenericUser):
     """Porcupine User object
 
     @ivar password: The user's password.
-    @type password: L{RequiredPassword<org.innoscript.desktop.schema.properties.RequiredPassword>}
+    @type password: L{RequiredPassword<porcupine.datatypes.RequiredPassword>}
 
     @ivar email: The user's email.
     @type email: L{String<porcupine.datatypes.String>}
@@ -144,7 +144,7 @@ class User(GenericUser):
     
     def __init__(self):
         GenericUser.__init__(self)
-        self.password = properties.RequiredPassword()
+        self.password = datatypes.RequiredPassword()
         self.email = datatypes.String()
         self.settings = datatypes.Dictionary()
         self.personalFolder = datatypes.Reference1()

@@ -14,29 +14,17 @@
 #    along with Porcupine; if not, write to the Free Software
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #===============================================================================
-"Porcupine server event handlers base classes"
-class DatatypeEventHandler(object):
-    @classmethod
-    def on_create(cls, item, attr, trans):
-        pass
+"Porcupine server event handler base class"
 
-    @classmethod
-    def on_update(cls, item, new_attr, old_attr, trans):
-        pass
-    
-    @classmethod
-    def on_delete(cls, item, attr, trans, bPermanent):
-        pass
-    
 class ContentclassEventHandler(object):
-    @classmethod
-    def on_create(cls, item, trans):
+    @staticmethod
+    def on_create(item, trans):
         pass
     
-    @classmethod
-    def on_update(cls, item, old_item, trans):
+    @staticmethod
+    def on_update(item, old_item, trans):
         pass
     
-    @classmethod
-    def on_delete(cls, item, trans, bPermanent):
+    @staticmethod
+    def on_delete(item, trans, bPermanent):
         pass

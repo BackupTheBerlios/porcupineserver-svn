@@ -15,15 +15,17 @@
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #===============================================================================
 """This module provides the essential API for runtime manipulation of the
-custom Porcupine objects and data types. It is mainly intended for
+custom Porcupine content classes and data types. It is mainly intended for
 install/uninstall scripts packed with the B{pakager} deployment utility.
 """
+import inspect
+import sys
+import types
+import time
 
-import inspect, sys, types, time
-
-from porcupine.utils import misc
-from porcupine import systemObjects
 from porcupine import datatypes
+from porcupine import systemObjects
+from porcupine.utils import misc
 from porcupine.administration import offlinedb
 
 class GenericSchemaEditor(object):
@@ -51,7 +53,6 @@ class GenericSchemaEditor(object):
                 self._properties[member_name] = member
                 
         self._module = sys.modules[self._class.__module__]
-        self._newimports = []
         self._imports = {}
         
         moduledict = self._module.__dict__
@@ -60,21 +61,22 @@ class GenericSchemaEditor(object):
                 self._imports[moduledict[x]] = x
             elif callable(moduledict[x]) and \
                     (sys.modules[moduledict[x].__module__] != self._module):
-                imported = misc.getCallableByName(moduledict[x].__module__ + \
-                                               '.' + x)
+                imported = misc.getCallableByName(moduledict[x].__module__ +
+                                                  '.' + x)
                 self._imports[imported] = x
     
     def generateCode(self):
         raise NotImplementedError
     
     def _getFullName(self, callable):
+        if callable.__module__ == '__builtin__':
+            return callable.__name__
         module = misc.getCallableByName(callable.__module__)
         if self._imports.has_key(module):
             return self._imports[module] + '.' + callable.__name__
         else:
             if module == self._module:
                 return callable.__name__
-            self._newimports.append(module)
             local_name = callable.__module__.split('.')[-1]
             counter = 2
             while local_name in self._module.__dict__:
@@ -93,21 +95,22 @@ class GenericSchemaEditor(object):
                     modname = '.'.join(mod.__name__.split('.')[:-1])
                     attrname = mod.__name__.split('.')[-1]
                     if attrname == self._imports[mod]:
-                        imports_code.append( 'from %s import %s\n' %
-                            (modname, self._imports[mod]) )
+                        imports_code.append('from %s import %s\n' %
+                            (modname, self._imports[mod]))
                     else:
-                        imports_code.append( 'from %s import %s as %s\n' %
-                            (modname, attrname, self._imports[mod]) )
+                        imports_code.append('from %s import %s as %s\n' %
+                            (modname, attrname, self._imports[mod]))
             else:
-                imports_code.append( 'from %s import %s\n' %
-                    (mod.__module__, self._imports[mod]) )
+                imports_code.append('from %s import %s\n' %
+                    (mod.__module__, self._imports[mod]))
         return imports_code
         
     def _removeImports(self, sourcelines):
         import_lines = []
         for lineno, line in enumerate(sourcelines):
-            if line[:4]=='from' or line[:5]=='import':
+            if line[:4]=='from' or line[:6]=='import':
                 import_lines.append(lineno)
+        print import_lines
         import_lines.reverse()
         for lineno in import_lines:
             del sourcelines[lineno]
@@ -145,53 +148,45 @@ class GenericSchemaEditor(object):
 class ItemEditor(GenericSchemaEditor):
     def __init__(self, classobj):
         GenericSchemaEditor.__init__(self, classobj)
-        self._addedProps = {}
+        self._setProps = {}
+        self._removedProps = []
+        self.xform = None
         if issubclass(self._class, systemObjects.GenericItem):
-            self.containment = None
             self.image = self._class.__image__
-            if self._instance.isCollection:
+            if hasattr(self._class, '_eventHandlers'):
+                self._eventHandlers = self._class._eventHandlers
+            else:
+                self._eventHandlers = []
+            if hasattr(self._class, 'isCollection'):
+                self.isCollection = self._class.isCollection
+            else:
+                self.isCollection = None
+            if self.isCollection:
                 self.containment = list(self._class.containment)
+            else:
+                self.containment = None
         else:
             raise TypeError, 'Invalid argument. ' + \
                 'ItemEditor accepts only subclasses of GenericItem'
     
-    def addProperty(self, name, value):
+    def setProperty(self, name, value):
         self._attrs[name] = value
-        self._addedProps[name] = value
-        
+        self._setProps[name] = value
+    
+    # kept for backwards compatibility  
+    addProperty = setProperty
+    
     def removeProperty(self, name):
-        from porcupine.oql.command import OqlCommand
-        db = offlinedb.getHandle()
-        oql_command = OqlCommand()
-        rs = oql_command.execute(
-            "select * from deep('/') where instanceof('%s')" %
-            self._instance.contentclass)
-        try:
-            if len(rs):
-                txn = offlinedb.OfflineTransaction()
-                try:
-                    for item in rs:
-                        if hasattr(item, name):
-                            delattr(item, name)
-                        db.putItem(item, txn)
-                    txn.commit()
-                except Exception, e:
-                    txn.abort()
-                    raise e
-                    sys.exit(2)
-        finally:
-            offlinedb.close()
-        
         if self._attrs.has_key(name):
             del self._attrs[name]
-            
-    def commitChanges(self):
-        GenericSchemaEditor.commitChanges(self)
-        if len(self._addedProps):
+            self._removedProps.append(name)
+    
+    def commitChanges(self, generate_code=True):
+        from porcupine.oql.command import OqlCommand
+        if self._setProps or self._removedProps:
             #we must reload the class module
             oMod = misc.getCallableByName(self._class.__module__)
             reload(oMod)
-            from porcupine.oql.command import OqlCommand
             
             db = offlinedb.getHandle()
             oql_command = OqlCommand()
@@ -203,9 +198,20 @@ class ItemEditor(GenericSchemaEditor):
                     txn = offlinedb.OfflineTransaction()
                     try:
                         for item in rs:
-                            for name in self._addedProps:
+                            for name in self._removedProps:
+                                if hasattr(item, name):
+                                    delattr(item, name)
+                            for name in self._setProps:
                                 if not hasattr(item, name):
-                                    setattr(item, name, self._addedProps[name])
+                                    # add new
+                                    setattr(item, name, self._setProps[name])
+                                else:
+                                    # replace property
+                                    old_value = getattr(item, name).value
+                                    setattr(item, name, self._setProps[name])
+                                    getattr(item, name).value = old_value
+                            if self.xform:
+                                item = self.xform(item)
                             db.putItem(item, txn)
                         txn.commit()
                     except Exception, e:
@@ -214,23 +220,19 @@ class ItemEditor(GenericSchemaEditor):
                         sys.exit(2)
             finally:
                 offlinedb.close()
-
-
-
+        if generate_code:
+            GenericSchemaEditor.commitChanges(self)
+    
     def generateCode(self):
         bases = [self._getFullName(x) for x in self._bases]
-
+        ccbases = [self._getFullName(x) for x in self._bases
+                   if isinstance(x, systemObjects.GenericItem)]
+        
         code = ['# auto generated by codegen at %s\n' % time.asctime()]
         code.append('class %s(%s):\n' % (self._class.__name__, ','.join(bases)))
         
         # doc
-        doc = self.doc.split('\n')
-        if len(doc)==1:
-            code.append('    "%s"\n' % doc[0])
-        else:
-            code.append('    """\n')
-            code.extend(['%s\n' % x for x in doc if x.strip()])
-            code.append('    """\n')
+        code.append('    """%s"""\n' % self.doc)
         
         # __image__
         code.append('    __image__ = "%s"\n' % self.image)
@@ -239,13 +241,28 @@ class ItemEditor(GenericSchemaEditor):
         code.append('    __slots__ = (\n')
         code.extend(["        '%s',\n" % prop for prop in self._attrs])
         code.append('    )\n')
+
+        # props
+        dts = ["'%s'" % prop for prop in self._attrs
+               if isinstance(self._attrs[prop], datatypes.DataType)]
+        if dts:
+            code.append('    __props__ = ')
+            if ccbases:
+                code.append(' + '.join([x + '.__props__' for x in ccbases]) + ' + ')
+            code.append('(' + ', '.join(dts) + ')\n')
+            
+        # isCollection
+        if (self.isCollection != None):
+            code.append('    isCollection = %s\n' % self.isCollection)
         
-        #props
-        code.append(
-            '    __props__ = ' + \
-            '+'.join( [x + '.__props__' for x in bases] ) + \
-            ' + __slots__\n'
-        )
+        # _eventHandlers
+        if (self._eventHandlers or not ccbases):
+            handlers = [self._getFullName(handler)
+                        for handler in self._eventHandlers]
+            code.append('    _eventHandlers = ')
+            if ccbases:
+                code.append(' + '.join([x + '._eventHandlers' for x in ccbases]) + ' + ')
+            code.append('[' + ', '.join(handlers) + ']\n')
         
         # containment
         if self.containment:
@@ -254,7 +271,7 @@ class ItemEditor(GenericSchemaEditor):
             code.extend('    )\n')
         
         if self._attrs:
-            #__init__
+            # __init__
             code.append('\n')
             code.append('    def __init__(self):\n')
             code.extend(['        %s.__init__(self)\n' % x for x in bases])
@@ -266,9 +283,11 @@ class ItemEditor(GenericSchemaEditor):
                         (prop, self._getFullName(self._attrs[prop].__class__)))
             for prop in [x for x in self._attrs
                     if self._attrs[x].__class__.__module__ == '__builtin__']:
-                #print self._attrs[x].__class__
-                code.append('        self.%s = %s\n' %
-                        (prop, repr(self._attrs[prop])))
+                if prop != '_id':
+                    code.append('        self.%s = %s\n' %
+                            (prop, repr(self._attrs[prop])))
+                else:
+                    code.append('        self._id = misc.generateOID()\n')
         
         #methods
         for meth in self._methods:
@@ -290,7 +309,7 @@ class ItemEditor(GenericSchemaEditor):
                         (property_name, fget, fset))
         
         return code
-        
+
 class DatatypeEditor(GenericSchemaEditor):
     def __init__(self, classobj):
         GenericSchemaEditor.__init__(self, classobj)

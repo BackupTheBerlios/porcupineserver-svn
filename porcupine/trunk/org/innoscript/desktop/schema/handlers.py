@@ -15,12 +15,12 @@
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #===============================================================================
 "Porcupine desktop objects' event handlers"
-from porcupine.core import eventHandlers
+from porcupine import events
 from org.innoscript.desktop.schema import common
 
-class PersonalFolderHandler(eventHandlers.ContentclassEventHandler):
-    @classmethod
-    def on_create(cls, user, trans):
+class PersonalFolderHandler(events.ContentclassEventHandler):
+    @staticmethod
+    def on_create(user, trans):
         if not user.personalFolder.value:
             # create user's personal folder
             personal_folder = common.PersonalFolder()
@@ -33,11 +33,11 @@ class PersonalFolderHandler(eventHandlers.ContentclassEventHandler):
                 'administrators' : 8,
                 user.id : 2
             }
-                        
+            
             personal_folder.appendTo('personal', trans)
             
-    @classmethod
-    def on_update(cls, user, old_user, trans):
+    @staticmethod
+    def on_update(user, old_user, trans):
         new_name = user.displayName.value
         old_name = old_user.displayName.value
         if new_name != old_name:
@@ -45,8 +45,8 @@ class PersonalFolderHandler(eventHandlers.ContentclassEventHandler):
             personal_folder.displayName.value = new_name
             personal_folder.update(trans)
     
-    @classmethod
-    def on_delete(cls, user, trans, bPermanent):
+    @staticmethod
+    def on_delete(user, trans, bPermanent):
         if bPermanent:
             personal_folder = user.personalFolder.getItem(trans)
             personal_folder.delete(trans)

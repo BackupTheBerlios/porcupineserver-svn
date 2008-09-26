@@ -22,22 +22,12 @@ by the L{org.innoscript.desktop.schema} module custom objects.
 from porcupine.datatypes import *
 
 class RequiredFile(File):
-    """
-    Simple file attribute.
-    
-    Added in:
-        1. L{File<org.innoscript.desktop.schema.common.File>}
-    """
+    "Legacy data type. To be removed in the next version."
     __slots__ = ()
     isRequired = True
 
 class LaunchUrl(String):
-    """
-    A Url to valid QuiX file.
-    
-    Added in:
-        1. L{Application<org.innoscript.desktop.schema.common.Application>}
-    """
+    "Legacy data type. To be removed in the next version."
     __slots__ = ()
     isRequired = True
 
@@ -81,12 +71,7 @@ class MemberOf(RelatorN):
     relAttr = 'members'
 
 class RequiredPassword(Password):
-    """
-    The user's password.
-    
-    Added in:
-        1. L{User<org.innoscript.desktop.schema.security.User>}
-    """
+    "Legacy data type. To be removed in the next version."
     __slots__ = ()
     isRequired = True
 

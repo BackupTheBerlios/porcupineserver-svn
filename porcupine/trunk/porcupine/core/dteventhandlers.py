@@ -20,21 +20,33 @@ import os
 from porcupine import db
 from porcupine.db import _db
 from porcupine import exceptions
-from porcupine.core import eventHandlers
 from porcupine.utils import misc
 
-class CompositionEventHandler(eventHandlers.DatatypeEventHandler):
+class DatatypeEventHandler(object):
+    @staticmethod
+    def on_create(item, attr, trans):
+        pass
+
+    @staticmethod
+    def on_update(item, new_attr, old_attr, trans):
+        pass
+    
+    @staticmethod
+    def on_delete(item, attr, trans, bPermanent):
+        pass
+
+class CompositionEventHandler(DatatypeEventHandler):
     "Composition datatype event handler"
     
-    @classmethod
-    def on_create(cls, item, attr, trans):
+    @staticmethod
+    def on_create(item, attr, trans):
         if item._isDeleted:
             attr.value = [_db.getDeletedItem(sID, trans)
                           for sID in attr.value]
         CompositionEventHandler.on_update(item, attr, None, trans)
         
-    @classmethod
-    def on_update(cls, item, new_attr, old_attr, trans):
+    @staticmethod
+    def on_update(item, new_attr, old_attr, trans):
         from porcupine.systemObjects import Composite
         # load objects
         dctObjects = {}
@@ -86,12 +98,12 @@ class CompositionEventHandler(eventHandlers.DatatypeEventHandler):
         lstRemoved = list(old_ids - new_ids)
         for obj_id in lstRemoved:
             composite4removal = _db.getItem(obj_id, trans)
-            cls.removeComposite(composite4removal, trans)
+            CompositionEventHandler.removeComposite(composite4removal, trans)
         
         new_attr.value = list(new_ids)
     
-    @classmethod
-    def on_delete(cls, item, attr, trans, bPermanent):
+    @staticmethod
+    def on_delete(item, attr, trans, bPermanent):
         if bPermanent:
             if item._isDeleted:
                 func_get = _db.getDeletedItem
@@ -99,7 +111,7 @@ class CompositionEventHandler(eventHandlers.DatatypeEventHandler):
                 func_get = _db.getItem
             composites = [func_get(sID, trans) for sID in attr.value]
             for composite in composites:
-                cls.removeComposite(composite, trans)
+                CompositionEventHandler.removeComposite(composite, trans)
         else:
             for sID in attr.value:
                 composite = _db.getItem(sID, trans)
@@ -107,20 +119,20 @@ class CompositionEventHandler(eventHandlers.DatatypeEventHandler):
                 composite._isDeleted = True
                 _db.putItem(composite, trans)
     
-    @classmethod
-    def removeComposite(cls, composite, trans):
+    @staticmethod
+    def removeComposite(composite, trans):
         _db.handle_delete(composite, trans, True)
         _db.deleteItem(composite, trans)
         
-class RelatorNEventHandler(eventHandlers.DatatypeEventHandler):
+class RelatorNEventHandler(DatatypeEventHandler):
     "RelatorN datatype event handler"
     
-    @classmethod
-    def on_create(cls, item, attr, trans):
+    @staticmethod
+    def on_create(item, attr, trans):
         RelatorNEventHandler.on_update(item, attr, None, trans)
     
-    @classmethod
-    def on_update(cls, item, new_attr, old_attr, trans):
+    @staticmethod
+    def on_update(item, new_attr, old_attr, trans):
         from porcupine import datatypes
         # remove duplicates
         new_attr.value = list(set(new_attr.value))
@@ -128,7 +140,7 @@ class RelatorNEventHandler(eventHandlers.DatatypeEventHandler):
         # get previous value
         if old_attr:
             prvValue = set(old_attr.value)
-            noAccessList = cls.getNoAccessIds(old_attr, trans)
+            noAccessList = RelatorNEventHandler.getNoAccessIds(old_attr, trans)
         else:
             prvValue = set()
             noAccessList = []
@@ -165,8 +177,8 @@ class RelatorNEventHandler(eventHandlers.DatatypeEventHandler):
                     oAttrRef.value = ''
                 _db.putItem(oItemRef, trans)
     
-    @classmethod
-    def on_delete(cls, item, attr, trans, bPermanent):
+    @staticmethod
+    def on_delete(item, attr, trans, bPermanent):
         if not item._isDeleted:
             from porcupine import datatypes
 
@@ -192,8 +204,8 @@ class RelatorNEventHandler(eventHandlers.DatatypeEventHandler):
                 else:
                     attr.value.remove(sID)
     
-    @classmethod
-    def getNoAccessIds(cls, attr, trans):
+    @staticmethod
+    def getNoAccessIds(attr, trans):
         lstNoAccess = []
         for sID in attr.value:
             oItem = db.getItem(sID, trans)
@@ -203,15 +215,15 @@ class RelatorNEventHandler(eventHandlers.DatatypeEventHandler):
                 lstNoAccess.append(sID)
         return lstNoAccess
     
-class Relator1EventHandler(eventHandlers.DatatypeEventHandler):
+class Relator1EventHandler(DatatypeEventHandler):
     "Relator1 datatype event handler"
 
-    @classmethod
-    def on_create(cls, item, attr, trans):
+    @staticmethod
+    def on_create(item, attr, trans):
         Relator1EventHandler.on_update(item, attr, None, trans)
  
-    @classmethod
-    def on_update(cls, item, new_attr, old_attr, trans):
+    @staticmethod
+    def on_update(item, new_attr, old_attr, trans):
         from porcupine import datatypes
         
         # get previous value
@@ -244,8 +256,8 @@ class Relator1EventHandler(eventHandlers.DatatypeEventHandler):
                     oAttrRef.value = ''
                 _db.putItem(oItemRef, trans)
 
-    @classmethod
-    def on_delete(cls, item, attr, trans, bPermanent):
+    @staticmethod
+    def on_delete(item, attr, trans, bPermanent):
         if not item._isDeleted:
             from porcupine import datatypes
             if attr.value:
@@ -265,29 +277,29 @@ class Relator1EventHandler(eventHandlers.DatatypeEventHandler):
                     oAttrRef.value = ''
                 _db.putItem(oItemRef, trans)
 
-class ExternalAttributeEventHandler(eventHandlers.DatatypeEventHandler):
+class ExternalAttributeEventHandler(DatatypeEventHandler):
     "External attribute event handler"
 
-    @classmethod
-    def on_create(cls, item, attr, trans):
+    @staticmethod
+    def on_create(item, attr, trans):
         ExternalAttributeEventHandler.on_update(item, attr, None, trans)
     
-    @classmethod
-    def on_update(cls, item, new_attr, old_attr, trans):
+    @staticmethod
+    def on_update(item, new_attr, old_attr, trans):
         if new_attr.isDirty:
             _db.db_handle._putExternalAttribute(new_attr._id, new_attr.value, trans)
         new_attr._reset()
     
-    @classmethod
-    def on_delete(cls, item, attr, trans, bPermanent):
+    @staticmethod
+    def on_delete(item, attr, trans, bPermanent):
         if bPermanent:
             _db.db_handle._deleteExternalAttribute(attr._id, trans)
 
-class ExternalFileEventHandler(eventHandlers.DatatypeEventHandler):
+class ExternalFileEventHandler(DatatypeEventHandler):
     "External file event handler"
     
-    @classmethod
-    def on_delete(cls, item, attr, trans, bPermanent):
+    @staticmethod
+    def on_delete(item, attr, trans, bPermanent):
         if bPermanent and attr.removeFileOnDeletion:
             try:
                 os.remove(attr.value)

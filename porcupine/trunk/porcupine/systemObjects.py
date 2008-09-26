@@ -15,32 +15,26 @@
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #===============================================================================
 """
-System top-level Porcupine Objects.
+System top-level Porcupine content classes.
 Use these as base classes to create you own custom objects.
 
 @see: L{org.innoscript.desktop.schema} module as a usage guideline.
 """
 
-import time, copy
+import time
+import copy
 from threading import currentThread
 
 from porcupine import db
 from porcupine.db import _db
-from porcupine.security import objectAccess
 from porcupine import exceptions
+from porcupine import datatypes
 from porcupine.core import objectSet
 from porcupine.utils import misc
-from porcupine import datatypes
+from porcupine.security import objectAccess
 
 class displayName(datatypes.String):
-    """
-    Porcupine object display name.
-    
-    All Porcupine objects have this attribute by default.
-    Added in:
-        1. L{GenericItem<porcupine.systemObjects.GenericItem>}
-        2. L{Composite<porcupine.systemObjects.Composite>}
-    """
+    "Legacy data type. To be removed in the next version."
     __slots__ = ()
     isRequired = True
 
@@ -368,12 +362,16 @@ class Composite(object):
 
 class GenericItem(object):
     """Generic Item
-    The base class of all Poprcupine objects.
+    The base class of all Porcupine objects.
     
     @cvar __props__: A tuple containing all the object's custom data types.
     @type __props__: tuple
 
-    @cvar _eventHandlers: A tuple containing all the object's custom data types.
+    @cvar _eventHandlers: A list containing all the object's event handlers.
+    @type _eventHandlers: list
+
+    @cvar isCollection: A boolean indicating if the object is a container.
+    @type isCollection: bool
     
     @ivar modifiedBy: The display name of the last modifier.
     @type modifiedBy: str
@@ -390,7 +388,7 @@ class GenericItem(object):
     @type inheritRoles: bool
     
     @ivar displayName: The display name of the object.
-    @type displayName: L{displayName<porcupine.systemObjects.displayName>}
+    @type displayName: L{RequiredString<porcupine.datatypes.RequiredString>}
     
     @ivar description: A short description.
     @type description: L{String<porcupine.datatypes.String>}
@@ -398,7 +396,6 @@ class GenericItem(object):
     @type contentclass: str
     @type created: float
     @type id: str
-    @type isCollection: bool
     @type isSystem: bool
     @type owner: type
     @type parentid: str
@@ -410,8 +407,7 @@ class GenericItem(object):
         'displayName', 'description'
     )
     __props__ = ('displayName', 'description')
-    isCollection = property(lambda x:False, None, None,
-                    "Indicates if this object is a container.")
+    isCollection = False
     _eventHandlers = []
 
     def __init__(self):
@@ -428,7 +424,7 @@ class GenericItem(object):
         self.security = {}
         self.inheritRoles = True
 
-        self.displayName = displayName()
+        self.displayName = datatypes.RequiredString()
         self.description = datatypes.String()
 
     def _applySecurity(self, oParent, trans):
@@ -827,7 +823,7 @@ class Container(Item):
     __image__ = "desktop/images/folder.gif"
     __slots__ = ('_subfolders','_items')
     containment = ()
-    isCollection = property(lambda x:True)
+    isCollection = True
     
     def __init__(self):
         Item.__init__(self)
