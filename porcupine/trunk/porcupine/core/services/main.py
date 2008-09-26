@@ -19,7 +19,7 @@ from threading import currentThread
 from cPickle import loads
 
 from porcupine.core.servicetypes import asyncBaseServer
-from porcupine.services.porcupineThread import PorcupineThread
+from porcupine.core.services.pthread import PorcupineThread
 
 class PorcupineServer(asyncBaseServer.BaseServer):
     "Porcupine server class"
