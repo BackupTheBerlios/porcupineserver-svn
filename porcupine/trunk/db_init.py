@@ -22,7 +22,6 @@ if (answer.upper() == 'Y'):
     except Exception, e:
         sys.exit(e)
 
-    import porcupine.systemObjects
     import org.innoscript.desktop.schema.common
     import org.innoscript.desktop.schema.security
 
