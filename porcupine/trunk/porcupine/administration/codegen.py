@@ -110,7 +110,6 @@ class GenericSchemaEditor(object):
         for lineno, line in enumerate(sourcelines):
             if line[:4]=='from' or line[:6]=='import':
                 import_lines.append(lineno)
-        print import_lines
         import_lines.reverse()
         for lineno in import_lines:
             del sourcelines[lineno]
@@ -209,7 +208,11 @@ class ItemEditor(GenericSchemaEditor):
                                     # replace property
                                     old_value = getattr(item, name).value
                                     setattr(item, name, self._setProps[name])
-                                    getattr(item, name).value = old_value
+                                    new_attr = getattr(item, name)
+                                    if isinstance(new_attr, datatypes.Password):
+                                        new_attr._value = old_value
+                                    else:
+                                        new_attr.value = old_value
                             if self.xform:
                                 item = self.xform(item)
                             db.putItem(item, txn)
