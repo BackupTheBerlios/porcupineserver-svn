@@ -23,6 +23,7 @@ function IFrame(params) {
 	this.div.className = 'ifrm';
 	this.frame = ce("IFRAME");
 	this.frame.frameBorder = 0;
+	QuiX.addEvent(this.frame, 'onload', IFrame.prototype._onload);
 	this.frame.src = params.src || "";
 	this.frame.style.width = "100%";
 	this.frame.style.height = "100%";
@@ -32,6 +33,8 @@ function IFrame(params) {
 
 QuiX.constructors['iframe'] = IFrame;
 IFrame.prototype = new Widget;
+IFrame.prototype.customEvents =
+	Widget.prototype.customEvents.concat(['ondocumentload']);
 
 IFrame.prototype.redraw = function(bForceAll) {
 	this.frame.style.visibility = 'hidden';
@@ -45,6 +48,17 @@ IFrame.prototype.setSource = function(src) {
 
 IFrame.prototype.getSource = function() {
 	return this.frame.src;
+}
+
+IFrame.prototype.getDocument = function() {
+	return this.frame.contentDocument || this.frame.contentWindow.document;
+}
+
+IFrame.prototype._onload = function(evt) {
+	var evt = evt || event;
+	var w = QuiX.getTargetWidget(evt);
+	if (w._customRegistry.ondocumentload)
+		w._customRegistry.ondocumentload(w);
 }
 
 // GroupBox
