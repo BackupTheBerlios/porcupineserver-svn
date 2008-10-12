@@ -194,9 +194,9 @@ class ItemEditor(GenericSchemaEditor):
                 self._instance.contentclass)
             try:
                 if len(rs):
-                    txn = offlinedb.OfflineTransaction()
                     try:
                         for item in rs:
+                            txn = offlinedb.OfflineTransaction()
                             for name in self._removedProps:
                                 if hasattr(item, name):
                                     delattr(item, name)
@@ -216,7 +216,7 @@ class ItemEditor(GenericSchemaEditor):
                             if self.xform:
                                 item = self.xform(item)
                             db.putItem(item, txn)
-                        txn.commit()
+                            txn.commit()
                     except Exception, e:
                         txn.abort()
                         raise e
