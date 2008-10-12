@@ -35,8 +35,8 @@ class Date(object):
         '*' : Locale({
             # dates
             'DAYS' : [
-                'Sunday','Monday','Tuesday','Wednesday',
-                'Thursday','Friday','Saturday'
+                'Monday','Tuesday','Wednesday',
+                'Thursday','Friday','Saturday','Sunday'
             ],
             'MONTHS' : [
                 'January','February','March','April','May','June',
@@ -48,8 +48,8 @@ class Date(object):
         'el' : Locale({
             # dates 
             'DAYS' : [
-                'Κυριακή','Δευτέρα','Τρίτη','Τετάρτη',
-                'Πέμπτη','Παρασκευή','Σάββατο'
+                'Δευτέρα','Τρίτη','Τετάρτη',
+                'Πέμπτη','Παρασκευή','Σάββατο','Κυριακή'
             ],
             'MONTHS' : [
                 'Ιανουάριος','Φεβρουάριος','Μάρτιος','Απρίλιος','Μάϊος','Ιούνιος',
