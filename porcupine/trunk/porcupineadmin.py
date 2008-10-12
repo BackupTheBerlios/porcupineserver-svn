@@ -22,7 +22,7 @@ import sys
 import socket
 
 from porcupine.utils import misc
-from porcupine.services import management
+from porcupine.core.services import management
 
 __usage__ = """
 DATABASE COMMANDS
