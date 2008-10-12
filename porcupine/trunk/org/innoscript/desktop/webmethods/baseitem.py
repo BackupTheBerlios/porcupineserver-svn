@@ -28,6 +28,7 @@ from porcupine import HttpContext
 from porcupine import webmethods
 from porcupine import filters
 from porcupine import datatypes
+from porcupine import exceptions
 
 from porcupine.systemObjects import Item
 from porcupine.systemObjects import GenericItem
@@ -303,10 +304,14 @@ def getSecurity(self):
     "Returns information about the object's security descriptor"
     l = []
     for sID in self.security:
-        oUser = db.getItem(sID)
+        try:
+            oUser = db.getItem(sID)
+            dn = oUser.displayName.value
+        except exceptions.ObjectNotFound:
+            dn = sID
         l.append({
                 'id': sID,
-                'displayName': oUser.displayName.value,
+                'displayName': dn,
                 'role': str(self.security[sID])
         })
     return l
