@@ -22,12 +22,14 @@ by the L{org.innoscript.desktop.schema} module custom objects.
 from porcupine.datatypes import *
 
 class RequiredFile(File):
-    "Legacy data type. To be removed in the next version."
+    """Legacy data type. To be removed in the next version.
+    Use L{porcupine.datatypes.RequiredFile} instead."""
     __slots__ = ()
     isRequired = True
 
 class LaunchUrl(String):
-    "Legacy data type. To be removed in the next version."
+    """Legacy data type. To be removed in the next version.
+    Use L{porcupine.datatypes.RequiredString} instead."""
     __slots__ = ()
     isRequired = True
 
@@ -71,7 +73,8 @@ class MemberOf(RelatorN):
     relAttr = 'members'
 
 class RequiredPassword(Password):
-    "Legacy data type. To be removed in the next version."
+    """Legacy data type. To be removed in the next version.
+    Use L{porcupine.datatypes.RequiredPassword} instead."""
     __slots__ = ()
     isRequired = True
 

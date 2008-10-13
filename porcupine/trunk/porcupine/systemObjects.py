@@ -34,7 +34,9 @@ from porcupine.utils import misc
 from porcupine.security import objectAccess
 
 class displayName(datatypes.String):
-    "Legacy data type. To be removed in the next version."
+    """Legacy data type. To be removed in the next version.
+    Use L{porcupine.datatypes.RequiredString} instead.
+    """
     __slots__ = ()
     isRequired = True
 
