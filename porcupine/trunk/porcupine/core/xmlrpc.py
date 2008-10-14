@@ -77,7 +77,10 @@ class XMLRPCParams(list):
                 return(oDate)
             elif param.tagName == 'array':
                 arr = []
-                elements = self.__getDirectChildren(param.getElementsByTagName('data')[0])
+                if (param.getElementsByTagName('data')):
+                    elements = self.__getDirectChildren(param.getElementsByTagName('data')[0])
+                else:
+                    elements = self.__getDirectChildren(param)
                 for element in elements:
                     arr.append(self.__getParam(element))
                 return arr
