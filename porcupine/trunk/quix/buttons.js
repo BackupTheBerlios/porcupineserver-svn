@@ -58,6 +58,8 @@ Label.prototype.redraw = function(bForceAll, w) {
 function Label__onmousedown(evt, w) {
 	if (!w.canSelect)
 		QuiX.cancelDefault(evt);
+	else
+		QuiX.stopPropag(evt);
 }
 
 function Icon(params) {
