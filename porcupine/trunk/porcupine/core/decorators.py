@@ -48,7 +48,7 @@ class WebMethodDescriptor(object):
     
     def __get__(self, item, item_class):
         def wm_wrapper(item, context):
-            if objectAccess.getAccess(item, context.session.user) == 0:
+            if objectAccess.getAccess(item, context.user) == 0:
                 raise exceptions.PermissionDenied
             context.response.content_type = self.content_type
             context.response.charset = self.encoding

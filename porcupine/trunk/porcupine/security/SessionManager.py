@@ -35,9 +35,9 @@ def open(smClass, session_timeout):
     isActive = True
     _sessionList = []
     
-def create(oUser):
+def create(userid):
     # create new session
-    oNewSession = sm.createSession(oUser)
+    oNewSession = sm.createSession(userid)
     sm.putSession(oNewSession)
     _sessionList.append(oNewSession.sessionid)
     return(oNewSession)

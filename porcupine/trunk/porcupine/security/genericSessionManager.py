@@ -25,8 +25,8 @@ from porcupine.utils import misc
 class GenericSessionManager(object):
     sessionClass = Session
     
-    def createSession(self, user):
-        session = self.sessionClass(misc.generateGUID(), user, {})
+    def createSession(self, userid):
+        session = self.sessionClass(misc.generateGUID(), userid, {})
         return session
 
     # to be implemented by subclass

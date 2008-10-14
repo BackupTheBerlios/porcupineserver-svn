@@ -38,6 +38,9 @@ class HttpContext(object):
     
     @ivar response: The current response object
     @type response: L{Request<porcupine.core.http.response.HttpResponse>}
+    
+    @ivar user: The current user
+    @type user: L{GenericItem<porcupine.systemObjects.GenericItem>}
     """
     sid_pattern = re.compile('/\{([a-f0-9]{32})\}')
     server = serverProxy.Server()
@@ -45,6 +48,7 @@ class HttpContext(object):
         self.request = request
         self.response = response
         self.session = None
+        self.user = None
         
         if request:
             path_info = request.serverVariables['PATH_INFO'] or '/'
@@ -65,7 +69,8 @@ class HttpContext(object):
             
             if session != None:
                 self.session = session
-                request.serverVariables["AUTH_USER"] = session.user.displayName.value
+                self.user = _db.getItem(self.session.userid)
+                request.serverVariables["AUTH_USER"] = self.user.displayName.value
                 
                 if not cookiesEnabled:
                     if not session.sessionid in request.serverVariables["SCRIPT_NAME"]:
@@ -76,11 +81,12 @@ class HttpContext(object):
                             "/%s/{%s}" %(lstScript[1], session.sessionid)
             else:
                 self.session = self.__create_guest_session()
+        
 
     def __create_guest_session(self):
         # create new session with the specified guest user
-        guest_user = _db.getItem(settings['sessionmanager']['guest'])
-        new_session = SessionManager.create(guest_user)
+        self.user = _db.getItem(settings['sessionmanager']['guest'])
+        new_session = SessionManager.create(settings['sessionmanager']['guest'])
         
         session_id = new_session.sessionid
         query_string = self.request.getQueryString()

@@ -65,7 +65,7 @@ def new(self):
         'ICON': oNewItem.__image__,
         'PROPERTIES_TAB': '',
         'EXTRA_TABS': '',
-        'SECURITY_TAB': baseitem._getSecurity(self, context.session.user, True)
+        'SECURITY_TAB': baseitem._getSecurity(self, context.user, True)
     }
     
     # inspect item properties
@@ -93,7 +93,7 @@ def create(self, data):
     oNewItem = misc.getCallableByName(data.pop('CC'))()
 
     # get user role
-    iUserRole = objectAccess.getAccess(self, context.session.user)
+    iUserRole = objectAccess.getAccess(self, context.user)
     if data.has_key('__rolesinherited') and iUserRole == objectAccess.COORDINATOR:
         oNewItem.inheritRoles = data.pop('__rolesinherited')
         if not oNewItem.inheritRoles:
@@ -158,7 +158,7 @@ def getInfo(self):
         'parentid' : self.parentid,
         'iscollection' : self.isCollection,
         'containment' : containment,
-        'user_role' : objectAccess.getAccess(self, context.session.user),
+        'user_role' : objectAccess.getAccess(self, context.user),
         'contents' : lstChildren
     }
     

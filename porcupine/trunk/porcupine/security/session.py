@@ -25,19 +25,18 @@ from porcupine.security import SessionManager
 from porcupine.utils import misc
 
 class Session(object):
-    __slots__ = ('sessionid', 'lastAccessed', '__user', '__data')
+    __slots__ = ('sessionid', 'lastAccessed', 'userid', '__data')
     """
     Porcupine server session type.
     
     @ivar sessionid: A unique identifier for the session
     @type sessionid: str
     
-    @type user: L{GenericItem<porcupine.systemObjects.GenericItem>}
     """
-    def __init__(self, sessionid, oUser, sessiondata):
+    def __init__(self, sessionid, userid, sessiondata):
         self.sessionid = sessionid
         self.lastAccessed = time.time()
-        self.__user = oUser
+        self.userid = userid
         self.__data = sessiondata
 
     def keepAlive(self):
@@ -121,20 +120,6 @@ class Session(object):
         for tmpFile in tmpFiles:
             os.remove(tmpFile)
 
-    def setUser(self, oUser):
-        """
-        Setter for the L{user} property.
-        """
-        self.__user = oUser
-
-    def getUser(self):
-        """
-        Getter of the L{user} property.
-        
-        @rtype: type
-        """
-        return(self.__user)
-    user = property(getUser, setUser, None, 'The session\'s user')
 
     def getData(self):
         """

@@ -35,7 +35,7 @@ def properties(self):
     context = HttpContext.current()
     context.response.setHeader('Cache-Control', 'no-cache')
     sLang = context.request.getLang()
-    user = context.session.user
+    user = context.user
     iUserRole = objectAccess.getAccess(self, user)
     readonly = (iUserRole==1)
     modified = date.Date(self.modified)
@@ -49,6 +49,6 @@ def properties(self):
         'MODIFIED' : modified.format(baseitem.DATES_FORMAT, sLang),
         'MODIFIED_BY' : xml.xml_encode(self.modifiedBy),
         'CONTENTCLASS' : self.contentclass,
-        'SECURITY_TAB' : baseitem._getSecurity(self, context.session.user),
+        'SECURITY_TAB' : baseitem._getSecurity(self, context.user),
         'READONLY' : str(readonly).lower()
     }

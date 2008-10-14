@@ -58,7 +58,7 @@ class Cloneable(object):
         if clearRolesInherited:
             oCopy.inheritRoles = False
 
-        oUser = currentThread().context.session.user
+        oUser = currentThread().context.user
         oCopy._owner = oUser._id
         oCopy._created = time.time()
         oCopy.modifiedBy = oUser.displayName.value
@@ -111,7 +111,7 @@ class Cloneable(object):
                 'Cannot copy item to destination.\n' + \
                 'The destination is contained in the source.'
         #check permissions on target folder
-        oUser = currentThread().context.session.user
+        oUser = currentThread().context.user
         iUserRole = objectAccess.getAccess(oTarget, oUser)
         if not(self._isSystem) and iUserRole>objectAccess.READER:
             if not(self.getContentclass() in oTarget.containment):
@@ -145,7 +145,7 @@ class Moveable(object):
             
         @return: None
         """
-        oUser = currentThread().context.session.user
+        oUser = currentThread().context.user
         iUserRole = objectAccess.getAccess(self, oUser)
         bCanMove = (iUserRole > objectAccess.AUTHOR)## or (iUserRole == objectAccess.AUTHOR and oItem.owner == oUser.id)
 
@@ -218,7 +218,7 @@ class Removeable(object):
         
         @return: None
         """
-        oUser = currentThread().context.session.user
+        oUser = currentThread().context.user
         self = _db.getItem(self._id, trans)
 
         iUserRole = objectAccess.getAccess(self, oUser)
@@ -268,7 +268,7 @@ class Removeable(object):
         
         @return: None
         """
-        oUser = currentThread().context.session.user
+        oUser = currentThread().context.user
         self = _db.getItem(self._id, trans)
         
         iUserRole = objectAccess.getAccess(self, oUser)
@@ -456,7 +456,7 @@ class GenericItem(object):
         else:
             oParent = parent
         
-        oUser = currentThread().context.session.user
+        oUser = currentThread().context.user
         iUserRole = objectAccess.getAccess(oParent, oUser)
         if iUserRole == objectAccess.READER:
             raise exceptions.PermissionDenied, \
@@ -644,7 +644,7 @@ class DeletedItem(GenericItem, Removeable):
         Returns: None
         """
         # check permissions
-        oUser = currentThread().context.session.user
+        oUser = currentThread().context.user
         iUserRole = objectAccess.getAccess(target, oUser)
         
         if iUserRole > objectAccess.READER:
@@ -780,7 +780,7 @@ class Item(GenericItem, Cloneable, Moveable, Removeable):
         """
         oOldItem = _db.getItem(self._id, trans)
         
-        oUser = currentThread().context.session.user
+        oUser = currentThread().context.user
         iUserRole = objectAccess.getAccess(oOldItem, oUser)
         
         if iUserRole > objectAccess.READER:

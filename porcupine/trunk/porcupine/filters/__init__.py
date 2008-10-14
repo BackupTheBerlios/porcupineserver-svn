@@ -41,21 +41,7 @@ def runas(userid):
     The runas filter allows web methods to run under
     a specific user account.
     """
-    class RunAs(WebMethodWrapper):
-        def get_wrapper(self):
-            def runas_wrapper(item, context):
-                user = _db.getItem(userid)
-                context.original_user = context.session.user
-                context.session.user = user
-                try:
-                    self.decorator.__get__(item, item.__class__)(context)
-                finally:
-                    # restore original user unless
-                    # the identity is not switched
-                    if context.session.user == user:
-                        context.session.user = context.original_user
-            return runas_wrapper
-    return RunAs
+    return filter(authorization.RunAs, userid=userid)
 
 def i18n(resources):
     return filter(output.I18n, using=resources)

@@ -193,7 +193,7 @@ def properties(self):
     context.response.setHeader('Cache-Control', 'no-cache')
     sLang = context.request.getLang()
     
-    user = context.session.user
+    user = context.user
     iUserRole = objectAccess.getAccess(self, user)
     readonly = (iUserRole==1)
     modified = date.Date(self.modified)
@@ -207,7 +207,7 @@ def properties(self):
         'CONTENTCLASS': self.contentclass,
         'PROPERTIES_TAB': '',
         'EXTRA_TABS': '',
-        'SECURITY_TAB': _getSecurity(self, context.session.user),
+        'SECURITY_TAB': _getSecurity(self, context.user),
         'UPDATE_DISABLED': str(readonly).lower()
     }
     # inspect item properties
@@ -261,7 +261,7 @@ def update(self, data):
     "Updates an object based on values contained inside the data dictionary"
     context = HttpContext.current()
     # get user role
-    iUserRole = objectAccess.getAccess(self, context.session.user)
+    iUserRole = objectAccess.getAccess(self, context.user)
     if data.has_key('__rolesinherited') and iUserRole == objectAccess.COORDINATOR:
         self.inheritRoles = data.pop('__rolesinherited')
         if not self.inheritRoles:

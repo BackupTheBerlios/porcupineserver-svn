@@ -42,7 +42,7 @@ def getItem(sPath, trans=None):
     """
     oItem = _db.getItem(sPath, trans)
     # check read permissions
-    if objectAccess.getAccess(oItem, currentThread().context.session.user) != 0:
+    if objectAccess.getAccess(oItem, currentThread().context.user) != 0:
         return oItem
     else:
         return None

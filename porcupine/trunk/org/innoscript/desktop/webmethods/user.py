@@ -37,7 +37,7 @@ def properties(self):
     context.response.setHeader('cache-control', 'no-cache')
     sLang = context.request.getLang()
 
-    user = context.session.user
+    user = context.user
     iUserRole = objectAccess.getAccess(self, user)
     readonly = (iUserRole==1)
     params = {

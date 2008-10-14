@@ -46,7 +46,7 @@ def login(self, username, password):
     user = users_container.getChildByName(username)
     if user and hasattr(user, 'authenticate'):
         if user.authenticate(password):
-            http_context.session.user = user
+            http_context.session.userid = user.id
             return True
     return False
 
@@ -85,7 +85,7 @@ def user_settings(self):
     context = HttpContext.current()
     context.response.setHeader('cache-control', 'no-cache')
     
-    settings = context.session.user.settings
+    settings = context.user.settings
     taskbar_pos = settings.value.setdefault('TASK_BAR_POS', 'bottom')
     
     params = {'TASK_BAR_POS' : taskbar_pos}
@@ -152,7 +152,7 @@ def __blank__(self):
     context = HttpContext.current()
     context.response.setHeader('cache-control', 'no-cache')
     
-    oUser = context.session.user
+    oUser = context.user
     
     params = {
         'USER' : oUser.displayName.value,
