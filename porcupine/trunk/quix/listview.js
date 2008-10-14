@@ -560,7 +560,7 @@ ListView.prototype._renderCell = function(cell, cellIndex, value, obj) {
 
 ListView.prototype._getRow = function(evt) {
 	var target = (QuiX.getTarget(evt));
-	while (target.tagName != 'TR')
+	while (target && target.tagName != 'TR')
 		target = QuiX.getParentNode(target);
 	return target;	
 }
