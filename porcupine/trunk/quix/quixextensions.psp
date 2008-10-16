@@ -23,7 +23,7 @@
 	lstMonths = resources.getResource("MONTHS", sLang)
 	lstDays = resources.getResource("DAYS", sLang)
 	sMonths = ','.join(['"' + x + '"' for x in lstMonths])
-	sDays = ','.join(['"' + x + '"' for x in lstDays])
+	sDays = ','.join(['"' + x + '"' for x in lstDays[-1:] + lstDays[:-1]])
 	
 	sAM = resources.getResource("AM", sLang)
 	sPM = resources.getResource("PM", sLang)
