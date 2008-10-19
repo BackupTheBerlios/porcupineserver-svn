@@ -201,7 +201,7 @@ DatepickerMonth__click = function(evt, w) {
 		oCombo = w.parent
 	else
 		oCombo = (this.parentNode || this.parentElement).widget;
-	if (!oCombo.dropdown.isExpanded)
+	if (!oCombo.isExpanded)
 		oCombo.showDropdown();
 	else
 		oCombo.dropdown.close();
