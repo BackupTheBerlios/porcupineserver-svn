@@ -27,7 +27,6 @@ function __init__() {
 }
 
 QuiX.browser = 'ie';
-QuiX.root = (new RegExp("https?://[^/]+(?:/[^/\?]+)?(?:/\{[0-9a-f]{32}\})?", "i")).exec(document.location.href) + '/';
 
 // xul parser
 function XULParser() {

@@ -24,8 +24,11 @@ function Clipboard() {
 }
 
 var QuiX = {};
-QuiX.version = '0.9 build 20080216';
+QuiX.version = '0.9.5 build 20081010';
 QuiX.namespace = 'http://www.innoscript.org/quix';
+QuiX.root = (new RegExp(
+	"https?://[^/]+(?:/[^/\?]+)?(?:/(?:{|%7B)[0-9a-f]{32}(?:}|%7D))?",
+	"i")).exec(document.location.href) + '/';
 QuiX.maxz = 9999999999999;
 QuiX.startX = 0;
 QuiX.startY = 0;

@@ -30,7 +30,6 @@ function __init__() {
 }
 
 QuiX.browser = 'saf';
-QuiX.root = (new RegExp("https?://[^/]+(?:/[^/\?]+)?(?:/(?:{|%7B)[0-9a-f]{32}(?:}|%7D))?", "i")).exec(document.location.href) + '/';
 
 function getNodeXml(oNode) {
 	var sXml = '';
