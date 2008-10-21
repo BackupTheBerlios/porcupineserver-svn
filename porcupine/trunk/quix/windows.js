@@ -225,6 +225,7 @@ Window.prototype.close = function() {
 	if (QuiX.effectsEnabled) {
 		var oWindow = this;
 		var eff = this.getWidgetById('_eff_fade');
+		if (eff.length) eff = eff[0];
 		eff.attachEvent('oncomplete', function() {
 			oWindow.destroy();
 		});
@@ -313,6 +314,7 @@ Window.prototype.minimize = function() {
 			w.isMinimized = true;
 			if (QuiX.effectsEnabled) {
 				effect = w.getWidgetById('_eff_mini');
+				if (effect.length) effect = effect[0];
 				effect.play();
 			}
 			else
@@ -324,6 +326,7 @@ Window.prototype.minimize = function() {
 			w.isMinimized = false;
 			if (QuiX.effectsEnabled) {
 				effect = w.getWidgetById('_eff_maxi');
+				if (effect.length) effect = effect[0];
 				effect.play();
 			}
 			else
