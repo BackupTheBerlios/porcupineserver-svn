@@ -152,22 +152,26 @@ class RelatorNEventHandler(DatatypeEventHandler):
             # calculate added references
             lstAdded = list(currentValue - prvValue)
             for sID in lstAdded:
-                oItemRef = _db.getItem(sID, trans)
-                if oItemRef.getContentclass() in new_attr.relCc:
-                    oAttrRef = getattr(oItemRef, new_attr.relAttr)
+                try:
+                    ref_item = _db.getItem(sID, trans)
+                except exceptions.ObjectNotFound:
+                    ref_item = None
+                if ref_item != None and \
+                        ref_item.getContentclass() in new_attr.relCc:
+                    oAttrRef = getattr(ref_item, new_attr.relAttr)
                     if isinstance(oAttrRef, datatypes.RelatorN):
                         oAttrRef.value.append(item._id)
                     elif isinstance(oAttrRef, datatypes.Relator1):
                         oAttrRef.value = item._id
-                    _db.putItem(oItemRef, trans)
+                    _db.putItem(ref_item, trans)
                 else:
                     new_attr.value.remove(sID)
     
             # calculate removed references
             lstRemoved = list(prvValue - currentValue)
             for sID in lstRemoved:
-                oItemRef = _db.getItem(sID, trans)
-                oAttrRef = getattr(oItemRef, new_attr.relAttr)
+                ref_item = _db.getItem(sID, trans)
+                oAttrRef = getattr(ref_item, new_attr.relAttr)
                 if isinstance(oAttrRef, datatypes.RelatorN):
                     try:
                         oAttrRef.value.remove(item._id)
@@ -175,7 +179,7 @@ class RelatorNEventHandler(DatatypeEventHandler):
                         pass
                 elif isinstance(oAttrRef, datatypes.Relator1):
                     oAttrRef.value = ''
-                _db.putItem(oItemRef, trans)
+                _db.putItem(ref_item, trans)
     
     @staticmethod
     def on_delete(item, attr, trans, bPermanent):
@@ -190,9 +194,9 @@ class RelatorNEventHandler(DatatypeEventHandler):
             
             # remove references
             for sID in lstValue:
-                oItemRef = _db.getItem(sID, trans)
-                if oItemRef.getContentclass() in attr.relCc:
-                    oAttrRef = getattr(oItemRef, attr.relAttr)
+                ref_item = _db.getItem(sID, trans)
+                if ref_item.getContentclass() in attr.relCc:
+                    oAttrRef = getattr(ref_item, attr.relAttr)
                     if isinstance(oAttrRef, datatypes.RelatorN):
                         try:
                             oAttrRef.value.remove(item._id)
@@ -200,7 +204,7 @@ class RelatorNEventHandler(DatatypeEventHandler):
                             pass
                     elif isinstance(oAttrRef, datatypes.Relator1):
                         oAttrRef.value = ''
-                    _db.putItem(oItemRef, trans)
+                    _db.putItem(ref_item, trans)
                 else:
                     attr.value.remove(sID)
     
@@ -234,19 +238,23 @@ class Relator1EventHandler(DatatypeEventHandler):
         
         if new_attr.value != prvValue:
             if new_attr.value:
-                oItemRef = _db.getItem(new_attr.value, trans)
-                if oItemRef.getContentclass() in new_attr.relCc:
-                    oAttrRef = getattr(oItemRef, new_attr.relAttr)
+                try:
+                    ref_item = _db.getItem(new_attr.value, trans)
+                except exceptions.ObjectNotFound:
+                    ref_item = None
+                if ref_item != None and \
+                        ref_item.getContentclass() in new_attr.relCc:
+                    oAttrRef = getattr(ref_item, new_attr.relAttr)
                     if isinstance(oAttrRef, datatypes.RelatorN):
                         oAttrRef.value.append(item._id)
                     elif isinstance(oAttrRef, datatypes.Relator1):
                         oAttrRef.value = item._id
-                    _db.putItem(oItemRef, trans)
+                    _db.putItem(ref_item, trans)
                 else:
                     new_attr.value = ''
             if prvValue:
-                oItemRef = _db.getItem(prvValue, trans)
-                oAttrRef = getattr(oItemRef, new_attr.relAttr)
+                ref_item = _db.getItem(prvValue, trans)
+                oAttrRef = getattr(ref_item, new_attr.relAttr)
                 if isinstance(oAttrRef, datatypes.RelatorN):
                     try:
                         oAttrRef.value.remove(item._id)
@@ -254,7 +262,7 @@ class Relator1EventHandler(DatatypeEventHandler):
                         pass
                 elif isinstance(oAttrRef, datatypes.Relator1):
                     oAttrRef.value = ''
-                _db.putItem(oItemRef, trans)
+                _db.putItem(ref_item, trans)
 
     @staticmethod
     def on_delete(item, attr, trans, bPermanent):
@@ -266,8 +274,8 @@ class Relator1EventHandler(DatatypeEventHandler):
                         'Cannot delete object "%s" ' % item.displayName.value +
                         'because it is referenced by other objects.')
                 # remove reference
-                oItemRef = _db.getItem(attr.value, trans)
-                oAttrRef = getattr(oItemRef, attr.relAttr)
+                ref_item = _db.getItem(attr.value, trans)
+                oAttrRef = getattr(ref_item, attr.relAttr)
                 if isinstance(oAttrRef, datatypes.RelatorN):
                     try:
                         oAttrRef.value.remove(item._id)
@@ -275,7 +283,7 @@ class Relator1EventHandler(DatatypeEventHandler):
                         pass
                 elif isinstance(oAttrRef, datatypes.Relator1):
                     oAttrRef.value = ''
-                _db.putItem(oItemRef, trans)
+                _db.putItem(ref_item, trans)
 
 class ExternalAttributeEventHandler(DatatypeEventHandler):
     "External attribute event handler"
