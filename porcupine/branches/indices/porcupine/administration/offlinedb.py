@@ -22,12 +22,13 @@ from threading import currentThread
 from porcupine.db import _db
 from porcupine.core.http.context import HttpContext
 
-def getHandle():
+def getHandle(identity=None):
     #open database
     _db.open()
-    oSystemUser = _db.getItem('system')
+    if identity==None:
+        identity = _db.getItem('system')
     currentThread().context = HttpContext()
-    currentThread().context.user = oSystemUser
+    currentThread().context.user = identity
     currentThread().trans = None
     return _db
 
