@@ -62,12 +62,11 @@ class DbInterface(GenericDBInterface):
         self._env.open(
             self.dir,
             db.DB_THREAD | db.DB_INIT_MPOOL | db.DB_INIT_LOCK |
-            db.DB_INIT_LOG | db.DB_INIT_TXN | db.DB_CREATE  | additional_flags
+            db.DB_INIT_LOG | db.DB_INIT_TXN | db.DB_CREATE | additional_flags
         )
-
-        self._env.set_flags(db.DB_AUTO_COMMIT, 1)
-
+        
         dbMode = 0660
+        dbFlags = db.DB_THREAD | db.DB_CREATE | db.DB_AUTO_COMMIT
         # open items db
         self._itemdb = db.DB(self._env)
         self._itemdb.open(
@@ -75,7 +74,7 @@ class DbInterface(GenericDBInterface):
             'items',
             dbtype=db.DB_HASH,
             mode=dbMode,
-            flags=db.DB_THREAD | db.DB_CREATE
+            flags=dbFlags
         )
         # open documents db
         self._docdb = db.DB(self._env)
@@ -84,8 +83,29 @@ class DbInterface(GenericDBInterface):
             'docs',
             dbtype=db.DB_HASH,
             mode=dbMode,
-            flags=db.DB_THREAD | db.DB_CREATE
+            flags=dbFlags
         )
+        # open indices
+        self._tree = db.DB(self._env)
+        self._tree.open(
+            'porcupine.idx',
+            '__tree',
+            dbtype=db.DB_BTREE,
+            mode=dbMode,
+            flags=dbFlags
+        )
+        
+        self._indices = {}
+        for index in _db._indices:
+            self._indices[index] = db.DB(self._env)
+            self._indices[index].open(
+                'porcupine.idx',
+                index,
+                dbtype=db.DB_BTREE,
+                mode=dbMode,
+                flags=dbFlags
+            )
+        
         self.running = True
         self.mt = Thread(target=self.maintain, \
                          name='Berkeley DB maintenance thread')
@@ -101,7 +121,9 @@ class DbInterface(GenericDBInterface):
         for oldFile in oldFiles:
             os.remove(oldFile)
         # database file
-        os.remove(self.dir + 'porcupine.db')        
+        os.remove(self.dir + 'porcupine.db')
+        # index file
+        os.remove(self.dir + 'porcupine.idx')
 
     def _truncate(self):
         # older versions of bsddb do not support truncate!
@@ -215,4 +237,7 @@ class DbInterface(GenericDBInterface):
         self.mt.join()
         self._itemdb.close()
         self._docdb.close()
+        self._tree.close()
+        for index in self._indices:
+            self._indices[index].close()
         self._env.close()

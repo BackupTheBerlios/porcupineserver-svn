@@ -16,15 +16,16 @@
 #===============================================================================
 "Porcupine Server DB Interface"
 
-import time, cPickle
+import time
+import cPickle
 
 from porcupine import exceptions
-from porcupine.core import cache
 from porcupine.utils import misc
 from porcupine.config.settings import settings
 
 _locks = 0
 _activeTxns = 0
+_indices = settings['store']['indices']
 db_handle = None
 
 def open():

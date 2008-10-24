@@ -474,9 +474,7 @@ class GenericItem(object):
         else:
             # user is not COORDINATOR
             self.inheritRoles = True
-            self.security = oParent.security
-            #if trans._retries == 0:
-            #   raise exceptions.DBTransactionIncomplete    
+            self.security = oParent.security   
         self._owner = oUser._id
         self._created = time.time()
         self.modifiedBy = oUser.displayName.value
