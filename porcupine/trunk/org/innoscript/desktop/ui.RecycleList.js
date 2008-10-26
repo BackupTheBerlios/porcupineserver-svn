@@ -1,7 +1,7 @@
 var recycleBin= function() {}
 
 recycleBin.listMenu_show = function(menu) {
-	var oItemList = menu.owner.getWidgetsByType(ListView)[0];
+	var oItemList = menu.owner;
 	if (oItemList.selection.length == 0) {
 		menu.options[0].disable();//restore
 		menu.options[1].disable();//restore to
@@ -107,7 +107,7 @@ recycleBin.restoreItem = function(evt, w) {
 	items.reverse();
 	
 	var _startRestoring = function(w) {
-		w = w.callback_info || w;
+		var w = w.callback_info || w;
 		if (items.length > 0) {
 			var item = items.pop();
 			var pb = w.getWidgetById("pb");

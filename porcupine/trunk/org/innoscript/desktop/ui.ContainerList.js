@@ -257,7 +257,7 @@ containerList.deleteItem = function(evt, w) {
 		if (!(items instanceof Array)) items = [items];
 		items.reverse();
 		var _start = function(w) {
-			w = w.callback_info || w;
+			var w = w.callback_info || w;
 			if (items.length > 0 && !w.attributes.canceled) {
 				var item = items.pop();
 				var pb = w.getWidgetById("pb");
