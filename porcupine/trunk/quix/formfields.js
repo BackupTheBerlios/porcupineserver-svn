@@ -230,7 +230,7 @@ Field.prototype.setBgColor = function(color) {
 
 Field.prototype.redraw = function(bForceAll) {
 	if (this.type == 'text' || this.type == 'textarea' || this.type == 'password')
-		this.div.firstChild.style.padding = this.textPadding + 'px' + ' ' + this.textPadding + 'px'+ ' ' + this.textPadding + 'px'+ ' ' + this.textPadding + 'px';
+		this.div.firstChild.style.padding = this.textPadding + 'px';
 	Widget.prototype.redraw(bForceAll, this);
 }
 
