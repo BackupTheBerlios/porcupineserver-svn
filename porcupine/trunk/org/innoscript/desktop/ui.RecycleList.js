@@ -6,7 +6,6 @@ recycleBin.listMenu_show = function(menu) {
 		menu.options[0].disable();//restore
 		menu.options[1].disable();//restore to
 		menu.options[2].disable();//delete
-		menu.options[4].disable();//empty
 		menu.options[6].disable();//properties
 	}
 	else {
@@ -16,7 +15,6 @@ recycleBin.listMenu_show = function(menu) {
 		else
 			menu.options[1].disable();//restore to
 		menu.options[2].enable();//delete
-		menu.options[4].enable();//empty
 		if (oItemList.selection.length == 1)
 			menu.options[6].enable();//properties
 		else
