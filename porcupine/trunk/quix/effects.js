@@ -142,7 +142,7 @@ Effect.prototype.show = function() {}
 Effect.prototype.play = function(reverse) {
 	this._reverse = reverse;
 	Effect__play(this);
-	this.start();
+	if (this.parent) this.start();
 }
 
 function Effect__play(effect) {
