@@ -314,25 +314,6 @@ class Package(object):
             dirsConfig.close(True)
 
     def create(self):
-        # registrations
-#        conf_file = configfiles.ConfigFileManager('conf/store.xml')
-#        pkgnode = conf_file.getPackageNode(self.name)
-#        if pkgnode:
-#            print 'INFO: extracting package registrations'
-#            regsFile = file(TMP_FOLDER + '/_regs.xml', 'w')
-#            regsFile.write('<config>\n' + pkgnode.toxml('utf-8') + '\n</config>')
-#            regsFile.close()
-#            self.package_files.append(
-#                (
-#                    self.package_file.gettarinfo(
-#                        regsFile.name, os.path.basename(regsFile.name)
-#                    ),
-#                    regsFile.name
-#                )
-#            )
-#        else:
-#            print 'WARNING: Package "' + self.name + '" has no registrations'
-        
         # files
         files = self.config_file.options('files')
         for fl in files:
