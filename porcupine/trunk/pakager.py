@@ -305,7 +305,7 @@ class Package(object):
                 if old_node:
                     dirsConfig.removeDirNode(old_node)
                 else:
-                    print 'WARNING: published directory "%s" does not exist' % app_name
+                    print 'WARNING: published directory "%s" does not exist' % dir_name
                 dirname = dir_node.getAttribute('path')
                 if os.path.exists(dirname):
                     self._deltree(dirname)
