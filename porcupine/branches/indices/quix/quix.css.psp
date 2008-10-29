@@ -280,7 +280,7 @@ BODY {
 	cursor : default;
 }
 
-.listview .list TABLE TR .column {
+.listview .list .column {
 	background-color: ThreeDFace;
 	border-width: 1px;
 	border-style : solid;
@@ -290,7 +290,6 @@ BODY {
 	cursor : default;
 	
 }
-
 .listview .listheader .filler {
 	border-style: none none none solid;
 }
@@ -301,12 +300,15 @@ BODY {
 	background-image : url(images/transp.gif);
 }
 
-.listview .list TABLE TR .cell{
-	white-space : nowrap;
+.listview .list .cell{
 	overflow : hidden;
 	border-color : silver;
 	border-style : none solid solid none;
 	cursor : default;
+}
+
+.listview .list .cell SPAN {
+	white-space : nowrap;
 }
 
 .listview TABLE {

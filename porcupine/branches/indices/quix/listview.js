@@ -511,7 +511,8 @@ ListView.prototype._renderCell = function(cell, cellIndex, value, obj) {
 			case 'optionlist':
 				for (var i=0; i<column.options.length; i++) {
 					if (value==column.options[i].value)
-						cell.innerHTML = column.options[i].caption;
+						cell.innerHTML = '<span>' + 
+							column.options[i].caption + '</span>';
 				}
 				return;
 			case 'img':
@@ -522,8 +523,9 @@ ListView.prototype._renderCell = function(cell, cellIndex, value, obj) {
 				return;
 			case 'bool':
 				if (value) {
-					while (cell.childNodes.length > 0)
-						QuiX.removeNode(cell.childNodes[0]);
+					while (cell.childNodes.length > 0) {
+						QuiX.removeNode(cell.childNodes[0]);					
+					}
 					elem = QuiX.getImage(column.trueImg)
 					elem.align = 'absmiddle';
 					cell.appendChild(elem);
@@ -532,7 +534,8 @@ ListView.prototype._renderCell = function(cell, cellIndex, value, obj) {
 					cell.innerHTML = '&nbsp;'
 				return;
 			case 'date':
-				cell.innerHTML = value.format(column.format);
+				cell.innerHTML = '<span>' + 
+					value.format(column.format) + '</span>';
 				return;
 			default:
 				if (typeof column_type == 'function') {
@@ -543,10 +546,12 @@ ListView.prototype._renderCell = function(cell, cellIndex, value, obj) {
 		if (column._xform)
 			value = column._xform(obj, value);
 	}
+	
 	// auto-detect value type
-	if (value instanceof Date)
-		cell.innerHTML = value.format(this.dateFormat);
-	else if (typeof(value) == 'boolean') {
+	if (value instanceof Date) {
+		cell.innerHTML = '<span>' + 
+			value.format(this.dateFormat) + '</span>';
+	} else if (typeof(value) == 'boolean') {
 		if (value) {
 			elem = QuiX.getImage(this.trueImg)
 			elem.align = 'absmiddle';
@@ -554,8 +559,10 @@ ListView.prototype._renderCell = function(cell, cellIndex, value, obj) {
 		} else {
 			cell.innerHTML = '&nbsp;';
 		}
-	} else
-		cell.innerHTML = ((value == '' && value != 0)?'&nbsp;':value);
+	} else {
+		cell.innerHTML = '<span>' + 
+			((value == '' && value != 0)?'&nbsp;':value) + '</span>';
+	}
 }
 
 ListView.prototype._getRow = function(evt) {
@@ -589,7 +596,7 @@ function ListView__onscroll(evt, w) {
 }
 
 function ListColumn__setCaption(s) {
-	this.innerHTML = '<span style="white-space:nowrap">' + s + '</span>'
+	this.innerHTML = '<span style="white-space:nowrap">' + s + '</span>';
 }
 
 function ListColumn__getCaption(s) {

@@ -1,12 +1,11 @@
 var recycleBin= function() {}
 
 recycleBin.listMenu_show = function(menu) {
-	var oItemList = menu.owner.getWidgetsByType(ListView)[0];
+	var oItemList = menu.owner;
 	if (oItemList.selection.length == 0) {
 		menu.options[0].disable();//restore
 		menu.options[1].disable();//restore to
 		menu.options[2].disable();//delete
-		menu.options[4].disable();//empty
 		menu.options[6].disable();//properties
 	}
 	else {
@@ -16,7 +15,6 @@ recycleBin.listMenu_show = function(menu) {
 		else
 			menu.options[1].disable();//restore to
 		menu.options[2].enable();//delete
-		menu.options[4].enable();//empty
 		if (oItemList.selection.length == 1)
 			menu.options[6].enable();//properties
 		else
@@ -107,7 +105,7 @@ recycleBin.restoreItem = function(evt, w) {
 	items.reverse();
 	
 	var _startRestoring = function(w) {
-		w = w.callback_info || w;
+		var w = w.callback_info || w;
 		if (items.length > 0) {
 			var item = items.pop();
 			var pb = w.getWidgetById("pb");

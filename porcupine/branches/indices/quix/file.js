@@ -128,7 +128,7 @@ File.prototype.onbeginupload = function(filecontrol) {
 }
 
 File.prototype.onstatechange = function(filecontrol) {
-	var bytes = filecontrol.uploader.getBytesRead(filecontrol._fileid);
+	var bytes = parseInt(filecontrol.uploader.getBytesRead(filecontrol._fileid).toString());
 	var pbar = filecontrol.attributes.pbar;
 	pbar.setValue(bytes);
 	pbar.widgets[1].setCaption(parseInt((bytes/pbar.maxvalue)*100) + '%');
@@ -149,7 +149,7 @@ File.prototype._getCaption = function() {
 File.prototype.setFile = function(path) {
 	this._fileid = this.uploader.setFile(path);
 	this.filename = this.getFileName(path);
-	this.size = this.uploader.getFileSize(this._fileid);
+	this.size = parseInt(this.uploader.getFileSize(this._fileid).toString());
 	this.cancelUpload = false;
 }
 
@@ -281,7 +281,7 @@ MultiFile.prototype.showUploadDialog = function(evt, btn) {
 		total_size = 0;
 		for (var i=0; i<files.length; i++) {
 			fileid = mf.filecontrol.uploader.setFile(files[i]);
-			file_size = mf.filecontrol.uploader.getFileSize(fileid);
+			file_size = parseInt(mf.filecontrol.uploader.getFileSize(fileid).toString());
 			if (!mf.filecontrol._checkFileSize(file_size)) {
 				QuiX.stopPropag(evt);
 				return;
@@ -371,7 +371,7 @@ MultiFile.prototype.downloadFile = function(evt, w) {
 }
 
 MultiFile.prototype.statechange = function(filecontrol) {
-	var bytes = filecontrol.uploader.getBytesRead(filecontrol._fileid);
+	var bytes = parseInt(filecontrol.uploader.getBytesRead(filecontrol._fileid).toString());
 	var pbar1 = filecontrol.attributes.pbar1;
 	var pbar2 = filecontrol.attributes.pbar2;
 	
