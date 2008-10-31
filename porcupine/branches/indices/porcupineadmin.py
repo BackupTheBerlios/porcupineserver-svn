@@ -105,10 +105,11 @@ since database recovery requires a single-threaded environment.
 Are you sure you want proceed(Y/N)?''')
     if (answer.upper() == 'Y'):
         try:
-            from porcupine.db import _db
+            from porcupine.administration import offlinedb
             print 'Recovering database...'
-            _db._recover()
-            _db.close()
+            db = offlinedb.getHandle()
+            db.recover()
+            db.close()
             print 'Database recovery completed successfully.'
         except Exception, e:
             sys.exit(e)

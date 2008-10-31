@@ -17,9 +17,14 @@
 "Porcupine Server Transaction classes"
 
 from porcupine.db import _db
+from porcupine.config.settings import settings
 
 class Transaction(object):
     "The main type of a Porcupine transaction."
+    txn_max_retries = 12
+    if settings['store'].has_key('trans_max_retries'):
+        txn_max_retries = int(settings['store']['trans_max_retries'])
+    
     def __init__(self):
         self.txn = _db.createTransaction()
         self._iscommited = False

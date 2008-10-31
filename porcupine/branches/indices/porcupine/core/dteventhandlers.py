@@ -295,13 +295,13 @@ class ExternalAttributeEventHandler(DatatypeEventHandler):
     @staticmethod
     def on_update(item, new_attr, old_attr, trans):
         if new_attr.isDirty:
-            _db.db_handle._putExternalAttribute(new_attr._id, new_attr.value, trans)
+            _db.putExternal(new_attr._id, new_attr.value, trans)
         new_attr._reset()
     
     @staticmethod
     def on_delete(item, attr, trans, bPermanent):
         if bPermanent:
-            _db.db_handle._deleteExternalAttribute(attr._id, trans)
+            _db.deleteExternal(attr._id, trans)
 
 class ExternalFileEventHandler(DatatypeEventHandler):
     "External file event handler"

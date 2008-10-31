@@ -25,13 +25,13 @@ from porcupine.db import _db
 from porcupine import exceptions
 from porcupine.security import objectAccess
 
-def getItem(sPath, trans=None):
+def getItem(oid, trans=None):
     """
     Fetches an object from the database. If the user has no read permissions
     on the object then C{None} is returned.
     
-    @param sPath: The object's ID or the object's full path.
-    @type sPath: str
+    @param oid: The object's ID or the object's full path.
+    @type oid: str
     
     @param trans: A valid transaction handle.
     
@@ -40,10 +40,10 @@ def getItem(sPath, trans=None):
     @raise porcupine.exceptions.ObjectNotFound: if the item does
            not exist
     """
-    oItem = _db.getItem(sPath, trans)
+    item = _db.getItem(oid, trans)
     # check read permissions
-    if objectAccess.getAccess(oItem, currentThread().context.user) != 0:
-        return oItem
+    if objectAccess.getAccess(item, currentThread().context.user) != 0:
+        return item
     else:
         return None
 
@@ -70,7 +70,7 @@ def transactional(auto_commit=False):
         def transactional_wrapper(*args):
             c_thread = currentThread()
             if c_thread.trans == None:
-                txn = _db.db_handle.transaction()
+                txn = _db.Transaction()
                 c_thread.trans = txn
                 is_top_level = True
             else:
@@ -79,7 +79,7 @@ def transactional(auto_commit=False):
             retries = 0
             
             try:
-                while retries < _db.db_handle.trans_max_retries:
+                while retries < txn.txn_max_retries:
                     try:
                         #if retries == 0:
                         #    raise exceptions.DBTransactionIncomplete

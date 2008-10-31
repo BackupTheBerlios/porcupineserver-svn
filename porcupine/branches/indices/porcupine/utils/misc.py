@@ -68,7 +68,7 @@ def getCallableByName(name):
         __module__ = '.'.join(modules[:-1])
         __attribute__ = modules[-1]
     
-    mod = __import__( __module__, globals(), locals(), __attribute__ )
+    mod = __import__(__module__, globals(), locals(), [__attribute__])
     if __attribute__:
         attribute = getattr(mod, __attribute__)
         return attribute

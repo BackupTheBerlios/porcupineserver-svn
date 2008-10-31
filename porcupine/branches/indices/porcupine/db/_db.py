@@ -15,7 +15,6 @@
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #===============================================================================
 "Porcupine Server DB Interface"
-
 import time
 import cPickle
 
@@ -23,74 +22,86 @@ from porcupine import exceptions
 from porcupine.utils import misc
 from porcupine.config.settings import settings
 
+Transaction = None
+_db_handle = None
 _locks = 0
 _activeTxns = 0
-_indices = settings['store']['indices']
-db_handle = None
 
-def open():
-    global db_handle, object_cache
-    db_handle = misc.getCallableByName(
-                     settings['store']['interface'])()
+def open(**kwargs):
+    global _db_handle, Transaction
+    _db_handle = misc.getCallableByName(settings['store']['interface'])
+    Transaction = _db_handle.Transaction
+    _db_handle.open(**kwargs)
     
-def __getItemByPath(lstPath, trans=None):
+def is_open():
+    return _db_handle.is_open()
+    
+def _getItemByPath(lstPath, trans=None):
     oItem = getItem('')
-    for sName in lstPath[1:len(lstPath)]:
-        if sName:
-            childId = oItem.getChildId(sName)
-            if childId:
-                oItem = getItem(childId)
+    for name in lstPath[1:len(lstPath)]:
+        if name:
+            child_id = oItem.getChildId(name)
+            if child_id:
+                oItem = getItem(child_id)
             else:
                 return None
-    return(db_handle._getItem(childId, trans))
+    return(_db_handle.getItem(child_id, trans))
 
-def getItem(sOID, trans=None):
-    sItem = db_handle._getItem(sOID, trans)
-    if not sItem:
-        lstPath = sOID.split('/')
+def getItem(oid, trans=None):
+    item = _db_handle.getItem(oid, trans)
+    if not item:
+        lstPath = oid.split('/')
         iPathDepth = len(lstPath)
         if iPathDepth > 1:
             # /[itemID]
             if iPathDepth == 2:
-                sItem = db_handle._getItem(lstPath[1], trans)
+                item = _db_handle.getItem(lstPath[1], trans)
             # /folder1/folder2/item
-            if not sItem:
-                sItem = __getItemByPath(lstPath, trans)
-
-    if sItem:
-        oItem = cPickle.loads(sItem)
-        if oItem._isDeleted:
+            if not item:
+                item = _getItemByPath(lstPath, trans)
+    
+    if item:
+        item = cPickle.loads(item)
+        if item._isDeleted:
             raise exceptions.ObjectNotFound, \
-                'The object "%s" does not exist' % sOID
-        return oItem
+                'The object "%s" does not exist' % oid
+        return item
     else:
         raise exceptions.ObjectNotFound, \
-            'The object "%s" does not exist' % sOID
+            'The object "%s" does not exist' % oid
 
-def putItem(oItem, trans=None):
-    db_handle._putItem(oItem._id, cPickle.dumps(oItem, 2), trans)
+def putItem(item, trans=None):
+    _db_handle.putItem(item, trans)
     
-def deleteItem(oItem, trans):
-    db_handle._deleteItem(oItem._id, trans)
+def deleteItem(item, trans):
+    _db_handle.deleteItem(item._id, trans)
 
-def getDeletedItem(sOID, trans=None):
-    sItem = db_handle._getItem(sOID, trans)
-    if not(sItem):
+def getExternal(id, trans):
+    return _db_handle.getExternal(id, trans)
+
+def putExternal(id, stream, trans):
+    _db_handle.putExternal(id, stream, trans)
+    
+def deleteExternal(id, trans):
+    _db_handle.deleteExternal(id, trans)
+
+def getDeletedItem(oid, trans=None):
+    item = _db_handle.getItem(oid, trans)
+    if not(item):
         raise exceptions.ObjectNotFound, \
-            'The deleted object "%s" no longer exists' % sOID
+            'The deleted object "%s" no longer exists' % oid
     else:
-        oItem = cPickle.loads(sItem)
-        return(oItem)
+        item = cPickle.loads(item)
+        return(item)
         
-def removeDeletedItem(oItem, trans):
-    handle_delete(oItem, trans, True)
-    db_handle._deleteItem(oItem._id, trans)
-    
-    if oItem.isCollection:
-        lstChildren = oItem._items.values() + oItem._subfolders.values()
-        for sID in lstChildren:
-            oChild = getDeletedItem(sID, trans)
-            removeDeletedItem(oChild, trans)
+def removeDeletedItem(item, trans):
+    handle_delete(item, trans, True)
+    _db_handle.deleteItem(item._id, trans)
+    if item.isCollection:
+        lstChildren = item._items.values() + item._subfolders.values()
+        for id in lstChildren:
+            child = getDeletedItem(id, trans)
+            removeDeletedItem(child, trans)
 
 def handle_update(oItem, oOldItem, trans):
     if oItem._eventHandlers:
@@ -144,24 +155,34 @@ def createTransaction():
     global _activeTxns
     while _locks:
         time.sleep(1)
-    txn = db_handle._getTransactionHandle()
+    txn = _db_handle.getTransaction()
     _activeTxns += 1
     return(txn)
    
 def abortTransaction(txn):
     global _activeTxns
+    _db_handle.abortTransaction(txn)
     _activeTxns -= 1
-    db_handle._abortTransaction(txn)
 
 def commitTransaction(txn):
     global _activeTxns
+    _db_handle.commitTransaction(txn)
     _activeTxns -= 1
-    db_handle._commitTransaction(txn)
 
 def close():
-    db_handle.close()
+    _db_handle.close()
     
-def _recover():
-    global db_handle
-    db_handle = misc.getCallableByName(
-        settings['store']['interface'])._recover()
+def recover():
+    _db_handle.recover()
+    
+def backup(output_file):
+    _db_handle.backup(output_file)
+    
+def restore(bset):
+    _db_handle.restore(bset)
+
+def truncate():
+    _db_handle.truncate()
+
+def shrink():
+    _db_handle.shrink()

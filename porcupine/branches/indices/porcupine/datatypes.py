@@ -417,8 +417,7 @@ class ExternalAttribute(DataType):
         if self._value is None:
             #trans = currentThread().trans
             self._value = \
-                db._db.db_handle._getExternalAttribute(self._id, txn) \
-                or ''
+                db._db.getExternal(self._id, txn) or ''
         return(self._value)
 
     def setValue(self, value):

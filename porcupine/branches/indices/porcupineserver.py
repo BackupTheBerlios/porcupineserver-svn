@@ -136,7 +136,7 @@ certain conditions; See COPYING for more details.'''
             SessionManager.close()
         
         # close database
-        if _db.db_handle:
+        if _db.is_open():
             self.logger.info('Closing database...')
             _db.close()
 

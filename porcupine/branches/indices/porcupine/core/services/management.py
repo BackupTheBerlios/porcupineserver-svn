@@ -89,23 +89,23 @@ class ManagementRequestHandler(asyncBaseServer.BaseRequestHandler):
                 output_file = request.data
                 try:
                     _db.lock()
-                    backfiles = _db.db_handle._backup(output_file)
+                    backfiles = _db.backup(output_file)
                 finally:
                     _db.unlock()
                 return (0, 'Database backup completed successfully.')
             
             elif cmd=='DB_RESTORE':
                 backup_set = request.data
-                _db.db_handle._restore(backup_set)
+                _db.restore(backup_set)
                 return (0, 'Database restore completed successfully.')
     
             elif cmd=='DB_RECOVER':
                 _db.close()
-                _db._recover()
+                _db.recover()
                 return (0, 'Database recovery completed successfully.')
             
             elif cmd=='DB_SHRINK':
-                iLogs = _db.db_handle._shrink()
+                iLogs = _db.shrink()
                 if iLogs:
                     return (0, 'Successfully removed %d log files.' % iLogs)
                 else:

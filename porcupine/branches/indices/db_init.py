@@ -37,7 +37,7 @@ if (answer.upper() == 'Y'):
     
     # truncate database
     sys.stdout.write('Deleting existing database...')
-    db.db_handle._truncate()
+    db.truncate()
     sys.stdout.write('[OK]\n')
     
     # modify containment at run-time
