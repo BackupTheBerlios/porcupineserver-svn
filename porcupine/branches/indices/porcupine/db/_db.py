@@ -62,9 +62,6 @@ def getItem(oid, trans=None):
     
     if item:
         item = cPickle.loads(item)
-        if item._isDeleted:
-            raise exceptions.ObjectNotFound, \
-                'The object "%s" does not exist' % oid
         return item
     else:
         raise exceptions.ObjectNotFound, \
@@ -84,24 +81,6 @@ def putExternal(id, stream, trans):
     
 def deleteExternal(id, trans):
     _db_handle.deleteExternal(id, trans)
-
-def getDeletedItem(oid, trans=None):
-    item = _db_handle.getItem(oid, trans)
-    if not(item):
-        raise exceptions.ObjectNotFound, \
-            'The deleted object "%s" no longer exists' % oid
-    else:
-        item = cPickle.loads(item)
-        return(item)
-        
-def removeDeletedItem(item, trans):
-    handle_delete(item, trans, True)
-    _db_handle.deleteItem(item._id, trans)
-    if item.isCollection:
-        lstChildren = item._items.values() + item._subfolders.values()
-        for id in lstChildren:
-            child = getDeletedItem(id, trans)
-            removeDeletedItem(child, trans)
 
 def handle_update(oItem, oOldItem, trans):
     if oItem._eventHandlers:
@@ -138,19 +117,18 @@ def handle_delete(oItem, trans, bPermanent):
     [attr._eventHandler.on_delete(oItem, attr, trans, bPermanent)
      for attr in attrs
      if attr._eventHandler]
+    
+# indices
+def query_index(index, value, trans, fetch_all=False):
+    return _db_handle.query_index(index, value, trans, fetch_all)
 
-def lock():
-    global _locks
-    _locks += 1
-    # allow active transactions to commit or abort...
-    while _activeTxns:
-        time.sleep(0.5)
+def natural_join(conditions, trans, fetch_all=False):
+    return _db_handle.natural_join(conditions, trans, fetch_all)
 
-def unlock():
-    global _locks
-    if _locks:
-        _locks -= 1
+def test_natural_join(conditions, trans):
+    return _db_handle.test_natural_join(conditions, trans)
 
+# transactions
 def createTransaction():
     global _activeTxns
     while _locks:
@@ -169,9 +147,19 @@ def commitTransaction(txn):
     _db_handle.commitTransaction(txn)
     _activeTxns -= 1
 
-def close():
-    _db_handle.close()
-    
+# administrative
+def lock():
+    global _locks
+    _locks += 1
+    # allow active transactions to commit or abort...
+    while _activeTxns:
+        time.sleep(0.5)
+
+def unlock():
+    global _locks
+    if _locks:
+        _locks -= 1
+
 def recover():
     _db_handle.recover()
     
@@ -186,3 +174,6 @@ def truncate():
 
 def shrink():
     _db_handle.shrink()
+
+def close():
+    _db_handle.close()

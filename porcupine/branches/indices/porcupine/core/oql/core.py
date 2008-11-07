@@ -125,7 +125,10 @@ def evaluateStack(stack, variables, forObject=None):
                         return alias_value
             else:
                 # an attribute
-                return getAttribute(forObject, op.split('.'))
+                if op == '*':
+                    return forObject
+                else:
+                    return getAttribute(forObject, op.split('.'))
 
     elif isinstance(op, list):
         cmdCode = op[0]
@@ -301,23 +304,20 @@ def h_100(params, variables):
 
 def select(deep, children, fields, condition, variables):
     results = []
-    
-    for child in [db.getItem(child_id) for child_id in children]:
-        if child:
-            if condition:
-                res = evaluateStack(condition[:], variables, child)
-            else:
-                res = True
+    for child in children:
+        if condition:
+            res = evaluateStack(condition[:], variables, child)
+        else:
+            res = True
+        
+        if res:
+            fieldlist = [evaluateStack(expr[1], variables, child) for expr in fields]
+            results.append(tuple(fieldlist))
             
-            if res:
-                fieldlist = [evaluateStack(expr[1], variables, child) for expr in fields]
-                results.append(tuple(fieldlist))
-                
-            if deep and child.isCollection:
-                children_ids = child._subfolders.values() + child._items.values()
-                results1 = select(deep, children_ids, fields, condition, variables)
-                results.extend(results1)
-
+        if deep and child.isCollection:
+            results1 = select(deep, child.getChildren(), fields, condition, variables)
+            results.extend(results1)
+    
     return (results)
 
 def h_200(params, variables, forObject = None):
@@ -368,7 +368,7 @@ def h_200(params, variables, forObject = None):
     if select_fields:
         all_fields = select_fields + order_by + group_by
     else:
-        all_fields = [['id','id', '']] + order_by + group_by
+        all_fields = [['*','*', '']] + order_by + group_by
     
     aggregates = [x[2] for x in all_fields]
     results = []
@@ -388,7 +388,7 @@ def h_200(params, variables, forObject = None):
             # swallow-deep
             obj = db.getItem(object_id)    
             if obj != None and obj.isCollection:
-                children = obj._subfolders.values() + obj._items.values()
+                children = obj.getChildren()
                 r = select(deep, children, all_fields, 
                                 where_condition, variables)
                 results.extend(r)

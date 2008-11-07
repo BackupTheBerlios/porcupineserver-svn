@@ -42,6 +42,9 @@ def getItem(oid, trans=None):
     """
     item = _db.getItem(oid, trans)
     # check read permissions
+    if item._isDeleted:
+        raise exceptions.ObjectNotFound, \
+            'The object "%s" does not exist' % oid
     if objectAccess.getAccess(item, currentThread().context.user) != 0:
         return item
     else:

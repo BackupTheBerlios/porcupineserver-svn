@@ -15,7 +15,6 @@
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #===============================================================================
 "Porcupine server Berkeley DB interface"
-
 import os
 import time
 import logging
@@ -25,8 +24,11 @@ from bsddb import db
 from threading import Thread
 
 from porcupine import exceptions
-from porcupine.db.transaction import Transaction
 from porcupine.config.settings import settings
+from porcupine.core.objectSet import ObjectSet
+from porcupine.db.transaction import Transaction
+from porcupine.db.bsddb.index import DbIndex
+from porcupine.db.bsddb.cursor import Cursor, Join
 from porcupine.utils.db.backup import BackupFile
 
 _running = False
@@ -86,27 +88,107 @@ def open(**kwargs):
     
     # open indices
     for index in settings['store']['indices']:
-        _indices[index] = db.DB(_env)
-        _indices[index].set_flags(db.DB_DUPSORT)
-        _indices[index].open(
-            'porcupine.idx',
-            index,
-            dbtype = db.DB_BTREE,
-            mode = dbMode,
-            flags = dbFlags
-        )
-        _itemdb.associate(_indices[index],
-                          _indexer(index),
-                          flags=db.DB_CREATE)
+        _indices[index] = DbIndex(_env, _itemdb, index)
     
     _running = True
     _maintenance_thread = Thread(target=__maintain,
-                                name='Berkeley DB maintenance thread')
+                                 name='Berkeley DB maintenance thread')
     _maintenance_thread.start()
     
 def is_open():
     return _running
-    
+
+# item operations
+def getItem(oid, trans=None):
+    try:
+        return _itemdb.get(oid, txn=trans and trans.txn)
+    except (db.DBLockDeadlockError, db.DBLockNotGrantedError):
+        raise exceptions.DBTransactionIncomplete
+
+def putItem(item, trans=None):
+    try:
+        _itemdb.put(item._id, cPickle.dumps(item, 2), trans and trans.txn)
+    except (db.DBLockDeadlockError, db.DBLockNotGrantedError):
+        raise exceptions.DBTransactionIncomplete
+
+def deleteItem(oid, trans):
+    try:
+        _itemdb.delete(oid, trans and trans.txn)
+    except (db.DBLockDeadlockError, db.DBLockNotGrantedError):
+        raise exceptions.DBTransactionIncomplete
+
+# external attributes
+def getExternal(id, trans):
+    try:
+        return _docdb.get(id, txn=trans and trans.txn)
+    except (db.DBLockDeadlockError, db.DBLockNotGrantedError):
+        raise exceptions.DBTransactionIncomplete
+
+def putExternal(id, stream, trans):
+    try:
+        _docdb.put(id, stream, trans and trans.txn)
+    except (db.DBLockDeadlockError, db.DBLockNotGrantedError):
+        raise exceptions.DBTransactionIncomplete
+
+def deleteExternal(id, trans):
+    try:
+        _docdb.delete(id, trans and trans.txn)
+    except (db.DBLockDeadlockError, db.DBLockNotGrantedError):
+        raise exceptions.DBTransactionIncomplete
+
+# cursors
+def __get_cursor(name, txn, fetch_all=False):
+    return Cursor(_indices[name], txn, fetch_all=fetch_all)
+
+def __join(cursor_list, use_primary, fetch_all=False):
+    return Join(_itemdb, cursor_list, use_primary=use_primary,
+                fetch_all=fetch_all)
+
+def query_index(index, value, trans, fetch_all):
+    cursor = __get_cursor(index, trans and trans.txn, fetch_all)
+    cursor.set(value)
+    results = ObjectSet([x for x in cursor])
+    cursor.close()
+    return(results)
+
+def natural_join(conditions, trans, fetch_all):
+    cur_list = []
+    for index, value in conditions:
+        cursor = __get_cursor(index, trans and trans.txn)
+        cursor.set(value)
+        cur_list.append(cursor)
+    c_join = __join(cur_list, False, fetch_all)
+    results = ObjectSet([x for x in c_join])
+    c_join.close()
+    [cur.close() for cur in cur_list]
+    return results
+
+def test_natural_join(conditions, trans):
+    cur_list = []
+    for index, value in conditions:
+        cursor = __get_cursor(index, trans and trans.txn)
+        cursor.set(value)
+        cur_list.append(cursor)
+    c_join = __join(cur_list, True)
+    result = bool(c_join.next())
+    c_join.close()
+    [cur.close() for cur in cur_list]
+    return result
+
+# transactions
+def getTransaction():
+    return(_env.txn_begin())
+
+def abortTransaction(txn):
+    txn.abort()
+
+def commitTransaction(txn):
+    try:
+        txn.commit()
+    except (db.DBLockDeadlockError, db.DBLockNotGrantedError):
+        raise exceptions.DBTransactionIncomplete
+
+# administrative
 def __removeFiles():
     oldFiles = glob.glob(_dir + '__db.*')
     for oldFile in oldFiles:
@@ -135,54 +217,6 @@ def truncate():
     
 def recover():
     open(flags=db.DB_RECOVER)
-
-def getItem(oid, trans=None):
-    try:
-        return _itemdb.get(oid, txn=trans and trans.txn)
-    except (db.DBLockDeadlockError, db.DBLockNotGrantedError):
-        raise exceptions.DBTransactionIncomplete
-
-def putItem(item, trans=None):
-    try:
-        _itemdb.put(item._id, cPickle.dumps(item, 2), trans and trans.txn)
-    except (db.DBLockDeadlockError, db.DBLockNotGrantedError):
-        raise exceptions.DBTransactionIncomplete
-
-def deleteItem(oid, trans):
-    try:
-        _itemdb.delete(oid, trans and trans.txn)
-    except (db.DBLockDeadlockError, db.DBLockNotGrantedError):
-        raise exceptions.DBTransactionIncomplete
-    
-def getExternal(id, trans):
-    try:
-        return _docdb.get(id, txn=trans and trans.txn)
-    except (db.DBLockDeadlockError, db.DBLockNotGrantedError):
-        raise exceptions.DBTransactionIncomplete
-
-def putExternal(id, stream, trans):
-    try:
-        _docdb.put(id, stream, trans and trans.txn)
-    except (db.DBLockDeadlockError, db.DBLockNotGrantedError):
-        raise exceptions.DBTransactionIncomplete
-
-def deleteExternal(id, trans):
-    try:
-        _docdb.delete(id, trans and trans.txn)
-    except (db.DBLockDeadlockError, db.DBLockNotGrantedError):
-        raise exceptions.DBTransactionIncomplete
-
-def getTransaction():
-    return(_env.txn_begin())
-
-def abortTransaction(txn):
-    txn.abort()
-
-def commitTransaction(txn):
-    try:
-        txn.commit()
-    except (db.DBLockDeadlockError, db.DBLockNotGrantedError):
-        raise exceptions.DBTransactionIncomplete
 
 def backup(output_file):
     if not os.path.isdir(os.path.dirname(output_file)):
@@ -236,15 +270,3 @@ def close():
     for index in _indices:
         _indices[index].close()
     _env.close()
-
-def _indexer(name):
-    def callback(key, value):
-        o = cPickle.loads(value)
-        if hasattr(o, name):
-            attr = getattr(o,name)
-            if attr.__class__.__module__ != '__builtin__':
-                attr = attr.value
-            return cPickle.dumps(attr, 2)
-        else:
-            return None
-    return callback
