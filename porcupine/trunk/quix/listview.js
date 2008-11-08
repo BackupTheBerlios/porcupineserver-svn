@@ -87,12 +87,21 @@ ListView.prototype.addHeader = function(params, w) {
 		oListview._deadCells = 1;
 	} else
 		oListview._deadCells = 0;
+	
+	var ltop, lho;
+	if (oListview.header.isHidden()) {
+		ltop = 0;
+		lho = 0;
+	}
+	else {
+		ltop = oListview.header._calcHeight(true);
+		lho = parseInt(params.height) + 1;
+	}
 
 	var list = new Widget({
-		top : oListview.header.isHidden()?
-			0:oListview.header._calcHeight(true),
+		top : ltop,
 		width : 'this.parent.getWidth()-1',
-		height : 'this.parent.getHeight()-' + (parseInt(params.height) + 1),
+		height : 'this.parent.getHeight()-' + lho,
 		dragable : oListview._dragable,
 		overflow : 'auto'
 	});
@@ -111,8 +120,6 @@ ListView.prototype.addHeader = function(params, w) {
 
 	list.attachEvent('onscroll', ListView__onscroll);
 	oListview.list = list.div.firstChild;
-
-	this._deadCells = (this.hasSelector)?1:0;
 	return(oListview.header);
 }
 
