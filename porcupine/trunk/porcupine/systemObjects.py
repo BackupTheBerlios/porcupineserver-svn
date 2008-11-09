@@ -336,7 +336,7 @@ class Composite(object):
         self._containerid = None
         self._isDeleted = False
         
-        self.displayName = displayName()
+        self.displayName = datatypes.RequiredString()
 
     def getSecurity(self):
         """Getter of L{security} property
