@@ -111,8 +111,8 @@ class ReferentialIntegrityError(InternalServerError):
         self.severity = logging.WARNING
         
 class NotFound(PorcupineException):
-    def __init__(self, info=''):
-        PorcupineException.__init__(self, info, True)
+    def __init__(self, info='', outputTraceback=True):
+        PorcupineException.__init__(self, info, outputTraceback)
         self.code = 404
         self.description = 'Not Found'
         self.severity = logging.INFO

@@ -634,7 +634,7 @@ class DeletedItem(GenericItem, Removeable):
         Calling this method raises an ContainmentError.
         This is happening because you can not add a DeletedItem
         directly to the store.
-        This type of item is appended to the store only if
+        This type of item is added in the database only if
         the L{Removeable.recycle} method is called.
 
         @warning: DO NOT USE.
@@ -656,8 +656,13 @@ class DeletedItem(GenericItem, Removeable):
         @raise L{porcupine.exceptions.ObjectNotFound}:
             If the original location no longer exists.
         """
-        ## TODO: check if deleted exists
-        deleted = _db.getItem(self._deletedId, trans)
+        try:
+            deleted = _db.getItem(self._deletedId, trans)
+        except exceptions.ObjectNotFound:
+            raise exceptions.ObjectNotFound, (
+                'Cannot locate original item.\n' +
+                'It seems that this item resided in a container ' +
+                'that has been\npermanently deleted.', False)
         original_parent = _db.getItem(deleted._parentid, trans)
         
         # try to restore original item
@@ -676,8 +681,13 @@ class DeletedItem(GenericItem, Removeable):
             
         @return: None
         """
-        ## TODO: check if deleted exists
-        deleted = _db.getItem(self._deletedId, trans)
+        try:
+            deleted = _db.getItem(self._deletedId, trans)
+        except exceptions.ObjectNotFound:
+            raise exceptions.ObjectNotFound, (
+                'Cannot locate original item.\n' +
+                'It seems that this item resided in a container ' +
+                'that has been\npermanently deleted.', False)
         parent = _db.getItem(parent_id, trans)
         
         if not(deleted.getContentclass() in parent.containment):
@@ -701,9 +711,11 @@ class DeletedItem(GenericItem, Removeable):
         Removeable.delete(self, trans)
         if _removeDeleted:
             # we got a direct call. remove deleted item
-            ## TODO: check if deleted exists
-            deleted = _db.getItem(self._deletedId, trans)
-            deleted._delete(trans)
+            try:
+                deleted = _db.getItem(self._deletedId, trans)
+                deleted._delete(trans)
+            except exceptions.ObjectNotFound:
+                pass
 
 class Item(GenericItem, Cloneable, Moveable, Removeable):
     """
