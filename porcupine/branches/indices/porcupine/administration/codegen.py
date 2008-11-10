@@ -36,10 +36,14 @@ class GenericSchemaEditor(object):
         self._attrs = {}
         self._methods = {}
         self._properties = {}
-        sourcelines = inspect.getsourcelines(self._class)
-        startline = sourcelines[1]
-        endline = startline + len(sourcelines[0]) - 1
-        self.boundaries = (startline, endline)
+        try:
+            sourcelines = inspect.getsourcelines(self._class)
+            startline = sourcelines[1]
+            endline = startline + len(sourcelines[0]) - 1
+            self.boundaries = (startline, endline)
+        except IOError:
+            # the source file does not exist
+            self.boundaries = None
         
         self._instance = self._class()
         for prop in self._class.__slots__:
@@ -125,24 +129,25 @@ class GenericSchemaEditor(object):
             del self._imports[module]        
             
     def commitChanges(self):
-        module_source = inspect.getsourcelines(self._module)[0]
-        new_source = module_source[:self.boundaries[0] - 1]
-        new_source.extend(self.generateCode())
-        new_source.extend(module_source[self.boundaries[1]:])
-        
-        imports_line = self._removeImports(new_source)
-        self._cleanupImports(new_source)
-        new_imports = self._generateImports()
-        for no, imprt in enumerate(new_imports):
-            new_source.insert(imports_line + no, imprt)
-        
-        modulefilename = self._module.__file__
-        if modulefilename[-1] in ['c', 'o']:
-            modulefilename = modulefilename[:-1]
-        
-        modfile = file(modulefilename, 'w')
-        modfile.writelines(new_source)
-        modfile.close()
+        if self.boundaries != None:
+            module_source = inspect.getsourcelines(self._module)[0]
+            new_source = module_source[:self.boundaries[0] - 1]
+            new_source.extend(self.generateCode())
+            new_source.extend(module_source[self.boundaries[1]:])
+            
+            imports_line = self._removeImports(new_source)
+            self._cleanupImports(new_source)
+            new_imports = self._generateImports()
+            for no, imprt in enumerate(new_imports):
+                new_source.insert(imports_line + no, imprt)
+            
+            modulefilename = self._module.__file__
+            if modulefilename[-1] in ['c', 'o']:
+                modulefilename = modulefilename[:-1]
+            
+            modfile = file(modulefilename, 'w')
+            modfile.writelines(new_source)
+            modfile.close()
         
 class ItemEditor(GenericSchemaEditor):
     def __init__(self, classobj):

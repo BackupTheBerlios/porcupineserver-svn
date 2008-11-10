@@ -15,8 +15,21 @@
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #===============================================================================
 "Helper classes for managing the Porcupine configuration files"
-
+import pprint
 from xml.dom import minidom
+
+class SettingsManager(object):
+    def __init__(self):
+        conf_file = file('conf/porcupine.conf', 'r')
+        try:
+            self.settings = eval(conf_file.read().replace('\r\n', '\n'))
+        finally:
+            conf_file.close()
+            
+    def save(self):
+        conf_file = file('conf/porcupine.conf', 'w')
+        conf_file.write(pprint.pformat(self.settings, 4))
+        conf_file.close()
 
 class PubDirManager(object):
     def __init__(self):
