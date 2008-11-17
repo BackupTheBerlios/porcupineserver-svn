@@ -269,7 +269,7 @@ ContextMenu.prototype.close = function() {
 	if (this.activeSub) {
 		this.activeSub.close();
 	}
-	if (this.owner.parent.activeSub)
+	if (this.owner.parent && this.owner.parent.activeSub)
 		this.owner.parent.activeSub = null;
 	if (this.parent == document.desktop)
 		document.desktop.overlays.removeItem(this);
