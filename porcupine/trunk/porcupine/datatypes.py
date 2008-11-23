@@ -57,16 +57,20 @@ class DataType(object):
         instance attribute of an object, whenever this object
         is appended or updated.
         
-        @raise AssertionError:
-            if the datatype is mandatory and is empty.
+        @raise TypeError:
+            if the value is not of the right type.
+        @raise ValueError: 
+            if the data type is mandatory and is empty.
         
-        @returns: None
+        @return: None
         """
-        assert isinstance(self.value, self._safetype), \
+        if not isinstance(self.value, self._safetype):
+            raise TypeError, \
                'Invalid data type for "%s". Got "%s" instead of "%s".' % \
                (self.__class__.__name__, self.value.__class__.__name__,
                 self._safetype.__name__)
-        assert not self.isRequired or self.value, \
+        if self.isRequired and not self.value:
+            raise ValueError, \
                '"%s" attribute is mandatory' % self.__class__.__name__
 
 class String(DataType):
