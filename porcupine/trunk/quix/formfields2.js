@@ -23,7 +23,7 @@ function Combo(params) {
 	this.attachEvent('onmousedown', QuiX.stopPropag);
 	
 	var e = ce('INPUT');
-	e.style.borderWidth = '1px';
+	e.style.padding = '1px';
 	e.style.position = 'absolute';
 	this.div.appendChild(e);
 	e.onselectstart = QuiX.stopPropag;
@@ -116,8 +116,8 @@ Combo.prototype.customEvents = Widget.prototype.customEvents.concat(['onchange']
 
 Combo.prototype._adjustFieldSize = function() {
 	if (this.div.firstChild) {
-		var nh = this.getHeight();
-		var nw = this.getWidth()-21;
+		var nh = this.getHeight() - 2;
+		var nw = this.getWidth() - 22;
 		this.div.firstChild.style.width = (nw>0?nw:0) + 'px';
 		this.div.firstChild.style.height = nh + 'px';
 	}

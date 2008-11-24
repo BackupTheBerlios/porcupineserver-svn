@@ -98,9 +98,6 @@ function Field(params) {
 			e.style.position='absolute';
 			e.style.textAlign = this.textAlign;
 			if (this.readonly) e.readOnly = true;
-			//fixme: wait for MS to fix it
-			//e.style.width = '100%';
-			//e.style.height = '100%';
 			if (this.type!='textarea') e.type = this.type;
 			e.value = (params.value)?params.value:'';
 			this.textPadding = params.textpadding || 1;
@@ -238,12 +235,10 @@ Field.prototype._adjustFieldSize = function() {
 	if (this.type!='checkbox' && this.type!='radio' && this.div.firstChild) {
 		var nw = this.getWidth() || 0;
 		var nh = this.getHeight() || 0;
-		nw -= 1;
-		nh -= 1;
 		if (this.type=='textarea' && QuiX.browser=='moz')
 			this.div.firstChild.style.top = '-1px';
-		nw = nw - 2*this.textPadding;
-		nh = nh - 2*this.textPadding;
+		nw = nw - 2 * this.textPadding;
+		nh = nh - 2 * this.textPadding;
 		if (nw < 0) nw = 0;
 		if (nh < 0) nh = 0;
 		this.div.firstChild.style.width = nw + 'px';
@@ -300,7 +295,7 @@ function Spin(params) {
 	this.div.className = 'field';
 
 	var e = ce('INPUT');
-	e.style.borderWidth = '1px';
+	e.style.padding = '1px';
 	e.style.position='absolute';
 	e.style.textAlign = 'right';
 	this.div.appendChild(e);
@@ -360,9 +355,8 @@ Spin.prototype.customEvents = Widget.prototype.customEvents.concat(['onchange'])
 
 Spin.prototype._adjustFieldSize = function() {
 	if (this.div.firstChild) {
-		var nh = this.getHeight();
-		var offset = (QuiX.browser=='ie')?20:18;
-		this.div.firstChild.style.width = (this.getWidth()-offset) + 'px';
+		var nh = this.getHeight() - 2;
+		this.div.firstChild.style.width = (this.getWidth() - 18) + 'px';
 		this.div.firstChild.style.height = nh + 'px';
 	}
 }

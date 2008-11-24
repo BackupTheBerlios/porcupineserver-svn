@@ -34,6 +34,8 @@ BODY {
 	border-color: DarkGray;
 }
 
+.field INPUT, .field TEXTAREA {border:none}
+
 .field .optionselected {
 	cursor: default;
 	color : white;
