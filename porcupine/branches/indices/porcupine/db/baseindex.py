@@ -25,9 +25,9 @@ class BaseIndex(object):
     
     def _get_callback(self):
         def callback(key, value):
-            o = cPickle.loads(value)
-            if hasattr(o, self.name):
-                attr = getattr(o, self.name)
+            item = cPickle.loads(value)
+            if hasattr(item, self.name):
+                attr = getattr(item, self.name)
                 if attr.__class__.__module__ != '__builtin__':
                     attr = attr.value
                 return cPickle.dumps(attr, 2)

@@ -82,39 +82,39 @@ def putExternal(id, stream, trans):
 def deleteExternal(id, trans):
     _db_handle.deleteExternal(id, trans)
 
-def handle_update(oItem, oOldItem, trans):
-    if oItem._eventHandlers:
-        if oOldItem:
+def handle_update(item, old_item, trans):
+    if item._eventHandlers:
+        if old_item:
             # update
-            [handler.on_update(oItem, oOldItem, trans)
-             for handler in oItem._eventHandlers]
+            [handler.on_update(item, old_item, trans)
+             for handler in item._eventHandlers]
         else:
             # create
-            [handler.on_create(oItem, trans)
-             for handler in oItem._eventHandlers]
-    for attr_name in oItem.__props__:
+            [handler.on_create(item, trans)
+             for handler in item._eventHandlers]
+    for attr_name in item.__props__:
         try:
-            oAttr = getattr(oItem, attr_name)
+            attr = getattr(item, attr_name)
         except AttributeError:
             continue
-        oAttr.validate()
-        if oAttr._eventHandler:
-            if oOldItem:
+        attr.validate()
+        if attr._eventHandler:
+            if old_item:
                 # it is an update
-                old_attr = getattr(oOldItem, attr_name)
-                oAttr._eventHandler.on_update(oItem, oAttr, old_attr, trans)
+                old_attr = getattr(old_item, attr_name)
+                attr._eventHandler.on_update(item, attr, old_attr, trans)
             else:
                 # it is a new object or undeleting
-                oAttr._eventHandler.on_create(oItem, oAttr, trans)
+                attr._eventHandler.on_create(item, attr, trans)
 
-def handle_delete(oItem, trans, bPermanent):
-    if oItem._eventHandlers:
-        [handler.on_delete(oItem, trans, bPermanent) 
-         for handler in oItem._eventHandlers]
-    attrs = [getattr(oItem, attr_name)
-             for attr_name in oItem.__props__
-             if hasattr(oItem, attr_name)]
-    [attr._eventHandler.on_delete(oItem, attr, trans, bPermanent)
+def handle_delete(item, trans, is_permanent):
+    if item._eventHandlers:
+        [handler.on_delete(item, trans, is_permanent) 
+         for handler in item._eventHandlers]
+    attrs = [getattr(item, attr_name)
+             for attr_name in item.__props__
+             if hasattr(item, attr_name)]
+    [attr._eventHandler.on_delete(item, attr, trans, is_permanent)
      for attr in attrs
      if attr._eventHandler]
     
