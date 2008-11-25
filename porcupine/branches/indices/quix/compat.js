@@ -463,7 +463,6 @@ function QImage(url) {
 QImage.prototype.load = function(callback) {
 	this.callback = callback;
 	var img = new Image();
-	QuiX.images.push(this.url);
 	img.resource = this;
 	img.onload = Resource_onstatechange;
 	img.src = this.url;
