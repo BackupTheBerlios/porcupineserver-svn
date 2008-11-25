@@ -79,11 +79,11 @@ function Field(params) {
 	switch (this.type) {
 		case 'checkbox':
 		case 'radio':
-			var sChecked;
 			var val = (this.type=='checkbox')?'value':'checked';
-			sChecked = (params[val]==true || params[val] == 'true')?'checked':'';
-			this.div.innerHTML = '<input type=' + this.type + ' ' + sChecked +
+			var checked = (params[val]==true || params[val] == 'true')?'checked':'';
+			this.div.innerHTML = '<input type="' + this.type + '" ' + checked +
 				' style="vertical-align:middle">';
+			this._checked = (checked=='checked');
 			e = this.div.firstChild;
 			if (this.readonly) e.disabled = true;
 			if (params.caption) this.setCaption(params.caption);
@@ -133,46 +133,42 @@ Field.prototype.customEvents = Widget.prototype.customEvents.concat(['onchange']
 
 Field.prototype.getValue = function() {
 	switch (this.type) {
-	case 'checkbox':
-		return this.div.firstChild.checked;
-	case 'radio':
-		var radio;
-		var id = this.getId();
-		if (id) {
-			var radio_group = this.parent.getWidgetById(id);
-			for (var i=0; i<radio_group.length; i++) {
-				radio = radio_group[i].div.firstChild;
-				if (radio.checked)
-					return (radio_group[i]._value);
+		case 'checkbox':
+			return this.div.firstChild.checked;
+		case 'radio':
+			var id = this.getId();
+			if (id) {
+				var radio_group = this.parent.getWidgetById(id);
+				for (var i=0; i<radio_group.length; i++) {
+					if (radio_group[i]._checked)
+						return (radio_group[i]._value);
+				}
 			}
-		}
-		break;
-	default:
-		return this.div.firstChild.value;
+			break;
+		default:
+			return this.div.firstChild.value;
 	}
 }
 
 Field.prototype.setValue = function(value) {
 	switch (this.type) {
-	case 'checkbox':
-		this.div.firstChild.checked = value;
-		break;
-	case 'radio':
-		var radio;
-		var id = this.getId();
-		if (id) {
-			var radio_group = this.parent.getWidgetById(id);
-			for (var i=0; i<radio_group.length; i++) {
-				radio = radio_group[i].div.firstChild;
-				if (radio_group[i]._value == value)
-					radio.checked = true;
-				else
-					radio.checked = false;
+		case 'checkbox':
+			this.div.firstChild.checked = value;
+			break;
+		case 'radio':
+			var checked, radio_group;
+			var id = this.getId();
+			if (id) {
+				radio_group = this.parent.getWidgetById(id);
+				for (var i=0; i<radio_group.length; i++) {
+					checked = (radio_group[i]._value == value);
+					radio_group[i].div.firstChild.checked = checked;
+					radio_group[i]._checked = checked;
+				}
 			}
-		}
-		break;
-	default:
-		this.div.firstChild.value = value;
+			break;
+		default:
+			this.div.firstChild.value = value;
 	}
 }
 
@@ -266,13 +262,8 @@ function Check__click(evt, w) {
 function Radio__click(evt, w) {
 	var id = w.getId();
 	if (id) {
-		var radio_group = w.parent.getWidgetById(id);
-		for (var i=0; i<radio_group.length; i++) {
-			radio = radio_group[i].div.firstChild;
-			radio.checked = false;
-		}
 		var checked = w.div.firstChild.checked;
-		w.div.firstChild.checked = true;
+		w.setValue(w._value);
 		if (!checked && w._customRegistry.onchange)
 			w._customRegistry.onchange(w);
 	}

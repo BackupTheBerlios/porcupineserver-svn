@@ -932,7 +932,12 @@ Widget.prototype.redraw = function(bForceAll, w) {
 		}
 		finally {
 			container.appendChild(w.div);
-			if (frag) frag = null;
+			if (frag) {
+				frag = null;
+				var radios = w.getWidgetsByAttribute('_checked');
+				for (var i=0; i<radios.length; i++)
+					radios[i].div.firstChild.checked = radios[i]._checked;
+			}
 		}
 		if ((wdth && wdth != w.div.style.width) ||
 			(hght && hght != w.div.style.height)) {
