@@ -38,6 +38,8 @@ class ObjectSet(object):
     the list type. They provide the C{len} function, membership tests
     (C{in} operator) and slicing.
     """
+    __slots__ = ('_list', 'schema')
+    
     def __init__(self, data, schema=None):
         self._list = data
         self.schema = schema
