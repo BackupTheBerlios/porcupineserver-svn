@@ -155,12 +155,14 @@ function DataGrid__onkeydown(evt, w) {
 function DataGrid__update(evt, w) {
 	var w = w || evt;
 	var dg = w.parent.parent;
-	var r = dg.attributes.__rowindex;
-	var c = dg.attributes.__cellindex;
-	var cell = dg.list.firstChild.rows[r].cells[c];
-	var value = dg.attributes.__editwidget.getValue();
-	dg.dataSet[r][dg.columns[c].name] = value;
-	dg._renderCell(cell, c, value);
+	if (dg.attributes.__editwidget) {
+		var r = dg.attributes.__rowindex;
+		var c = dg.attributes.__cellindex;
+		var cell = dg.list.firstChild.rows[r].cells[c];
+		var value = dg.attributes.__editwidget.getValue();
+		dg.dataSet[r][dg.columns[c].name] = value;
+		dg._renderCell(cell, c, value);
+	}
 }
 
 function DataGrid__onmousedown(evt, w) {
