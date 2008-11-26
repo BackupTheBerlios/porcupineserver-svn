@@ -1,3 +1,128 @@
+-------------
+Version 0.5.2
+-------------
+NEW: New method "clearOptions" for QuiX combos.
+NEW: Added support for date picker UTC dates by using utc="true".
+NEW: New "toUtc" and "toLocal" JavaScript Date object methods.
+NEW: New mandatory "@porcupine.db.transactional" decorator for
+     transactional web methods.
+NEW: New "getattr" and "getparent" OQL functions.
+NEW: New "indexOf" method of JavaScript Arrays.
+NEW: New "query" method of QuiX base widget.
+NEW: New "getWidgetByClassName" of QuiX base widget.
+NEW: New "AutoComplete" widget contributed by Thomas Bellos.
+NEW: New "onunload" custom event of QuiX base widget.
+NEW: Added support for Safari, Firefox3 and Google Chrome.
+NEW: New "effects" QuiX module.
+NEW: New "maxfilesize" parameter for QuiX upload controls.
+NEW: New "focus" method of QuiX combos.
+NEW: New "onrowprerender" custom event of QuiX list views.
+NEW: New "onrendercomplete" custom event of QuiX list views.
+NEW: New "cellThreshold" attribute of QuiX list views. If the cells
+     to be rendered exceed this number the the list view is rendered
+     asynchronously (default value is 2000).
+NEW: Added mandatory data types of all data types to avoid heavy
+     sub-classing.
+NEW: New "ondocumentload" custom event and "getDocument" method
+     for QuiX IFrame widgets.
+
+OPT: Fixed list view headers wobbling.
+OPT: Enhanced prioritization and activation of web methods based on the
+     request parameters.
+OPT: New redesigned transactions.
+OPT: Optimized calculation of proportional widths of list view cells.
+OPT: Interactive column resizing of list views.
+OPT: Added optional transaction argument to "getAllParents" method
+     of content classes.
+OPT: When attempting to append an item having the same displayName with
+     a pre-existing item the exception raised contains the name of the
+     container in which the insertion was attempted.
+OPT: Do not match IE mobile for QuiX based UIs.
+OPT: Ability not to duplicate external files when cloning objects.
+OPT: "getWidgetsByType", "getWidgetsByAttribute" and
+     "getWidgetsByAttributeValue" Widget methods are based on "query".
+OPT: The Porcupine db is opened without the db.DB_RECOVER flag to allow
+     access from multiple processes (database recovery is done using
+     "porupineadmin.py -c").
+OPT: New type of progress indication (busy) while QuiX is
+     loading external resources.
+OPT: The "redraw" method of QuiX boxes can now be overridden.
+OPT: Ability to render borderless fields by using border="0".
+OPT: Slices of resolved object sets (those returned by OQL queries)
+     now return an array of objects instead of a new object set.
+OPT: Don not fire the "onchange" event when a Combo is first loaded.
+OPT: While editing a data grid the changes are reflected immediately.
+OPT: While editing data grids you can navigate between cells by using
+     the TAB and SHIFT-TAB keys.
+OPT: Moved the object security check inside the web method wrapper
+     in order to be able to access objects with no read permissions
+     with "runas" impersonation filter.
+OPT: Modified the desktop schema in order to use the out of the box
+     mandatory data types instead of the custom ones.
+OPT: codegen now generates code for event handlers.
+OPT: Ability to replace a data type with another for as long they have
+     the same safe type by using "setProperty" (codegen).
+OPT: New "generate_code" optional argument to "commitChanges" method
+     of "porcupine.administration.codegen.ItemEditor" class. If set to
+     False the database is updated but the item's class is not.
+OPT: The security context is now re-evaluated for evety new request
+     without having to initiate a new session thanks to Thomas Bellos.
+OPT: Session objects now hold the user's ID instead of the user object
+     consuming less memory resources.
+OPT: New "porcupine.filters.authorization.RunAs" pre-processing filter.
+
+FIX: Do not keep a cached copy for non-existent published directories.
+FIX: Fixed property dialogs when properties contain special
+     characters such as ",<,> etc.
+FIX: Fixed duplicate files inside packaged directories when using
+     the pakager.
+FIX: Fixed list view dimensions when exploring folders.
+FIX: Fixed cellpadding setting of QuiX list views.
+FIX: Fixed cells with proportional width when having a hidden
+     list view header.
+FIX: Item updates that occur inside "onupdate" event handlers are
+     persisted.
+FIX: Clear tree selection when destroying a tree node that contains
+     a selected sub node.
+FIX: Fixed trans_max_retries setting in the Porcupine database
+     environment.
+FIX: Fixed "activeTab" value when destroying the first tab of
+     QuiX tab panes.
+FIX: First tab's onactivate handler is now called.
+FIX: Fixed multiple file upload on IE.
+FIX: Fixed "imgWidth" and "imgHeight" QuiX Icon parameters when
+     using percentages.
+FIX: Fixed "nextSibling" and "previousSibling" QuiX base widget
+     methods.
+FIX: Fixed imports generation bug when a module contains "import ..."
+     with codegen.
+FIX: Fixed "getSecurity" desktop remote method when an assigned
+     user or group no longer exists.
+FIX: Fixed days locale enumeration for "porcupine.utils.date.Date"
+     objects.
+FIX: Fixed data types validation when __debug__ is set to False.
+FIX: Preserve radio buttons state between redraws on IE.
+FIX: Fixed "parseFromUrl" on IE when template contains numerous
+     images.
+
+DEP: "HttpContext.current().session.user" is no longer valid. Use
+     "HttpContext.current().user" instead.
+DEP: "db_backup.py" script is renamed to "porcupineadmin.py"
+DEP: The "sort" method of QuiX list views now accepts the column
+     name and the sort order ("ASC" or "DESC").
+DEP: Removed object cache as objects copying was quite expensive.
+     Future releases will use shared cache allowing multi process
+     access.
+DEP: The "orderBy" and "sortOrder" properties of QuiX list views
+     are now private.
+DEP: The arguments passed to the sortfunc function of list views
+     are the list view, the order by field and the sort order.
+DEP: The "porcupine.core.eventHandlers" is now "porcupine.events".
+DEP: The "displayName" attribute is now of type
+     "porcupine.datatypes.RequiredString".
+DEP: The "addProperty" method of "porcupine.administration.codegen.ItemEditor"
+     class is deprecated. Use "setProperty" instead.
+
 -----------
 Version 0.5
 -----------
