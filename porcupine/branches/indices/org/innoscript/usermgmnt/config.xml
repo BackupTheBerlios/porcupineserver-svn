@@ -12,7 +12,8 @@
 		method="GET"
 		client=".*"
 		lang=".*"
-		action="usermgmnt.js"/>
+		action="usermgmnt.js"
+		max-age="3600"/>
 	<!-- images -->
 	<context match="images/(.*)"
 		method="GET"

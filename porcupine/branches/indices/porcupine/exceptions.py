@@ -45,6 +45,7 @@ class PorcupineException(Exception):
         )
         if context != None:
             context.response._reset()
+            context.response._code = self.code
             context.response.setHeader('Cache-Control', 'no-cache')
             code = self.code
             description = self.description
@@ -123,8 +124,8 @@ class ObjectNotFound(NotFound):
 class PermissionDenied(PorcupineException):
     def __init__(self, info=''):
         PorcupineException.__init__(self, info)
-        self.code = 401
-        self.description = 'Unauthorized'
+        self.code = 403
+        self.description = 'Forbidden'
 
 class DBTransactionIncomplete(InternalServerError):
     def __init__(self):

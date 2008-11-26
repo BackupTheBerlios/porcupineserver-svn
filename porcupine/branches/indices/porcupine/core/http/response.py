@@ -42,6 +42,7 @@ class HttpResponse(object):
         self.content_type = 'text/html'
         self.charset = 'utf-8'
         self._body = cStringIO.StringIO()
+        self._code = 200
     
     def _reset(self):
         self.__headers = {}
@@ -101,6 +102,7 @@ class HttpResponse(object):
         
         @return: None
         """
+        self._code = 302
         self.__headers["Location"] = location
         raise exceptions.ResponseEnd
 

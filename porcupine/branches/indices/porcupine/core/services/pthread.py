@@ -29,6 +29,7 @@ from porcupine.core.http import ServerPage
 from porcupine.db import _db
 from porcupine import exceptions
 from porcupine.core.servicetypes.asyncBaseServer import BaseServerThread
+from porcupine.utils import misc
 
 class PorcupineThread(BaseServerThread):
     _method_cache = {}
@@ -76,9 +77,17 @@ class PorcupineThread(BaseServerThread):
                     if rtype == 1: # psp page
                         ServerPage.execute(self.context, registration.context)
                     elif rtype == 0: # static file
-                        response.loadFromFile(registration.context)
-                        if registration.encoding:
-                            response.charset = registration.encoding
+                        f_name = registration.context
+                        if_none_match = request.HTTP_IF_NONE_MATCH
+                        if if_none_match != None and if_none_match == \
+                                '"%s"' % misc.generate_file_etag(f_name):
+                            response._code = 304
+                        else: 
+                            response.loadFromFile(f_name)
+                            response.setHeader('ETag', '"%s"' %
+                                               misc.generate_file_etag(f_name))
+                            if registration.encoding:
+                                response.charset = registration.encoding
                 else:
                     self.dispatch_method(item)
             

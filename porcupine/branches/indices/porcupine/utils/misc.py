@@ -18,7 +18,12 @@
 Porcupine miscelaneous utilities
 """
 
-import md5, time, random, sys, imp, os
+import md5
+import time
+import random
+import sys
+import imp
+import os
 
 VALID_ID_CHRS = [
     chr(x) for x in \
@@ -26,6 +31,10 @@ VALID_ID_CHRS = [
     range(ord('A'), ord('Z')) +
     range(ord('0'), ord('9'))
 ]
+
+def generate_file_etag(path):
+    file_info = os.stat(path)
+    return hex(file_info[6] + file_info[8])
 
 def generateGUID():
     """

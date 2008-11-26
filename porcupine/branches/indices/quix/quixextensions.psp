@@ -28,7 +28,7 @@
 	sAM = resources.getResource("AM", sLang)
 	sPM = resources.getResource("PM", sLang)
 	
-	Response.content_type = 'text/javascript'
+	Response.content_type = 'application/x-javascript'
 %>
 
 String.prototype.xmlDecode = function() {

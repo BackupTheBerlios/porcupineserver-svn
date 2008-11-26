@@ -3,12 +3,14 @@
 		method="GET"
 		client=".*"
 		lang=".*"
-		action="$1.quix"/>
+		action="$1.quix"
+		max-age="3600"/>
 	<context path="queryperformer.js"
 		method="GET"
 		client=".*"
 		lang=".*"
-		action="queryperformer.js"/>
+		action="queryperformer.js"
+		max-age="3600"/>
 	<!-- images -->
 	<context match="images/(.*)"
 		method="GET"
