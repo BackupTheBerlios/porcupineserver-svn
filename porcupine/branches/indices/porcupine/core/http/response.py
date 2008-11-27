@@ -61,20 +61,21 @@ class HttpResponse(object):
         self._body.close()
         return(body)
         
-    def setExpiration(self, iSeconds):
+    def setExpiration(self, seconds, cache_type='private'):
         """The response becomes valid for a certain amount of time
         expressed in seconds. The response is cached and reused for x seconds
         without server roundtripping.
         
-        @param iSeconds: number of seconds
-        @type iSeconds: int
+        @param seconds: number of seconds
+        @type seconds: int
             
         @return: None
         """
-        self.__headers['Cache-Control'] = 'max-age=' + str(iSeconds) + ',public'
+        self.__headers['Cache-Control'] = 'max-age=%d,%s' % (seconds,
+                                                             cache_type)
         self.__headers['Expires'] = time.strftime(
             "%a, %d %b %Y %H:%M:%S GMT",
-            time.gmtime(time.time() + iSeconds))
+            time.gmtime(time.time() + seconds))
         
     def clear(self):
         "Clears the response body."
