@@ -177,7 +177,9 @@ def getSubtree(self):
     return l
 
 @filters.i18n('org.innoscript.desktop.strings.resources')
-@webmethods.quixui(of_type=Container, template='../ui.Dlg_SelectObjects.quix')
+@webmethods.quixui(of_type=Container,
+                   max_age=-1,
+                   template='../ui.Dlg_SelectObjects.quix')
 def selectobjects(self):
     "Displays the select objects dialog"
     context = HttpContext.current()

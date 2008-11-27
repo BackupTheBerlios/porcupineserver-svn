@@ -69,7 +69,7 @@ class PorcupineThread(BaseServerThread):
                             'The resource "%s" does not exist' % sPath
                     
                     # apply pre-processing filters
-                    [filter[0].apply(self.context, registration, **filter[1])
+                    [filter[0].apply(self.context, item, registration, **filter[1])
                      for filter in registration.filters
                      if filter[0].type == 'pre']
                 
@@ -99,7 +99,7 @@ class PorcupineThread(BaseServerThread):
                 if registration.max_age:
                     response.setExpiration(registration.max_age)
                 # apply post-processing filters
-                [filter[0].apply(self.context, registration, **filter[1])
+                [filter[0].apply(self.context, item, registration, **filter[1])
                  for filter in registration.filters
                  if filter[0].type == 'post']
 

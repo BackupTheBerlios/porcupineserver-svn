@@ -32,7 +32,7 @@ class BaseFilter(object):
         return(config)
 
     @staticmethod
-    def apply(context, registration, **kwargs):
+    def apply(context, item, registration, **kwargs):
         raise NotImplementedError
     
 

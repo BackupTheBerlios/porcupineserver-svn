@@ -15,26 +15,25 @@
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #===============================================================================
 """
-Web methods for the apps' container class
+Porcupine HTTP caching filters
 """
-from porcupine import HttpContext
-from porcupine import webmethods
-from porcupine import filters
+from porcupine.filters.filter import PreProcessFilter
 
-from org.innoscript.desktop.schema import common
-from org.innoscript.desktop.webmethods import baseitem
-
-@filters.i18n('org.innoscript.desktop.strings.resources')
-@webmethods.quixui(of_type=common.AppsFolder,
-                   max_age=3600,
-                   template='../ui.Frm_AppNew.quix')
-def new(self):
-    "Displays the form for creating a new application"
-    context = HttpContext.current()
-    oApp = common.Application()
-    return {
-        'CC': oApp.contentclass,
-        'URI': self.id,
-        'ICON': oApp.__image__,
-        'SECURITY_TAB': baseitem._getSecurity(self, context.user, True)
-    }
+class ETag(PreProcessFilter):
+    @staticmethod
+    def generate_item_etag(user, item):
+        return '%s%s' % (user._id, item.modified)
+    
+    @staticmethod
+    def apply(context, item, registration, **kwargs):
+        if item != None:
+            user = context.user
+            response = context.response
+            if_none_match = context.request.HTTP_IF_NONE_MATCH
+            if if_none_match != None and if_none_match == \
+                    '"%s"' % ETag.generate_item_etag(user, item):
+                response._code = 304
+                response.end()
+            else: 
+                response.setHeader('ETag', '"%s"' %
+                                   ETag.generate_item_etag(user, item))

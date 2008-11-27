@@ -26,8 +26,11 @@ from porcupine.systemObjects import DeletedItem
 
 from org.innoscript.desktop.webmethods import baseitem
 
+@filters.etag()
 @filters.i18n('org.innoscript.desktop.strings.resources')
-@webmethods.quixui(of_type=DeletedItem, template='../ui.Frm_DeletedItem.quix')
+@webmethods.quixui(of_type=DeletedItem,
+                   max_age=3600,
+                   template='../ui.Frm_DeletedItem.quix')
 def properties(self):
     "Displays the deleted item's properties form"
     context = HttpContext.current()

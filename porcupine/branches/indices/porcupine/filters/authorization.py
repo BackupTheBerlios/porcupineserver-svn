@@ -25,7 +25,7 @@ from porcupine.db import _db
 
 class RequiresLogin(PreProcessFilter):
     @staticmethod
-    def apply(context, registration, **kwargs):
+    def apply(context, item, registration, **kwargs):
         user = context.user
         redirect_url = kwargs['redirect']
         if not hasattr(user, 'authenticate'):
@@ -40,14 +40,14 @@ class RequiresLogin(PreProcessFilter):
 
 class RunAs(PreProcessFilter):
     @staticmethod
-    def apply(context, registration, **kwargs):
+    def apply(context, item, registration, **kwargs):
         user = _db.getItem(kwargs['userid'])
         context.original_user = context.user
         context.user = user
 
 class RequiresPolicy(PreProcessFilter):
     @staticmethod
-    def apply(context, registration, **kwargs):
+    def apply(context, item, registration, **kwargs):
         policyid = kwargs['policyid']
         policy = _db.getItem(policyid)
         user = context.user

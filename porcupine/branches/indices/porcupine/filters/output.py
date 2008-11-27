@@ -40,7 +40,7 @@ class Gzip(PostProcessFilter):
         zfile.close()
 
     @staticmethod
-    def apply(context, registration, **kwargs):
+    def apply(context, item, registration, **kwargs):
         if Gzip.cacheFolder == None:
             config = Gzip.loadConfig()
             Gzip.cacheFolder = config['cache']
@@ -93,7 +93,7 @@ class I18n(PostProcessFilter):
     preferred language setting.
     """
     @staticmethod
-    def apply(context, registration, **kwargs):
+    def apply(context, item, registration, **kwargs):
         language = context.request.getLang()
         lst_resources = kwargs['using'].split(',')
         bundles = [misc.getCallableByName(x)

@@ -184,13 +184,14 @@ def _getControlFromAttribute(item, attrname, attr, readonly, isNew=False):
     
     return (sControl, sTab)
 
+@filters.etag()
 @filters.i18n('org.innoscript.desktop.strings.resources')
-@webmethods.quixui(of_type=Item, template='../ui.Frm_AutoProperties.quix')
+@webmethods.quixui(of_type=Item,
+                   max_age=-1,
+                   template='../ui.Frm_AutoProperties.quix')
 def properties(self):
     "Displays a generic edit form based on the object's schema"
     context = HttpContext.current()
-    
-    context.response.setHeader('Cache-Control', 'no-cache')
     sLang = context.request.getLang()
     
     user = context.user
@@ -221,15 +222,16 @@ def properties(self):
             params['EXTRA_TABS'] += tab
     
     params['PROPERTIES'] = sProperties
-        
     return params
 
+@filters.etag()
 @filters.i18n('org.innoscript.desktop.strings.resources')
-@webmethods.quixui(of_type=Item, template='../ui.Dlg_Rename.quix')
+@webmethods.quixui(of_type=Item,
+                   max_age=-1,
+                   template='../ui.Dlg_Rename.quix')
 def rename(self):
     "Displays the rename dialog"
     context = HttpContext.current()
-    context.response.setHeader('cache-control', 'no-cache')
     return {
         'TITLE': self.displayName.value,
         'ID': self.id,
@@ -237,7 +239,9 @@ def rename(self):
     }
 
 @filters.i18n('org.innoscript.desktop.strings.resources')
-@webmethods.quixui(of_type=GenericItem, template='../ui.Dlg_SelectContainer.quix') 
+@webmethods.quixui(of_type=GenericItem,
+                   max_age=3600,
+                   template='../ui.Dlg_SelectContainer.quix') 
 def selectcontainer(self):
     "Displays a dialog for selecting the destination container"
     context = HttpContext.current()

@@ -25,12 +25,14 @@ from porcupine.utils import date
 
 from org.innoscript.desktop.schema.common import RecycleBin
 
+@filters.etag()
 @filters.i18n('org.innoscript.desktop.strings.resources')
-@webmethods.quixui(of_type=RecycleBin, template='../ui.RecycleList.quix')
+@webmethods.quixui(of_type=RecycleBin,
+                   max_age=3600,
+                   template='../ui.RecycleList.quix')
 def list(self):
     "Displays the recycle bin's window"
     context = HttpContext.current()
-    context.response.setExpiration(1200)
     return {'ID' : self.id}
 
 @webmethods.remotemethod(of_type=RecycleBin)

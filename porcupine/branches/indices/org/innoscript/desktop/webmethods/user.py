@@ -27,14 +27,14 @@ from porcupine.utils import date, xml
 from org.innoscript.desktop.schema.security import User
 from org.innoscript.desktop.webmethods import baseitem
 
+@filters.etag()
 @filters.i18n('org.innoscript.desktop.strings.resources')
 @webmethods.quixui(of_type=User,
+                   max_age=-1,
                    template='../ui.Frm_UserProperties.quix')
 def properties(self):
     "Displays the user's properties form"
     context = HttpContext.current()
-
-    context.response.setHeader('cache-control', 'no-cache')
     sLang = context.request.getLang()
 
     user = context.user
@@ -78,6 +78,7 @@ def properties(self):
 
 @filters.i18n('org.innoscript.desktop.strings.resources')
 @webmethods.quixui(of_type=User,
+                   max_age=120,
                    template='../ui.Frm_UserResetPassword.quix')
 def resetpsw(self):
     "Displays the reset password dialog"

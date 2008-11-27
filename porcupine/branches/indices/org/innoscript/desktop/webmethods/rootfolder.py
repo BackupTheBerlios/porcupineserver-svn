@@ -70,20 +70,20 @@ def loginas(self):
 
 @filters.i18n('org.innoscript.desktop.strings.resources')
 @webmethods.quixui(of_type=RootFolder,
+                   max_age=1200,
                    template='../ui.AboutDialog.quix')
 def about(self):
     "Displays the about dialog"
     context = HttpContext.current()
-    context.response.setExpiration(1200)
     return {'VERSION': context.server.version}
 
 @filters.i18n('org.innoscript.desktop.strings.resources')
 @webmethods.quixui(of_type=RootFolder,
+                   max_age=-1,
                    template='../ui.Dlg_UserSettings.quix')
 def user_settings(self):
     "Displays the user settings dialog"
     context = HttpContext.current()
-    context.response.setHeader('cache-control', 'no-cache')
     
     settings = context.user.settings
     taskbar_pos = settings.value.setdefault('TASK_BAR_POS', 'bottom')
@@ -146,12 +146,11 @@ def applySettings(self, data):
 @filters.i18n('org.innoscript.desktop.strings.resources')
 @webmethods.quixui(of_type=RootFolder,
                    isPage=True,
+                   max_age=-1,
                    template='../ui.Desktop.quix')
 def __blank__(self):
     "Displays the desktop"
     context = HttpContext.current()
-    context.response.setHeader('cache-control', 'no-cache')
-    
     oUser = context.user
     
     params = {
@@ -223,6 +222,7 @@ def __blank__(self):
     return params
 
 @webmethods.webmethod(of_type=RootFolder,
+                      max_age=1200,
                       template='../browsernotsuppoted.htm')
 def __blank__(self):
     "Displays the browser not supported HTML page"
