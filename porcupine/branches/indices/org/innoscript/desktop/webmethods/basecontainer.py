@@ -37,10 +37,11 @@ from porcupine.utils import date, misc
 from org.innoscript.desktop.strings import resources
 from org.innoscript.desktop.webmethods import baseitem
 
+@filters.etag()
 @filters.i18n('org.innoscript.desktop.strings.resources')
 @webmethods.quixui(of_type=Container,
                    template='../ui.ContainerList.quix',
-                   max_age=1200)
+                   max_age=3600)
 def list(self):
     "Displays the container's window"
     return {
@@ -51,11 +52,11 @@ def list(self):
 @filters.i18n('org.innoscript.desktop.strings.resources')
 @webmethods.quixui(of_type=Container,
                    template='../ui.Frm_AutoNew.quix',
-                   max_age=1200)
+                   max_age=120)
 def new(self):
     "Displays a generic form for creating a new object"
     context = HttpContext.current()
-        
+    
     sCC = context.request.queryString['cc'][0]
     oNewItem = misc.getCallableByName(sCC)()
     

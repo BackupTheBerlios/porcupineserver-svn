@@ -32,7 +32,6 @@ from org.innoscript.desktop.schema.common import RecycleBin
                    template='../ui.RecycleList.quix')
 def list(self):
     "Displays the recycle bin's window"
-    context = HttpContext.current()
     return {'ID' : self.id}
 
 @webmethods.remotemethod(of_type=RecycleBin)
