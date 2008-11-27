@@ -26,7 +26,7 @@ class ETag(PreProcessFilter):
     
     @staticmethod
     def apply(context, item, registration, **kwargs):
-        if item != None:
+        if item != None and kwargs['condition'](context, item, registration):
             user = context.user
             response = context.response
             if_none_match = context.request.HTTP_IF_NONE_MATCH
