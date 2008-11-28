@@ -17,8 +17,13 @@
 #===============================================================================
 "Porcupine Server"
 
-import logging, sys, os, time, signal, imp
-import warnings, exceptions
+import logging
+import sys
+import os
+import time
+import signal
+import imp
+import warnings
 from threading import Thread, Event
 
 def main_is_frozen():
@@ -34,8 +39,8 @@ from porcupine.utils import misc
 from porcupine.db import _db
 from porcupine.security import SessionManager
 
-warnings.filterwarnings('ignore', '', exceptions.Warning, 'logging')
-__version__ = '0.5 build(20080223)'
+warnings.filterwarnings('ignore', '', Warning, 'logging')
+__version__ = '0.5.2 build(20081010)'
 PID_FILE = 'conf/.pid'
 
 class Controller(object):
