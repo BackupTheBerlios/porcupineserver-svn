@@ -159,7 +159,7 @@ class Moveable(object):
                     'The target container does not accept ' + \
                     'objects of type "%s".' % self.getContentclass()
             
-            self._parentid = targetId
+            self._parentid = target_id
             self.inheritRoles = False
             _db.putItem(self, trans)
         else:
