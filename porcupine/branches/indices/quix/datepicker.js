@@ -247,7 +247,7 @@ function Datepicker__fill(box) {
 	
 	oDropdown.close = function() {
 		document.desktop.overlays.removeItem(this);
-		if (oDatepicker.month.isExpanded)
+		if (oDatepicker.month && oDatepicker.month.isExpanded)
 			oDatepicker.month.dropdown.close();
 		oDatepicker.isExpanded = false;
 		this.detach();
