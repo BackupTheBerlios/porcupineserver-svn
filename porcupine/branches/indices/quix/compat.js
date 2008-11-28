@@ -16,13 +16,6 @@
 //===============================================================================
 
 //QuiX compatibility layer
-
-function Clipboard() {
-	this.contains = '';
-	this.action = '';
-	this.items = [];
-}
-
 var QuiX = {};
 QuiX.version = '0.9.5 build 20081010';
 QuiX.namespace = 'http://www.innoscript.org/quix';
@@ -32,7 +25,11 @@ QuiX.root = (new RegExp(
 QuiX.maxz = 9999999999999;
 QuiX.startX = 0;
 QuiX.startY = 0;
-QuiX.clipboard = new Clipboard();
+QuiX.clipboard = new (function() {
+	this.contains = '';
+	this.action = '';
+	this.items = [];
+})();
 QuiX.tmpWidget = null;
 QuiX.dragable = null;
 QuiX.dropTarget = null;
@@ -53,24 +50,100 @@ QuiX.progress = '<rect xmlns="http://www.innoscript.org/quix" display="none" ' +
 	'<img src="__quix/images/loader.gif">' +
 	']]></xhtml></rect></rect>';
 
+QuiX.Module = function(sName, sFile, d) {
+	this.isLoaded = false;
+	this.name = sName;
+	this.file = sFile;
+	this.dependencies = d;
+	this.type = 'script';
+	this.callback = null;
+}
+
+QuiX.Module.prototype.load = function(callback) {
+	var oElement;
+	this.callback = callback;
+	if (this.type == 'script') {
+		oElement = ce('SCRIPT');
+		oElement.type = 'text/javascript';
+		oElement.defer = true;
+		oElement.src = this.file;
+		var onload = (QuiX.browser == 'ie')?'onreadystatechange':'onload';
+		oElement[onload] = QuiX.__resource_onstatechange;
+	}
+	else {
+		oElement = ce('LINK');
+		oElement.type = 'text/css';
+		oElement.href = this.file;
+		oElement.rel = 'stylesheet';
+	}
+	oElement.resource = this;
+	oElement.id = this.file;
+	document.getElementsByTagName('head')[0].appendChild(oElement);
+	if (this.type=='stylesheet') {
+		this.isLoaded = true;
+		callback();
+	}
+}
+
+QuiX.Image = function(url) {
+	this.url = url;
+	this.isLoaded = false;
+	this.callback = null;
+	this.width = 0;
+	this.height = 0;
+}
+
+QuiX.Image.prototype.load = function(callback) {
+	this.callback = callback;
+	var img = new Image();
+	img.resource = this;
+	img.onload = QuiX.__resource_onstatechange;
+	img.src = this.url;
+	img.style.display = 'none';
+	document.body.appendChild(img);
+}
+
+QuiX.__resource_onstatechange = function() {
+	if (this.readyState) {
+		if (this.readyState=='loaded' || this.readyState=='complete') {
+			if (this.tagName=='IMG') {
+				this.resource.width = this.width;
+				this.resource.height = this.height;
+				QuiX.removeNode(this);
+			}
+			this.resource.isLoaded = true;
+			this.resource.callback();
+		}
+	}
+	else {
+		if (this.tagName=='IMG') {
+			this.resource.width = this.width;
+			this.resource.height = this.height;
+			QuiX.removeNode(this);
+		}
+		this.resource.isLoaded = true;
+		this.resource.callback();
+	}
+}
+
 QuiX.modules = [
-	new QModule('Windows and Dialogs', '__quix/windows.js', [3,15,16]),
-	new QModule('Menus', '__quix/menus.js', [3,16]),
-	new QModule('Splitter', '__quix/splitter.js', [15]),
-	new QModule('Labels & Buttons', '__quix/buttons.js', []),
-	new QModule('Tab Pane', '__quix/tabpane.js', []),
-	new QModule('List View', '__quix/listview.js', []),
-	new QModule('Tree', '__quix/tree.js', []),
-	new QModule('Toolbars', '__quix/toolbars.js', [3]),
-	new QModule('Forms & Fields', '__quix/formfields.js', [3]),
-	new QModule('Common Widgets', '__quix/common.js', [3]),
-	new QModule('Datagrid', '__quix/datagrid.js', [5,8]),
-	new QModule('File Control', '__quix/file.js', [1,3,8,9,14]),
-	new QModule('Date Picker', '__quix/datepicker.js', [14,8]),
-	new QModule('Timers', '__quix/timers.js', []),
-	new QModule('Forms & Fields 2', '__quix/formfields2.js', [3]),
-	new QModule('VBox & HBox', '__quix/box.js', []),
-	new QModule('Effects', '__quix/effects.js', [13]),
+	new QuiX.Module('Windows and Dialogs', '__quix/windows.js', [3,15,16]),
+	new QuiX.Module('Menus', '__quix/menus.js', [3,16]),
+	new QuiX.Module('Splitter', '__quix/splitter.js', [15]),
+	new QuiX.Module('Labels & Buttons', '__quix/buttons.js', []),
+	new QuiX.Module('Tab Pane', '__quix/tabpane.js', []),
+	new QuiX.Module('List View', '__quix/listview.js', []),
+	new QuiX.Module('Tree', '__quix/tree.js', []),
+	new QuiX.Module('Toolbars', '__quix/toolbars.js', [3]),
+	new QuiX.Module('Forms & Fields', '__quix/formfields.js', [3]),
+	new QuiX.Module('Common Widgets', '__quix/common.js', [3]),
+	new QuiX.Module('Datagrid', '__quix/datagrid.js', [5,8]),
+	new QuiX.Module('File Control', '__quix/file.js', [1,3,8,9,14]),
+	new QuiX.Module('Date Picker', '__quix/datepicker.js', [14,8]),
+	new QuiX.Module('Timers', '__quix/timers.js', []),
+	new QuiX.Module('Forms & Fields 2', '__quix/formfields2.js', [3]),
+	new QuiX.Module('VBox & HBox', '__quix/box.js', []),
+	new QuiX.Module('Effects', '__quix/effects.js', [13]),
 ];
 
 QuiX.tags = {
@@ -94,6 +167,16 @@ QuiX.tags = {
 	'box':15,
 	'effect':16
 };
+
+QuiX.__init__ = function() {
+	try {
+		window.moveTo(0,0);
+		window.resizeTo(screen.availWidth,screen.availHeight);
+	} catch(e) {}
+	var root = document.body.removeChild(document.getElementById("xul"));
+	var parser = new QuiX.Parser();
+	parser.parse(QuiX.domFromElement(root));
+}
 
 QuiX.addLoader = function() {
 	if (QuiX._activeLoaders == 0) {
@@ -120,8 +203,7 @@ QuiX.removeLoader = function() {
 	}
 }
 
-QuiX.getOS = function()
-{
+QuiX.getOS = function() {
 	var os_name = 'Unknown OS';
 	if (navigator.appVersion.indexOf("Win")!=-1)
 		os_name="Windows";
@@ -200,11 +282,11 @@ QuiX.getDraggable = function(w) {
 }
 
 QuiX.getMouseButton = function(evt) {
-	iButton = evt.button;
+	var iButton = evt.button;
 	if (QuiX.browser == 'ie') {
 		if (iButton == 1) //left
 			iButton = 0;
-		if (iButton == 4) //middle
+		else if (iButton == 4) //middle
 			iButton = 1;
 	}
 	return iButton;
@@ -354,17 +436,35 @@ QuiX.XHRPool = (
 	}
 )();
 
-QuiX.domFromString = function(s)
-{
+QuiX.innerText = function(node) {
+	return node.textContent?node.textContent:node.innerText;
+}
+
+QuiX.domFromString = function(s) {
 	var dom = null;
 	if (window.DOMParser)
-		dom = (new DOMParser).parseFromString(s,'text/xml');
-	else if (window.ActiveXObject)
-	{
+		dom = (new DOMParser).parseFromString(s, 'text/xml');
+	else if (window.ActiveXObject) {
 		dom = new ActiveXObject("msxml2.domdocument");
 		dom.loadXML(s);
 	}
 	return dom;
+}
+
+QuiX.domFromElement = function(el) {
+	if (el.XMLDocument)
+		return el.XMLDocument;
+	else
+		return QuiX.domFromString(el.innerHTML);
+}
+
+QuiX.localName = function(node) {
+	if (node.localName)
+		return node.localName;
+	else {
+		var tokens = node.tagName.split(':');
+		return (tokens.length==1)?tokens[0]:tokens[1];
+	}
 }
 
 QuiX.removeWidget = function(w) {
@@ -417,79 +517,260 @@ QuiX.attachFrames = function(w) {
 	}
 }
 
-function QModule(sName, sFile, d) {
-	this.isLoaded = false;
-	this.name = sName;
-	this.file = sFile;
-	this.dependencies = d;
-	this.type = 'script';
-	this.callback = null;
+// QuiX Parser
+QuiX.Parser = function() {
+	this.__modulesToLoad = [];
+	this.__imagesToLoad = [];
+	this.__onload = [];
+	this.dom = null;
+	this.oncomplete = null;
 }
 
-QModule.prototype.load = function(callback) {
-	var oElement;
-	this.callback = callback;
-	if (this.type == 'script') {
-		oElement = ce('SCRIPT');
-		oElement.type = 'text/javascript';
-		oElement.defer = true;
-		oElement.src = this.file;
-		var onload = (QuiX.browser == 'ie')?'onreadystatechange':'onload';
-		oElement[onload] = Resource_onstatechange;
+QuiX.Parser.prototype.detectModules = function(oNode) {
+	if (oNode.nodeType!=1) return;
+	var sTag = QuiX.localName(oNode);
+	var iMod = QuiX.tags[sTag];
+	this._addModule(iMod);
+	
+	if (iMod && oNode.getAttribute('img')) {
+		src = oNode.getAttribute('img');
+		if (src!='' && !QuiX.images.hasItem(src)) {
+			QuiX.images.push(src);
+			this.__imagesToLoad.push(src);
+		}
 	}
-	else {
-		oElement = ce('LINK');
-		oElement.type = 'text/css';
-		oElement.href = this.file;
-		oElement.rel = 'stylesheet';
-	}
-	oElement.resource = this;
-	oElement.id = this.file;
-	document.getElementsByTagName('head')[0].appendChild(oElement);
-	if (this.type=='stylesheet') {
-		this.isLoaded = true;
-		callback();
-	}
-}
-
-function QImage(url) {
-	this.url = url;
-	this.isLoaded = false;
-	this.callback = null;
-	this.width = 0;
-	this.height = 0;
-}
-
-QImage.prototype.load = function(callback) {
-	this.callback = callback;
-	var img = new Image();
-	img.resource = this;
-	img.onload = Resource_onstatechange;
-	img.src = this.url;
-	img.style.display = 'none';
-	document.body.appendChild(img);
-}
-
-Resource_onstatechange = function() {
-	if (this.readyState) {
-		if (this.readyState=='loaded' || this.readyState=='complete') {
-			if (this.tagName=='IMG') {
-				this.resource.width = this.width;
-				this.resource.height = this.height;
-				QuiX.removeNode(this);
+	
+	if (sTag == 'script' || sTag == 'module' || sTag == 'stylesheet') {
+		params = this.getNodeParams(oNode);
+		if (!document.getElementById(params.src)) {
+			var oMod = new QuiX.Module(params.name, params.src, []);
+			if (sTag == 'stylesheet')
+				oMod.type = 'stylesheet';
+			else if (params.depends) {
+				var depends = params.depends.split(",");
+				for (var i=0; i<depends.length; i++) {
+					this._addModule(parseInt(depends[i]));
+				}
 			}
-			this.resource.isLoaded = true;
-			this.resource.callback();
+			this.__modulesToLoad.push(oMod);
 		}
 	}
-	else {
-		if (this.tagName=='IMG') {
-			this.resource.width = this.width;
-			this.resource.height = this.height;
-			QuiX.removeNode(this);
-		}
-		this.resource.isLoaded = true;
-		this.resource.callback();
+	for (var i=0; i<oNode.childNodes.length; i++) {
+		this.detectModules(oNode.childNodes[i]);
 	}
 }
 
+QuiX.Parser.prototype._addModule = function(iMod) {
+	var dependency;
+	if (iMod>-1 && !QuiX.modules[iMod].isLoaded) {
+		var oMod = QuiX.modules[iMod];
+		if(!this.__modulesToLoad.hasItem(oMod)) {
+			for (var i=0; i<oMod.dependencies.length; i++) {
+				dependency = QuiX.modules[oMod.dependencies[i]];
+				if (!this.__modulesToLoad.hasItem(dependency) && !dependency.isLoaded) {
+					this._addModule(oMod.dependencies[i]);
+				}
+			}
+			this.__modulesToLoad.push(oMod);
+		}
+	}
+}
+
+QuiX.Parser.prototype.loadModules= function() {
+	var oModule, imgurl, img;
+	var oParser = this;
+	if (this.__modulesToLoad.length > 0) {
+		oModule = this.__modulesToLoad.pop();
+		oModule.load(function(){oParser.loadModules()});
+	} else if (this.__imagesToLoad.length > 0) {
+		imgurl = this.__imagesToLoad.pop();
+		img = new QuiX.Image(imgurl);
+		img.load(function(){oParser.loadModules()});
+	} else {
+		QuiX.removeLoader();
+		this.beginRender();
+	}
+}
+
+QuiX.Parser.prototype.parse = function(oDom, parentW) {
+	this.dom = oDom;
+	this.parentWidget = parentW;
+	this.detectModules(oDom.documentElement);
+	if (this.__modulesToLoad.length + this.__imagesToLoad.length > 0) {
+		this.__modulesToLoad.reverse();
+		if (parentW)
+			QuiX.addLoader();
+		this.loadModules();
+	}
+	else {
+		this.beginRender();
+	}
+}
+
+QuiX.Parser.prototype.beginRender = function() {
+	var on_load;
+	var widget = this.render();
+	widget.redraw(true);	
+	while (this.__onload.length > 0) {
+		on_load = this.__onload.pop();
+		on_load[0](on_load[1]);
+	}
+	if (this.oncomplete)
+		this.oncomplete(widget);
+}
+
+QuiX.Parser.prototype.render = function() {
+	var parentW = this.parentWidget;
+	var frag = document.createDocumentFragment();
+	if (parentW) {
+		var root = parentW.div;
+		frag.appendChild(root.cloneNode(false));
+		parentW.div = frag.firstChild;
+		widget = this.parseXul(this.dom.documentElement, parentW);
+		root.appendChild(widget.div);
+		parentW.div = root;
+	}
+	else {
+		widget = this.parseXul(this.dom.documentElement, frag);
+		document.body.appendChild(frag);
+	}
+	frag = null;
+	return(widget);
+}
+
+QuiX.Parser.prototype.getNodeParams = function(oNode) {
+	var params = {};
+	for (var i=0; i<oNode.attributes.length; i++)
+		params[oNode.attributes[i].name] = oNode.attributes[i].value;
+	return(params);
+}
+
+QuiX.Parser.prototype.parseXul = function(oNode, parentW) {
+	if (oNode.nodeType!=1) return;
+	var oWidget = null;
+	var params = this.getNodeParams(oNode);
+	if (oNode.namespaceURI == QuiX.namespace) {
+		var localName = QuiX.localName(oNode);
+		switch(localName) {
+			case 'flatbutton':
+				oWidget = new FlatButton(params);
+				if (params.type=='menu') {
+					parentW.appendChild(oWidget);
+					oWidget = oWidget.contextMenu;
+				}
+				break;
+			case 'field':
+				if (params.type=='textarea')
+					params.value = QuiX.innerText(oNode).trim().xmlDecode();
+				oWidget = new Field(params);
+				break;
+			case 'mfile':
+				parentW.addFile(params);
+				break;
+			case 'option':
+				oWidget = parentW.addOption(params);
+				break;
+			case 'dlgbutton':
+				oWidget = parentW.addButton(params);
+				break;
+			case 'wbody':
+				oWidget = parentW.body;
+				break;
+			case 'tab':
+				oWidget = parentW.addTab(params);
+				break;
+			case 'listheader':
+				oWidget = parentW.addHeader(params);
+				break;
+			case 'column':
+				var oCol = parentW.parent.addColumn(params);
+				if (params.type=='optionlist') {
+					var options, p;
+					options = oNode.childNodes;
+					oCol.options = [];
+					for (var k=0; k<options.length; k++) {
+						if (options[k].nodeType == 1) {
+							p = this.getNodeParams(options[k]);
+							oCol.options.push(p);
+						}
+					}
+				}
+				break;
+			case 'tbbutton':
+				oWidget = parentW.addButton(params);
+				if (params.type=='menu') oWidget = oWidget.contextMenu;
+				break;
+			case 'tbsep':
+				oWidget = parentW.addSeparator();
+				break;
+			case 'tool':
+				oWidget = parentW.addPane(params);
+				break;
+			case 'menu':
+				oWidget = parentW.addRootMenu(params);
+				break;
+			case 'menuoption':
+				oWidget = parentW.addOption(params);
+				break;
+			case 'sep':
+				oWidget = parentW.addOption(-1);
+				break;
+			case 'groupbox':
+				oWidget = new GroupBox(params);
+				parentW.appendChild(oWidget);
+				oWidget = oWidget.body;
+				break;
+			case 'custom':
+				oWidget = eval('new ' + params.classname + '(params)');
+				break;
+			case 'prop':
+				var attr_value = params['value'] || '';
+				switch (params.type) {
+					case 'int':
+						attr_value = parseInt(attr_value);
+						attr_value = (isNaN(attr_value))?null:attr_value;
+						break;
+					case 'bool':
+						attr_value = new Boolean(parseInt(attr_value)).valueOf();
+						break;
+					case 'float':
+						attr_value = parseFloat(attr_value);
+						attr_value = (isNaN(attr_value))?null:attr_value;
+						break;
+					case 'strlist':
+						var delimeter = params['delimeter'] || ';';
+						if (attr_value != '')
+							attr_value = attr_value.split(delimeter);
+						else
+							attr_value = [];
+				}
+				if (attr_value!=null)
+					parentW.attributes[params['name']] = attr_value;
+				else
+					throw new QuiX.Exception('Illegal custom property value',
+						' ' + params['name'] + '=' + params['value']);
+				break;
+			case 'xhtml':
+				parentW.div.innerHTML = QuiX.innerText(oNode);
+				break;
+			default:
+				var widget_contructor = QuiX.constructors[localName];
+				if (widget_contructor != null)
+					oWidget = new widget_contructor(params, parentW);
+		}
+		
+		if (oWidget) {
+			if (parentW && !oWidget.parent &&
+					!oWidget.owner && oWidget != document.desktop)
+				parentW.appendChild(oWidget);
+			
+			if (oWidget._isContainer)
+				for (var i=0; i<oNode.childNodes.length; i++)
+					this.parseXul(oNode.childNodes[i], oWidget);
+
+			if (oWidget._customRegistry.onload)
+				this.__onload.push([oWidget._customRegistry.onload, oWidget]);
+		}
+	}
+	return oWidget;
+}
