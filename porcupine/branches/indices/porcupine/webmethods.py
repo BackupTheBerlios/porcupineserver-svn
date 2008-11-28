@@ -79,7 +79,7 @@ def quixui(of_type, isPage=False, lang='', qs='',
         </script>
         <link type="text/css" rel="stylesheet" href="%s/__quix/quix.css"></link>
     </head>
-    <body onload="__init__()">
+    <body onload="QuiX.__init__()">
         <xml id="xul" style="display:none">''' % vars).strip())
             WebMethodDescriptor.execute(self, item, context)
             if isPage:
