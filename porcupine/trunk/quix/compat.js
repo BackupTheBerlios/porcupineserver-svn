@@ -661,7 +661,7 @@ QuiX.Parser.prototype.parseXul = function(oNode, parentW) {
 				break;
 			case 'field':
 				if (params.type=='textarea')
-					params.value = QuiX.innerText(oNode).trim().xmlDecode();
+					params.value = QuiX.innerText(oNode);
 				oWidget = new Field(params);
 				break;
 			case 'mfile':
