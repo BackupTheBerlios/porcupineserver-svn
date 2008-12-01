@@ -106,7 +106,7 @@ class PorcupineThread(BaseServerThread):
         except exceptions.InternalRedirect, e:
             lstPathInfo = e.args[0].split('?')
             raw_request['env']['PATH_INFO'] = lstPathInfo[0]
-            if len(lstPathInfo == 2):
+            if len(lstPathInfo) == 2:
                 raw_request['env']['QUERY_STRING'] = lstPathInfo[1]
             else:
                 raw_request['env']['QUERY_STRING'] = ''
