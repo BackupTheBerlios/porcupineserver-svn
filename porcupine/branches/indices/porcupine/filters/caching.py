@@ -29,7 +29,6 @@ class ETag(PreProcessFilter):
     def apply(context, item, registration, **kwargs):
         etag = kwargs['generator'](context, item, registration)
         if etag:
-            user = context.user
             response = context.response
             if_none_match = context.request.HTTP_IF_NONE_MATCH
             if if_none_match != None and if_none_match == '"%s"' % etag:
