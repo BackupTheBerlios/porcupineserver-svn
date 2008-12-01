@@ -629,18 +629,6 @@ Widget.prototype._startDrag = function(x, y) {
 	document.desktop.attachEvent('onmousemove', Widget__drag);
 }
 
-Widget.prototype._detach = function() {
-	var i;
-	var childWidgets = [];
-	for (i=0; i<this.widgets.length; i++) {
-		childWidgets.push(this.widgets[i]._detach());
-	}
-	this.div = this.div.parentNode.removeChild(this.div);
-	for (i=0; i<childWidgets.length; i++)
-		this.div.appendChild(childWidgets[i]);
-	return(this.div);
-}
-
 Widget.prototype.redraw = function(bForceAll, w) {
 	var w = w || this;
 	var container = w.div.parentNode;
