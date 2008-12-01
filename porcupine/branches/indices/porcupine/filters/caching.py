@@ -21,19 +21,19 @@ from porcupine.filters.filter import PreProcessFilter
 
 class ETag(PreProcessFilter):
     @staticmethod
-    def generate_item_etag(user, item):
-        return '%s%s' % (user._id, item.modified)
+    def generate_item_etag(context, item, registration):
+        if item != None:
+            return '%s%s' % (context.user._id, item.modified)
     
     @staticmethod
     def apply(context, item, registration, **kwargs):
-        if item != None and kwargs['condition'](context, item, registration):
+        etag = kwargs['generator'](context, item, registration)
+        if etag:
             user = context.user
             response = context.response
             if_none_match = context.request.HTTP_IF_NONE_MATCH
-            if if_none_match != None and if_none_match == \
-                    '"%s"' % ETag.generate_item_etag(user, item):
+            if if_none_match != None and if_none_match == '"%s"' % etag:
                 response._code = 304
                 response.end()
             else: 
-                response.setHeader('ETag', '"%s"' %
-                                   ETag.generate_item_etag(user, item))
+                response.setHeader('ETag', '"%s"' % etag)

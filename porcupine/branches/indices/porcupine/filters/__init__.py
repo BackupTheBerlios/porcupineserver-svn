@@ -56,5 +56,5 @@ def requires_login(redirect=None):
 def requires_policy(policyid):
     return filter(authorization.RequiresPolicy, policyid=policyid)
 
-def etag(condition=lambda x, y, z:True):
-    return filter(caching.ETag, condition=condition)
+def etag(generator=caching.ETag.generate_item_etag):
+    return filter(caching.ETag, generator=generator)
