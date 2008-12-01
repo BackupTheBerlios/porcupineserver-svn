@@ -437,7 +437,7 @@ QuiX.XHRPool = (
 )();
 
 QuiX.innerText = function(node) {
-	return node.textContent?node.textContent:node.innerText;
+	return node.textContent || node.innerText || node.text;
 }
 
 QuiX.domFromString = function(s) {
