@@ -51,6 +51,8 @@ class PorcupineThread(BaseServerThread):
                 sPath = request.serverVariables['PATH_INFO']
                 try:
                     item = _db.getItem(sPath)
+                    if item._isDeleted:
+                        raise exceptions.ObjectNotFound
                 except exceptions.ObjectNotFound:
                     # dir request
                     lstPath = sPath.split('/')
