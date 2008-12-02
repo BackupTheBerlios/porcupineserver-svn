@@ -232,6 +232,21 @@ class Removeable(object):
              for child in _db.query_index('_parentid', self._id, trans, fetch_all=True)] 
         
         _db.putItem(self, trans)
+        
+    def _undelete(self, trans):
+        """
+        Undeletes a logically deleted item.
+        
+        @return: None
+        """
+        _db.handle_update(self, None, trans)
+        self._isDeleted = False
+        
+        if self.isCollection:
+            [child._undelete(trans)
+             for child in _db.query_index('_parentid', self._id, trans, fetch_all=True)] 
+        
+        _db.putItem(self, trans)
 
     def recycle(self, rb_id, trans):
         """
@@ -585,21 +600,6 @@ class DeletedItem(GenericItem, Removeable):
         self.originalLocation = full_path
         self.originalName = deletedItem.displayName.value
 
-    def _undelete(self, deleted, trans):
-        """
-        Undeletes a logically deleted item.
-        
-        @return: None
-        """
-        _db.handle_update(deleted, None, trans)
-        deleted._isDeleted = False
-        
-        if deleted.isCollection:
-            [self._undelete(child, trans)
-             for child in _db.query_index('_parentid', deleted._id, trans, fetch_all=True)] 
-        
-        _db.putItem(deleted, trans)
-
     def _restore(self, deleted, target, trans):
         """
         Restores a logically deleted item to the designated target.
@@ -613,7 +613,7 @@ class DeletedItem(GenericItem, Removeable):
         if user_role > objectAccess.READER:
             deleted._parentid = target._id
             deleted.inheritRoles = False
-            self._undelete(deleted, trans)
+            deleted._undelete(trans)
         else:
             raise exceptions.PermissionDenied, \
                     'The user does not have write permissions on the ' + \
