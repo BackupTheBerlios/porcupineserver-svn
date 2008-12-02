@@ -129,6 +129,16 @@ class RelatorNEventHandler(DatatypeEventHandler):
     
     @staticmethod
     def on_create(item, attr, trans):
+        if item._isDeleted and attr.cascadeDelete:
+            from porcupine.systemObjects import DeletedItem
+            deletedItem = DeletedItem(item, trans)
+            for sID in attr.value:
+                oItemRef = _db.getDeletedItem(sID, trans)
+                parent = _db.getItem(oItemRef._parentid, trans)
+                # update container
+                parent._addItemReference(oItemRef)
+                _db.putItem(parent, trans)
+                deletedItem._undelete(oItemRef, trans)
         RelatorNEventHandler.on_update(item, attr, None, trans)
     
     @staticmethod
@@ -157,7 +167,8 @@ class RelatorNEventHandler(DatatypeEventHandler):
                 except exceptions.ObjectNotFound:
                     ref_item = None
                 if ref_item != None and \
-                        ref_item.getContentclass() in new_attr.relCc:
+                        (not new_attr.relCc or
+                        ref_item.getContentclass() in new_attr.relCc):
                     oAttrRef = getattr(ref_item, new_attr.relAttr)
                     if isinstance(oAttrRef, datatypes.RelatorN):
                         oAttrRef.value.append(item._id)
@@ -183,10 +194,10 @@ class RelatorNEventHandler(DatatypeEventHandler):
     
     @staticmethod
     def on_delete(item, attr, trans, bPermanent):
+        lstValue = attr.value
         if not item._isDeleted:
             from porcupine import datatypes
-
-            lstValue = attr.value
+            
             if lstValue and attr.respectsReferences:
                 raise exceptions.ReferentialIntegrityError, (
                     'Cannot delete object "%s" ' % item.displayName.value +
@@ -207,14 +218,31 @@ class RelatorNEventHandler(DatatypeEventHandler):
                     _db.putItem(ref_item, trans)
                 else:
                     attr.value.remove(sID)
+            
+                if attr.cascadeDelete:
+                    oParent = _db.getItem(oItemRef._parentid, trans)
+                    try:
+                        oParent._removeItemReference(oItemRef)
+                        _db.putItem(oParent, trans)
+                    except KeyError:
+                        pass
+        
+        if attr.cascadeDelete:
+            for sID in lstValue:
+                if item._isDeleted:
+                    oItemRef = _db.getDeletedItem(sID, trans)
+                else:
+                    oItemRef = _db.getItem(sID, trans)
+                if bPermanent:
+                    oItemRef._delete(trans)
+                else:
+                    oItemRef._recycle(trans)
     
     @staticmethod
     def getNoAccessIds(attr, trans):
         lstNoAccess = []
         for sID in attr.value:
             oItem = db.getItem(sID, trans)
-            # do not replay in case of txn abort
-            # del trans.actions[-1]
             if not(oItem):
                 lstNoAccess.append(sID)
         return lstNoAccess
@@ -224,11 +252,20 @@ class Relator1EventHandler(DatatypeEventHandler):
 
     @staticmethod
     def on_create(item, attr, trans):
+        if item._isDeleted and attr.cascadeDelete and attr.value:
+            from porcupine.systemObjects import DeletedItem
+            oItemRef = _db.getDeletedItem(attr.value, trans)
+            parent = _db.getItem(oItemRef._parentid, trans)
+            # update container
+            parent._addItemReference(oItemRef)
+            _db.putItem(parent, trans)
+            deletedItem = DeletedItem(oItemRef, trans)
+            deletedItem._undelete(oItemRef, trans)
         Relator1EventHandler.on_update(item, attr, None, trans)
  
     @staticmethod
     def on_update(item, new_attr, old_attr, trans):
-        from porcupine import datatypes
+        from porcupine import datatypes, systemObjects
         
         # get previous value
         if old_attr:
@@ -243,7 +280,8 @@ class Relator1EventHandler(DatatypeEventHandler):
                 except exceptions.ObjectNotFound:
                     ref_item = None
                 if ref_item != None and \
-                        ref_item.getContentclass() in new_attr.relCc:
+                        (not new_attr.relCc or
+                        ref_item.getContentclass() in new_attr.relCc):
                     oAttrRef = getattr(ref_item, new_attr.relAttr)
                     if isinstance(oAttrRef, datatypes.RelatorN):
                         oAttrRef.value.append(item._id)
@@ -284,6 +322,24 @@ class Relator1EventHandler(DatatypeEventHandler):
                 elif isinstance(oAttrRef, datatypes.Relator1):
                     oAttrRef.value = ''
                 _db.putItem(ref_item, trans)
+                
+                if attr.cascadeDelete:
+                    oParent = _db.getItem(oItemRef._parentid, trans)
+                    try:
+                        oParent._removeItemReference(oItemRef)
+                        _db.putItem(oParent, trans)
+                    except KeyError:
+                        pass
+        
+        if attr.cascadeDelete and attr.value:
+            if item._isDeleted:
+                oItemRef = _db.getDeletedItem(attr.value, trans)
+            else:
+                oItemRef = _db.getItem(attr.value, trans)
+            if bPermanent:
+                oItemRef._delete(trans)
+            else:
+                oItemRef._recycle(trans)
 
 class ExternalAttributeEventHandler(DatatypeEventHandler):
     "External attribute event handler"

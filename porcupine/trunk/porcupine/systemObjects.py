@@ -33,6 +33,18 @@ from porcupine.core import objectSet
 from porcupine.utils import misc
 from porcupine.security import objectAccess
 
+class Shortcuts(datatypes.RelatorN):
+    'Data type for keeping the shortcuts IDs that an object has'
+    __slots__ = ()
+    relCc = ('porcupine.systemObjects.Shortcut',)
+    relAttr = 'target'
+    cascadeDelete = True
+    
+class TargetItem(datatypes.Relator1):
+    'The object ID of the target item of the shortcut.'
+    __slots__ = ()
+    relAttr = 'shortcuts'
+
 class displayName(datatypes.String):
     """Legacy data type. To be removed in the next version.
     Use L{porcupine.datatypes.RequiredString} instead.
@@ -451,10 +463,15 @@ class GenericItem(object):
         
         @return: None
         """
-        if type(parent)==str:
+        if type(parent) == str:
             oParent = _db.getItem(parent, trans)
         else:
             oParent = parent
+        
+        if isinstance(self, Shortcut):
+            contentclass = self.target.getItem(trans).getContentclass()
+        else:
+            contentclass = self.contentclass
         
         oUser = currentThread().context.user
         iUserRole = objectAccess.getAccess(oParent, oUser)
@@ -462,10 +479,10 @@ class GenericItem(object):
             raise exceptions.PermissionDenied, \
                 'The user does not have write permissions ' + \
                 'on the parent folder.'
-        if not(self.getContentclass() in oParent.containment):
+        if not(contentclass in oParent.containment):
             raise exceptions.ContainmentError, \
                 'The target container does not accept ' + \
-                'objects of type "%s".' % self.getContentclass()
+                'objects of type "%s".' % contentclass
 
         # set security to new item
         if iUserRole == objectAccess.COORDINATOR:
@@ -604,7 +621,7 @@ class DeletedItem(GenericItem, Removeable):
     """
     __slots__ = ('_deletedId', '__image__', 'originalLocation','originalName')
     
-    def __init__(self, deletedItem):
+    def __init__(self, deletedItem, trans=None):
         GenericItem.__init__(self)
 
         self.inheritRoles = True
@@ -614,7 +631,7 @@ class DeletedItem(GenericItem, Removeable):
         self.displayName.value = misc.generateOID()
         self.description.value = deletedItem.description.value
         
-        parents = deletedItem.getAllParents()
+        parents = deletedItem.getAllParents(trans)
         sPath = '/'
         sPath += '/'.join([p.displayName.value for p in parents[:-1]])
         self.originalLocation = sPath
@@ -696,15 +713,15 @@ class DeletedItem(GenericItem, Removeable):
         ## TODO: check if oDeleted exists
         oDeleted = _db.getDeletedItem(self._deletedId, trans)
         oOriginalParent = _db.getItem(oDeleted._parentid, trans)
+        # update container
+        oOriginalParent._addItemReference(oDeleted)
+        _db.putItem(oOriginalParent, trans)
         
         # try to restore original item
         self._restore(oDeleted, oOriginalParent, trans)
 
         self.delete(trans, False)
         
-        # update container
-        oOriginalParent._addItemReference(oDeleted)
-        _db.putItem(oOriginalParent, trans)
     
     def restoreTo(self, sParentId, trans):
         """
@@ -721,20 +738,25 @@ class DeletedItem(GenericItem, Removeable):
         ## TODO: check if oDeleted exists
         oDeleted = _db.getDeletedItem(self._deletedId, trans)
         oParent = _db.getItem(sParentId, trans)
+        # update container
+        oParent._addItemReference(oDeleted)
+        _db.putItem(oParent, trans)
         
-        if not(oDeleted.getContentclass() in oParent.containment):
+        if isinstance(oDeleted, Shortcut):
+            contentclass = oDeleted.target.getItem(trans).getContentclass()
+        else:
+            contentclass = oDeleted.getContentclass()
+        
+        if contentclass and not(contentclass in oParent.containment):
             raise exceptions.ContainmentError, \
                 'The target container does not accept ' + \
-                'objects of type "%s".' % oDeleted.getContentclass()
+                'objects of type "%s".' % contentclass
         
         # try to restore original item
         self._restore(oDeleted, oParent, trans)
         
         self.delete(trans, False)
         
-        # update container
-        oParent._addItemReference(oDeleted)
-        _db.putItem(oParent, trans)
 
     def delete(self, trans, _removeDeleted=True):
         """
@@ -751,10 +773,6 @@ class DeletedItem(GenericItem, Removeable):
             ## TODO: check if oDeleted exists
             oDeleted = _db.getDeletedItem(self._deletedId, trans)
             _db.removeDeletedItem(oDeleted, trans)
-        #else:
-            # we got a call from "restore" or "restoreTo"
-            # do not replay in case of txn abort
-        #    del trans.actions[-1]
 
 class Item(GenericItem, Cloneable, Moveable, Removeable):
     """
@@ -765,10 +783,12 @@ class Item(GenericItem, Cloneable, Moveable, Removeable):
     Subclass the L{porcupine.systemObjects.Container} class if you want
     to create custom containers.
     """
-    __slots__ = ()
+    __slots__ = ('shortcuts',)
+    __props__ = GenericItem.__props__ + __slots__
     
     def __init__(self):
         GenericItem.__init__(self)
+        self.shortcuts = Shortcuts()
 
     def update(self, trans):
         """
@@ -809,6 +829,24 @@ class Item(GenericItem, Cloneable, Moveable, Removeable):
         else:
             raise exceptions.PermissionDenied, \
                     'The user does not have update permissions.'
+
+class Shortcut(GenericItem, Removeable):
+    __image__ = "desktop/images/link.png"
+    __slots__ = ('target',)
+    __props__ = GenericItem.__props__ + __slots__
+    
+    def __init__(self):
+        GenericItem.__init__(self)
+        self.target = TargetItem()
+        
+    @staticmethod
+    def create(target, trans=None):
+        if type(target)==str:
+            target = _db.getItem(target, trans)
+        shortcut = Shortcut()
+        shortcut.displayName.value = target.displayName.value
+        shortcut.target.value = target._id
+        return shortcut          
 
 class Container(Item):
     """
@@ -912,7 +950,7 @@ class Container(Item):
         children = self.getSubFolders(trans) + self.getItems(trans)
         return(children)
 
-    def getItems(self, trans=None):
+    def getItems(self, trans=None, resolve_shortcuts=False):
         """
         This method returns the children that are not containers.
         
@@ -922,9 +960,10 @@ class Container(Item):
         """
         return objectSet.ObjectSet(self._items.values(),
                                    txn=trans,
-                                   resolved=False)
+                                   resolved=False,
+                                   resolve_shortcuts=resolve_shortcuts)
 
-    def getSubFolders(self, trans=None):
+    def getSubFolders(self, trans=None, resolve_shortcuts=False):
         """
         This method returns the children that are containers.
         
@@ -934,7 +973,8 @@ class Container(Item):
         """
         return objectSet.ObjectSet(self._subfolders.values(),
                                    txn=trans,
-                                   resolved=False)
+                                   resolved=False,
+                                   resolve_shortcuts=resolve_shortcuts)
 
     def hasChildren(self):
         """

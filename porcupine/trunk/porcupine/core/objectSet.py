@@ -44,13 +44,14 @@ class ObjectSet(object):
     """
     _cachesize = 100
     def __init__(self, data, schema=None, txn=None,
-                 resolved=True, safe=True):
+                 resolved=True, safe=True, resolve_shortcuts=False):
         self.__cache = []
 
         self._list = data
         self._txn = txn
         self._resolved = resolved
         self._safe = safe
+        self._resolve_shortcuts = resolve_shortcuts
 
         # schema info
         self.schema = schema
@@ -166,7 +167,7 @@ class ObjectSet(object):
             return db.getItem(id, self._txn)
         except exceptions.ObjectNotFound:
             return None
-
+    
     def __loadcache(self, istart):
         if self._resolved:
             self.__cache = [
@@ -181,3 +182,14 @@ class ObjectSet(object):
                 self.__cache = filter(None,
                     [self.__getItemSafe(id)
                      for id in self._list[istart:istart + self._cachesize]])
+        if self._resolve_shortcuts:
+            self.__cache = filter(None,
+                                  [self._resolve_shortcut(item)
+                                   for item in self.__cache])
+    
+    def _resolve_shortcut(self, item):
+        from porcupine.systemObjects import Shortcut
+        if isinstance(item, Shortcut):
+            return item.target_ref.getItem(self._txn)
+        else:
+            return item

@@ -15,23 +15,16 @@
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #===============================================================================
 """
-Porcupine Desktop web methods
-=============================
-
-Contains all the required HTTP interfaces
-for the Porcupine Desktop content classes.
+Web methods for the shortcut content class
 """
+from porcupine import webmethods
+from porcupine import HttpContext
+from porcupine.systemObjects import Shortcut
 
-__all__ = ['rootfolder',
-           'recyclebin',
-           'usersfolder',
-           'appsfolder',
-           'application',
-           'user',
-           'group',
-           'deleteditem',
-           'category',
-           'document',
-           'baseitem',
-           'basecontainer',
-           'shortcut']
+@webmethods.webmethod(of_type=Shortcut)
+def properties(self):
+    "Displays a generic edit form based on the object's schema"
+    context = HttpContext.current()
+    rootUrl = context.request.getRootUrl()
+    context.response.redirect('%s/%s?cmd=properties' % (rootUrl,
+                                                        self.target.value))
