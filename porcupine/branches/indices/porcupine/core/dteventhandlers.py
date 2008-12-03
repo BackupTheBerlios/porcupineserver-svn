@@ -41,10 +41,10 @@ class CompositionEventHandler(DatatypeEventHandler):
     @staticmethod
     def on_create(item, attr, trans):
         if item._isDeleted:
-            attr.value = [_db.getDeletedItem(sID, trans)
+            attr.value = [_db.getItem(sID, trans)
                           for sID in attr.value]
         CompositionEventHandler.on_update(item, attr, None, trans)
-        
+    
     @staticmethod
     def on_update(item, new_attr, old_attr, trans):
         from porcupine.systemObjects import Composite
@@ -105,11 +105,7 @@ class CompositionEventHandler(DatatypeEventHandler):
     @staticmethod
     def on_delete(item, attr, trans, bPermanent):
         if bPermanent:
-            if item._isDeleted:
-                func_get = _db.getDeletedItem
-            else:
-                func_get = _db.getItem
-            composites = [func_get(sID, trans) for sID in attr.value]
+            composites = [_db.getItem(sID, trans) for sID in attr.value]
             for composite in composites:
                 CompositionEventHandler.removeComposite(composite, trans)
         else:
