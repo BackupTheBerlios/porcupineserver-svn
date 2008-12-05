@@ -118,12 +118,12 @@ Window.prototype = new Widget;
 Window.prototype.customEvents = Widget.prototype.customEvents.concat(['onclose']);
 
 Window.prototype.images = [
-	QuiX.getImage('__quix/images/win_close.gif'),
-	QuiX.getImage('__quix/images/win_max.gif'),
-	QuiX.getImage('__quix/images/win_min.gif'),
-	QuiX.getImage('__quix/images/win_close_over.gif'),
-	QuiX.getImage('__quix/images/win_max_over.gif'),
-	QuiX.getImage('__quix/images/win_min_over.gif')
+	'__quix/images/win_close.gif',
+	'__quix/images/win_max.gif',
+	'__quix/images/win_min.gif',
+	'__quix/images/win_close_over.gif',
+	'__quix/images/win_max_over.gif',
+	'__quix/images/win_min_over.gif'
 ];
 
 Window.prototype.setIcon = function(sUrl) {
@@ -175,7 +175,7 @@ Window.prototype._addControlButtons = function() {
 			onmouseover : oWindow._mouseoverControl,
 			onmouseout : oWindow._mouseoutControl
 		});
-		img = this.images[iWhich].cloneNode(true);
+		img = QuiX.getImage(this.images[iWhich]);
 		oControl.div.appendChild(img);
 		oControl.div.style.cursor = 'default';
 		oControl.attachEvent('onmousedown', QuiX.stopPropag);
@@ -278,12 +278,12 @@ Window.prototype.getStatus = function() {
 
 Window.prototype._mouseoverControl = function(evt, btn) {
 	var id = btn.getId();
-	btn.div.childNodes[0].src = Window.prototype.images[parseInt(id) + 3].src;
+	btn.div.childNodes[0].src = Window.prototype.images[parseInt(id) + 3];
 }
 
 Window.prototype._mouseoutControl = function(evt, btn) {
 	var id = btn.getId();
-	btn.div.childNodes[0].src = Window.prototype.images[parseInt(id)].src;
+	btn.div.childNodes[0].src = Window.prototype.images[parseInt(id)];
 }
 
 Window.prototype.minimize = function() {
