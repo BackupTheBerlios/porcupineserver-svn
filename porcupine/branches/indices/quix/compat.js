@@ -17,6 +17,7 @@
 
 //QuiX compatibility layer
 var QuiX = {};
+QuiX.rpc = {};
 QuiX.version = '0.9.5 build 20081010';
 QuiX.namespace = 'http://www.innoscript.org/quix';
 QuiX.root = (new RegExp(
