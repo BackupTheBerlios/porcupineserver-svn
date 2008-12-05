@@ -116,9 +116,8 @@ class Package(object):
         oItem = cPickle.loads(sItem)
         oParent = self.db.getItem(oItem.parentid, txn)
         #check if the item already exists
-        try:
-            oOldItem = self.db.getItem(oItem.id, txn)
-        except exceptions.ObjectNotFound:
+        oOldItem = self.db.getItem(oItem.id, txn)
+        if oOldItem == None:
             # write external attributes
             for prop in [getattr(oItem, x) for x in oItem.__props__]:
                 if isinstance(prop, datatypes.ExternalAttribute):

@@ -125,7 +125,7 @@ def evaluateStack(stack, variables, forObject=None):
                         return alias_value
             else:
                 # an attribute
-                if op == '*':
+                if op == '**':
                     return forObject
                 else:
                     return getAttribute(forObject, op.split('.'))
@@ -368,7 +368,7 @@ def h_200(params, variables, forObject = None):
     if select_fields:
         all_fields = select_fields + order_by + group_by
     else:
-        all_fields = [['*','*', '']] + order_by + group_by
+        all_fields = [['**', '**', '']] + order_by + group_by
     
     aggregates = [x[2] for x in all_fields]
     results = []

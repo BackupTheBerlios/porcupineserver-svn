@@ -27,8 +27,9 @@ from porcupine.security import objectAccess
 
 def getItem(oid, trans=None):
     """
-    Fetches an object from the database. If the user has no read permissions
-    on the object then C{None} is returned.
+    Fetches an object from the database.
+    If the user has no read permissions on the object
+    or the item has been deleted then C{None} is returned.
     
     @param oid: The object's ID or the object's full path.
     @type oid: str
@@ -36,19 +37,11 @@ def getItem(oid, trans=None):
     @param trans: A valid transaction handle.
     
     @rtype: L{GenericItem<porcupine.systemObjects.GenericItem>}
-    
-    @raise porcupine.exceptions.ObjectNotFound: if the item does
-           not exist
     """
     item = _db.getItem(oid, trans)
-    # check read permissions
-    if item._isDeleted:
-        raise exceptions.ObjectNotFound, \
-            'The object "%s" does not exist' % oid
-    if objectAccess.getAccess(item, currentThread().context.user) != 0:
+    if item != None and not item._isDeleted and \
+            objectAccess.getAccess(item, currentThread().context.user) != 0:
         return item
-    else:
-        return None
 
 def getTransaction():
     """

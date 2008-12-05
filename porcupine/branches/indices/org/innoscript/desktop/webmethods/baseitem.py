@@ -308,10 +308,10 @@ def getSecurity(self):
     "Returns information about the object's security descriptor"
     l = []
     for sID in self.security:
-        try:
-            oUser = db.getItem(sID)
+        oUser = db.getItem(sID)
+        if oUser != None:
             dn = oUser.displayName.value
-        except exceptions.ObjectNotFound:
+        else:
             dn = sID
         l.append({
                 'id': sID,

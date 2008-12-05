@@ -18,7 +18,7 @@
 Porcupine Desktop web methods for the base container content type
 =================================================================
 
-Generic interfaces applying to all container types unless overriden.
+Generic interfaces applying to all container types unless overridden.
 """
 
 import os
@@ -127,7 +127,7 @@ def create(self, data):
 
 @webmethods.remotemethod(of_type=Container)
 def getInfo(self):
-    "Retutns info about the container's contents"
+    "Returns info about the container's contents"
     context = HttpContext.current()
     sLang = context.request.getLang()
     lstChildren = []

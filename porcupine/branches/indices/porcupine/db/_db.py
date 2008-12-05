@@ -49,7 +49,7 @@ def _getItemByPath(lstPath, trans=None):
 
 def getItem(oid, trans=None):
     item = _db_handle.getItem(oid, trans)
-    if not item:
+    if item == None:
         lstPath = oid.split('/')
         iPathDepth = len(lstPath)
         if iPathDepth > 1:
@@ -59,13 +59,9 @@ def getItem(oid, trans=None):
             # /folder1/folder2/item
             if not item:
                 item = _getItemByPath(lstPath, trans)
-    
-    if item:
+    if item != None:
         item = cPickle.loads(item)
         return item
-    else:
-        raise exceptions.ObjectNotFound, \
-            'The object "%s" does not exist' % oid
 
 def putItem(item, trans=None):
     _db_handle.putItem(item, trans)
@@ -104,7 +100,7 @@ def handle_update(item, old_item, trans):
                 old_attr = getattr(old_item, attr_name)
                 attr._eventHandler.on_update(item, attr, old_attr, trans)
             else:
-                # it is a new object or undeleting
+                # it is a new object
                 attr._eventHandler.on_create(item, attr, trans)
 
 def handle_delete(item, trans, is_permanent):

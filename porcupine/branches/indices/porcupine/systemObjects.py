@@ -193,7 +193,8 @@ class Removeable(object):
         
         if self.isCollection:
             [child._delete(trans)
-             for child in _db.query_index('_parentid', self._id, trans, fetch_all=True)] 
+             for child in _db.query_index('_parentid', self._id,
+                                          trans, fetch_all=True)]
 
     def delete(self, trans):
         """
@@ -229,7 +230,8 @@ class Removeable(object):
         
         if self.isCollection:
             [child._recycle(trans)
-             for child in _db.query_index('_parentid', self._id, trans, fetch_all=True)] 
+             for child in _db.query_index('_parentid', self._id,
+                                          trans, fetch_all=True)]
         
         _db.putItem(self, trans)
         
@@ -239,12 +241,12 @@ class Removeable(object):
         
         @return: None
         """
-        _db.handle_update(self, None, trans)
         self._isDeleted = False
         
         if self.isCollection:
             [child._undelete(trans)
-             for child in _db.query_index('_parentid', self._id, trans, fetch_all=True)] 
+             for child in _db.query_index('_parentid', self._id,
+                                          trans, fetch_all=True)] 
         
         _db.putItem(self, trans)
 
@@ -654,17 +656,20 @@ class DeletedItem(GenericItem, Removeable):
         @return: None
         
         @raise L{porcupine.exceptions.ObjectNotFound}:
-            If the original location no longer exists.
+            If the original location or the original item no longer exists.
         """
-        try:
-            deleted = _db.getItem(self._deletedId, trans)
-        except exceptions.ObjectNotFound:
+        deleted = _db.getItem(self._deletedId, trans)
+        if deleted == None:
             raise exceptions.ObjectNotFound, (
                 'Cannot locate original item.\n' +
-                'It seems that this item resided in a container ' +
-                'that has been\npermanently deleted.', False)
+                'It seems that this item resided in a container\n' +
+                'that has been permanently deleted.', False)
         original_parent = _db.getItem(deleted._parentid, trans)
-        
+        if original_parent == None or original_parent._isDeleted:
+            raise exceptions.ObjectNotFound, (
+                'Cannot locate target container.\n' +
+                'It seems that this container is permanently deleted.', False)
+                
         # try to restore original item
         self._restore(deleted, original_parent, trans)
         self.delete(trans, _removeDeleted=False)
@@ -680,20 +685,26 @@ class DeletedItem(GenericItem, Removeable):
         @param trans: A valid transaction handle
             
         @return: None
+        
+        @raise L{porcupine.exceptions.ObjectNotFound}:
+            If the original location or the original item no longer exists.
         """
-        try:
-            deleted = _db.getItem(self._deletedId, trans)
-        except exceptions.ObjectNotFound:
+        deleted = _db.getItem(self._deletedId, trans)
+        if deleted == None:
             raise exceptions.ObjectNotFound, (
                 'Cannot locate original item.\n' +
-                'It seems that this item resided in a container ' +
-                'that has been\npermanently deleted.', False)
+                'It seems that this item resided in a container\n' +
+                'that has been permanently deleted.', False)
         parent = _db.getItem(parent_id, trans)
+        if parent == None or parent._isDeleted:
+            raise exceptions.ObjectNotFound, (
+                'Cannot locate target container.\n' +
+                'It seems that this container is permanently deleted.', False)
         
         if not(deleted.getContentclass() in parent.containment):
             raise exceptions.ContainmentError, \
                 'The target container does not accept ' + \
-                'objects of type "%s".' % deleted.getContentclass()
+                'objects of type\n"%s".' % deleted.getContentclass()
         
         # try to restore original item
         self._restore(deleted, parent, trans)
@@ -711,11 +722,9 @@ class DeletedItem(GenericItem, Removeable):
         Removeable.delete(self, trans)
         if _removeDeleted:
             # we got a direct call. remove deleted item
-            try:
-                deleted = _db.getItem(self._deletedId, trans)
+            deleted = _db.getItem(self._deletedId, trans)
+            if deleted != None:
                 deleted._delete(trans)
-            except exceptions.ObjectNotFound:
-                pass
 
 class Item(GenericItem, Cloneable, Moveable, Removeable):
     """

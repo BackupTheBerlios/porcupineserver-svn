@@ -49,11 +49,10 @@ class PorcupineThread(BaseServerThread):
             try:
                 self.context = HttpContext(request, response)
                 sPath = request.serverVariables['PATH_INFO']
-                try:
-                    item = _db.getItem(sPath)
-                    if item._isDeleted:
-                        raise exceptions.ObjectNotFound
-                except exceptions.ObjectNotFound:
+                item = _db.getItem(sPath)
+                if item != None and not item._isDeleted:
+                    self.dispatch_method(item)
+                else:
                     # dir request
                     lstPath = sPath.split('/')
                     dirName = lstPath[1]
@@ -90,8 +89,6 @@ class PorcupineThread(BaseServerThread):
                                                misc.generate_file_etag(f_name))
                             if registration.encoding:
                                 response.charset = registration.encoding
-                else:
-                    self.dispatch_method(item)
             
             except exceptions.ResponseEnd, e:
                 pass

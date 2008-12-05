@@ -31,7 +31,6 @@ import cStringIO
 
 from porcupine import db
 from porcupine.utils import misc, date
-from porcupine.core.objectSet import ObjectSet
 from porcupine import exceptions
 from porcupine.core import dteventhandlers
 
@@ -248,12 +247,7 @@ class Reference1(DataType):
         @rtype: type
         @return: The referenced object, otherwise None
         """
-        item = None
-        if self.value:
-            try:
-                item = db.getItem(self.value, trans)
-            except exceptions.ObjectNotFound:
-                pass
+        item = db.getItem(self.value, trans)
         return item
 
 class RequiredReference1(Reference1):
@@ -287,10 +281,10 @@ class ReferenceN(DataType):
         
         @param trans: A valid transaction handle
         
-        @rtype: L{ObjectSet<porcupine.core.objectSet.ObjectSet>}
+        @rtype: list}
         """
-        return(ObjectSet(self.value, txn=trans,
-                         resolved=False, safe=False))
+        return filter(None, [db.getItem(id, trans)
+                             for id in self.value])
 
 class RequiredReferenceN(ReferenceN):
     "Mandatory L{ReferenceN} data type."
@@ -376,9 +370,9 @@ class Composition(DataType):
         
         @param trans: A valid transaction handle
         
-        @rtype: L{ObjectSet<porcupine.core.objectSet.ObjectSet>}
+        @rtype: list
         """
-        return ObjectSet(self.value, txn=trans, resolved=True)
+        return [db._db.getItem(id, trans) for id in self.value]
 
 class RequiredComposition(Composition):
     "Mandatory L{Composition} data type."
