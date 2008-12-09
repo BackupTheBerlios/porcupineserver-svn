@@ -54,15 +54,16 @@ Date.prototype.toIso8601 = function() {
 	return(s);
 
 	function doZero(nr) {
-		nr = String("0" + nr);
+		nr = new String("0" + nr);
 		return nr.substr(nr.length-2, 2);
 	}
 	
 	function doYear(year) {
 		if(year > 9999 || year < 0) 
-			throw new QuiX.Exception("Malformed XMLRPC request", "Unsupported year: " + year);
+			throw new QuiX.Exception("Malformed XMLRPC request",
+									"Unsupported year: " + year);
 			
-		year = String("0000" + year)
+		year = new String("0000" + year)
 		return year.substr(year.length-4, 4);
 	}
 }
@@ -91,8 +92,8 @@ QuiX.rpc.toXMLRPC = function(obj) {
 	else {
 		var wo = obj.valueOf();
 		if(!wo.toXMLRPC) {
-			retstr = "<struct>";
-			for(prop in this) {
+			var retstr = "<struct>";
+			for(prop in obj) {
 				if(typeof wo[prop] != "function") {
 					retstr += "<member><name>" + prop + "</name><value>" +
 							  QuiX.rpc.toXMLRPC(wo[prop]) + "</value></member>";
