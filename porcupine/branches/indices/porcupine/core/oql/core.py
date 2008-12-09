@@ -22,7 +22,7 @@ import time
 
 from porcupine import datatypes
 from porcupine import db
-from porcupine.core import objectSet
+from porcupine.core.objectSet import ObjectSet
 from porcupine.utils.date import Date
 from porcupine.utils import misc
 
@@ -41,8 +41,6 @@ GETPARENT   = 67
 
 CMD_ASSIGN  = 100
 OQL_SELECT  = 200
-
-SYSTEM_DATES = ('created', 'modified')
 
 # map operator symbols to corresponding operations
 opn2 = { 
@@ -117,8 +115,10 @@ def evaluateStack(stack, variables, forObject=None):
                     # an alias
                     alias_stack, objectid, alias_value = var
                     if objectid != forObject._id:
-                        alias_value = evaluateStack(alias_stack[:], variables, forObject)
-                        variables[op] = (alias_stack, forObject._id, alias_value)
+                        alias_value = evaluateStack(alias_stack[:], variables,
+                                                    forObject)
+                        variables[op] = (alias_stack, forObject._id,
+                                         alias_value)
                         return alias_value
                     else:
                         # get alias from cache
@@ -152,13 +152,13 @@ def getAttribute(obj, name_list):
                 obj = oAttr
             else:
                 obj = oAttr.value
-        elif attr in SYSTEM_DATES:
+        elif attr in ('created', 'modified'):
             obj = Date(oAttr)
         else:
             obj = oAttr
         
         if len(name_list):
-            if isinstance(obj, objectSet.ObjectSet):
+            if isinstance(obj, list):
                 obj = [getAttribute(item, name_list[:]) for item in obj]
             else:
                 obj = getAttribute(obj, name_list[:])
@@ -192,7 +192,8 @@ def computeAggregate(aggr, lst):
         # check if list has constant values
         if lst:
             if lst != [lst[0]] * len(lst):
-                raise TypeError, 'Non aggregate expressions should be constants or included in a GROUP BY clause'
+                raise TypeError, ('Non aggregate expressions should be ' +
+                                  'constants or included in a GROUP BY clause')
             else:
                 return(lst[0])
         return None
@@ -228,7 +229,8 @@ def h_60(params, variables, forObject):
 #================================================================================
 
 def h_61(params, variables, forObject):
-    value, low, high = [evaluateStack(expr[:], variables, forObject) for expr in params]
+    value, low, high = [evaluateStack(expr[:], variables, forObject)
+                        for expr in params]
     return(low < value < high)
 
 #================================================================================
@@ -236,7 +238,8 @@ def h_61(params, variables, forObject):
 #================================================================================
 
 def h_62(params, variables, forObject):
-    value, iterable = [evaluateStack(expr[:], variables, forObject) for expr in params]
+    value, iterable = [evaluateStack(expr[:], variables, forObject)
+                       for expr in params]
     try:
         return value in iterable
     except TypeError:
@@ -311,11 +314,13 @@ def select(deep, children, fields, condition, variables):
             res = True
         
         if res:
-            fieldlist = [evaluateStack(expr[1], variables, child) for expr in fields]
+            fieldlist = [evaluateStack(expr[1], variables, child)
+                         for expr in fields]
             results.append(tuple(fieldlist))
             
         if deep and child.isCollection:
-            results1 = select(deep, child.getChildren(), fields, condition, variables)
+            results1 = select(deep, child.getChildren(), fields,
+                              condition, variables)
             results.extend(results1)
     
     return (results)
@@ -345,7 +350,8 @@ def h_200(params, variables, forObject = None):
                 order_by[ind] = select_fields[ field_names.index(alias) ]
             elif expr != alias:
                 if (expr, aggr) in expressions:
-                    order_by[ind] = select_fields[ expressions.index((expr, aggr)) ]
+                    order_by[ind] = select_fields[expressions.index((expr,
+                                                                     aggr))]
                 else:
                     variables[alias] = (expr, None, None)
                     aliases.append(alias)
@@ -357,10 +363,11 @@ def h_200(params, variables, forObject = None):
         for ind, group_field in enumerate(group_by):
             expr, alias, aggr = group_field
             if alias in aliases:
-                group_by[ind] = select_fields[ field_names.index(alias) ]
+                group_by[ind] = select_fields[field_names.index(alias)]
             elif expr != alias:
                 if (expr, aggr) in expressions:
-                    group_by[ind] = select_fields[ expressions.index((expr, aggr)) ]
+                    group_by[ind] = select_fields[expressions.index((expr,
+                                                                     aggr))]
                 else:
                     variables[alias] = (expr, None, None)
                     aliases.append(alias)
@@ -377,22 +384,30 @@ def h_200(params, variables, forObject = None):
         if deep==2:
             # this:attr
             if not forObject:
-                raise TypeError, 'Inner scopes using "this:" are valid only in sub-queries'
+                raise TypeError, \
+                    'Inner scopes using "this:" are valid only in sub-queries'
             if hasattr(forObject, object_id):
-                refObjects = getattr(forObject, object_id).value
-                if type(refObjects) == str:
-                    refObjects = [refObjects]
-                r = select(False, refObjects, all_fields, where_condition, variables)
+                attr = getattr(forObject, object_id)
+                if isinstance(attr, datatypes.ReferenceN):
+                    refObjects = attr.getItems()
+                elif isinstance(attr, datatypes.Reference1):
+                    refObjects = [attr.getItem()]
+                else:
+                    raise TypeError, ('Inner scopes using "this:" are ' +
+                                      'valid only ReferenceN or Reference1 ' +
+                                      'data types')
+                r = select(False, refObjects, all_fields,
+                           where_condition, variables)
                 results.extend(r)
         else:
             # swallow-deep
             obj = db.getItem(object_id)    
             if obj != None and obj.isCollection:
                 children = obj.getChildren()
-                r = select(deep, children, all_fields, 
-                                where_condition, variables)
+                r = select(deep, children, all_fields,
+                           where_condition, variables)
                 results.extend(r)
-#    print results
+    #print results
     if results:
         if group_by:
             if select_fields:
@@ -402,34 +417,41 @@ def h_200(params, variables, forObject = None):
                 igrpend = igrpstart + len(group_by)
                 for rec in results:
                     group_value = tuple(rec[igrpstart:igrpend])
-                    group_dict[group_value] = group_dict.setdefault(group_value, [])
+                    group_dict[group_value] = \
+                        group_dict.setdefault(group_value, [])
                     group_dict[group_value].append(rec)
                 groups = [tuple(g) for g in group_dict.values()]
             else:
-                raise TypeError, 'GROUP BY clause is incompatible with SELECT *'
+                raise TypeError, \
+                    'GROUP BY clause is incompatible with SELECT *'
         else:
             groups = [results]
         
-#        print len(groups)
+        #print len(groups)
         results = []
-
+        
         if aggregates != [''] * len(aggregates) or group_by:
             for ind, group in enumerate(groups):
                 group_sum = []
                 for aggr_index, aggr_type in enumerate(aggregates):
                     # aggregates exclude None values
-                    group_sum.append( computeAggregate(aggr_type, [x[aggr_index] for x in group if x[aggr_index] != None]) )
+                    group_sum.append(computeAggregate(
+                        aggr_type,
+                        [x[aggr_index]
+                         for x in group
+                         if x[aggr_index] != None]))
                 groups[ind] = (tuple(group_sum),)
-
+        
         for group in groups:
             results.extend(group)
-
+        
         if order_by:
             # extract sort values
             istart = 1
             if select_fields:
                 istart = len(select_fields)
-            sortlist = tuple([x[istart:istart + len(order_by)] for x in results])
+            sortlist = tuple([x[istart:istart + len(order_by)]
+                              for x in results])
             results = sortList(sortlist, results)
             # if it is descending reverse the result list
             if not sort_order: results.reverse()
@@ -449,6 +471,6 @@ def h_200(params, variables, forObject = None):
         
 #    print results
 
-    return objectSet.ObjectSet(tuple(results), schema)
+    return ObjectSet(tuple(results), schema)
 
 

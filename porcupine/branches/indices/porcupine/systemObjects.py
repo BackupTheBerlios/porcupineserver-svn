@@ -32,6 +32,20 @@ from porcupine.core.objectSet import ObjectSet
 from porcupine.utils import misc
 from porcupine.security import objectAccess
 
+class Shortcuts(datatypes.RelatorN):
+    'Data type for keeping the shortcuts IDs that an object has'
+    __slots__ = ()
+    relCc = ('porcupine.systemObjects.Shortcut',)
+    relAttr = 'target'
+    cascadeDelete = True
+    
+class TargetItem(datatypes.Relator1):
+    'The object ID of the target item of the shortcut.'
+    __slots__ = ()
+    relCc = ('porcupine.systemObjects.Item',)
+    relAttr = 'shortcuts'
+    isRequired = True
+
 class displayName(datatypes.String):
     """Legacy data type. To be removed in the next version.
     Use L{porcupine.datatypes.RequiredString} instead.
@@ -40,7 +54,7 @@ class displayName(datatypes.String):
     isRequired = True
 
 #================================================================================
-# Porcupine server top level classes
+# Porcupine server top level content classes
 #================================================================================
 
 class Cloneable(object):
@@ -119,12 +133,12 @@ class Cloneable(object):
                 'The object was not copied.\n' + \
                 'The user has insufficient permissions.'
 
-class Moveable(object):
+class Movable(object):
     """
     Adds moving capabilities to Porcupine Objects.
     
-    Adding I{Moveable} to the base classes of a class
-    makes instances of this class moveable, allowing item moving.
+    Adding I{Movable} to the base classes of a class
+    makes instances of this class movable, allowing item moving.
     """
     __slots__ = ()
     
@@ -167,12 +181,12 @@ class Moveable(object):
                 'The object was not moved.\n' + \
                 'The user has insufficient permissions.'
 
-class Removeable(object):
+class Removable(object):
     """
     Makes Porcupine objects removable.
     
-    Adding I{Removeable} to the base classes of a class
-    makes instances of this type removeable.
+    Adding I{Removable} to the base classes of a class
+    makes instances of this type removable.
     Instances of this type can be either logically
     deleted - (moved to a L{RecycleBin} instance) - or physically
     deleted.
@@ -182,7 +196,6 @@ class Removeable(object):
     def _delete(self, trans):
         """
         Deletes the item physically.
-        Bypasses security checks.
         
         @param trans: A valid transaction handle
         
@@ -221,9 +234,10 @@ class Removeable(object):
     
     def _recycle(self, trans):
         """
-        Removes an item's references and marks it as deleted.
+        Deletes an item logically.
+        Bypasses security checks.
         
-        Returns: None
+        @return: None
         """
         _db.handle_delete(self, trans, False)
         self._isDeleted = True
@@ -238,9 +252,11 @@ class Removeable(object):
     def _undelete(self, trans):
         """
         Undeletes a logically deleted item.
+        Bypasses security checks.
         
         @return: None
         """
+        _db.handle_undelete(self, trans)
         self._isDeleted = False
         
         if self.isCollection:
@@ -253,7 +269,7 @@ class Removeable(object):
     def recycle(self, rb_id, trans):
         """
         Moves the item to the specified recycle bin.
-        The item then becomes inaccesible.
+        The item then becomes inaccessible.
         
         @param rb_id: The id of the destination container, which must be
                      a L{RecycleBin} instance
@@ -299,14 +315,14 @@ class Removeable(object):
 class Composite(object):
     """Objects within Objects...
     
-    Think of this as an embedded item. This class is usefull
+    Think of this as an embedded item. This class is useful
     for implementing compositions. Instances of this class
     are embedded into other items.
     Note that instances of this class have no
     security descriptor since they are embedded into other items.
     The L{security} property of such instances is actually a proxy to
     the security attribute of the object that embeds this object.
-    Moreover they do not have parent containers the way
+    Moreover, they do not have parent containers the way
     instances of L{GenericItem} have.
     
     @type contentclass: str
@@ -439,35 +455,38 @@ class GenericItem(object):
         
         @return: None
         """
-        if type(parent)==str:
-            oParent = _db.getItem(parent, trans)
+        if type(parent) == str:
+            parent = _db.getItem(parent, trans)
+                
+        if isinstance(self, Shortcut):
+            contentclass = self.target.getItem(trans).getContentclass()
         else:
-            oParent = parent
+            contentclass = self.contentclass
         
         user = currentThread().context.user
-        user_role = objectAccess.getAccess(oParent, user)
+        user_role = objectAccess.getAccess(parent, user)
         if user_role == objectAccess.READER:
             raise exceptions.PermissionDenied, \
                 'The user does not have write permissions ' + \
                 'on the parent folder.'
-        if not(self.getContentclass() in oParent.containment):
+        if not(contentclass in parent.containment):
             raise exceptions.ContainmentError, \
                 'The target container does not accept ' + \
-                'objects of type "%s".' % self.getContentclass()
+                'objects of type "%s".' % contentclass
 
         # set security to new item
         if user_role == objectAccess.COORDINATOR:
             # user is COORDINATOR
-            self._applySecurity(oParent, trans)
+            self._applySecurity(parent, trans)
         else:
             # user is not COORDINATOR
             self.inheritRoles = True
-            self.security = oParent.security   
+            self.security = parent.security   
         self._owner = user._id
         self._created = time.time()
         self.modifiedBy = user.displayName.value
         self.modified = time.time()
-        self._parentid = oParent._id
+        self._parentid = parent._id
         _db.handle_update(self, None, trans)
         _db.putItem(self, trans)
     
@@ -496,7 +515,7 @@ class GenericItem(object):
         @return: the parent container object
         @rtype: type
         """
-        return(db.getItem(self._parentid, trans))
+        return db.getItem(self._parentid, trans)
     
     def getAllParents(self, trans=None):
         """
@@ -511,7 +530,7 @@ class GenericItem(object):
             parents.append(item)
             item = item.getParent(trans)
         parents.reverse()
-        return(ObjectSet(parents))
+        return ObjectSet(parents)
     
     def getContentclass(self):
         """Getter of L{contentclass} property
@@ -568,14 +587,14 @@ class GenericItem(object):
 # Porcupine server system classes
 #================================================================================
 
-class DeletedItem(GenericItem, Removeable):
+class DeletedItem(GenericItem, Removable):
     """
     This is the type of items appended into a L{RecycleBin} class instance.
     
     L{RecycleBin} containers accept objects of this type only.
     Normally, you won't ever need to instantiate an item of this
     type. Instantiations of this class are handled by the server
-    internally when the L{Removeable.recycle} method is called.
+    internally when the L{Removable.recycle} method is called.
     
     @ivar originalName: The display name of the deleted object.
     @type originalName: str
@@ -586,7 +605,7 @@ class DeletedItem(GenericItem, Removeable):
     """
     __slots__ = ('_deletedId', '__image__', 'originalLocation', 'originalName')
     
-    def __init__(self, deletedItem):
+    def __init__(self, deletedItem, trans=None):
         GenericItem.__init__(self)
 
         self.inheritRoles = True
@@ -596,7 +615,7 @@ class DeletedItem(GenericItem, Removeable):
         self.displayName.value = misc.generateOID()
         self.description.value = deletedItem.description.value
         
-        parents = deletedItem.getAllParents()
+        parents = deletedItem.getAllParents(trans)
         full_path = '/'
         full_path += '/'.join([p.displayName.value for p in parents[:-1]])
         self.originalLocation = full_path
@@ -628,8 +647,7 @@ class DeletedItem(GenericItem, Removeable):
         @return: the deleted item
         @rtype: type
         """
-        deleted = _db.getItem(self._deletedId)
-        return(deleted)
+        return _db.getItem(self._deletedId)
 
     def appendTo(self, *args, **kwargs):
         """
@@ -637,7 +655,7 @@ class DeletedItem(GenericItem, Removeable):
         This is happening because you can not add a DeletedItem
         directly to the store.
         This type of item is added in the database only if
-        the L{Removeable.recycle} method is called.
+        the L{Removable.recycle} method is called.
 
         @warning: DO NOT USE.
         @raise L{porcupine.exceptions.ContainmentError}: Always
@@ -701,7 +719,12 @@ class DeletedItem(GenericItem, Removeable):
                 'Cannot locate target container.\n' +
                 'It seems that this container is permanently deleted.', False)
         
-        if not(deleted.getContentclass() in parent.containment):
+        if isinstance(deleted, Shortcut):
+            contentclass = deleted.target.getItem(trans).getContentclass()
+        else:
+            contentclass = deleted.getContentclass()
+        
+        if contentclass and not(contentclass in parent.containment):
             raise exceptions.ContainmentError, \
                 'The target container does not accept ' + \
                 'objects of type\n"%s".' % deleted.getContentclass()
@@ -719,14 +742,14 @@ class DeletedItem(GenericItem, Removeable):
             
         @return: None
         """
-        Removeable.delete(self, trans)
+        Removable.delete(self, trans)
         if _removeDeleted:
             # we got a direct call. remove deleted item
             deleted = _db.getItem(self._deletedId, trans)
             if deleted != None:
                 deleted._delete(trans)
 
-class Item(GenericItem, Cloneable, Moveable, Removeable):
+class Item(GenericItem, Cloneable, Movable, Removable):
     """
     Simple item with no versioning capabilities.
     
@@ -735,8 +758,13 @@ class Item(GenericItem, Cloneable, Moveable, Removeable):
     Subclass the L{porcupine.systemObjects.Container} class if you want
     to create custom containers.
     """
-    __slots__ = ()
+    __slots__ = ('shortcuts',)
+    __props__ = GenericItem.__props__ + __slots__
     
+    def __init__(self):
+        GenericItem.__init__(self)
+        self.shortcuts = Shortcuts()
+
     def update(self, trans):
         """
         Updates the item.
@@ -770,6 +798,24 @@ class Item(GenericItem, Cloneable, Moveable, Removeable):
         else:
             raise exceptions.PermissionDenied, \
                     'The user does not have update permissions.'
+
+class Shortcut(GenericItem, Removable):
+    __image__ = "desktop/images/link.png"
+    __slots__ = ('target',)
+    __props__ = GenericItem.__props__ + __slots__
+    
+    def __init__(self):
+        GenericItem.__init__(self)
+        self.target = TargetItem()
+        
+    @staticmethod
+    def create(target, trans=None):
+        if type(target) == str:
+            target = _db.getItem(target, trans)
+        shortcut = Shortcut()
+        shortcut.displayName.value = target.displayName.value
+        shortcut.target.value = target._id
+        return shortcut          
 
 class Container(Item):
     """
@@ -838,7 +884,7 @@ class Container(Item):
         if len(child) == 1:
             return child[0]
     
-    def getChildren(self, trans=None):
+    def getChildren(self, trans=None, resolve_shortcuts=False):
         """
         This method returns all the children of the container.
         
@@ -848,7 +894,7 @@ class Container(Item):
         """
         return _db.query_index('_parentid', self._id, trans)
     
-    def getItems(self, trans=None):
+    def getItems(self, trans=None, resolve_shortcuts=False):
         """
         This method returns the children that are not containers.
         
@@ -857,9 +903,10 @@ class Container(Item):
         @rtype: L{ObjectSet<porcupine.core.objectSet.ObjectSet>}
         """
         conditions = (('_parentid', self._id), ('isCollection', False))
-        return _db.natural_join(conditions, trans)
+        return _db.natural_join(conditions, trans,
+                                resolve_shortcuts=resolve_shortcuts)
     
-    def getSubFolders(self, trans=None):
+    def getSubFolders(self, trans=None, resolve_shortcuts=False):
         """
         This method returns the children that are containers.
         
@@ -868,7 +915,8 @@ class Container(Item):
         @rtype: L{ObjectSet<porcupine.core.objectSet.ObjectSet>}
         """
         conditions = (('_parentid', self._id), ('isCollection', True))
-        return _db.natural_join(conditions, trans)
+        return _db.natural_join(conditions, trans,
+                                resolve_shortcuts=resolve_shortcuts)
     
     def hasChildren(self, trans=None):
         """

@@ -19,15 +19,20 @@ import cPickle
 from bsddb import db
 from threading import currentThread
 
+from porcupine.db import _db
 from porcupine.db.basecursor import BaseCursor
 from porcupine.security import objectAccess
+from porcupine.systemObjects import Shortcut
 
 class Cursor(BaseCursor):
     "BerkeleyDB cursor class"
-    def __init__(self, index, txn=None, use_primary=False, fetch_all=False):
-        BaseCursor.__init__(self, index, use_primary, fetch_all)
+    def __init__(self, index, txn=None, use_primary=False,
+                 fetch_all=False, resolve_shortcuts=False):
+        BaseCursor.__init__(self, index, use_primary,
+                            fetch_all, resolve_shortcuts)
         self._cursor = self._index.db.cursor(txn)
         self._is_set = False
+        self._txn = txn
         
     def set(self, v):
         BaseCursor.set(self, v)
@@ -62,6 +67,9 @@ class Cursor(BaseCursor):
                         yield value
                     else:
                         item = cPickle.loads(value)
+                        if self._resolve_shortcuts and \
+                                isinstance(item, Shortcut):
+                            item = _db.getItem(item.target.value, self._txn)
                         if self._fetch_all:
                             yield item
                         else:
@@ -83,11 +91,13 @@ class Cursor(BaseCursor):
 
 class Join(object):
     "Helper cursor for performing joins"
-    def __init__(self, primary_db, cursor_list, use_primary=False,
-                 fetch_all=False):
+    def __init__(self, primary_db, cursor_list, txn=None, use_primary=False,
+                 fetch_all=False, resolve_shortcuts=False):
         self._primary = use_primary
         self._fetch_all = fetch_all
+        self._resolve_shortcuts = resolve_shortcuts
         self._thread = currentThread()
+        self._txn = txn
         
         self._join = None
         self._get = None
@@ -113,16 +123,15 @@ class Join(object):
                     return next[1]
                 else:
                     item = cPickle.loads(next[1])
-                    if self._fetch_all:
-                        return item
-                    else:
+                    if self._resolve_shortcuts and isinstance(item, Shortcut):
+                        item = _db.getItem(item.target.value, self._txn)
+                    if not self._fetch_all:
                         # check read permissions
                         access = objectAccess.getAccess(item,
                                                         self._thread.context.user)
-                        if not item._isDeleted and access > 0:
-                            return item
-                        else:
+                        if item._isDeleted or access == 0:
                             return self.next()
+                    return item
     
     def __iter__(self):
         next = self.next()

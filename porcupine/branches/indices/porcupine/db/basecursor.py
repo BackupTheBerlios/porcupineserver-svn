@@ -18,12 +18,13 @@
 import cPickle
 
 class BaseCursor(object):
-    def __init__(self, index, use_primary, fetch_all):
+    def __init__(self, index, use_primary, fetch_all, resolve_shortcuts):
         self._index = index
         self._value = None
         self._range = []
         self._primary = use_primary
         self._fetch_all = fetch_all
+        self._resolve_shortcuts = resolve_shortcuts
         
     def set(self, v):
         val = cPickle.dumps(v, 2)

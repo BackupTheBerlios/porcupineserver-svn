@@ -334,7 +334,7 @@ def moveTo(self, targetid):
     self.moveTo(targetid, txn)
     return True
 
-@webmethods.remotemethod(of_type=Item)
+@webmethods.remotemethod(of_type=GenericItem)
 @db.transactional(auto_commit=True)
 def delete(self):
     txn = db.getTransaction()

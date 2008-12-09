@@ -14,6 +14,7 @@
 #    along with Porcupine; if not, write to the Free Software
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #===============================================================================
+from pydoc import resolve
 "Porcupine server Berkeley DB interface"
 import os
 import time
@@ -137,27 +138,22 @@ def deleteExternal(id, trans):
         raise exceptions.DBTransactionIncomplete
 
 # cursors
-def __get_cursor(name, txn, fetch_all=False):
-    return Cursor(_indices[name], txn, fetch_all=fetch_all)
-
-def __join(cursor_list, use_primary, fetch_all=False):
-    return Join(_itemdb, cursor_list, use_primary=use_primary,
-                fetch_all=fetch_all)
-
-def query_index(index, value, trans, fetch_all):
-    cursor = __get_cursor(index, trans and trans.txn, fetch_all)
+def query_index(index, value, trans, fetch_all, resolve_shortcuts):
+    cursor = Cursor(_indices[index], trans and trans.txn, fetch_all=fetch_all,
+                    resolve_shortcuts=resolve_shortcuts)
     cursor.set(value)
     results = ObjectSet([x for x in cursor])
     cursor.close()
     return(results)
 
-def natural_join(conditions, trans, fetch_all):
+def natural_join(conditions, trans, fetch_all, resolve_shortcuts):
     cur_list = []
     for index, value in conditions:
-        cursor = __get_cursor(index, trans and trans.txn)
+        cursor = Cursor(_indices[index], trans)
         cursor.set(value)
         cur_list.append(cursor)
-    c_join = __join(cur_list, False, fetch_all)
+    c_join = Join(_itemdb, cur_list, trans, fetch_all=fetch_all,
+                  resolve_shortcuts=resolve_shortcuts)
     results = ObjectSet([x for x in c_join])
     c_join.close()
     [cur.close() for cur in cur_list]
@@ -166,10 +162,10 @@ def natural_join(conditions, trans, fetch_all):
 def test_natural_join(conditions, trans):
     cur_list = []
     for index, value in conditions:
-        cursor = __get_cursor(index, trans and trans.txn)
+        cursor = Cursor(_indices[index], trans)
         cursor.set(value)
         cur_list.append(cursor)
-    c_join = __join(cur_list, True)
+    c_join = Join(_itemdb, cur_list, trans, use_primary=True)
     result = bool(c_join.next())
     c_join.close()
     [cur.close() for cur in cur_list]

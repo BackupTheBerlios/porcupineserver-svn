@@ -306,11 +306,16 @@ class Relator1(Reference1):
     @cvar respectsReferences: if set to C{True} then the object cannot be
                               deleted if there are objects that reference it.
     @type respectsReferences: bool
+    
+    @cvar cascadeDelete: if set to C{True} then all the object referenced
+                         will be deleted upon the object's deletion.
+    @type cascadeDelete: bool
     """
     __slots__ = ()
     _eventHandler = dteventhandlers.Relator1EventHandler
     respectsReferences = False
     relAttr = ''
+    cascadeDelete = False
     
 class RequiredRelator1(Relator1):
     "Mandatory L{Relator1} data type."
@@ -332,11 +337,16 @@ class RelatorN(ReferenceN):
                               cannot be deleted if there are objects that
                               reference it.
     @type respectsReferences: bool
+    
+    @cvar cascadeDelete: if set to C{True} then all the objects referenced
+                         will be deleted upon the object's deletion.
+    @type cascadeDelete: bool
     """
     __slots__ = ()
     _eventHandler = dteventhandlers.RelatorNEventHandler
     relAttr = ''
     respectsReferences = False
+    cascadeDelete = False
     
 class RequiredRelatorN(RelatorN):
     "Mandatory L{RelatorN} data type."

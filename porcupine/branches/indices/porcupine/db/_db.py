@@ -113,13 +113,23 @@ def handle_delete(item, trans, is_permanent):
     [attr._eventHandler.on_delete(item, attr, trans, is_permanent)
      for attr in attrs
      if attr._eventHandler]
+
+def handle_undelete(item, trans):
+    attrs = [getattr(item, attr_name)
+             for attr_name in item.__props__
+             if hasattr(item, attr_name)]
+    [attr._eventHandler.on_undelete(item, attr, trans)
+     for attr in attrs
+     if attr._eventHandler]
     
 # indices
-def query_index(index, value, trans, fetch_all=False):
-    return _db_handle.query_index(index, value, trans, fetch_all)
+def query_index(index, value, trans, fetch_all=False, resolve_shortcuts=False):
+    return _db_handle.query_index(index, value, trans,
+                                  fetch_all, resolve_shortcuts)
 
-def natural_join(conditions, trans, fetch_all=False):
-    return _db_handle.natural_join(conditions, trans, fetch_all)
+def natural_join(conditions, trans, fetch_all=False, resolve_shortcuts=False):
+    return _db_handle.natural_join(conditions, trans,
+                                   fetch_all, resolve_shortcuts)
 
 def test_natural_join(conditions, trans):
     return _db_handle.test_natural_join(conditions, trans)

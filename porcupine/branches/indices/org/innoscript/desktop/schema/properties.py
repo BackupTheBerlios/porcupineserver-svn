@@ -87,8 +87,7 @@ class Members(RelatorN):
     """
     __slots__ = ()
     relCc = (
-        'org.innoscript.desktop.schema.security.User',
-        'org.innoscript.desktop.schema.security.GuestUser'
+        'org.innoscript.desktop.schema.security.GenericUser',
     )
     relAttr = 'memberof'
     
@@ -113,10 +112,7 @@ class PolicyGranted(RelatorN):
     """
     __slots__ = ()
     relCc = (
-        'org.innoscript.desktop.schema.security.GuestUser',
-        'org.innoscript.desktop.schema.security.User',
-        'org.innoscript.desktop.schema.security.Group',
-        'org.innoscript.desktop.schema.security.EveryoneGroup',
-        'org.innoscript.desktop.schema.security.AuthUsersGroup'
+        'org.innoscript.desktop.schema.security.GenericUser',
+        'org.innoscript.desktop.schema.security.GenericGroup'
     )
     relAttr = 'policies'

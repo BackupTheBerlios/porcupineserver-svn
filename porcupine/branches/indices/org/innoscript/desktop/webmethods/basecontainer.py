@@ -198,7 +198,7 @@ def selectobjects(self):
     sOql = "select * from '%s'" % self.id
     if sCC != '*':
         ccs = sCC.split('|')
-        ccs = ["contentclass='%s'" % x for x in ccs]
+        ccs = ["instanceof('%s')" % x for x in ccs]
         sConditions = " or ".join(ccs)
         sOql += " where %s" % sConditions
     oRes = oCmd.execute(sOql)
