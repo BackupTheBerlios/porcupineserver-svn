@@ -112,7 +112,7 @@ class CompositionEventHandler(DatatypeEventHandler):
             for sID in attr.value:
                 composite = _db.getItem(sID, trans)
                 _db.handle_delete(composite, trans, False)
-                composite._isDeleted = True
+                composite._isDeleted = 1
                 _db.putItem(composite, trans)
     
     @staticmethod
@@ -194,6 +194,7 @@ class RelatorNEventHandler(DatatypeEventHandler):
                     ref_attr.value.append(oid)
                 elif isinstance(ref_attr, Relator1):
                     ref_attr.value = oid
+                ref_attr.validate()
                 _db.putItem(ref_item, trans)
             else:
                 attr.value.remove(id)
@@ -212,6 +213,7 @@ class RelatorNEventHandler(DatatypeEventHandler):
                     pass
             elif isinstance(ref_attr, Relator1):
                 ref_attr.value = ''
+            ref_attr.validate()
             _db.putItem(ref_item, trans)
     
     @staticmethod
@@ -276,9 +278,10 @@ class Relator1EventHandler(DatatypeEventHandler):
                 ref_attr.value.append(oid)
             elif isinstance(ref_attr, Relator1):
                 ref_attr.value = oid
+            ref_attr.validate()
             _db.putItem(ref_item, trans)
         else:
-            attr.value = ''
+            attr.value = None
     
     @staticmethod
     def _remove_reference(attr, oid, trans):
@@ -291,7 +294,8 @@ class Relator1EventHandler(DatatypeEventHandler):
             except ValueError:
                 pass
         elif isinstance(ref_attr, Relator1):
-            ref_attr.value = ''
+            ref_attr.value = None
+        ref_attr.validate()
         _db.putItem(ref_item, trans)        
 
 class ExternalAttributeEventHandler(DatatypeEventHandler):

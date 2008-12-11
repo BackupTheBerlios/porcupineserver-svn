@@ -233,7 +233,7 @@ class Reference1(DataType):
     relCc = ()
     
     def __init__(self, **kwargs):
-        self.value = ''
+        self.value = None
 
     def getItem(self, trans=None):
         """
@@ -247,7 +247,9 @@ class Reference1(DataType):
         @rtype: type
         @return: The referenced object, otherwise None
         """
-        item = db.getItem(self.value, trans)
+        item = None
+        if self.value:
+            item = db.getItem(self.value, trans)
         return item
 
 class RequiredReference1(Reference1):

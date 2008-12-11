@@ -149,7 +149,7 @@ def query_index(index, value, trans, fetch_all, resolve_shortcuts):
 def natural_join(conditions, trans, fetch_all, resolve_shortcuts):
     cur_list = []
     for index, value in conditions:
-        cursor = Cursor(_indices[index], trans)
+        cursor = Cursor(_indices[index], trans and trans.txn)
         cursor.set(value)
         cur_list.append(cursor)
     c_join = Join(_itemdb, cur_list, trans, fetch_all=fetch_all,
@@ -162,7 +162,7 @@ def natural_join(conditions, trans, fetch_all, resolve_shortcuts):
 def test_natural_join(conditions, trans):
     cur_list = []
     for index, value in conditions:
-        cursor = Cursor(_indices[index], trans)
+        cursor = Cursor(_indices[index], trans and trans.txn)
         cursor.set(value)
         cur_list.append(cursor)
     c_join = Join(_itemdb, cur_list, trans, use_primary=True)
@@ -173,7 +173,7 @@ def test_natural_join(conditions, trans):
 
 # transactions
 def getTransaction():
-    return(_env.txn_begin())
+    return _env.txn_begin()
 
 def abortTransaction(txn):
     txn.abort()

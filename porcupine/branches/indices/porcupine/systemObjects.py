@@ -111,8 +111,21 @@ class Cloneable(object):
         @param trans: A valid transaction handle 
             
         @return: None
+        
+        @raise L{porcupine.exceptions.ObjectNotFound}:
+            If the target container does not exist.
         """
         target = _db.getItem(target_id, trans)
+        if target == None or target._isDeleted:
+            raise exceptions.ObjectNotFound, (
+                'The target container "%s" does not exist.' %
+                target_id , False)
+        
+        if isinstance(self, Shortcut):
+            contentclass = self.get_target_contentclass(trans)
+        else:
+            contentclass = self.getContentclass()
+        
         if self.isCollection and target.isContainedIn(self._id, trans):
             raise exceptions.ContainmentError, \
                 'Cannot copy item to destination.\n' + \
@@ -122,10 +135,10 @@ class Cloneable(object):
         user = currentThread().context.user
         user_role = objectAccess.getAccess(target, user)
         if not(self._isSystem) and user_role > objectAccess.READER:
-            if not(self.getContentclass() in target.containment):
+            if not(contentclass in target.containment):
                 raise exceptions.ContainmentError, \
                     'The target container does not accept ' + \
-                    'objects of type "%s".' % self.getContentclass()
+                    'objects of type "%s".' % contentclass
             
             self._copy(target, trans, clear_inherited=True)
         else:
@@ -150,8 +163,11 @@ class Movable(object):
         @type target_id: str
         
         @param trans: A valid transaction handle 
-            
+        
         @return: None
+        
+        @raise L{porcupine.exceptions.ObjectNotFound}:
+            If the target container does not exist.
         """
         user = currentThread().context.user
         user_role = objectAccess.getAccess(self, user)
@@ -159,6 +175,15 @@ class Movable(object):
         ## or (user_role == objectAccess.AUTHOR and oItem.owner == user.id)
         
         target = _db.getItem(target_id, trans)
+        if target == None or target._isDeleted:
+            raise exceptions.ObjectNotFound, (
+                'The target container "%s" does not exist.' %
+                target_id , False)
+        
+        if isinstance(self, Shortcut):
+            contentclass = self.get_target_contentclass(trans)
+        else:
+            contentclass = self.getContentclass()
         
         user_role2 = objectAccess.getAccess(target, user)
         
@@ -168,12 +193,12 @@ class Movable(object):
                 'The destination is contained in the source.'
         
         if (not(self._isSystem) and can_move and user_role2 > objectAccess.READER):
-            if not(self.getContentclass() in target.containment):
+            if not(contentclass in target.containment):
                 raise exceptions.ContainmentError, \
                     'The target container does not accept ' + \
-                    'objects of type "%s".' % self.getContentclass()
+                    'objects of type "%s".' % contentclass
             
-            self._parentid = target_id
+            self._parentid = target._id
             self.inheritRoles = False
             _db.putItem(self, trans)
         else:
@@ -239,8 +264,10 @@ class Removable(object):
         
         @return: None
         """
-        _db.handle_delete(self, trans, False)
-        self._isDeleted = True
+        if not self._isDeleted:
+            _db.handle_delete(self, trans, False)
+        
+        self._isDeleted = int(self._isDeleted) + 1
         
         if self.isCollection:
             [child._recycle(trans)
@@ -256,8 +283,10 @@ class Removable(object):
         
         @return: None
         """
-        _db.handle_undelete(self, trans)
-        self._isDeleted = False
+        if int(self._isDeleted) == 1:
+            _db.handle_undelete(self, trans)
+        
+        self._isDeleted = int(self._isDeleted) - 1
         
         if self.isCollection:
             [child._undelete(trans)
@@ -339,7 +368,7 @@ class Composite(object):
     def __init__(self):
         self._id = misc.generateOID()
         self._containerid = None
-        self._isDeleted = False
+        self._isDeleted = 0
         
         self.displayName = datatypes.RequiredString()
 
@@ -423,7 +452,7 @@ class GenericItem(object):
         self._parentid = None
         self._owner = ''
         self._isSystem = False
-        self._isDeleted = False
+        self._isDeleted = 0
         self._created = 0
         
         self.modifiedBy = ''
@@ -457,11 +486,11 @@ class GenericItem(object):
         """
         if type(parent) == str:
             parent = _db.getItem(parent, trans)
-                
+        
         if isinstance(self, Shortcut):
-            contentclass = self.target.getItem(trans).getContentclass()
+            contentclass = self.get_target_contentclass(trans)
         else:
-            contentclass = self.contentclass
+            contentclass = self.getContentclass()
         
         user = currentThread().context.user
         user_role = objectAccess.getAccess(parent, user)
@@ -676,22 +705,8 @@ class DeletedItem(GenericItem, Removable):
         @raise L{porcupine.exceptions.ObjectNotFound}:
             If the original location or the original item no longer exists.
         """
-        deleted = _db.getItem(self._deletedId, trans)
-        if deleted == None:
-            raise exceptions.ObjectNotFound, (
-                'Cannot locate original item.\n' +
-                'It seems that this item resided in a container\n' +
-                'that has been permanently deleted.', False)
-        original_parent = _db.getItem(deleted._parentid, trans)
-        if original_parent == None or original_parent._isDeleted:
-            raise exceptions.ObjectNotFound, (
-                'Cannot locate target container.\n' +
-                'It seems that this container is permanently deleted.', False)
-                
-        # try to restore original item
-        self._restore(deleted, original_parent, trans)
-        self.delete(trans, _removeDeleted=False)
-    
+        self.restoreTo(None, trans)
+        
     def restoreTo(self, parent_id, trans):
         """
         Restores the deleted object to the specified container.
@@ -712,22 +727,23 @@ class DeletedItem(GenericItem, Removable):
             raise exceptions.ObjectNotFound, (
                 'Cannot locate original item.\n' +
                 'It seems that this item resided in a container\n' +
-                'that has been permanently deleted.', False)
-        parent = _db.getItem(parent_id, trans)
+                'that has been permanently deleted or it is shortcut\n' +
+                'having its target permanently deleted.', False)
+        parent = _db.getItem(parent_id or deleted._parentid, trans)
         if parent == None or parent._isDeleted:
             raise exceptions.ObjectNotFound, (
                 'Cannot locate target container.\n' +
-                'It seems that this container is permanently deleted.', False)
+                'It seems that this container is deleted.', False)
         
         if isinstance(deleted, Shortcut):
-            contentclass = deleted.target.getItem(trans).getContentclass()
+            contentclass = deleted.get_target_contentclass(trans)
         else:
             contentclass = deleted.getContentclass()
         
         if contentclass and not(contentclass in parent.containment):
             raise exceptions.ContainmentError, \
                 'The target container does not accept ' + \
-                'objects of type\n"%s".' % deleted.getContentclass()
+                'objects of type\n"%s".' % contentclass
         
         # try to restore original item
         self._restore(deleted, parent, trans)
@@ -739,7 +755,7 @@ class DeletedItem(GenericItem, Removable):
         
         @param trans: A valid transaction handle
         @param _removeDeleted: Leave as is
-            
+        
         @return: None
         """
         Removable.delete(self, trans)
@@ -799,29 +815,79 @@ class Item(GenericItem, Cloneable, Movable, Removable):
             raise exceptions.PermissionDenied, \
                     'The user does not have update permissions.'
 
-class Shortcut(GenericItem, Removable):
+class Shortcut(Item):
+    """
+    Shortcuts act as pointers to other objects.
+    
+    When adding a shortcut in a container the containment
+    is checked against the target's content class and not
+    the shortcut's.
+    When deleting an object that has shortcuts all its
+    shortcuts are also deleted. Likewise, when restoring
+    the object all of its shortcuts are also restored to
+    their original location.
+    It is valid to have shortcuts pointing to shortcuts.
+    In order to resolve the terminal target object use the
+    L{get_target} method.
+    """
     __image__ = "desktop/images/link.png"
     __slots__ = ('target',)
-    __props__ = GenericItem.__props__ + __slots__
+    __props__ = Item.__props__ + __slots__
     
     def __init__(self):
-        GenericItem.__init__(self)
+        Item.__init__(self)
         self.target = TargetItem()
         
     @staticmethod
     def create(target, trans=None):
+        """Helper method for creating shortcuts of items.
+        
+        @param target: The id of the item or the item object itself
+        @type parent: str OR L{Item}
+        @param trans: A valid transaction handle
+        @return: L{Shortcut}
+        """
         if type(target) == str:
             target = _db.getItem(target, trans)
         shortcut = Shortcut()
         shortcut.displayName.value = target.displayName.value
         shortcut.target.value = target._id
-        return shortcut          
+        return shortcut
+    
+    def get_target(self, trans=None):
+        """Returns the target item.
+        
+        @param trans: A valid transaction handle
+        @return: the target item or C{None} if the user
+                has no read permissions
+        @rtype: L{Item} or NoneType
+        """
+        target = None
+        if self.target.value:
+            target = self.target.getItem(trans)
+            while target and isinstance(target, Shortcut):
+                target = target.target.getItem(trans)
+        return target
+    
+    def get_target_contentclass(self, trans=None):
+        """Returns the content class of the target item.
+        
+        @param trans: A valid transaction handle
+        @return: the fully qualified name of the target's
+                content class
+        @rtype: str
+        """
+        if self.target.value:
+            target = _db.getItem(self.target.value, trans)
+            while isinstance(target, Shortcut):
+                target = _db.getItem(target.target.value, trans)
+            return target.getContentclass()
 
 class Container(Item):
     """
     Generic container class.
     
-    Base class for all containers. Containers do not support versionning.
+    Base class for all containers. Containers do not support versioning.
     
     @cvar containment: a tuple of strings with all the content types of
         Porcupine objects that this class instance can accept.
@@ -831,7 +897,7 @@ class Container(Item):
     """
     __image__ = "desktop/images/folder.gif"
     __slots__ = ()
-    containment = ()
+    containment = ('porcupine.systemObjects.Shortcut',)
     isCollection = True
     
     def childExists(self, name, trans=None):
@@ -892,7 +958,8 @@ class Container(Item):
             
         @rtype: L{ObjectSet<porcupine.core.objectSet.ObjectSet>}
         """
-        return _db.query_index('_parentid', self._id, trans)
+        return _db.query_index('_parentid', self._id, trans,
+                               resolve_shortcuts=resolve_shortcuts)
     
     def getItems(self, trans=None, resolve_shortcuts=False):
         """

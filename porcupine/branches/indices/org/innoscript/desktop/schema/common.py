@@ -61,9 +61,9 @@ class RootFolder(system.Container):
     Porcupine objects.
     """
     __slots__ = ()
-    containment = (
+    containment = system.Container.containment  + (
         'org.innoscript.desktop.schema.common.Folder',
-        'org.innoscript.desktop.schema.collab.ContactsFolder'
+        'org.innoscript.desktop.schema.collab.ContactsFolder',
     )
     
     def getParent(self):
@@ -85,7 +85,8 @@ class AppsFolder(system.Container):
     """
     __image__ = "desktop/images/appsfolder.gif"
     __slots__ = ()
-    containment = ('org.innoscript.desktop.schema.common.Application',)
+    containment = system.Container.containment + \
+        ('org.innoscript.desktop.schema.common.Application',)
 
 class Application(system.Item):
     """B{QuiX} Application Object
@@ -116,7 +117,7 @@ class Folder(system.Container):
     This type of folder can contain folders and documents.
     """
     __slots__ = ()
-    containment = (
+    containment = system.Container.containment  + (
         'org.innoscript.desktop.schema.common.Folder',
         'org.innoscript.desktop.schema.common.Document',
     )
@@ -126,7 +127,7 @@ class PersonalFolders(system.Container):
     Special container for keeping the users' personal folders
     """
     __slots__ = ()
-    containment = (
+    containment = system.Container.containment  + (
         'org.innoscript.desktop.schema.common.PersonalFolder',
     )
     
@@ -149,7 +150,8 @@ class Category(system.Container):
     __image__ = "desktop/images/category.gif"
     __slots__ = ('category_objects',)
     __props__ = system.Container.__props__ + __slots__
-    containment = ('org.innoscript.desktop.schema.common.Category',)
+    containment = system.Container.containment  + \
+        ('org.innoscript.desktop.schema.common.Category',)
     
     def __init__(self):
         system.Container.__init__(self)

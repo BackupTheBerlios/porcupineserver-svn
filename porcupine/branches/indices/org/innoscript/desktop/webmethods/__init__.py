@@ -33,5 +33,4 @@ __all__ = ['rootfolder',
            'category',
            'document',
            'baseitem',
-           'basecontainer',
-           'shortcut']
+           'basecontainer']
