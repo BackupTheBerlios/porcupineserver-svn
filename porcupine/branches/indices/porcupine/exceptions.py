@@ -104,6 +104,7 @@ class NotImplemented(InternalServerError):
 class ContainmentError(InternalServerError):
     def __init__(self, info=''):
         InternalServerError.__init__(self, info, False)
+        self.description = 'Containment Error'
         self.severity = logging.WARNING
         
 class ReferentialIntegrityError(InternalServerError):

@@ -32,14 +32,14 @@ from porcupine.core.objectSet import ObjectSet
 from porcupine.utils import misc
 from porcupine.security import objectAccess
 
-class Shortcuts(datatypes.RelatorN):
+class _Shortcuts(datatypes.RelatorN):
     'Data type for keeping the shortcuts IDs that an object has'
     __slots__ = ()
     relCc = ('porcupine.systemObjects.Shortcut',)
     relAttr = 'target'
     cascadeDelete = True
     
-class TargetItem(datatypes.Relator1):
+class _TargetItem(datatypes.Relator1):
     'The object ID of the target item of the shortcut.'
     __slots__ = ()
     relCc = ('porcupine.systemObjects.Item',)
@@ -91,9 +91,8 @@ class Cloneable(object):
         references are not cloned.
         
         @param dup_ext_files: Boolean indicating if the external
-                files should be also duplicated
+                              files should be also duplicated
         @type dup_ext_files: bool
-        
         @return: the clone object
         @rtype: type
         """
@@ -107,11 +106,8 @@ class Cloneable(object):
 
         @param target_id: The ID of the destination container
         @type target_id: str
-        
-        @param trans: A valid transaction handle 
-            
+        @param trans: A valid transaction handle
         @return: None
-        
         @raise L{porcupine.exceptions.ObjectNotFound}:
             If the target container does not exist.
         """
@@ -161,11 +157,8 @@ class Movable(object):
         
         @param target_id: The ID of the destination container
         @type target_id: str
-        
-        @param trans: A valid transaction handle 
-        
+        @param trans: A valid transaction handle
         @return: None
-        
         @raise L{porcupine.exceptions.ObjectNotFound}:
             If the target container does not exist.
         """
@@ -192,7 +185,8 @@ class Movable(object):
                 'Cannot move item to destination.\n' + \
                 'The destination is contained in the source.'
         
-        if (not(self._isSystem) and can_move and user_role2 > objectAccess.READER):
+        if (not(self._isSystem) and can_move and
+                user_role2 > objectAccess.READER):
             if not(contentclass in target.containment):
                 raise exceptions.ContainmentError, \
                     'The target container does not accept ' + \
@@ -223,7 +217,6 @@ class Removable(object):
         Deletes the item physically.
         
         @param trans: A valid transaction handle
-        
         @return: None
         """
         _db.handle_delete(self, trans, True)
@@ -238,8 +231,7 @@ class Removable(object):
         """
         Deletes the item permanently.
         
-        @param trans: A valid transaction handle 
-        
+        @param trans: A valid transaction handle
         @return: None
         """
         user = currentThread().context.user
@@ -301,11 +293,9 @@ class Removable(object):
         The item then becomes inaccessible.
         
         @param rb_id: The id of the destination container, which must be
-                     a L{RecycleBin} instance
+                      a L{RecycleBin} instance
         @type rb_id: str
-        
-        @param trans: A valid transaction handle 
-        
+        @param trans: A valid transaction handle
         @return: None
         """
         user = currentThread().context.user
@@ -357,7 +347,6 @@ class Composite(object):
     @type contentclass: str
     @type id: str
     @type security: dict
-
     @see: L{porcupine.datatypes.Composition}.
     """
     __image__ = "desktop/images/object.gif"
@@ -402,33 +391,24 @@ class GenericItem(object):
     
     @cvar __props__: A tuple containing all the object's custom data types.
     @type __props__: tuple
-
     @cvar _eventHandlers: A list containing all the object's event handlers.
     @type _eventHandlers: list
-
     @cvar isCollection: A boolean indicating if the object is a container.
     @type isCollection: bool
-    
     @ivar modifiedBy: The display name of the last modifier.
     @type modifiedBy: str
-    
     @ivar modified: The last modification date, handled by the server.
     @type modified: float
-    
     @ivar security: The object's security descriptor. This is a dictionary whose
                     keys are the users' IDs and the values are the roles.
     @type security: dict
-    
     @ivar inheritRoles: Indicates if the object's security
                         descriptor is identical to this of its parent
     @type inheritRoles: bool
-    
     @ivar displayName: The display name of the object.
     @type displayName: L{RequiredString<porcupine.datatypes.RequiredString>}
-    
     @ivar description: A short description.
     @type description: L{String<porcupine.datatypes.String>}
-    
     @type contentclass: str
     @type created: float
     @type id: str
@@ -477,11 +457,9 @@ class GenericItem(object):
         Adds the item to the specified container.
 
         @param parent: The id of the destination container or the container
-            itself
+                       itself
         @type parent: str OR L{Container}
-        
         @param trans: A valid transaction handle
-        
         @return: None
         """
         if type(parent) == str:
@@ -501,7 +479,7 @@ class GenericItem(object):
         if not(contentclass in parent.containment):
             raise exceptions.ContainmentError, \
                 'The target container does not accept ' + \
-                'objects of type "%s".' % contentclass
+                'objects of type\n"%s".' % contentclass
 
         # set security to new item
         if user_role == objectAccess.COORDINATOR:
@@ -519,20 +497,19 @@ class GenericItem(object):
         _db.handle_update(self, None, trans)
         _db.putItem(self, trans)
     
-    def isContainedIn(self, itemId, trans=None):
+    def isContainedIn(self, item_id, trans=None):
         """
         Checks if the item is contained in the specified container.
         
-        @param itemId: The id of the container
-        @type itemId: str
-        
+        @param item_id: The id of the container
+        @type item_id: str
         @rtype: bool
         """
-        oItem = self
-        while oItem._id is not '':
-            if oItem._id==itemId:
+        item = self
+        while item._id != '':
+            if item._id == item_id:
                 return True
-            oItem = _db.getItem(oItem.parentid, trans)
+            item = _db.getItem(item.parentid, trans)
         return False
     
     def getParent(self, trans=None):
@@ -540,7 +517,6 @@ class GenericItem(object):
         Returns the parent container.
                 
         @param trans: A valid transaction handle
-            
         @return: the parent container object
         @rtype: type
         """
@@ -627,7 +603,6 @@ class DeletedItem(GenericItem, Removable):
     
     @ivar originalName: The display name of the deleted object.
     @type originalName: str
-    
     @ivar originalLocation: The path to the location of the deleted item
                             before the deletion
     @type originalLocation: str
@@ -674,7 +649,7 @@ class DeletedItem(GenericItem, Removable):
         Use this method to get the item that was logically deleted.
             
         @return: the deleted item
-        @rtype: type
+        @rtype: L{GenericItem}
         """
         return _db.getItem(self._deletedId)
 
@@ -699,9 +674,7 @@ class DeletedItem(GenericItem, Removable):
         it still exists.
         
         @param trans: A valid transaction handle
-        
         @return: None
-        
         @raise L{porcupine.exceptions.ObjectNotFound}:
             If the original location or the original item no longer exists.
         """
@@ -712,13 +685,10 @@ class DeletedItem(GenericItem, Removable):
         Restores the deleted object to the specified container.
         
         @param parent_id: The ID of the container in which
-            the item will be restored
+                          the item will be restored
         @type parent_id: str    
-        
         @param trans: A valid transaction handle
-            
         @return: None
-        
         @raise L{porcupine.exceptions.ObjectNotFound}:
             If the original location or the original item no longer exists.
         """
@@ -755,7 +725,6 @@ class DeletedItem(GenericItem, Removable):
         
         @param trans: A valid transaction handle
         @param _removeDeleted: Leave as is
-        
         @return: None
         """
         Removable.delete(self, trans)
@@ -779,14 +748,13 @@ class Item(GenericItem, Cloneable, Movable, Removable):
     
     def __init__(self):
         GenericItem.__init__(self)
-        self.shortcuts = Shortcuts()
+        self.shortcuts = _Shortcuts()
 
     def update(self, trans):
         """
         Updates the item.
         
         @param trans: A valid transaction handle
-            
         @return: None
         """
         old_item = _db.getItem(self._id, trans)
@@ -836,7 +804,7 @@ class Shortcut(Item):
     
     def __init__(self):
         Item.__init__(self)
-        self.target = TargetItem()
+        self.target = _TargetItem()
         
     @staticmethod
     def create(target, trans=None):
@@ -859,7 +827,7 @@ class Shortcut(Item):
         
         @param trans: A valid transaction handle
         @return: the target item or C{None} if the user
-                has no read permissions
+                 has no read permissions
         @rtype: L{Item} or NoneType
         """
         target = None
@@ -874,7 +842,7 @@ class Shortcut(Item):
         
         @param trans: A valid transaction handle
         @return: the fully qualified name of the target's
-                content class
+                 content class
         @rtype: str
         """
         if self.target.value:
@@ -890,9 +858,8 @@ class Container(Item):
     Base class for all containers. Containers do not support versioning.
     
     @cvar containment: a tuple of strings with all the content types of
-        Porcupine objects that this class instance can accept.
+                       Porcupine objects that this class instance can accept.
     @type containment: tuple
-    
     @type isCollection: bool
     """
     __image__ = "desktop/images/folder.gif"
@@ -921,9 +888,7 @@ class Container(Item):
         
         @param name: The name of the child
         @type name: str
-        
         @param trans: A valid transaction handle
-            
         @return: The ID of the child if a child with the given name exists
                  else None.
         @rtype: str
@@ -938,12 +903,10 @@ class Container(Item):
         
         @param name: The name of the child
         @type name: str
-        
         @param trans: A valid transaction handle
-            
         @return: The child object if a child with the given name exists
                  else None.
-        @rtype: type
+        @rtype: L{GenericItem}
         """
         conditions = (('_parentid', self._id), ('displayName', name))
         child = [x for x in _db.natural_join(conditions, trans)]
@@ -955,7 +918,6 @@ class Container(Item):
         This method returns all the children of the container.
         
         @param trans: A valid transaction handle
-            
         @rtype: L{ObjectSet<porcupine.core.objectSet.ObjectSet>}
         """
         return _db.query_index('_parentid', self._id, trans,
@@ -966,7 +928,6 @@ class Container(Item):
         This method returns the children that are not containers.
         
         @param trans: A valid transaction handle
-        
         @rtype: L{ObjectSet<porcupine.core.objectSet.ObjectSet>}
         """
         conditions = (('_parentid', self._id), ('isCollection', False))
@@ -978,7 +939,6 @@ class Container(Item):
         This method returns the children that are containers.
         
         @param trans: A valid transaction handle
-            
         @rtype: L{ObjectSet<porcupine.core.objectSet.ObjectSet>}
         """
         conditions = (('_parentid', self._id), ('isCollection', True))
@@ -990,7 +950,6 @@ class Container(Item):
         Checks if the container has at least one non-container child.
         
         @param trans: A valid transaction handle
-        
         @rtype: bool
         """
         conditions = (('_parentid', self._id), ('isCollection', False))
@@ -1001,7 +960,6 @@ class Container(Item):
         Checks if the container has at least one child container.
         
         @param trans: A valid transaction handle
-        
         @rtype: bool
         """
         conditions = (('_parentid', self._id), ('isCollection', True))
@@ -1031,7 +989,6 @@ class RecycleBin(Container):
         L{DeletedItem} instance contained in the bin.
         
         @param trans: A valid transaction handle
-            
         @return: None
         """
         items = self.getItems(trans)

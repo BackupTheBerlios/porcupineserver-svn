@@ -88,8 +88,8 @@ def open(**kwargs):
     )
     
     # open indices
-    for index in settings['store']['indices']:
-        _indices[index] = DbIndex(_env, _itemdb, index)
+    for name, unique in settings['store']['indices']:
+        _indices[name] = DbIndex(_env, _itemdb, name, unique)
     
     _running = True
     _maintenance_thread = Thread(target=__maintain,
@@ -137,7 +137,7 @@ def deleteExternal(id, trans):
     except (db.DBLockDeadlockError, db.DBLockNotGrantedError):
         raise exceptions.DBTransactionIncomplete
 
-# cursors
+# indices
 def query_index(index, value, trans, fetch_all, resolve_shortcuts):
     cursor = Cursor(_indices[index], trans and trans.txn, fetch_all=fetch_all,
                     resolve_shortcuts=resolve_shortcuts)
@@ -165,11 +165,20 @@ def test_natural_join(conditions, trans):
         cursor = Cursor(_indices[index], trans and trans.txn)
         cursor.set(value)
         cur_list.append(cursor)
-    c_join = Join(_itemdb, cur_list, trans, use_primary=True)
+    c_join = Join(_itemdb, cur_list, trans)
     result = bool(c_join.next())
     c_join.close()
     [cur.close() for cur in cur_list]
     return result
+
+def check_unique(item, trans):
+    # check index uniqueness
+    for index_name in [x[0] for x in settings['store']['indices'] if x[1]]:
+        if hasattr(item, index_name):
+            if test_natural_join((('_parentid', item._parentid),
+                                  (index_name, getattr(item, index_name).value)),
+                                 trans):
+                raise exceptions.ContainmentError, ('sdfsdfsf')
 
 # transactions
 def getTransaction():

@@ -88,6 +88,7 @@ def handle_update(item, old_item, trans):
             # create
             [handler.on_create(item, trans)
              for handler in item._eventHandlers]
+    _db_handle.check_unique(item, trans)
     for attr_name in item.__props__:
         try:
             attr = getattr(item, attr_name)
@@ -115,6 +116,7 @@ def handle_delete(item, trans, is_permanent):
      if attr._eventHandler]
 
 def handle_undelete(item, trans):
+    _db_handle.check_unique(item, trans)
     attrs = [getattr(item, attr_name)
              for attr_name in item.__props__
              if hasattr(item, attr_name)]

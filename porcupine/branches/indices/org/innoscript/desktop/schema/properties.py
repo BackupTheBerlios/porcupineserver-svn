@@ -18,20 +18,7 @@
 This module defines all the custom properties used
 by the L{org.innoscript.desktop.schema} module custom objects.
 """
-
-from porcupine.datatypes import *
-
-class RequiredFile(File):
-    """Legacy data type. To be removed in the next version.
-    Use L{porcupine.datatypes.RequiredFile} instead."""
-    __slots__ = ()
-    isRequired = True
-
-class LaunchUrl(String):
-    """Legacy data type. To be removed in the next version.
-    Use L{porcupine.datatypes.RequiredString} instead."""
-    __slots__ = ()
-    isRequired = True
+from porcupine.datatypes import RelatorN
 
 class CategoryObjects(RelatorN):
     """
@@ -71,12 +58,6 @@ class MemberOf(RelatorN):
     __slots__ = ()
     relCc = ('org.innoscript.desktop.schema.security.Group', )
     relAttr = 'members'
-
-class RequiredPassword(Password):
-    """Legacy data type. To be removed in the next version.
-    Use L{porcupine.datatypes.RequiredPassword} instead."""
-    __slots__ = ()
-    isRequired = True
 
 class Members(RelatorN):
     """
