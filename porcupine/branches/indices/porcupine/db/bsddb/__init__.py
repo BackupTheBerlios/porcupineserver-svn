@@ -178,7 +178,9 @@ def check_unique(item, trans):
             if test_natural_join((('_parentid', item._parentid),
                                   (index_name, getattr(item, index_name).value)),
                                  trans):
-                raise exceptions.ContainmentError, ('sdfsdfsf')
+                raise exceptions.ContainmentError, (
+                    'The container already ' +
+                    'has an item with the same "%s" value.' % index_name)
 
 # transactions
 def getTransaction():
