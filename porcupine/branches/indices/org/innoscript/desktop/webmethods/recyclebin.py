@@ -18,7 +18,6 @@
 Web methods for the recycle bin class
 """
 from porcupine import db
-from porcupine import HttpContext
 from porcupine import webmethods
 from porcupine import filters
 from porcupine.utils import date

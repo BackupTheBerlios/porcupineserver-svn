@@ -16,7 +16,7 @@
 #===============================================================================
 "Porcupine desktop security objects"
 
-import md5
+import hashlib
 
 from porcupine import systemObjects as system
 from porcupine import datatypes
@@ -158,7 +158,7 @@ class User(GenericUser):
         
         @rtype: bool
         """
-        md = md5.new(sPsw)
+        md = hashlib.md5(sPsw)
         hexDigestP = md.hexdigest()
         return hexDigestP==self.password.value
 

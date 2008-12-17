@@ -21,21 +21,16 @@ Porcupine Desktop web methods for base item content types
 Generic interfaces applying to all content classes
 unless overriden.
 """
-import os
-
 from porcupine import db
 from porcupine import HttpContext
 from porcupine import webmethods
 from porcupine import filters
 from porcupine import datatypes
-from porcupine import exceptions
 
 from porcupine.systemObjects import Item
 from porcupine.systemObjects import GenericItem
 from porcupine.security import objectAccess
 from porcupine.utils import date, xml
-
-from org.innoscript.desktop.strings import resources
 
 AUTO_CONTROLS = {
     datatypes.String: '''
