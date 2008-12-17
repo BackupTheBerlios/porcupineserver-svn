@@ -17,12 +17,9 @@
 """
 Porcupine miscelaneous utilities
 """
-
 import hashlib
 import time
 import random
-import sys
-import imp
 import os
 
 VALID_ID_CHRS = [

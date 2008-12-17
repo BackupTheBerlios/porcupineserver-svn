@@ -15,8 +15,8 @@
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #===============================================================================
 "Porcupine server backup file class"
-
-import tarfile, os.path
+import tarfile
+import os.path
 
 class BackupFile(object):
     def __init__(self, fileName):

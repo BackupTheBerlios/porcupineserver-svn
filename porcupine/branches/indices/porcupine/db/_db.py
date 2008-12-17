@@ -18,7 +18,6 @@
 import time
 import cPickle
 
-from porcupine import exceptions
 from porcupine.utils import misc
 from porcupine.config.settings import settings
 

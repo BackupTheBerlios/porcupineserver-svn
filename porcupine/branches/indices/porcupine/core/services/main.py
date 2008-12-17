@@ -25,9 +25,9 @@ class PorcupineServer(asyncBaseServer.BaseServer):
     "Porcupine server class"
     def __init__(self, name, address, threads):
         asyncBaseServer.BaseServer.__init__(self, name,
-            address, threads, PorcupineThread, requestHandler)
+            address, threads, PorcupineThread, RequestHandler)
 
-class requestHandler(asyncBaseServer.BaseRequestHandler):
+class RequestHandler(asyncBaseServer.BaseRequestHandler):
     "Porcupine Server request handler"
     def handleRequest(self):
         raw_request = loads(self.input_buffer)

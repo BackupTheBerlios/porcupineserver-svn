@@ -16,7 +16,9 @@
 #===============================================================================
 "Porcupine Python Server Pages"
 
-import os, re, marshal
+import os
+import re
+import marshal
 
 from porcupine import exceptions
 

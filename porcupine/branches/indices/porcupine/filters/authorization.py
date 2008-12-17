@@ -17,8 +17,6 @@
 """
 Porcupine authorization pre-processing filters
 """
-import re
-
 from porcupine import exceptions
 from porcupine.filters.filter import PreProcessFilter
 from porcupine.db import _db

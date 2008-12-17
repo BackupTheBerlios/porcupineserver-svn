@@ -16,7 +16,6 @@
 #===============================================================================
 "Porcupine Server management service"
 import logging
-from threading import Thread
 from cPickle import dumps, loads
 
 from porcupine.core.servicetypes import asyncBaseServer

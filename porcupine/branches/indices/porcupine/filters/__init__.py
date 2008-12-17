@@ -17,7 +17,6 @@
 """
 Porcupine post and pre processing filters.
 """
-from porcupine.db import _db
 from porcupine.core.decorators import WebMethodWrapper
 
 from porcupine.filters import output

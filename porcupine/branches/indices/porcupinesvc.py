@@ -3,7 +3,11 @@
 Utility for installing and controlling Porcupine
 as an NT service.
 """
-import os, sys, time, imp
+import os
+import sys
+import time
+import imp
+
 try:
 	os.chdir(os.path.abspath(os.path.dirname(__file__)))
 except:

@@ -14,8 +14,9 @@
 #    along with Porcupine; if not, write to the Free Software
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #===============================================================================
-from pydoc import resolve
-"Porcupine server Berkeley DB interface"
+"""
+Porcupine server Berkeley DB interface
+"""
 import os
 import time
 import logging

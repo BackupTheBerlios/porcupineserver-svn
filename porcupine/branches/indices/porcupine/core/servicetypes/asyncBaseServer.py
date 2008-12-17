@@ -18,7 +18,6 @@
 import socket
 import select
 import Queue
-import time
 from threading import Thread, currentThread, RLock
 from errno import EINTR, EISCONN, EADDRINUSE
 
@@ -267,7 +266,8 @@ class BaseRequest(object):
                     response.append(rdata)
                     rdata = s.recv(8192)
             except socket.error, v:
-                import traceback, sys
+                import traceback
+                import sys
                 output = traceback.format_exception(*sys.exc_info())
                 output = ''.join(output)
                 print output
