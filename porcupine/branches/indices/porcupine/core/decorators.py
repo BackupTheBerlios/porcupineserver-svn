@@ -15,7 +15,7 @@
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #===============================================================================
 "Base classes of decorators applied to web methods"
-import md5
+import hashlib
 import types
 import os.path
 import sys
@@ -31,7 +31,7 @@ class WebMethodDescriptor(object):
         self.func = function
         self.conditions = conditions
         self.func_name = 'WM_%s_%s' % (function.func_name,
-                                       md5.new(str(self.conditions)).hexdigest())
+                                       hashlib.md5(str(self.conditions)).hexdigest())
         # response parameters
         self.content_type = content_type
         self.encoding = encoding

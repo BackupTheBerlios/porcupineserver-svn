@@ -18,7 +18,7 @@
 Porcupine miscelaneous utilities
 """
 
-import md5
+import hashlib
 import time
 import random
 import sys
@@ -45,7 +45,7 @@ def generateGUID():
     
     @rtype: str
     """
-    return md5.new(str(time.time()+time.clock()*1000)).hexdigest()
+    return hashlib.md5(str(time.time()+time.clock()*1000)).hexdigest()
     
 def generateOID():
     """

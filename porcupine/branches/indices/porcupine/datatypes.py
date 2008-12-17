@@ -24,14 +24,13 @@ a usage guideline.
 """
 
 import copy
-import md5
+import hashlib
 import os.path
 import shutil
 import cStringIO
 
 from porcupine import db
 from porcupine.utils import misc, date
-from porcupine import exceptions
 from porcupine.core import dteventhandlers
 
 
@@ -206,7 +205,7 @@ class Password(DataType):
     
     def setValue(self, sValue):
         if sValue != self._value:
-            self._value = md5.new(sValue).hexdigest()
+            self._value = hashlib.md5(sValue).hexdigest()
     
     value = property(getValue, setValue)
     
