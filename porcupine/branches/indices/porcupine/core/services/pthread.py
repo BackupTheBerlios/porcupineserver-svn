@@ -93,7 +93,7 @@ class PorcupineThread(BaseServerThread):
             except exceptions.ResponseEnd, e:
                 pass
             
-            if registration != None:
+            if registration != None and response._code == 200:
                 # do we have caching directive?
                 if registration.max_age:
                     response.setExpiration(registration.max_age)
