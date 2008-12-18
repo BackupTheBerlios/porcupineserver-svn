@@ -438,7 +438,26 @@ QuiX.XHRPool = (
 )();
 
 QuiX.innerText = function(node) {
-	return node.textContent || node.innerText || node.text;
+    var text = '';
+    var i;
+    if (typeof XMLSerializer != "undefined") {
+        var serializer = new XMLSerializer();
+        for (i=0; i<node.childNodes.length; i++) {
+                text += serializer.serializeToString(node.childNodes[i])
+        }
+    }
+    else if (node.xml) {
+        for (i=0; i<node.childNodes.length; i++) {
+            text += node.childNodes[i].xml;
+        }
+    }
+    if (text.trim().slice(0, 11) == "<!--[CDATA[") {
+            text = text.trim().slice(11, text.length - 5);
+    }
+    else if (text.trim().slice(0, 9) == "<![CDATA[") {
+            text = text.trim().slice(9, text.length - 3);
+    }
+    return text;
 }
 
 QuiX.domFromString = function(s) {
