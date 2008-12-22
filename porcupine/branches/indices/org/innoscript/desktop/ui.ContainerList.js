@@ -33,7 +33,6 @@ containerList.createItem = function(evt, w) {
 
 containerList.showProperties = function(evt, w) {
 	var oItemList = w.parent.owner;
-	var oWindow = oItemList.getParentByType(Window);
 	generic.showObjectProperties(evt, w, oItemList.getSelection(), containerList.refreshWindow);
 }
 
@@ -41,7 +40,7 @@ containerList.getContainerInfo = function(w, bAddPath) {
 	var folderUri = QuiX.root + w.attributes.FolderID;
 	var xmlrpc = new XMLRPCRequest(folderUri);
 	xmlrpc.oncomplete = function(req) {
-		var itemlist;
+		var itemlist, i;
 		w.setTitle(req.response.displayName);
 		w.attributes.ParentID = req.response.parentid;
 		var sFullPath = req.response.path;
@@ -56,7 +55,7 @@ containerList.getContainerInfo = function(w, bAddPath) {
 		if (bAddPath) {
 			var cmb_path = w.getWidgetById('path');
 			var pathExists = false;
-			for (var i=0; i<cmb_path.options.length; i++) {
+			for (i=0; i<cmb_path.options.length; i++) {
 				if (cmb_path.options[i].value.toString() == sFullPath) {
 					pathExists = true;
 					break;
@@ -75,7 +74,7 @@ containerList.getContainerInfo = function(w, bAddPath) {
 			var params, mo1, mo2;
 			newOption1.enable();
 			newOption2.enable();
-			for (var i=0; i<containment.length; i++) {
+			for (i=0; i<containment.length; i++) {
 				params = {
 					caption: containment[i][0],
 					img: containment[i][2],
@@ -257,7 +256,7 @@ containerList.deleteItem = function(evt, w) {
 		if (!(items instanceof Array)) items = [items];
 		items.reverse();
 		var _start = function(w) {
-			var w = w.callback_info || w;
+			w = w.callback_info || w;
 			if (items.length > 0 && !w.attributes.canceled) {
 				var item = items.pop();
 				var pb = w.getWidgetById("pb");

@@ -25,6 +25,7 @@ Form.prototype.getElementByName = function(name) {
 		if (elements[i].name == name)
 			return(elements[i]);
 	}
+    return null;
 }
 
 Form.prototype.submit = function(f_callback) {
@@ -177,6 +178,7 @@ Field.prototype.getCaption = function() {
 		else
 			return '';
 	}
+    return null;
 }
 
 Field.prototype.setCaption = function(caption) {

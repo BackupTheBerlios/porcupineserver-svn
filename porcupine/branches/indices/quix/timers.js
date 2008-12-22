@@ -55,7 +55,7 @@ Timer.prototype.start = function() {
 }
 
 Timer.prototype.stop = function(w) {
-	var w = w || this;
+	w = w || this;
 	if (w._timerid) {
 		if (w.timeout)
 			window.clearTimeout(w._timerid);

@@ -28,7 +28,7 @@ Box.prototype.appendChild = function(w, p) {
 }
 
 Box.prototype.redraw = function(bForceAll, w) {
-	var w = w || this;
+	w = w || this;
 	if (bForceAll) {
 		var oWidget;
 		var offset_var = (w.orientation=='h')?'left':'top';
@@ -187,6 +187,8 @@ FlowBox.prototype.redraw = function(bForceAll) {
 FlowBox.prototype.getSelection = function() {
 	if (this.select)
 		return this._selection;
+    else
+        return null;
 }
 
 FlowBox.prototype._rearrange = function(iStart) {

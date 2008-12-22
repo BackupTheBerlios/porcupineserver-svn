@@ -153,7 +153,7 @@ function DataGrid__onkeydown(evt, w) {
 }
 
 function DataGrid__update(evt, w) {
-	var w = w || evt;
+	w = w || evt;
 	var dg = w.parent.parent;
 	if (dg.attributes.__editwidget) {
 		var r = dg.attributes.__rowindex;

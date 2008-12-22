@@ -55,7 +55,7 @@ IFrame.prototype.getDocument = function() {
 }
 
 IFrame.prototype._onload = function(evt) {
-	var evt = evt || event;
+	evt = evt || event;
 	var w = QuiX.getTargetWidget(evt);
 	if (w._customRegistry.ondocumentload)
 		w._customRegistry.ondocumentload(w);

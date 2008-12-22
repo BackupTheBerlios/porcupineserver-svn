@@ -188,7 +188,7 @@ XMLRPCRequest.prototype.getNode = function(data, len) {
 }
 
 XMLRPCRequest.prototype.toObject = function(data) {
-	var ret, i;
+	var ret, i, elem;
 	//alert(data.tagName);
 	switch(data.tagName) {
 		case "string":
@@ -212,9 +212,8 @@ XMLRPCRequest.prototype.toObject = function(data) {
 			data = this.getNode(data, 0);
 			if(data && data.tagName == "data") {
 				ret = [];
-				for(var i = 0;i<data.childNodes.length;++i)
-				{
-					var elem = data.childNodes[i];
+				for (i=0; i<data.childNodes.length; ++i) {
+					elem = data.childNodes[i];
 					if (elem.nodeType == 1) ret.push(this.toObject(elem));
 				}
 				return ret;
@@ -224,9 +223,8 @@ XMLRPCRequest.prototype.toObject = function(data) {
 			break;
 		case "struct":
 			ret = {};
-			for (var i = 0;i<data.childNodes.length;++i)
-			{
-				var elem = data.childNodes[i];
+			for (i=0; i<data.childNodes.length; ++i) {
+				elem = data.childNodes[i];
 				if (elem.nodeType == 1)
 				{
 					if(elem.tagName == "member")

@@ -159,10 +159,11 @@ TreeNode.prototype.setCaption = function(sCaption) {
 }
 
 TreeNode.prototype.toggle = function() {
+    var i;
 	this.isExpanded = !this.isExpanded;
 	if (this.isExpanded) {
 		this._expandImg.src = '__quix/images/collapse.gif';
-		for (var i=0; i < this.childNodes.length; i++) {
+		for (i=0; i < this.childNodes.length; i++) {
 			this.childNodes[i].show();
 		}
 		if (this.tree._customRegistry.onexpand)
@@ -170,7 +171,7 @@ TreeNode.prototype.toggle = function() {
 	}
 	else {
 		this._expandImg.src = '__quix/images/expand.gif';
-		for (var i=0; i < this.childNodes.length; i++) {
+		for (i=0; i < this.childNodes.length; i++) {
 			this.childNodes[i].hide();
 		}
 	}

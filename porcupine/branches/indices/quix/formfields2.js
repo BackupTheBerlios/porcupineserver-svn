@@ -218,7 +218,7 @@ Combo.prototype.focus = function() {
 }
 
 Combo.prototype.showDropdown = function(w) {
-	var w = w || this;
+	w = w || this;
 	var iLeft = w.getScreenLeft();
 	var iTop = w.getScreenTop() + w.getHeight(true);
 
@@ -250,7 +250,7 @@ Combo.prototype.setBgColor = function(color) {
 }
 
 Combo.prototype.addOption = function(params, w) {
-	var w = w || this;
+	w = w || this;
 	params.align = params.align || 'left';
 	params.width = '100%';
 	params.height = params.height || 24;
@@ -316,7 +316,7 @@ function AutoComplete(params) {
 	//attach events
 	var oAuto = this;
 	this.textField.onkeyup = function(evt) {
-		var evt = evt || event;
+		evt = evt || event;
 		oAuto._captureKey(evt);
 	}
 }
@@ -369,7 +369,7 @@ AutoComplete.prototype._showResults = function(oReq) {
 }
 
 AutoComplete.prototype._captureKey = function(evt) {
-	var index;
+	var index, opt;
 	if (this.textField.value == '') {
 		if (this.isExpanded)
 			this.dropdown.close();
@@ -390,7 +390,7 @@ AutoComplete.prototype._captureKey = function(evt) {
 				this._getResults();
 			else {
 				index = this._getSelection(evt);
-				var opt = this.options[index];
+				opt = this.options[index];
 				this.dropdown.widgets[0].div.scrollTop = opt.div.offsetTop - 20;
 				opt.div.className = 'option over';
 			}
@@ -401,7 +401,7 @@ AutoComplete.prototype._captureKey = function(evt) {
 				return;
 			if (!this.isExpanded)
 				this.showDropdown();
-			var opt = this.options[index];
+			opt = this.options[index];
 			this.dropdown.widgets[0].div.scrollTop = opt.div.offsetTop - 20;
 			opt.div.className = 'option over';
 			break;
@@ -500,15 +500,16 @@ SelectList.prototype.deSelectOption = function(option) {
 }
 
 SelectList.prototype.getValue = function() {
-	vs = [];
+    var i;
+	var vs = [];
 	if (this.posts == 'all') {
-		for (var i=0; i<this.options.length; i++) {
+		for (i=0; i<this.options.length; i++) {
 			vs.push(this.options[i].value);
 		}
 		return vs;
 	}
 	else {
-		for (var i=0; i<this.selection.length; i++) {
+		for (i=0; i<this.selection.length; i++) {
 			vs.push(this.selection[i].value);
 		}
 		if (this.multiple)

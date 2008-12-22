@@ -134,7 +134,7 @@ Widget.prototype.enable = function(w) {
 }
 
 Widget.prototype.detach = function(w) {
-	var w = w || this;
+	w = w || this;
 	w.parent.widgets.removeItem(w);
 	if (w._id)
 		w._removeIdRef();
@@ -257,7 +257,7 @@ Widget.prototype.getId = function() {
 
 // bgColor attribute
 Widget.prototype.setBgColor = function(color,w) {
-	var w = w || this;
+	w = w || this;
 	w.div.style.backgroundColor = color;
 }
 Widget.prototype.getBgColor = function() {
@@ -516,7 +516,7 @@ Widget.prototype.resize = function(x,y) {
 }
 
 Widget.prototype.destroy = function(w) {
-	var w = w || this;
+	w = w || this;
 	if (w._customRegistry.onunload)
 		w._customRegistry.onunload(w);
 	QuiX.removeWidget(w);
@@ -527,7 +527,7 @@ Widget.prototype.clear = function() {
 }
 
 Widget.prototype.hide = function(w) {
-	var w = w || this;
+	w = w || this;
 	if (!w.isHidden()) {
 		QuiX.detachFrames(w);
 		this._statedisplay = w.div.style.display;
@@ -536,7 +536,7 @@ Widget.prototype.hide = function(w) {
 }
 
 Widget.prototype.show = function(w) {
-	var w = w || this;
+	w = w || this;
 	QuiX.attachFrames(w);
 	w.div.style.display = w._statedisplay || '';
 }
@@ -637,9 +637,10 @@ Widget.prototype._startDrag = function(x, y) {
 }
 
 Widget.prototype.redraw = function(bForceAll, w) {
-	var w = w || this;
+	w = w || this;
 	var container = w.div.parentElement;
 	if (container &&  w.div.style.display != 'none') {
+        var i;
 		var wdth = w.div.style.width;
 		var hght = w.div.style.height;
 		if (w.div.clientWidth > 0)
@@ -651,7 +652,7 @@ Widget.prototype.redraw = function(bForceAll, w) {
 			w._setCommonProps();
 			if (w.div.style.position != '')
 				w._setAbsProps();
-			for (var i=0; i<w.widgets.length; i++) {
+			for (i=0; i<w.widgets.length; i++) {
 				if (bForceAll || w.widgets[i]._mustRedraw())
 					w.widgets[i].redraw(bForceAll);
 			}
@@ -661,7 +662,7 @@ Widget.prototype.redraw = function(bForceAll, w) {
 			if (frag) {
 				frag = null;
 				var radios = w.getWidgetsByAttribute('_checked');
-				for (var i=0; i<radios.length; i++)
+				for (i=0; i<radios.length; i++)
 					radios[i].div.firstChild.checked = radios[i]._checked;
 			}
 		}
@@ -678,7 +679,7 @@ Widget.prototype.print = function(expand) {
 	expand = expand || false;
 	var iframe = document.getElementById('_print');
 	if (!iframe) {
-		var iframe = ce('IFRAME');
+		iframe = ce('IFRAME');
 		iframe.name = '_print';
 		iframe.id = '_print';
 		iframe.style.width = '0px';
@@ -969,7 +970,7 @@ Desktop.prototype.msgbox = function(mtitle, message, buttons,
 	var handler;
 	var oButton;
 	var dlg;
-	var w = w || this;
+	w = w || this;
 	
 	mwidth = mwidth || 240;
 	mheight = mheight || 120;

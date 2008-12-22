@@ -109,7 +109,7 @@ recycleBin.restoreItem = function(evt, w) {
 	items.reverse();
 	
 	var _startRestoring = function(w) {
-		var w = w.callback_info || w;
+		w = w.callback_info || w;
 		var pb = w.getWidgetById("pb");
 		if (items.length > 0) {
 			var item = items.pop();

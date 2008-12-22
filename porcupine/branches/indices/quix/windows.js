@@ -274,6 +274,8 @@ Window.prototype.setStatus = function(s) {
 Window.prototype.getStatus = function() {
 	if (this.statusBar)
 		return this.statusBar.getCaption();
+    else
+        return null;
 }
 
 Window.prototype._mouseoverControl = function(evt, btn) {
@@ -294,8 +296,9 @@ Window.prototype.minimize = function() {
 	var effect;
 	if (minControl) {
 		if (!w.isMinimized) {
+            var i;
 			var padding = w.getPadding();
-			for (var i=1; i<w.widgets[0].widgets.length; i++)
+			for (i=1; i<w.widgets[0].widgets.length; i++)
 				w.widgets[0].widgets[i].hide();
 			if (w._resizer)
 				w._resizer.hide();
@@ -304,7 +307,7 @@ Window.prototype.minimize = function() {
 						padding[2] + padding[3];
 			if (maxControl)
 				maxControl.disable();
-			for (var i=0; i<w.childWindows.length; i++) {
+			for (i=0; i<w.childWindows.length; i++) {
 				childWindow = w.childWindows[i];
 				if (!childWindow.isHidden()) {
 					childWindow.hide();
@@ -382,22 +385,22 @@ Window.prototype.maximize = function() {
 Window.prototype.bringToFront = function() {
 	QuiX.cleanupOverlays();
 	if (this.div.style.zIndex < this.parent.maxz) {
-		var sw, dt;
+		var sw, dt, i;
 		var macff = QuiX.browser == 'moz' && QuiX.getOS() == 'MacOS';
 		Widget.prototype.bringToFront(this);
 		if (macff) {
-			var dt = document.desktop;
+			dt = document.desktop;
 			//hide scrollbars
 			sw = dt.getWidgetsByAttributeValue('_overflow', 'auto');
 			sw = sw.concat(dt.getWidgetsByAttributeValue('_overflow', 'scroll'));
-			for (var i=0; i<sw.length; i++) {
+			for (i=0; i<sw.length; i++) {
 				if (sw[i] != this.parent)
 					sw[i].div.style.overflow = 'hidden';
 			}
 			//restore scrollbars
 			sw = this.getWidgetsByAttributeValue('_overflow', 'auto');
 			sw = sw.concat(this.getWidgetsByAttributeValue('_overflow', 'scroll'));
-			for (var i=0; i<sw.length; i++)
+			for (i=0; i<sw.length; i++)
 				sw[i].div.style.overflow = sw[i]._overflow;
 		}
 	}

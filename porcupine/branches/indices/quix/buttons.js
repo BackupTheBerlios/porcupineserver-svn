@@ -44,7 +44,7 @@ Label.prototype.getCaption = function(s) {
 }
 
 Label.prototype.redraw = function(bForceAll, w) {
-	var w = w || this;
+	w = w || this;
 	with (w.div.style) {
 		if (!w.wrap)
 			whiteSpace = 'nowrap';
@@ -105,7 +105,7 @@ Icon.prototype._addDummyImage = function() {
 }
 
 Icon.prototype.redraw = function(bForceAll, w) {
-	var w = w || this;
+	w = w || this;
 	if (bForceAll) {
 		var imgs = w.div.getElementsByTagName('IMG');
 		while (imgs.length > 0)

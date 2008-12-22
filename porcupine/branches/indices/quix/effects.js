@@ -81,7 +81,8 @@ Effect.prototype._apply = function(wd) {
 	}
 	else
 		value = begin + (stepping * this._step);
-	
+
+    var h, w;
 	// apply value
 	switch (this.type) {
 		case 'fade-in':
@@ -91,12 +92,12 @@ Effect.prototype._apply = function(wd) {
 		case 'wipe-in':
 			switch (this.direction) {
 				case 's':
-					var h = wd._calcHeight(true);
+					h = wd._calcHeight(true);
 					wd.div.style.clip = 'rect(auto,auto,' +
 										parseInt(h * value) + 'px,auto)';
 					break;
 				case 'e':
-					var w = wd._calcWidth(true);
+					w = wd._calcWidth(true);
 					wd.div.style.clip = 'rect(auto,' +
 										parseInt(w * value) + 'px,auto,auto)';
 					break;
@@ -105,7 +106,7 @@ Effect.prototype._apply = function(wd) {
 			break;
 		case 'wipe-out':
 			if (this.direction == 'n') { 
-				var h = wd.getHeight(true);
+				h = wd.getHeight(true);
 				wd.div.style.clip = 'rect(auto,auto,' +
 									parseInt(h * value) + 'px,auto)';
 			}

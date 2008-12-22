@@ -189,6 +189,7 @@ ListView.prototype._selectline = function(evt, row) {
 		QuiX.getEventListener(this._customRegistry.onselect)(
 			evt, this, this.dataSet[row.rowIndex]);
 	}
+    return true;
 }
 
 ListView.prototype.select = function(i) {
@@ -408,7 +409,7 @@ ListView.prototype._isSorted = function() {
 }
 
 ListView.prototype.refresh = function(w) {
-	var w = w || this;
+	w = w || this;
 	var tbody = w.list.tBodies[0];
 	while(tbody.firstChild)
 		tbody.removeChild(tbody.firstChild);
@@ -429,13 +430,13 @@ ListView.prototype.refresh = function(w) {
 }
 
 ListView.prototype._refresh = function(start, step) {
-	var oRow, oCell, selector, oFiller;
-	var value, columnWidth, offset;
+	var oRow, selector, oFiller;
+	var value, columnWidth;
 	var rowHeight, offset;
 	var w = this;
 	var tbody = w.list.tBodies[0];
 	var rowBgColor;
-	var listBgColor = w.getBgColor();
+	//var listBgColor = w.getBgColor();
 	if (w.rowHeight) {
 		if (QuiX.browser == 'ie')
 			offset = 2 * w.cellPadding;
@@ -589,7 +590,7 @@ function ListView__onclick (evt, w, f) {
 }
 
 function ListView__onmousedown(evt) {
-	var evt = evt || event;
+	evt = evt || event;
 	QuiX.cancelDefault(evt);
 	var lv = QuiX.getTargetWidget(evt).parent;
 	if (lv._isDisabled) return;
@@ -612,7 +613,7 @@ function ListColumn__getCaption(s) {
 
 function ListColumn__onclick(evt) {
 	var sortOrder, orderBy;
-	var evt = evt || event;
+	evt = evt || event;
 	var lv = QuiX.getTargetWidget(evt).parent;
 	if (lv._orderBy == this.name)
 		sortOrder = (lv._sortOrder=='ASC')?'DESC':'ASC';
