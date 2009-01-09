@@ -35,7 +35,6 @@ if main_is_frozen():
     sys.path.insert(0, '')
 
 from porcupine import datatypes
-from porcupine import exceptions
 from porcupine.administration import offlinedb
 from porcupine.administration import configfiles
 from porcupine.config.settings import settings
@@ -82,7 +81,6 @@ class Package(object):
     def close(self):
         if self.package_file:
             self.package_file.close()
-    
     
     def _exportItem(self, id, clearRolesInherited=True):
         it_file = file(self.tmp_folder + '/' + id, 'wb')

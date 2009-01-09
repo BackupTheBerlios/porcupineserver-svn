@@ -769,7 +769,7 @@ Widget.prototype._buildEventRegistry = function(params) {
 
 Widget.prototype._attachEvents = function() {
 	for (var evt_type in this._registry) {
-		if (evt_type!='toXMLRPC' && evt_type.slice(0,1)!='_') {
+		if (evt_type.slice(0,1)!='_') {
 			if (evt_type.slice(0,1)=='*')
 				evt_type=evt_type.slice(1, evt_type.length);
 			this.attachEvent(evt_type, null);//restore events directly from registry
@@ -782,7 +782,7 @@ Widget.prototype._detachEvents = function(w) {
 	var first_char;
 	for (var evt_type in w._registry) {
 		first_char = evt_type.slice(0,1);
-		if (evt_type!='toXMLRPC' && first_char!='_' && first_char!='*')
+		if (first_char!='_' && first_char!='*')
 			w.detachEvent(evt_type, '*');
 	}
 }
