@@ -134,7 +134,7 @@ class Cloneable(object):
             if not(contentclass in target.containment):
                 raise exceptions.ContainmentError, \
                     'The target container does not accept ' + \
-                    'objects of type "%s".' % contentclass
+                    'objects of type\n"%s".' % contentclass
             
             self._copy(target, trans, clear_inherited=True)
         else:
@@ -190,7 +190,7 @@ class Movable(object):
             if not(contentclass in target.containment):
                 raise exceptions.ContainmentError, \
                     'The target container does not accept ' + \
-                    'objects of type "%s".' % contentclass
+                    'objects of type\n"%s".' % contentclass
             
             self._parentid = target._id
             self.inheritRoles = False
@@ -325,7 +325,7 @@ class Removable(object):
             if not(deleted.getContentclass() in oRecycleBin.containment):
                 raise exceptions.ContainmentError, \
                     'The target container does not accept ' + \
-                    'objects of type "%s".' % deleted.getContentclass()
+                    'objects of type\n"%s".' % deleted.getContentclass()
         else:
             raise exceptions.PermissionDenied, \
                 'The object was not deleted.\n' + \
