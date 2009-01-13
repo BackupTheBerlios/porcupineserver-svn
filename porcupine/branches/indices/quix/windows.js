@@ -10,6 +10,7 @@ function __closeDialog__(evt, w) {
 function Window(params) {
 	params = params || {};
 	var overflow = params.overflow;
+    var padding = params.padding;
 	params.border = 1;
 	params.padding = '1,1,1,1';
 	params.opacity = (QuiX.effectsEnabled)?0:1;
@@ -73,7 +74,8 @@ function Window(params) {
 	//client area
 	this.body = new Widget({
 		border : 0,
-		overflow : overflow
+		overflow : overflow,
+        padding : padding
 	});
 	this.body.div.className = 'body';
 	box.appendChild(this.body);
