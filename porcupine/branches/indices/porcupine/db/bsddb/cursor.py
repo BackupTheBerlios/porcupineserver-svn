@@ -14,8 +14,9 @@
 #    along with Porcupine; if not, write to the Free Software
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #===============================================================================
-from msilib.schema import Shortcut
-"Porcupine Berkeley DB cursor classes"
+"""
+Porcupine Berkeley DB cursor classes
+"""
 import cPickle
 from bsddb import db
 from threading import currentThread
