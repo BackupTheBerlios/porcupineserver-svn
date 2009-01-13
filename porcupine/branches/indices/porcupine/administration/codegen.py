@@ -188,9 +188,11 @@ class ItemEditor(GenericSchemaEditor):
     def commitChanges(self, generate_code=True):
         from porcupine.oql.command import OqlCommand
         if self._setProps or self._removedProps:
-            #we must reload the class module
-            oMod = misc.getCallableByName(self._class.__module__)
-            reload(oMod)
+            if generate_code:
+                GenericSchemaEditor.commitChanges(self)
+                # we must reload the class module
+                oMod = misc.getCallableByName(self._class.__module__)
+                reload(oMod)
             
             db = offlinedb.getHandle()
             oql_command = OqlCommand()
@@ -228,8 +230,6 @@ class ItemEditor(GenericSchemaEditor):
                         sys.exit(2)
             finally:
                 offlinedb.close()
-        if generate_code:
-            GenericSchemaEditor.commitChanges(self)
     
     def generateCode(self):
         bases = [self._getFullName(x) for x in self._bases]
