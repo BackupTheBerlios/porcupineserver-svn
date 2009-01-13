@@ -40,8 +40,7 @@ class PorcupineException(Exception):
         serverLogger.log(
             self.severity,
             self.description,
-            *(), 
-            **{'exc_info':self.outputTraceback}
+            exc_info=self.outputTraceback
         )
         if context != None:
             context.response._reset()
@@ -54,7 +53,6 @@ class PorcupineException(Exception):
             if request_type == 'xmlrpc':
                 context.response.content_type = 'text/xml'
                 error_template = 'conf/XMLRPCError.xml'
-                #description = xmlUtils.XMLEncode(description)
             else:
                 context.response.content_type = 'text/html'
                 error_template = 'conf/errorpage.html'
