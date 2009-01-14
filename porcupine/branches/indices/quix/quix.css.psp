@@ -411,3 +411,10 @@ BODY {
 .flowbox .selected {
 	background-color : #6699FF;
 }
+
+/* Rich text editor */
+
+.editframe {
+    border-style : solid;
+	border-color: DarkGray;
+}

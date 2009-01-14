@@ -145,6 +145,7 @@ QuiX.modules = [
 	new QuiX.Module('Forms & Fields 2', '__quix/formfields2.js', [3]),
 	new QuiX.Module('VBox & HBox', '__quix/box.js', []),
 	new QuiX.Module('Effects', '__quix/effects.js', [13]),
+    new QuiX.Module('Rich Text Editor', '__quix/richtext.js', [8,15,9]),
 ];
 
 QuiX.tags = {
@@ -166,7 +167,8 @@ QuiX.tags = {
 	'timer':13,
 	'combo':14,'selectlist':14,
 	'box':15,
-	'effect':16
+	'effect':16,
+    'richtext':17
 };
 
 QuiX.__init__ = function() {
@@ -448,7 +450,7 @@ QuiX.innerText = function(node) {
     if (typeof XMLSerializer != "undefined") {
         var serializer = new XMLSerializer();
         for (i=0; i<node.childNodes.length; i++) {
-                text += serializer.serializeToString(node.childNodes[i])
+            text += serializer.serializeToString(node.childNodes[i]);
         }
     }
     else if (node.xml) {
@@ -641,11 +643,13 @@ QuiX.Parser.prototype.beginRender = function() {
 		on_load = this.__onload.pop();
 		on_load[0](on_load[1]);
 	}
+    this.dom = null;
 	if (this.oncomplete)
 		this.oncomplete(widget);
 }
 
 QuiX.Parser.prototype.render = function() {
+    var widget;
 	var parentW = this.parentWidget;
 	var frag = document.createDocumentFragment();
 	if (parentW) {
@@ -689,6 +693,10 @@ QuiX.Parser.prototype.parseXul = function(oNode, parentW) {
                     if (params.type=='textarea')
                         params.value = QuiX.innerText(oNode);
                     oWidget = new Field(params);
+                    break;
+                case 'richtext':
+                    params.value = QuiX.innerText(oNode);
+                    oWidget = new RichText(params);
                     break;
                 case 'mfile':
                     parentW.addFile(params);
