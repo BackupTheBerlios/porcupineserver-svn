@@ -219,18 +219,6 @@ QuiX.getOS = function() {
 	return os_name;
 }
 
-QuiX.getWidgetsById = function(w, sid) {
-	var ws = [];
-	if (w._id_widgets[sid])
-		ws = ws.concat(w._id_widgets[sid]);
-	for (var i=0; i<w.widgets.length; i++) {
-		if (w.widgets[i].widgets.length > 0) {
-			ws = ws.concat(QuiX.getWidgetsById(w.widgets[i], sid));
-		}
-	}
-	return ws;
-}
-
 QuiX.cleanupOverlays = function() {
 	var ovr = document.desktop.overlays;
 	while (ovr.length>0) ovr[0].close();
@@ -505,8 +493,6 @@ QuiX.removeWidget = function(w) {
 	
 	if (w.parent) {
 		w.parent.widgets.removeItem(w);
-		if (w._id)
-			w._removeIdRef();
 	}
 
 	w._detachEvents();
