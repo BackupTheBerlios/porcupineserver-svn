@@ -25,12 +25,6 @@
 		client=".*"
 		lang=".*"
 		action="quixextensions.psp"/>
-	<context path="print.htm"
-		method="GET"
-		client=".*"
-		lang=".*"
-		action="print.htm"
-		max-age="3600"/>
 	<context path="ReadFile.jar"
 		method="GET"
 		client=".*"
@@ -43,6 +37,20 @@
 		lang=".*"
 		action="quix.css.psp"
 		max-age="3600"/>
+    <!-- html pages -->
+	<context match="(.*)\.htm"
+		method="GET"
+		client=".*"
+		lang=".*"
+		action="$1.htm"
+		max-age="3600"/>
+    <!-- Stylesheets -->
+	<context match="(.*)\.css"
+		method="GET"
+		client=".*"
+		lang=".*"
+		action="$1.css"
+		max-age="1200"/>
 	<!-- QuiX Modules -->
 	<context match="(.*)\.js"
 		method="GET"

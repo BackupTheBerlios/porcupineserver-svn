@@ -9,6 +9,8 @@ function Box(params) {
 	this.base(params);
 	this.div.className = 'box';
 	this.orientation = params.orientation || 'h';
+    this._auto_width = (params.width == 'auto');
+    this._auto_height = (params.height == 'auto');
 	var spacing = (typeof params.spacing == 'undefined')? 2:params.spacing;
 	this.spacing = parseInt(spacing);
 	this.childrenAlign = params.childrenalign;
@@ -35,7 +37,6 @@ Box.prototype.redraw = function(bForceAll, w) {
 		var center_var = (w.orientation=='h')?'top':'left';
 		var length_var = (w.orientation=='h')?'width':'height';
 		var width_var = (w.orientation=='h')?'height':'width';
-		
 		for (var i=0; i<w.widgets.length; i++) {
 			oWidget = w.widgets[i];
 			oWidget[offset_var] = 'this.parent._getWidgetOffset(' + i + ')';
@@ -48,6 +49,46 @@ Box.prototype.redraw = function(bForceAll, w) {
 		}
 	}
 	Widget.prototype.redraw(bForceAll, w);
+}
+
+Box.prototype._calcWidth = function(b) {
+    if (this._auto_width && this.widgets.length > 0) {
+        var width = 0;
+        var w;
+        var pad = this.getPadding();
+        var offset = pad[0] + pad[1];
+        for (var i=0; i<this.widgets.length; i++) {
+            w = this.widgets[i];
+            if (this.orientation == 'h')
+                width += w._calcWidth(true);
+            else
+                width = Math.max(width, w._calcWidth(true));
+        }
+        if (this.orientation == 'h')
+            width += (this.widgets.length - 1) * this.spacing;
+        this.width = width + offset;
+    }
+    return this.base.prototype._calcWidth.apply(this, arguments);
+}
+
+Box.prototype._calcHeight = function(b) {
+    if (this._auto_height && this.widgets.length > 0) {
+        var height = 0;
+        var w;
+        var pad = this.getPadding();
+        var offset = pad[2] + pad[3];
+        for (var i=0; i<this.widgets.length; i++) {
+            w = this.widgets[i];
+            if (this.orientation == 'v')
+                height += w._calcHeight(true);
+            else
+                height = Math.max(height, w._calcHeight(true));
+        }
+        if (this.orientation == 'v')
+            height += (this.widgets.length - 1) * this.spacing;
+        this.height = height + offset;
+    }
+    return this.base.prototype._calcHeight.apply(this, arguments);
 }
 
 Box.prototype._getWidgetPos = function(iPane) {
@@ -165,8 +206,9 @@ FlowBox.prototype.appendChild = function(w) {
 	var show = false;
 	w.destroy = FlowBoxWidget__destroy;
 	if (this.select) {
-		w.attachEvent('onmousedown', QuiX.getEventWrapper(FlowBox__selectItem,
-			w._getHandler('onmousedown')));
+		w.attachEvent('onmousedown',
+                      QuiX.getEventWrapper(FlowBox__selectItem,
+                      w._getHandler('onmousedown')));
 	}
 	w._setCommonProps();
 	if (!w.isHidden()) {

@@ -1,19 +1,19 @@
-//===============================================================================
-//    Copyright 2005-2008 Tassos Koutsovassilis and Contributors
+//==============================================================================
+//  Copyright 2005-2008 Tassos Koutsovassilis and Contributors
 //
-//    This file is part of Porcupine.
-//    Porcupine is free software; you can redistribute it and/or modify
-//    it under the terms of the GNU Lesser General Public License as published by
-//    the Free Software Foundation; either version 2.1 of the License, or
-//    (at your option) any later version.
-//    Porcupine is distributed in the hope that it will be useful,
-//    but WITHOUT ANY WARRANTY; without even the implied warranty of
-//    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//    GNU Lesser General Public License for more details.
-//    You should have received a copy of the GNU Lesser General Public License
-//    along with Porcupine; if not, write to the Free Software
-//    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-//===============================================================================
+//  This file is part of Porcupine.
+//  Porcupine is free software; you can redistribute it and/or modify
+//  it under the terms of the GNU Lesser General Public License as published by
+//  the Free Software Foundation; either version 2.1 of the License, or
+//  (at your option) any later version.
+//  Porcupine is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU Lesser General Public License for more details.
+//  You should have received a copy of the GNU Lesser General Public License
+//  along with Porcupine; if not, write to the Free Software
+//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+//==============================================================================
 
 QuiX.browser = 'ie';
 
@@ -28,7 +28,6 @@ function Widget(params) {
 	this.minh = params.minh || 0;
 	this.tooltip = params.tooltip;
 	this.widgets = [];
-	this._id_widgets = {};
 	this.attributes = params.attributes || {};
 	this.maxz = 0;
 	this._isDisabled = false;
@@ -92,8 +91,6 @@ Widget.prototype.appendChild = function(w, p) {
 	p = p || this;
 	p.widgets.push(w);
 	w.parent = p;
-	if (w._id)
-		w._addIdRef();
 	w.div = p.div.appendChild(w.div);
 	if (w.height=='100%' && w.width=='100%')
 		p.setOverflow('hidden');
@@ -136,8 +133,6 @@ Widget.prototype.enable = function(w) {
 Widget.prototype.detach = function(w) {
 	var w = w || this;
 	w.parent.widgets.removeItem(w);
-	if (w._id)
-		w._removeIdRef();
 	w.parent = null;
 	w.div = QuiX.removeNode(w.div);
 }
@@ -168,7 +163,7 @@ Widget.prototype.parseFromUrl = function(url, oncomplete) {
 }
 
 Widget.prototype.getParentByType = function(wtype) {
-	w = this.parent;
+	var w = this.parent;
 	while (w) {
 		if (w instanceof wtype) return w;
 		w = w.parent;
@@ -177,7 +172,7 @@ Widget.prototype.getParentByType = function(wtype) {
 }
 
 Widget.prototype.getWidgetById = function(sid) {
-	ws = QuiX.getWidgetsById(this, sid);
+	var ws = this.query('w._id==param', sid);
 	if (ws.length==0)
 		return null;
 	else if (ws.length==1)
@@ -227,30 +222,12 @@ Widget.prototype._setCommonProps = function (w) {
 		w.div.style.width = w._calcWidth() + 'px';
 }
 
-Widget.prototype._removeIdRef = function()
-{
-	this.parent._id_widgets[this._id].removeItem(this);
-	if (this.parent._id_widgets[this._id].length == 0)
-		delete this.parent._id_widgets[this._id];
-}
-
-Widget.prototype._addIdRef = function()
-{
-	if (this.parent._id_widgets[this._id])
-		this.parent._id_widgets[this._id].push(this);
-	else
-		this.parent._id_widgets[this._id] = [this];
-}
-
 // id attribute
 Widget.prototype.setId = function(id) {
-	if (this.parent && this._id)
-		this._removeIdRef();
 	this._id = id;
 	this.div.id = id;
-	if (this.parent)
-		this._addIdRef();
 }
+
 Widget.prototype.getId = function() {
 	return this._id;
 }
@@ -328,11 +305,11 @@ Widget.prototype.getPadding = function() {
 }
 
 Widget.prototype.addPaddingOffset = function(where, iOffset) {
-	var old_offset = eval('parseInt(this.div.style.padding' + where + ')');
+	var old_offset = parseInt(this.div.style['padding' + where]);
 	var new_offset = old_offset + iOffset;
 	if (new_offset < 0)
 		new_offset = 0;
-	eval('this.div.style.padding' + where + '="' + new_offset + 'px"');
+    this.div.style['padding' + where] = new_offset + 'px';
 }
 
 Widget.prototype._mustRedraw = function () {
@@ -530,7 +507,7 @@ Widget.prototype.hide = function(w) {
 	var w = w || this;
 	if (!w.isHidden()) {
 		QuiX.detachFrames(w);
-		this._statedisplay = w.div.style.display;
+		w._statedisplay = w.div.style.display;
 		w.div.style.display = 'none';
 	}
 }
@@ -563,16 +540,16 @@ Widget.prototype._startResize = function (evt) {
 
 Widget.prototype._resizing = function(evt) {
 	evt = evt || event;
-	offsetX = evt.clientX - QuiX.startX;
-	offsetY = evt.clientY - QuiX.startY;
+	var offsetX = evt.clientX - QuiX.startX;
+	var offsetY = evt.clientY - QuiX.startY;
 	QuiX.tmpWidget.resize(this.getWidth(true) + offsetX,
 				this.getHeight(true) + offsetY);
 }
 
 Widget.prototype._endResize = function(evt) {
 	evt = evt || event;
-	offsetX = evt.clientX - QuiX.startX;
-	offsetY = evt.clientY - QuiX.startY;
+	var offsetX = evt.clientX - QuiX.startX;
+	var offsetY = evt.clientY - QuiX.startY;
 	this.resize(this.getWidth(true) + offsetX,
 				this.getHeight(true) + offsetY);
 	this.bringToFront();
@@ -600,8 +577,8 @@ Widget.prototype._startMove = function(evt) {
 
 Widget.prototype._moving = function(evt) {
 	evt = evt || event;
-	offsetX = evt.clientX - QuiX.startX;
-	offsetY = evt.clientY - QuiX.startY;
+	var offsetX = evt.clientX - QuiX.startX;
+	var offsetY = evt.clientY - QuiX.startY;
 	QuiX.tmpWidget.moveTo(this.getLeft() + offsetX,
 				this.getTop() + offsetY);	
 }
@@ -611,8 +588,8 @@ Widget.prototype._endMove = function(evt) {
 	QuiX.tmpWidget.destroy();
 	document.desktop.detachEvent('onmouseup');
 	document.desktop.detachEvent('onmousemove');
-	offsetX = evt.clientX - QuiX.startX;
-	offsetY = evt.clientY - QuiX.startY;
+	var offsetX = evt.clientX - QuiX.startX;
+	var offsetY = evt.clientY - QuiX.startY;
 	this.moveTo(this.getLeft() + offsetX,
 				this.getTop() + offsetY);
 	this.bringToFront();
@@ -968,7 +945,7 @@ Desktop.prototype.msgbox = function(mtitle, message, buttons,
 	var sButtons = '';
 	var handler;
 	var oButton;
-	var dlg;
+	var innHTML;
 	var w = w || this;
 	
 	mwidth = mwidth || 240;
