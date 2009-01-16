@@ -29,16 +29,15 @@ Box.prototype.appendChild = function(w, p) {
 	Widget.prototype.appendChild(w, p);
 }
 
-Box.prototype.redraw = function(bForceAll, w) {
-	w = w || this;
+Box.prototype.redraw = function(bForceAll) {
 	if (bForceAll) {
 		var oWidget;
-		var offset_var = (w.orientation=='h')?'left':'top';
-		var center_var = (w.orientation=='h')?'top':'left';
-		var length_var = (w.orientation=='h')?'width':'height';
-		var width_var = (w.orientation=='h')?'height':'width';
-		for (var i=0; i<w.widgets.length; i++) {
-			oWidget = w.widgets[i];
+		var offset_var = (this.orientation=='h')?'left':'top';
+		var center_var = (this.orientation=='h')?'top':'left';
+		var length_var = (this.orientation=='h')?'width':'height';
+		var width_var = (this.orientation=='h')?'height':'width';
+		for (var i=0; i<this.widgets.length; i++) {
+			oWidget = this.widgets[i];
 			oWidget[offset_var] = 'this.parent._getWidgetOffset(' + i + ')';
 			oWidget[center_var] = 'this.parent._getWidgetPos(' + i + ')';
 
@@ -48,7 +47,7 @@ Box.prototype.redraw = function(bForceAll, w) {
 				oWidget[width_var] = 'this.parent._calcWidgetWidth()';
 		}
 	}
-	Widget.prototype.redraw(bForceAll, w);
+	Widget.prototype.redraw.apply(this, arguments);
 }
 
 Box.prototype._calcWidth = function(b) {
@@ -68,7 +67,7 @@ Box.prototype._calcWidth = function(b) {
             width += (this.widgets.length - 1) * this.spacing;
         this.width = width + offset;
     }
-    return this.base.prototype._calcWidth.apply(this, arguments);
+    return Widget.prototype._calcWidth.apply(this, arguments);
 }
 
 Box.prototype._calcHeight = function(b) {
@@ -88,7 +87,7 @@ Box.prototype._calcHeight = function(b) {
             height += (this.widgets.length - 1) * this.spacing;
         this.height = height + offset;
     }
-    return this.base.prototype._calcHeight.apply(this, arguments);
+    return Widget.prototype._calcHeight.apply(this, arguments);
 }
 
 Box.prototype._getWidgetPos = function(iPane) {
@@ -176,7 +175,10 @@ function BoxWidget__destroy() {
 		else
 			oBox.widgets[idx-1][length_var] = '-1';
 	}
-	Widget.prototype.destroy(this);
+	if (this.base)
+		this.base.prototype.destroy.apply(this, arguments);
+	else
+		Widget.prototype.destroy.apply(this, arguments);
 	oBox.redraw(true);
 }
 
@@ -222,7 +224,7 @@ FlowBox.prototype.appendChild = function(w) {
 }
 
 FlowBox.prototype.redraw = function(bForceAll) {
-	Widget.prototype.redraw(bForceAll, this);
+	Widget.prototype.redraw.apply(this, arguments);
 	this._rearrange(0);
 }
 
@@ -285,7 +287,10 @@ function FlowBoxWidget__destroy() {
 			fb._selection = null;
 	}
 	var i = fb.widgets.indexOf(this);
-	Widget.prototype.destroy(this);
+	if (this.base)
+		this.base.prototype.destroy.apply(this, arguments);
+	else
+		Widget.prototype.destroy.apply(this, arguments);
 	if (i < fb.widgets.length)
 		fb._rearrange(i);
 }

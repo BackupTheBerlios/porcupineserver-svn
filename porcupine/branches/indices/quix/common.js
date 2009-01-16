@@ -38,7 +38,7 @@ IFrame.prototype.customEvents =
 
 IFrame.prototype.redraw = function(bForceAll) {
 	this.frame.style.visibility = 'hidden';
-	Widget.prototype.redraw(bForceAll, this);
+	Widget.prototype.redraw.apply(this, arguments);
 	this.frame.style.visibility = '';
 }
 

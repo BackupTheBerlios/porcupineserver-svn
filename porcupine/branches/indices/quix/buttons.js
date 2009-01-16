@@ -43,16 +43,15 @@ Label.prototype.getCaption = function(s) {
 	return(this.div.getElementsByTagName('SPAN')[0].innerHTML.xmlDecode());
 }
 
-Label.prototype.redraw = function(bForceAll, w) {
-	w = w || this;
-	with (w.div.style) {
-		if (!w.wrap)
+Label.prototype.redraw = function(bForceAll) {
+	with (this.div.style) {
+		if (!this.wrap)
 			whiteSpace = 'nowrap';
 		else
 			whiteSpace = '';
-		textAlign = w.align;
+		textAlign = this.align;
 	}
-	Widget.prototype.redraw(bForceAll, w);
+	Widget.prototype.redraw.apply(this, arguments);
 }
 
 function Label__onmousedown(evt, w) {
@@ -104,65 +103,64 @@ Icon.prototype._addDummyImage = function() {
 	}
 }
 
-Icon.prototype.redraw = function(bForceAll, w) {
-	w = w || this;
+Icon.prototype.redraw = function(bForceAll) {
 	if (bForceAll) {
-		var imgs = w.div.getElementsByTagName('IMG');
+		var imgs = this.div.getElementsByTagName('IMG');
 		while (imgs.length > 0)
 			QuiX.removeNode(imgs[0]);
-		var br = w.div.getElementsByTagName('BR')[0];
+		var br = this.div.getElementsByTagName('BR')[0];
 		if (br) QuiX.removeNode(br);
 
 		if (this.imgAlign == 'left' || this.imgAling == 'right')
-			w._addDummyImage();
+			this._addDummyImage();
 
-		if (w.img) {
+		if (this.img) {
 			var percentage, caption;
-			img = QuiX.getImage(w.img);
-			caption = w.getCaption();
-			img.style.verticalAlign = (w.imgAlign=='top')?'top':'middle';
+			var img = QuiX.getImage(this.img);
+			caption = this.getCaption();
+			img.style.verticalAlign = (this.imgAlign=='top')?'top':'middle';
 			img.ondragstart = QuiX.cancelDefault;
 			
 			if (caption != '') {
-				switch(w.imgAlign) {
+				switch(this.imgAlign) {
 					case "left":
 						img.style.marginRight = '3px';
-						w.div.insertBefore(img, w.div.firstChild);
+						this.div.insertBefore(img, this.div.firstChild);
 						break;
 					case "right":
 						img.style.marginLeft = '3px';
-						w.div.appendChild(img);
+						this.div.appendChild(img);
 						break;
 					case "top":
-						w.div.insertBefore(ce('BR'), w.div.firstChild);
-						w.div.insertBefore(img, w.div.firstChild);
+						this.div.insertBefore(ce('BR'), this.div.firstChild);
+						this.div.insertBefore(img, this.div.firstChild);
 						break;
 					case "bottom":
-						w.div.appendChild(ce('BR'));
-						w.div.appendChild(img);
+						this.div.appendChild(ce('BR'));
+						this.div.appendChild(img);
 				}
 			}
 			else {
-				w.div.insertBefore(img, w.div.firstChild);
+				this.div.insertBefore(img, this.div.firstChild);
 			}
-			w.imageElement = img;
+			this.imageElement = img;
 		}
 		else
-			w.imageElement = null;
+			this.imageElement = null;
 	}
-	if (w.imageElement && (w.imgHeight || w.imgWidth)) {
-		if (w.imgHeight) {
-			percentage = w.imgHeight.toString().charAt(w.imgHeight.length-1);
-			w.imageElement.style.height =
-				(percentage == '%')?w.imgHeight:w.imgHeight + 'px';
+	if (this.imageElement && (this.imgHeight || this.imgWidth)) {
+		if (this.imgHeight) {
+			percentage = this.imgHeight.toString().charAt(this.imgHeight.length-1);
+			this.imageElement.style.height =
+				(percentage == '%')?this.imgHeight:this.imgHeight + 'px';
 		}
-		if (w.imgWidth) {
-			percentage = w.imgWidth.toString().charAt(w.imgWidth.length-1);
-			w.imageElement.style.width =
-				(percentage == '%')?w.imgWidth:w.imgWidth + 'px';
+		if (this.imgWidth) {
+			percentage = this.imgWidth.toString().charAt(this.imgWidth.length-1);
+			this.imageElement.style.width =
+				(percentage == '%')?this.imgWidth:this.imgWidth + 'px';
 		}
 	}
-	Label.prototype.redraw(bForceAll, w);
+	Label.prototype.redraw.apply(this, arguments);
 }
 
 //XButton class
@@ -242,7 +240,7 @@ XButton.prototype.redraw = function(bForceAll) {
 		this.icon.setPadding(this.iconPadding.split(','));
 		this.icon.redraw(true);
 	}
-	Widget.prototype.redraw(bForceAll, this);
+	Widget.prototype.redraw.apply(this, arguments);
 }
 
 function XButton__onmouseover(evt, w) {
@@ -319,7 +317,7 @@ QuiX.constructors['flatbutton'] = FlatButton;
 FlatButton.prototype = new Icon;
 
 FlatButton.prototype.redraw = function(bForceAll) {
-	Icon.prototype.redraw(bForceAll, this);
+	Icon.prototype.redraw.apply(this, arguments);
 
 	if (this.type == 'menu' && (!this._menuImg || bForceAll)) {
 		this._menuImg = QuiX.getImage('__quix/images/desc8.gif');

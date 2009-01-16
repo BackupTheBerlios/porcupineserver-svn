@@ -124,7 +124,7 @@ Combo.prototype._adjustFieldSize = function() {
 }
 
 Combo.prototype._setCommonProps = function() {
-	Widget.prototype._setCommonProps(this);
+	Widget.prototype._setCommonProps.apply(this, arguments);
 	this._adjustFieldSize();
 }
 
@@ -179,7 +179,7 @@ Combo.prototype.enable = function() {
 		this.div.firstChild.style.backgroundColor = '';
 		if (!this.readonly) this.div.firstChild.onclick = ComboBtn__onclick;
 	}
-	Widget.prototype.enable(this);
+	Widget.prototype.enable.apply(this, arguments);
 }
 
 Combo.prototype.disable = function() {
@@ -188,7 +188,7 @@ Combo.prototype.disable = function() {
 		this.div.firstChild.style.backgroundColor = 'menu';
 		if (!this.readonly) this.div.firstChild.onclick = null;
 	}
-	Widget.prototype.disable(this);
+	Widget.prototype.disable.apply(this, arguments);
 }
 
 Combo.prototype.selectOption = function(option) {
@@ -217,30 +217,29 @@ Combo.prototype.focus = function() {
 	this.div.firstChild.focus();
 }
 
-Combo.prototype.showDropdown = function(w) {
-	w = w || this;
-	var iLeft = w.getScreenLeft();
-	var iTop = w.getScreenTop() + w.getHeight(true);
+Combo.prototype.showDropdown = function() {
+	var iLeft = this.getScreenLeft();
+	var iTop = this.getScreenTop() + this.getHeight(true);
 
-	if (iTop + w.menuHeight > document.desktop.getHeight(true))
-		iTop = w.getScreenTop() - w.menuHeight;
+	if (iTop + this.menuHeight > document.desktop.getHeight(true))
+		iTop = this.getScreenTop() - this.menuHeight;
 
-	w.dropdown.top = iTop;
-	w.dropdown.left = iLeft;
-	if (!w.dropdown.width)
-		w.dropdown.width = 'this.combo.getWidth(true)';
-	w.dropdown.height = w.menuHeight;
-	w.dropdown.setBgColor(w.getBgColor());
+	this.dropdown.top = iTop;
+	this.dropdown.left = iLeft;
+	if (!this.dropdown.width)
+		this.dropdown.width = 'this.combo.getWidth(true)';
+	this.dropdown.height = this.menuHeight;
+	this.dropdown.setBgColor(this.getBgColor());
 
-	document.desktop.appendChild(w.dropdown);
-	w.dropdown.redraw();
-	document.desktop.overlays.push(w.dropdown);
-	w.isExpanded = true;
+	document.desktop.appendChild(this.dropdown);
+	this.dropdown.redraw();
+	document.desktop.overlays.push(this.dropdown);
+	this.isExpanded = true;
 }
 
 Combo.prototype.destroy = function() {
 	if (this.isExpanded) this.dropdown.close();
-	Widget.prototype.destroy(this);
+	Widget.prototype.destroy.apply(this, arguments);
 }
 
 Combo.prototype.setBgColor = function(color) {
@@ -249,8 +248,7 @@ Combo.prototype.setBgColor = function(color) {
 		this.div.firstChild.style.backgroundColor = color;
 }
 
-Combo.prototype.addOption = function(params, w) {
-	w = w || this;
+Combo.prototype.addOption = function(params) {
 	params.align = params.align || 'left';
 	params.width = '100%';
 	params.height = params.height || 24;
@@ -259,10 +257,9 @@ Combo.prototype.addOption = function(params, w) {
 	opt._isContainer = false;
 	opt.selected = false;
 	opt.value = params.value;
-	w.dropdown.widgets[0].appendChild(opt);
-	if ((params.selected=='true' || params.selected == true) && !w.editable) {
-		w.selectOption(opt);
-	}
+	this.dropdown.widgets[0].appendChild(opt);
+	if ((params.selected=='true' || params.selected == true) && !this.editable)
+		this.selectOption(opt);
 	opt.attachEvent('onmouseover', ComboOption__mouseover);
 	opt.attachEvent('onmouseout', ComboOption__mouseout);
 	opt.attachEvent('onclick', ComboOption__onclick);

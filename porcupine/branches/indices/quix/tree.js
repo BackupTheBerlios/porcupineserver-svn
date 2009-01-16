@@ -95,7 +95,7 @@ TreeNode.prototype.redraw = function(bForceAll) {
 		// root node
 		this.show();
 	}
-	Widget.prototype.redraw(bForceAll, this);
+	Widget.prototype.redraw.apply(this, arguments);
 }
 
 TreeNode.prototype._updateParent = function() {
@@ -109,14 +109,14 @@ TreeNode.prototype._updateParent = function() {
 TreeNode.prototype.destroy = function() {
 	this._updateParent();
 	var tree = this.tree; 
-	Widget.prototype.destroy(this);
+	Widget.prototype.destroy.apply(this, arguments);
 	if (tree.selectedWidget && tree.selectedWidget.div == null)
 		tree.selectedWidget = null;
 }
 
 TreeNode.prototype.detach = function() {
 	this._updateParent();
-	Widget.prototype.detach(this);
+	Widget.prototype.detach.apply(this, arguments);
 }
 
 TreeNode.prototype._addExpandImg = function() {
@@ -186,14 +186,14 @@ TreeNode.prototype.disable = function() {
 		this.anchor.className = 'disabled';
 		this.anchor.onclick = null;
 	}
-	Widget.prototype.disable(this);
+	Widget.prototype.disable.apply(this, arguments);
 }
 
 TreeNode.prototype.enable = function() {
 	var oTreeNode = this;
 	this.anchor.className = '';
 	this.anchor.onclick = function(){oTreeNode.tree.selectNode(oTreeNode)};
-	Widget.prototype.enable(this);
+	Widget.prototype.enable.apply(this, arguments);
 }
 
 /************************

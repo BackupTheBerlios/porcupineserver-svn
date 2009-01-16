@@ -20,16 +20,15 @@ QuiX.constructors['datagrid'] = DataGrid;
 DataGrid.prototype = new ListView;
 
 DataGrid.prototype.addHeader = function(params) {
-	var oHeader = ListView.prototype.addHeader(params, this);
+	var oHeader = ListView.prototype.addHeader.apply(this, arguments);
 	this.widgets[1].attachEvent('onclick', DataGrid__onclick);
 	this.widgets[1].attachEvent('onkeydown', DataGrid__onkeydown);
 	return(oHeader);
 }
 
 DataGrid.prototype.addColumn = function(params) {
-	var oCol = ListView.prototype.addColumn(params, this);
-	oCol.editable = (params.editable=='false' ||
-					 params.editable == false)?false:true;
+	var oCol = ListView.prototype.addColumn.apply(this, arguments);
+	oCol.editable = !(params.editable=='false' || params.editable == false);
 	return(oCol);
 }
 
@@ -47,12 +46,12 @@ DataGrid.prototype._removeEditWidget = function() {
 
 DataGrid.prototype.disable = function() {
 	this._removeEditWidget();
-	ListView.prototype.disable(this);
+	ListView.prototype.disable.apply(this, arguments);
 }
 
 DataGrid.prototype.refresh = function() {
 	this._removeEditWidget();
-	ListView.prototype.refresh(this);
+	ListView.prototype.refresh.apply(this, arguments);
 }
 
 DataGrid.prototype.edit = function(cell) {

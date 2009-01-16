@@ -122,7 +122,7 @@ Effect.prototype._apply = function(wd) {
 
 Effect.prototype.stop = function() {
 	if (this._timerid) {
-		Timer.prototype.stop(this);
+		Timer.prototype.stop.apply(this, arguments);
 		switch (this.type) {
 			case 'wipe-in':
 				var ev = this._reverse?this.begin:this.end;

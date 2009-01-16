@@ -1,19 +1,19 @@
-//===============================================================================
-//    Copyright 2005-2008 Tassos Koutsovassilis and Contributors
+//==============================================================================
+//  Copyright 2005-2008 Tassos Koutsovassilis and Contributors
 //
-//    This file is part of Porcupine.
-//    Porcupine is free software; you can redistribute it and/or modify
-//    it under the terms of the GNU Lesser General Public License as published by
-//    the Free Software Foundation; either version 2.1 of the License, or
-//    (at your option) any later version.
-//    Porcupine is distributed in the hope that it will be useful,
-//    but WITHOUT ANY WARRANTY; without even the implied warranty of
-//    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//    GNU Lesser General Public License for more details.
-//    You should have received a copy of the GNU Lesser General Public License
-//    along with Porcupine; if not, write to the Free Software
-//    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-//===============================================================================
+//  This file is part of Porcupine.
+//  Porcupine is free software; you can redistribute it and/or modify
+//  it under the terms of the GNU Lesser General Public License as published by
+//  the Free Software Foundation; either version 2.1 of the License, or
+//  (at your option) any later version.
+//  Porcupine is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU Lesser General Public License for more details.
+//  You should have received a copy of the GNU Lesser General Public License
+//  along with Porcupine; if not, write to the Free Software
+//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+//==============================================================================
 
 //QuiX compatibility layer
 var QuiX = {};
@@ -23,7 +23,7 @@ QuiX.namespace = 'http://www.innoscript.org/quix';
 QuiX.root = (new RegExp(
 	"https?://[^/]+(?:/[^/\?]+)?(?:/(?:{|%7B)[0-9a-f]{32}(?:}|%7D))?",
 	"i")).exec(document.location.href) + '/';
-QuiX.maxz = 9999999999999;
+QuiX.maxz = 999999999;
 QuiX.startX = 0;
 QuiX.startY = 0;
 QuiX.clipboard = new (function() {
@@ -490,10 +490,10 @@ QuiX.removeWidget = function(w) {
 	
 	while (w.widgets.length>0)
 		QuiX.removeWidget(w.widgets[0]);
-	
-	if (w.parent) {
+    if (w.contextMenu)
+        QuiX.removeWidget(w.contextMenu);
+	if (w.parent)
 		w.parent.widgets.removeItem(w);
-	}
 
 	w._detachEvents();
 	

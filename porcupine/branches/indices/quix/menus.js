@@ -38,7 +38,6 @@ MenuOption.prototype.redraw = function(bForceAll) {
 	else {
 		this.div.className = '';
 	}
-
 	if (this.type) {
 		if (this.selected) {
 			switch (this.type) {
@@ -57,18 +56,16 @@ MenuOption.prototype.redraw = function(bForceAll) {
 		this.setPadding([24,8,3,2]);
 	else
 		this.setPadding([5,8,3,2]);
-	
-	Icon.prototype.redraw(bForceAll, this);
+	Icon.prototype.redraw.apply(this, arguments);
 }
 
 MenuOption.prototype.destroy = function() {
 	var parent = this.parent;
 	parent.options.removeItem(this);
-
 	if (this.base)
-		this.base.prototype.destroy(this);
+		this.base.prototype.destroy.apply(this, arguments);
 	else
-		Widget.prototype.destroy(this);
+		Widget.prototype.destroy.apply(this, arguments);
 
 	if (parent.options.length==0 && parent.owner instanceof MenuOption) {
 		parent.owner.subMenu = null;
@@ -210,7 +207,7 @@ ContextMenu.prototype.customEvents =
 ContextMenu.prototype.destroy = function() {
 	this.owner.detachEvent('oncontextmenu');
 	this.owner.contextMenu = null;
-	Widget.prototype.destroy(this);
+	Widget.prototype.destroy.apply(this, arguments);
 }
 
 ContextMenu.prototype.redraw = function(bForceAll) {
@@ -238,7 +235,7 @@ ContextMenu.prototype.redraw = function(bForceAll) {
 	if (this.left + this.width > document.desktop.getWidth(true))
 		this.left = this.left - this.width;
 
-	Widget.prototype.redraw(bForceAll, this);
+	Widget.prototype.redraw.apply(this, arguments);
 }
 
 ContextMenu.prototype.show = function(w, x, y) {
@@ -331,7 +328,7 @@ MBar.prototype.redraw = function(bForceAll) {
 	for (var i=0; i<this.menus.length; i++) {
 		 this.menus[i].div.style.marginRight = this.spacing + 'px';
 	}
-	Widget.prototype.redraw(bForceAll, this);
+	Widget.prototype.redraw.apply(this, arguments);
 }
 
 MBar.prototype.addRootMenu = function(params) {
@@ -359,7 +356,7 @@ MBar.prototype.addRootMenu = function(params) {
 
 function Menu__destroy() {
 	this.parent.menus.removeItem(this);
-	Label.prototype.destroy(this);	
+	Label.prototype.destroy.apply(this, arguments);
 }
 
 function Menu__click(evt, w) {

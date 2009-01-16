@@ -209,7 +209,7 @@ RichText.prototype.redraw = function(bForceAll) {
     if (QuiX.browser == 'moz' && this.wysiwyg && this.doc) {
         this._updateInput();
     }
-    Box.prototype.redraw(bForceAll, this);
+    Box.prototype.redraw.apply(this, arguments);
 }
 
 RichText.prototype.cleanPaste = function() {

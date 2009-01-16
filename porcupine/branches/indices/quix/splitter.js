@@ -7,9 +7,9 @@ function Splitter(params) {
 	params.overflow = 'hidden';
 	params.spacing = 0;
 	params.onresize = Splitter__resize
-	this.base = Box;
+    this.base = Box;
 	this.base(params);
-	
+
 	this._spacing = spacing;
 	this.div.className = 'splitter';
 	this.panes = [];
@@ -129,7 +129,7 @@ function SplitterPane__destroy() {
 			oSplitter._handles.splice(idx-1, 1);
 		}
 	}
-	Widget.prototype.destroy(this);
+	Widget.prototype.destroy.apply(this, arguments);
 	oSplitter.panes.splice(idx, 1);
 	oSplitter.redraw(true);
 }
