@@ -256,9 +256,12 @@ XButton.prototype._calcWidth = function(b) {
 XButton.prototype._calcHeight = function(b) {
     if (this._auto_height) {
         this.div.firstChild.style.height = '';
+        var imgs = this.div.getElementsByTagName('IMG');
+        imgs[imgs.length - 1].style.height = '';
         document.body.appendChild(this.div);
         this.height = this.div.offsetHeight;
         QuiX.removeNode(this.div);
+        imgs[imgs.length - 1].style.height = '100%';
     }
     return Widget.prototype._calcHeight.apply(this, arguments);
 }
