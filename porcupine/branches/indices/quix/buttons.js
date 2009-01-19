@@ -12,6 +12,8 @@ function Label(params) {
 
 	this.div.className = 'label';
 	this.align = params.align || 'left';
+    this._auto_width = (params.width == 'auto');
+    this._auto_height = (params.height == 'auto');
 	
 	if (params.color) {
 		if (!this._isDisabled)
@@ -34,6 +36,24 @@ function Label(params) {
 
 QuiX.constructors['label'] = Label;
 Label.prototype = new Widget;
+
+Label.prototype._calcWidth = function(b) {
+    if (this._auto_width) {
+        document.body.appendChild(this.div);
+        this.width = this.div.offsetWidth;
+        QuiX.removeNode(this.div);
+    }
+    return Widget.prototype._calcWidth.apply(this, arguments);
+}
+
+Label.prototype._calcHeight = function(b) {
+    if (this._auto_height) {
+        document.body.appendChild(this.div);
+        this.height = this.div.offsetHeight;
+        QuiX.removeNode(this.div);
+    }
+    return Widget.prototype._calcHeight.apply(this, arguments);
+}
 
 Label.prototype.setCaption = function(s) {
 	this.div.getElementsByTagName('SPAN')[0].innerHTML = s;
@@ -180,7 +200,6 @@ function XButton(params) {
 		left: params.left,
 		disabled: params.disabled,
 		bgcolor: params.bgcolor || 'buttonface',
-		padding: '0,0,0,0',
 		overflow: 'hidden',
 		onmouseover: QuiX.getEventWrapper(XButton__onmouseover,
 						params.onmouseover),
@@ -194,14 +213,15 @@ function XButton(params) {
 	});
 	this.div.className = 'btn';
 	this.div.style.cursor = 'pointer';
+    this._auto_width = (params.width == 'auto');
+    this._auto_height = (params.height == 'auto');
 	
 	delete params.id; delete params.top; delete params.left;
 	delete params.minw;	delete params.minh; delete params.onclick;
 	delete params.onmouseover; delete params.onmousedown;
 	delete params.onmouseup; delete params.onmousedown;
-	delete params.bgcolor;
-		
-	params.width = '100%';
+	delete params.bgcolor; delete params.width;
+    
 	params.height = '100%';
 	params.border = 1;
 	this.iconPadding = params.iconpadding || '0,0,0,0';
@@ -223,6 +243,25 @@ function XButton(params) {
 
 QuiX.constructors['button'] = XButton;
 XButton.prototype = new Widget;
+
+XButton.prototype._calcWidth = function(b) {
+    if (this._auto_width) {
+        document.body.appendChild(this.div);
+        this.width = this.div.offsetWidth;
+        QuiX.removeNode(this.div);
+    }
+    return Widget.prototype._calcWidth.apply(this, arguments);
+}
+
+XButton.prototype._calcHeight = function(b) {
+    if (this._auto_height) {
+        this.div.firstChild.style.height = '';
+        document.body.appendChild(this.div);
+        this.height = this.div.offsetHeight;
+        QuiX.removeNode(this.div);
+    }
+    return Widget.prototype._calcHeight.apply(this, arguments);
+}
 
 XButton.prototype.setCaption = function(s) {
 	this.icon.setCaption(s);
@@ -415,5 +454,3 @@ function FlatButton__onclick(evt, w) {
 	}
 	QuiX.stopPropag(evt);
 }
-
-
