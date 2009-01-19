@@ -98,41 +98,38 @@ Widget.prototype.appendChild = function(w, p) {
 		w.disable();
 }
 
-Widget.prototype.disable = function(w) {
-	w = w || this;
-	if (!w._isDisabled) {
-		w._statecolor = w.div.style.color;
-		w.div.style.color = 'GrayText';
-		w._statecursor = w.div.style.cursor;
-		w.div.style.cursor = 'default';
-		w._isDisabled = true;
-		if (w.__tooltip || w.__tooltipID)
-			Widget__tooltipout(null, w);
-		w._detachEvents();
-		for (var i=0; i<w.widgets.length; i++) {
-			w.widgets[i].disable();
+Widget.prototype.disable = function() {
+	if (!this._isDisabled) {
+		this._statecolor = this.div.style.color;
+		this.div.style.color = 'GrayText';
+		this._statecursor = this.div.style.cursor;
+		this.div.style.cursor = 'default';
+		this._isDisabled = true;
+		if (this.__tooltip || this.__tooltipID)
+			Widget__tooltipout(null, this);
+		this._detachEvents();
+		for (var i=0; i<this.widgets.length; i++) {
+			this.widgets[i].disable();
 		}
 	}
 }
 
-Widget.prototype.enable = function(w) {
-	w = w || this;
-	if (w._isDisabled) {
-		w.div.style.color = w._statecolor;
-		w.div.style.cursor = w._statecursor;
-		w._isDisabled = false;
-		w._attachEvents();
-		for (var i=0; i<w.widgets.length; i++) {
-			w.widgets[i].enable();
+Widget.prototype.enable = function() {
+	if (this._isDisabled) {
+		this.div.style.color = this._statecolor;
+		this.div.style.cursor = this._statecursor;
+		this._isDisabled = false;
+		this._attachEvents();
+		for (var i=0; i<this.widgets.length; i++) {
+			this.widgets[i].enable();
 		}
 	}
 }
 
-Widget.prototype.detach = function(w) {
-	var w = w || this;
-	w.parent.widgets.removeItem(w);
-	w.parent = null;
-	w.div = QuiX.removeNode(w.div);
+Widget.prototype.detach = function() {
+	this.parent.widgets.removeItem(this);
+	this.parent = null;
+	this.div = QuiX.removeNode(this.div);
 }
 
 Widget.prototype.parse = function(dom, callback) {
@@ -207,17 +204,16 @@ Widget.prototype.getWidgetsByAttributeValue = function(attr_name, value, shallow
 	return this.query('w[param[0]] == param[1]', [attr_name, value], shallow);
 }
 
-Widget.prototype._setAbsProps = function () {
+Widget.prototype._setAbsProps = function() {
 	this.div.style.left = this._calcLeft() + 'px';
 	this.div.style.top = this._calcTop() + 'px';
 }
 
-Widget.prototype._setCommonProps = function (w) {
-	w = w || this;
-	if (w.height!=null)
-		w.div.style.height = w._calcHeight() + 'px';
-	if (w.width!=null)
-		w.div.style.width = w._calcWidth() + 'px';
+Widget.prototype._setCommonProps = function() {
+	if (this.height!=null)
+		this.div.style.height = this._calcHeight() + 'px';
+	if (this.width!=null)
+		this.div.style.width = this._calcWidth() + 'px';
 }
 
 // id attribute
@@ -230,9 +226,8 @@ Widget.prototype.getId = function() {
 }
 
 // bgColor attribute
-Widget.prototype.setBgColor = function(color,w) {
-	var w = w || this;
-	w.div.style.backgroundColor = color;
+Widget.prototype.setBgColor = function(color) {
+	this.div.style.backgroundColor = color;
 }
 Widget.prototype.getBgColor = function() {
 	return this.div.style.backgroundColor;
@@ -454,10 +449,9 @@ Widget.prototype.getScreenTop = function() {
 	return(iY);
 }
 
-Widget.prototype.bringToFront = function(w) {
-	w = w || this;
-	if (w.div.style.zIndex==0 || w.div.style.zIndex < w.parent.maxz) {
-		w.div.style.zIndex = ++w.parent.maxz;
+Widget.prototype.bringToFront = function() {
+	if (this.div.style.zIndex==0 || this.div.style.zIndex < this.parent.maxz) {
+		this.div.style.zIndex = ++this.parent.maxz;
 	}
 }
 
@@ -483,30 +477,27 @@ Widget.prototype.resize = function(x,y) {
 	this.redraw();
 }
 
-Widget.prototype.destroy = function(w) {
-	var w = w || this;
-	if (w._customRegistry.onunload)
-		w._customRegistry.onunload(w);
-	QuiX.removeWidget(w);
+Widget.prototype.destroy = function() {
+	if (this._customRegistry.onunload)
+		this._customRegistry.onunload(this);
+	QuiX.removeWidget(this);
 }
 
 Widget.prototype.clear = function() {
 	while (this.widgets.length > 0) this.widgets[0].destroy();
 }
 
-Widget.prototype.hide = function(w) {
-	var w = w || this;
-	if (!w.isHidden()) {
-		QuiX.detachFrames(w);
-		w._statedisplay = w.div.style.display;
-		w.div.style.display = 'none';
+Widget.prototype.hide = function() {
+	if (!this.isHidden()) {
+		QuiX.detachFrames(this);
+		this._statedisplay = this.div.style.display;
+		this.div.style.display = 'none';
 	}
 }
 
-Widget.prototype.show = function(w) {
-	var w = w || this;
-	QuiX.attachFrames(w);
-	w.div.style.display = w._statedisplay || '';
+Widget.prototype.show = function() {
+	QuiX.attachFrames(this);
+	this.div.style.display = this._statedisplay || '';
 }
 
 Widget.prototype.isHidden = function() {
@@ -604,29 +595,30 @@ Widget.prototype._startDrag = function(x, y) {
 	document.desktop.attachEvent('onmousemove', Widget__drag);
 }
 
-Widget.prototype.redraw = function(bForceAll, w) {
-	var w = w || this;
-	var container = w.div.parentNode;
-	if (container && w.div.style.display != 'none') {
-		var wdth = w.div.style.width;
-		var hght = w.div.style.height;
-		QuiX.removeNode(w.div)
+Widget.prototype.redraw = function(bForceAll) {
+	var container = this.div.parentNode;
+	if (container && this.div.style.display != 'none') {
+		var wdth = this.div.style.width;
+		var hght = this.div.style.height;
+		QuiX.removeNode(this.div)
 		try {
-			w._setCommonProps();
-			if (w.getPosition() != '')
-				w._setAbsProps();
-			for (var i=0; i<w.widgets.length; i++) {
-				if (bForceAll || w.widgets[i]._mustRedraw())
-					w.widgets[i].redraw(bForceAll);
+			this._setCommonProps();
+			if (this.getPosition() != '')
+				this._setAbsProps();
+			for (var i=0; i<this.widgets.length; i++) {
+				if (bForceAll || this.widgets[i]._mustRedraw())
+					this.widgets[i].redraw(bForceAll);
 			}
 		}
 		finally {
-			container.appendChild(w.div);
+			container.appendChild(this.div);
 		}
-		if ((wdth && wdth != w.div.style.width) ||
-			(hght && hght != w.div.style.height)) {
-			if (w._customRegistry.onresize)
-				w._customRegistry.onresize(w, parseInt(wdth), parseInt(hght));
+		if ((wdth && wdth != this.div.style.width) ||
+			(hght && hght != this.div.style.height)) {
+			if (this._customRegistry.onresize)
+				this._customRegistry.onresize(this,
+                                              parseInt(wdth),
+                                              parseInt(hght));
 		}
 	}
 }
@@ -636,7 +628,7 @@ Widget.prototype.print = function(expand) {
 	expand = expand || false;
 	var iframe = document.getElementById('_print');
 	if (!iframe) {
-		var iframe = ce('IFRAME');
+		iframe = ce('IFRAME');
 		iframe.id = '_print';
 		iframe.onload = function() {
 			var n;
@@ -691,13 +683,15 @@ Widget.prototype.supportedEvents = [
 
 Widget.prototype.customEvents = ['onload','onunload','onresize','ondrop'];
 
-Widget.prototype._registerHandler = function(evt_type, handler, isCustom, w) {
-	w = w || this;
-	var chr = (w._isDisabled)?'*':'';
+Widget.prototype._registerHandler = function(evt_type, handler, isCustom) {
+    var self = this;
+	var chr = (this._isDisabled)?'*':'';
 	if (!isCustom)
-		w._registry[chr + evt_type] = function(evt){return handler(evt || event, w)};
+		this._registry[chr + evt_type] = function(evt) {
+            return handler(evt || event, self);
+        };
 	else
-		w._customRegistry[chr + evt_type] = handler;
+		this._customRegistry[chr + evt_type] = handler;
 }
 
 Widget.prototype._buildEventRegistry = function(params) {
@@ -730,13 +724,12 @@ Widget.prototype._attachEvents = function() {
 	}
 }
 
-Widget.prototype._detachEvents = function(w) {
-	w = w || this;
+Widget.prototype._detachEvents = function() {
 	var first_char;
-	for (var evt_type in w._registry) {
+	for (var evt_type in this._registry) {
 		first_char = evt_type.slice(0,1);
 		if (first_char!='_' && first_char!='*')
-			w.detachEvent(evt_type, '*');
+			this.detachEvent(evt_type, '*');
 	}
 }
 
@@ -753,27 +746,26 @@ Widget.prototype._getHandler = function(eventType, f) {
 	return f;
 }
 
-Widget.prototype.attachEvent = function(eventType, f, w) {
-	w = w || this;
-	var isCustom = w.customEvents.hasItem(eventType);
-	var registry = (isCustom)?w._customRegistry:w._registry;
-	f = w._getHandler(eventType, f);
-	
+Widget.prototype.attachEvent = function(eventType, f) {
+	var isCustom = this.customEvents.hasItem(eventType);
+	var registry = (isCustom)?this._customRegistry:this._registry;
+	f = this._getHandler(eventType, f);
+
 	if (f) {
-		if (!w._isDisabled && !isCustom)
-			w.detachEvent(eventType);
+		if (!this._isDisabled && !isCustom)
+			this.detachEvent(eventType);
 		if (f!=registry[eventType])
-			w._registerHandler(eventType, f, isCustom);
+			this._registerHandler(eventType, f, isCustom);
 	}
 
 	if (registry['_' + eventType])
 		delete registry['_' + eventType];
 
-	if (!w._isDisabled && registry['*' + eventType])
+	if (!this._isDisabled && registry['*' + eventType])
 		delete registry['*' + eventType];
 
-	if (!w._isDisabled && !isCustom)
-		QuiX.addEvent(w.div, eventType, w._registry[eventType]);
+	if (!this._isDisabled && !isCustom)
+		QuiX.addEvent(this.div, eventType, this._registry[eventType]);
 }
 
 Widget.prototype.detachEvent = function(eventType, chr) {
@@ -915,23 +907,23 @@ function Desktop(params, root) {
 QuiX.constructors['desktop'] = Desktop;
 Desktop.prototype = new Widget;
 
-Desktop.prototype.msgbox = function(mtitle, message, buttons,
-									image, mleft, mtop, mwidth, mheight, w) {
+Desktop.prototype.msgbox = function(mtitle, message, buttons, image,
+                                    mleft, mtop, mwidth, mheight) {
 	var sButtons = '';
 	var handler;
 	var oButton;
 	var innHTML;
-	var w = w || this;
-	
+
 	mwidth = mwidth || 240;
 	mheight = mheight || 120;
 	if (image) {
 		QuiX.getImage(image);
-		innHTML = '<td><img src="' + image + '"></img></td><td>' + message + '</td>';
+		innHTML = '<td><img src="' + image + '"></img></td><td>' +
+                  message + '</td>';
 	}
 	else
 		innHTML = '<td>' + message + '</td>';
-		
+
 	if (typeof buttons=='object') {
 		for (var i=0; i<buttons.length; i++) {
 			oButton = buttons[i];
@@ -943,9 +935,10 @@ Desktop.prototype.msgbox = function(mtitle, message, buttons,
 		sButtons = '<dlgbutton onclick="__closeDialog__" caption="' +
 				   buttons + '" width="80" height="22"/>';
 
-	w.parseFromString('<dialog xmlns="http://www.innoscript.org/quix"' +
+	this.parseFromString('<dialog xmlns="http://www.innoscript.org/quix"' +
 		' title="' + mtitle + '" close="true"' +
-		' width="' + mwidth + '" height="' + mheight + '" left="' + mleft +'" top="' + mtop + '">' +
+		' width="' + mwidth + '" height="' + mheight + '" left="' + mleft +
+        '" top="' + mtop + '">' +
 		'<wbody><xhtml><![CDATA[<table cellpadding="4"><tr>' + innHTML +
 		'</tr></table>]]></xhtml></wbody>' + sButtons + '</dialog>',
 		function(w) {

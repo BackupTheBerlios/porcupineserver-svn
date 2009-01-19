@@ -54,14 +54,13 @@ Timer.prototype.start = function() {
 	}
 }
 
-Timer.prototype.stop = function(w) {
-	var w = w || this;
-	if (w._timerid) {
-		if (w.timeout)
-			window.clearTimeout(w._timerid);
+Timer.prototype.stop = function() {
+	if (this._timerid) {
+		if (this.timeout)
+			this.clearTimeout(this._timerid);
 		else
-			window.clearInterval(w._timerid);		
-		w._timerid = null;
+			window.clearInterval(this._timerid);
+		this._timerid = null;
 	}
 }
 
@@ -71,5 +70,5 @@ Timer.prototype.isRunning = function() {
 
 Timer.prototype._detachEvents = function() {
 	this.stop();
-	Widget.prototype._detachEvents(this);
+	Widget.prototype._detachEvents.apply(this, arguments);
 }

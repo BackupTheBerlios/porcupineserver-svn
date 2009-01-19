@@ -98,7 +98,6 @@ TabPane.prototype.activateTab = function(tab) {
 
 function Tab__destroy() {
 	var oTab = this.parent;
-	var activeTab = oTab.activeTab;
 	for (var idx=0; idx < oTab.tabs.length; idx++) {
 		 if (oTab.tabs[idx] == this)
 		 	break;
@@ -112,7 +111,7 @@ function Tab__destroy() {
 	}
 	oTab.tabs.splice(idx, 1);
 	this.tabButton.destroy();
-	Widget.prototype.destroy(this);
+	Widget.prototype.destroy.apply(this, arguments);
 }
 
 function Tab__mouseover(evt, w) {

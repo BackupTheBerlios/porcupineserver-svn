@@ -384,7 +384,7 @@ Window.prototype.bringToFront = function() {
 	if (this.div.style.zIndex < this.parent.maxz) {
 		var sw, dt;
 		var macff = QuiX.browser == 'moz' && QuiX.getOS() == 'MacOS';
-		Widget.prototype.bringToFront(this);
+		Widget.prototype.bringToFront.apply(this, arguments);
 		if (macff) {
 			var dt = document.desktop;
 			//hide scrollbars
@@ -550,7 +550,7 @@ function Dialog__buttonHolderRedraw(bForceAll) {
 		iOffset += this.widgets[i].getWidth(true) + 8;
 	}
 	this.width = iOffset;
-	Widget.prototype.redraw(bForceAll, this);
+	Widget.prototype.redraw.apply(this, arguments);
 }
 
 function DialogButton(params, dialog) {
@@ -563,11 +563,11 @@ DialogButton.prototype = new XButton;
 
 DialogButton.prototype._registerHandler = function(eventType, handler, isCustom) {
 	var wrapper;
-	if(handler && handler.toString().lastIndexOf('return handler(evt || event, w)')==-1)
+	if (handler && handler.toString().lastIndexOf('return handler(evt || event, w)') == -1)
 		wrapper = function(evt, w) {
 			w.dialog.buttonIndex = w.dialog.buttons.indexOf(w);
 			handler(evt, w);
 		}
 	wrapper = wrapper || handler;
-	Widget.prototype._registerHandler(eventType, wrapper, isCustom, this);
+	Widget.prototype._registerHandler.apply(this, [eventType, wrapper, isCustom]);
 }

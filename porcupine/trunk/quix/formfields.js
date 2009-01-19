@@ -200,7 +200,7 @@ Field.prototype.enable = function() {
 		this.div.firstChild.disabled = false;
 		this.div.firstChild.style.backgroundColor = this.getBgColor();
 	}
-	Widget.prototype.enable(this);
+	Widget.prototype.enable.apply(this, arguments);
 }
 
 Field.prototype.disable = function() {
@@ -208,7 +208,7 @@ Field.prototype.disable = function() {
 		this.div.firstChild.disabled = true;
 		this.div.firstChild.style.backgroundColor = 'menu';
 	}
-	Widget.prototype.disable(this);
+	Widget.prototype.disable.apply(this, arguments);
 }
 
 Field.prototype.focus = function() {
@@ -224,7 +224,7 @@ Field.prototype.setBgColor = function(color) {
 Field.prototype.redraw = function(bForceAll) {
 	if (this.type == 'text' || this.type == 'textarea' || this.type == 'password')
 		this.div.firstChild.style.padding = this.textPadding + 'px';
-	Widget.prototype.redraw(bForceAll, this);
+	Widget.prototype.redraw.apply(this, arguments);
 }
 
 Field.prototype._adjustFieldSize = function() {
@@ -243,7 +243,7 @@ Field.prototype._adjustFieldSize = function() {
 }
 
 Field.prototype._setCommonProps = function() {
-	this.base.prototype._setCommonProps(this);
+	Widget.prototype._setCommonProps.apply(this, arguments);
 	this._adjustFieldSize();
 }
 
@@ -353,7 +353,7 @@ Spin.prototype._adjustFieldSize = function() {
 }
 
 Spin.prototype._setCommonProps = function() {
-	Widget.prototype._setCommonProps(this);
+	Widget.prototype._setCommonProps.apply(this, arguments);
 	this._adjustFieldSize();
 }
 

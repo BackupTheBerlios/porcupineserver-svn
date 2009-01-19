@@ -43,8 +43,13 @@ Toolbar.prototype.addButton = function(params) {
 }
 
 Toolbar.prototype.addSeparator = function() {
-	var l = "this.parent._getOffset(this)";
-	var oSep = new Widget({left:l,width:2,height:"100%",border:1,overflow:'hidden'});
+	var oSep = new Widget({
+        left : 'this.parent._getOffset(this)',
+        width : 2,
+        height : "100%",
+        border : 1,
+        overflow : 'hidden'
+    });
 	oSep._isContainer = false;
 	oSep.destroy = ToolbarButton__destroy;
 	this.appendChild(oSep);
@@ -57,9 +62,9 @@ ToolbarButton__destroy = function() {
 	var parent = this.parent;
 	parent.buttons.removeItem(this);
 	if (this.base)
-		this.base.prototype.destroy(this);
+		this.base.prototype.destroy.apply(this, arguments);
 	else
-		Widget.prototype.destroy(this);
+		Widget.prototype.destroy.apply(this, arguments);
 	parent.redraw();
 }
 
@@ -149,6 +154,6 @@ function OutlookBarPane__destroy() {
 	if (oBar.panes.length < oBar.activePane + 1)
 		oBar.activePane = oBar.panes.length - 1;
 	this.header.destroy();
-	Widget.prototype.destroy(this);
+	Widget.prototype.destroy.apply(this, arguments);
 	oBar.redraw();
 }
