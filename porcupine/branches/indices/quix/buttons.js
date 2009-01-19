@@ -100,6 +100,18 @@ function Icon(params) {
 QuiX.constructors['icon'] = Icon;
 Icon.prototype = new Label;
 
+Icon.prototype._calcHeight = function(b) {
+    var h, imgs;
+    if (this._auto_height) {
+        imgs = this.div.getElementsByTagName('IMG');
+        imgs[imgs.length - 1].style.height = '';
+    }
+    h = Label.prototype._calcHeight.apply(this, arguments);
+    if (this._auto_height)
+        imgs[imgs.length - 1].style.height = '100%';
+    return h;
+}
+
 Icon.prototype.setImageURL = function(s) {
 	this.img = s;
 	if (this.imageElement)
