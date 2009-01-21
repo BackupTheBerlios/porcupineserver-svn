@@ -108,7 +108,7 @@ QuiX.Module.prototype.load = function(callback) {
 }
 
 QuiX.Image = function(url) {
-	this.url = url;
+	this.url = url.replace('$THEME_URL$', QuiX.getThemeUrl());
 	this.isLoaded = false;
 	this.callback = null;
 	this.width = 0;
@@ -196,8 +196,9 @@ QuiX.tags = {
 
 QuiX.__init__ = function() {
     QuiX.load(
-        [QuiX.baseUrl + 'utils/utils.js', QuiX.baseUrl + 'utils/date.js',
+        [QuiX.baseUrl + 'utils/utils.js',QuiX.baseUrl + 'utils/date.js',
          QuiX.baseUrl + 'ui/widget.js', QuiX.baseUrl + 'rpc/rpc.js',
+         QuiX.baseUrl + 'parsers/parsers.js',
          QuiX.baseUrl + 'rpc/xmlrpc.js', QuiX.getThemeUrl() + 'quix.css'],
         function() {
             var root = document.body.removeChild(document.getElementById("quix"));

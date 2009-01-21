@@ -102,3 +102,36 @@ Date.prototype.format = function(format) {
 
     return dateString;
 }
+
+Date.prototype.toIso8601 = function() {
+	var s = doYear(this.getFullYear()) + "-" +
+			doZero(this.getMonth() + 1) + "-" +
+			doZero(this.getDate()) + "T" +
+			doZero(this.getHours()) + ":" +
+			doZero(this.getMinutes()) + ":" +
+			doZero(this.getSeconds());
+	return(s);
+
+	function doZero(nr) {
+		nr = new String("0" + nr);
+		return nr.substr(nr.length-2, 2);
+	}
+
+	function doYear(year) {
+		if(year > 9999 || year < 0)
+			throw new QuiX.Exception("Malformed XMLRPC request",
+									 "Unsupported year: " + year);
+
+		year = new String("0000" + year)
+		return year.substr(year.length-4, 4);
+	}
+}
+
+Date.prototype.parseIso8601 = function(s) {
+	if(/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})/.test(s)) {
+		return new Date(RegExp.$1,RegExp.$2-1,RegExp.$3,
+		                RegExp.$4,RegExp.$5,RegExp.$6);
+  	}
+	else
+		return new Date();
+}
