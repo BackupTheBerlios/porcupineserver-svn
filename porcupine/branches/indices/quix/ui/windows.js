@@ -120,12 +120,12 @@ Window.prototype = new Widget;
 Window.prototype.customEvents = Widget.prototype.customEvents.concat(['onclose']);
 
 Window.prototype.images = [
-	'__quix/images/win_close.gif',
-	'__quix/images/win_max.gif',
-	'__quix/images/win_min.gif',
-	'__quix/images/win_close_over.gif',
-	'__quix/images/win_max_over.gif',
-	'__quix/images/win_min_over.gif'
+	QuiX.getThemeUrl() + 'images/win_close.gif',
+	QuiX.getThemeUrl() + 'images/win_max.gif',
+	QuiX.getThemeUrl() + 'images/win_min.gif',
+	QuiX.getThemeUrl() + 'images/win_close_over.gif',
+	QuiX.getThemeUrl() + 'images/win_max_over.gif',
+	QuiX.getThemeUrl() + 'images/win_min_over.gif'
 ];
 
 Window.prototype.setIcon = function(sUrl) {

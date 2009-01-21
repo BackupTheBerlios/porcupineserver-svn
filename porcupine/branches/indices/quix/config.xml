@@ -1,49 +1,50 @@
 <config>
-    <context path="xul_core.js"
+    <context path="ui/widget.js"
 		method="GET"
 		client="MSIE [6-7]"
 		lang=".*"
-		action="core_ie.js"
-		max-age="3600"/>
-    <context path="xul_core.js"
+		action="ui/widget_ie.js"
+		max-age="1200"/>
+    <context path="ui/widget.js"
 			method="GET"
 			client="Version/3.\d(.*)Safari|Chrome/\d.\d"
 			lang=".*"
-			action="core_saf.js"
-			max-age="3600">
+			action="ui/widget_saf.js"
+			max-age="1200">
 		<filter type="porcupine.filters.output.Gzip"/>
 	</context>
-    <context path="xul_core.js"
+    <context path="ui/widget.js"
 			method="GET"
 			client="Netscape/7|Mozilla/5.0"
 			lang=".*"
-			action="core_moz.js" max-age="3600">
+			action="ui/widget_moz.js"
+            max-age="1200">
         <filter type="porcupine.filters.output.Gzip"/>
     </context>
-	<context path="quixextensions.js"
+	<context path="utils/date.js"
 		method="GET"
 		client=".*"
 		lang=".*"
-		action="quixextensions.psp"/>
-	<context path="ReadFile.jar"
+		action="utils/date.js.psp"/>
+	<context path="ui/ReadFile.jar"
 		method="GET"
 		client=".*"
 		lang=".*"
-		action="ReadFile.jar"/>
-	<!-- QuiX Stylesheets -->
-	<context path="quix.css"
+		action="ui/ReadFile.jar"/>
+	<!-- QuiX default theme -->
+	<context path="themes/default/quix.css"
 		method="GET"
 		client=".*"
 		lang=".*"
-		action="quix.css.psp"
-		max-age="3600"/>
+		action="themes/default/quix.css.psp"
+		max-age="1200"/>
     <!-- html pages -->
 	<context match="(.*)\.htm"
 		method="GET"
 		client=".*"
 		lang=".*"
 		action="$1.htm"
-		max-age="3600"/>
+		max-age="1200"/>
     <!-- Stylesheets -->
 	<context match="(.*)\.css"
 		method="GET"
@@ -57,12 +58,12 @@
 		client=".*"
 		lang=".*"
 		action="$1.js"
-		max-age="3600"/>
+		max-age="1200"/>
 	<!-- QuiX images-->
-	<context match="images/(.*)"
+	<context match="(.*)images/(.*)"
 		method="GET"
 		client=".*"
 		lang=".*"
-		action="images/$1"
-		max-age="3600"/>
+		action="$1images/$2"
+		max-age="1200"/>
 </config>

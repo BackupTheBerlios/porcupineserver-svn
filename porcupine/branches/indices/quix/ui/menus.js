@@ -42,10 +42,10 @@ MenuOption.prototype.redraw = function(bForceAll) {
 		if (this.selected) {
 			switch (this.type) {
 				case 'radio':
-					this.img = '__quix/images/menu_radio.gif';
+					this.img = '$THEME_URL$images/menu_radio.gif';
 					break;
 				case 'check':
-					this.img = '__quix/images/menu_check.gif';
+					this.img = '_$THEME_URL$images/menu_check.gif';
 			}
 		}
 		else

@@ -173,7 +173,7 @@ function Slider(params) {
 	this.appendChild(slot);
 	
 	var handle = new Icon({
-		img : '__quix/images/slider.gif',
+		img : '$THEME_URL$images/slider.gif',
 		top : 'center',
 		width : 10,
 		height : 18,

@@ -1,22 +1,42 @@
-//===============================================================================
-//    Copyright 2000, 2001, 2002 Virtual Cowboys (info@virtualcowboys.nl)
-//    Copyright 2005 - 2008 Tassos Koutsovassilis and contributors
+//==============================================================================
+//  Copyright 2000, 2001, 2002 Virtual Cowboys (info@virtualcowboys.nl)
+//  Copyright 2005 - 2008 Tassos Koutsovassilis and contributors
 //
-//    This file is part of Porcupine.
-//    Porcupine is free software; you can redistribute it and/or modify
-//    it under the terms of the GNU Lesser General Public License as published by
-//    the Free Software Foundation; either version 2.1 of the License, or
-//    (at your option) any later version.
-//    Porcupine is distributed in the hope that it will be useful,
-//    but WITHOUT ANY WARRANTY; without even the implied warranty of
-//    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//    GNU Lesser General Public License for more details.
-//    You should have received a copy of the GNU Lesser General Public License
-//    along with Porcupine; if not, write to the Free Software
-//    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-//===============================================================================
+//  This file is part of Porcupine.
+//  Porcupine is free software; you can redistribute it and/or modify
+//  it under the terms of the GNU Lesser General Public License as published by
+//  the Free Software Foundation; either version 2.1 of the License, or
+//  (at your option) any later version.
+//  Porcupine is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU Lesser General Public License for more details.
+//  You should have received a copy of the GNU Lesser General Public License
+//  along with Porcupine; if not, write to the Free Software
+//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+//==============================================================================
 
-//xmlrpc client
+QuiX.rpc.toXMLRPC = function(obj) {
+	if (obj == null || obj == undefined ||
+			(typeof obj == "number" && !isFinite(obj)) )
+		return false.toXMLRPC();
+	else {
+		var wo = obj.valueOf();
+		if(!wo.toXMLRPC) {
+			var retstr = "<struct>";
+			for(var prop in obj) {
+				if(typeof wo[prop] != "function") {
+					retstr += "<member><name>" + prop + "</name><value>" +
+							  QuiX.rpc.toXMLRPC(wo[prop]) + "</value></member>";
+				}
+			}
+			retstr += "</struct>";
+			return retstr;
+		}
+		else
+			return wo.toXMLRPC();
+	}
+}
 
 String.prototype.toXMLRPC = function() {
 	return "<string>" + this.xmlEncode() + "</string>";
@@ -85,28 +105,6 @@ Array.prototype.toXMLRPC = function() {
 	return retstr + "</data></array>";
 }
 
-QuiX.rpc.toXMLRPC = function(obj) {
-	if (obj == null || obj == undefined ||
-			(typeof obj == "number" && !isFinite(obj)) )
-		return false.toXMLRPC();
-	else {
-		var wo = obj.valueOf();
-		if(!wo.toXMLRPC) {
-			var retstr = "<struct>";
-			for(prop in obj) {
-				if(typeof wo[prop] != "function") {
-					retstr += "<member><name>" + prop + "</name><value>" +
-							  QuiX.rpc.toXMLRPC(wo[prop]) + "</value></member>";
-				}
-			}
-			retstr += "</struct>";
-			return retstr;
-		}
-		else
-			return wo.toXMLRPC();
-	}
-}
-
 // xmlrpcrequest
 function XMLRPCRequest(sUrl, async) {
 	this.async = ((typeof async) == "undefined")?true:async;
@@ -130,7 +128,7 @@ XMLRPCRequest.prototype.handleError = function (e) {
 		'width="560" height="240" left="center" top="center">' +
 		'<wbody><box spacing="8" width="100%" height="100%">' +
 		'<icon width="56" height="56" padding="12,12,12,12" ' +
-			'img="__quix/images/error32.gif"/>' +
+			'img="$THEME_URL$images/error32.gif"/>' +
 		'<rect padding="4,4,4,4" overflow="auto"><xhtml><![CDATA[' +
 		'<pre style="color:red;font-size:12px;font-family:monospace;' +
 			'padding-left:4px">' + e.message + '</pre>]]></xhtml>' +

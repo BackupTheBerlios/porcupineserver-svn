@@ -76,7 +76,7 @@ function Combo(params) {
 	this.button = new XButton({
 		left : 'this.parent.getWidth()-20',
 		height : '100%', width : 20,
-		img : params.img || '__quix/images/desc8.gif'
+		img : params.img || '$THEME_URL$images/desc8.gif'
 	});
 	this.appendChild(this.button);
 	if (!this.readonly)

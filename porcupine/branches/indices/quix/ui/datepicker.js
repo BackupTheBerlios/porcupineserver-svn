@@ -6,7 +6,7 @@ function Datepicker(params) {
 	params = params || {};
 	params.editable = false;
 	params.menuheight = 160;
-	params.img = params.img || '__quix/images/date16.gif';
+	params.img = params.img || '$THEME_URL$images/date16.gif';
 	this.base = Combo;
 	this.base(params);
 	

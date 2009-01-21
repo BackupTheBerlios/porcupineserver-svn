@@ -49,7 +49,7 @@ function RichText(params) {
     var tbuttons = {
         'bold' : {
             id : 'bold',
-            img : '__quix/images/edit_bold.gif',
+            img : '$THEME_URL$images/edit_bold.gif',
             width : 32,
             imgwidth : 24,
             imgheight : 24,
@@ -59,7 +59,7 @@ function RichText(params) {
             onclick : this._toolbarAction},
         'italic' : {
             id : 'italic',
-            img : '__quix/images/edit_italic.gif',
+            img : '$THEME_URL$images/edit_italic.gif',
             width : 32,
             imgwidth : 24,
             imgheight : 24,
@@ -69,7 +69,7 @@ function RichText(params) {
             onclick : this._toolbarAction},
         'hyperlink' : {
             id : 'hyperlink',
-            img : '__quix/images/edit_link.gif',
+            img : '$THEME_URL$images/edit_link.gif',
             width : 32,
             imgwidth : 24,
             imgheight : 24,
@@ -79,7 +79,7 @@ function RichText(params) {
             onclick : this._toolbarAction},
         'insertunorderedlist' : {
             id : 'insertunorderedlist',
-            img : '__quix/images/edit_unordered.gif',
+            img : '$THEME_URL$images/edit_unordered.gif',
             width : 32,
             imgwidth : 24,
             imgheight : 24,
@@ -89,7 +89,7 @@ function RichText(params) {
             onclick : this._toolbarAction},
         'insertorderedlist' : {
             id : 'insertorderedlist',
-            img : '__quix/images/edit_ordered.gif',
+            img : '$THEME_URL$images/edit_ordered.gif',
             width : 32,
             imgwidth : 24,
             imgheight : 24,
@@ -99,7 +99,7 @@ function RichText(params) {
             onclick : this._toolbarAction},
         'image' : {
             id : 'image',
-            img : '__quix/images/edit_image.gif',
+            img : '$THEME_URL$images/edit_image.gif',
             width : 32,
             imgwidth : 24,
             imgheight : 24,
@@ -108,7 +108,7 @@ function RichText(params) {
             onclick : this._toolbarAction},
         'htmlsource' : {
             id : 'htmlsource',
-            img : '__quix/images/edit_html.gif',
+            img : '$THEME_URL$images/edit_html.gif',
             width : 32,
             imgwidth : 24,
             imgheight : 24,
@@ -117,7 +117,7 @@ function RichText(params) {
             onclick : this._toolbarAction},
         'format' : {
             id : 'format',
-            img : '__quix/images/edit_block.gif',
+            img : '$THEME_URL$images/edit_block.gif',
             width : 40,
             imgwidth : 24,
             imgheight : 24,
@@ -154,7 +154,7 @@ function RichText(params) {
     this.appendChild(this.field);
 
     this.frame = new IFrame({
-        src : '__quix/richtext.htm',
+        src : QuiX.baseUrl + 'ui/richtext.htm',
         border : 1
     });
     this.frame.div.className = 'editframe';

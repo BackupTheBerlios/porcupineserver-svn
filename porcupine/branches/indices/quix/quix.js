@@ -17,12 +17,12 @@
 
 //QuiX compatibility layer
 var QuiX = {};
-QuiX.rpc = {};
 QuiX.version = '0.9.5 build 20081010';
 QuiX.namespace = 'http://www.innoscript.org/quix';
 QuiX.root = (new RegExp(
 	"https?://[^/]+(?:/[^/\?]+)?(?:/(?:{|%7B)[0-9a-f]{32}(?:}|%7D))?",
 	"i")).exec(document.location.href) + '/';
+QuiX.baseUrl = '__quix/';
 QuiX.maxz = 999999999;
 QuiX.startX = 0;
 QuiX.startY = 0;
@@ -45,10 +45,30 @@ QuiX.constructors = {
 QuiX._activeLoaders = 0;
 QuiX.effectsEnabled = true;
 
+
+QuiX.queryString = function(param) {
+    var qs = window.location.search.substring(1);
+    if (!param)
+        return qs;
+    var p = null;
+    var vars = qs.split('&');
+    for (var i=0; i<vars.length; i++) {
+        p = vars[i].split('=');
+        if (p[0] == param)
+            return p[1];
+    }
+    return null;
+}
+
+QuiX.getThemeUrl = function() {
+    var theme = QuiX.queryString('_qt') || 'default';
+    return QuiX.baseUrl + 'themes/' + theme + '/';
+}
+
 QuiX.progress = '<rect xmlns="http://www.innoscript.org/quix" display="none" ' +
 	'width="18" height="18" overflow="auto" top="center" left="center">' +
 	'<rect width="100%" height="100%" overflow="hidden"><xhtml><![CDATA[' +
-	'<img src="__quix/images/loader.gif">' +
+	'<img src="' + QuiX.getThemeUrl() + 'images/loader.gif">' +
 	']]></xhtml></rect></rect>';
 
 QuiX.Module = function(sName, sFile, d) {
@@ -64,15 +84,15 @@ QuiX.Module.prototype.load = function(callback) {
 	var oElement;
 	this.callback = callback;
 	if (this.type == 'script') {
-		oElement = ce('SCRIPT');
+		oElement = document.createElement('SCRIPT');
 		oElement.type = 'text/javascript';
 		oElement.defer = true;
 		oElement.src = this.file;
-		var onload = (QuiX.browser == 'ie')?'onreadystatechange':'onload';
+		var onload = (document.all)?'onreadystatechange':'onload';
 		oElement[onload] = QuiX.__resource_onstatechange;
 	}
 	else {
-		oElement = ce('LINK');
+		oElement = document.createElement('LINK');
 		oElement.type = 'text/css';
 		oElement.href = this.file;
 		oElement.rel = 'stylesheet';
@@ -82,7 +102,8 @@ QuiX.Module.prototype.load = function(callback) {
 	document.getElementsByTagName('head')[0].appendChild(oElement);
 	if (this.type=='stylesheet') {
 		this.isLoaded = true;
-		callback();
+        if (callback)
+            callback();
 	}
 }
 
@@ -113,7 +134,8 @@ QuiX.__resource_onstatechange = function() {
 				QuiX.removeNode(this);
 			}
 			this.resource.isLoaded = true;
-			this.resource.callback();
+            if (this.resource.callback)
+                this.resource.callback();
 		}
 	}
 	else {
@@ -123,29 +145,30 @@ QuiX.__resource_onstatechange = function() {
 			QuiX.removeNode(this);
 		}
 		this.resource.isLoaded = true;
-		this.resource.callback();
+        if (this.resource.callback)
+            this.resource.callback();
 	}
 }
 
 QuiX.modules = [
-	new QuiX.Module('Windows and Dialogs', '__quix/windows.js', [3,15,16]),
-	new QuiX.Module('Menus', '__quix/menus.js', [3,16]),
-	new QuiX.Module('Splitter', '__quix/splitter.js', [15]),
-	new QuiX.Module('Labels & Buttons', '__quix/buttons.js', []),
-	new QuiX.Module('Tab Pane', '__quix/tabpane.js', []),
-	new QuiX.Module('List View', '__quix/listview.js', []),
-	new QuiX.Module('Tree', '__quix/tree.js', []),
-	new QuiX.Module('Toolbars', '__quix/toolbars.js', [3]),
-	new QuiX.Module('Forms & Fields', '__quix/formfields.js', [3]),
-	new QuiX.Module('Common Widgets', '__quix/common.js', [3]),
-	new QuiX.Module('Datagrid', '__quix/datagrid.js', [5,8]),
-	new QuiX.Module('File Control', '__quix/file.js', [1,3,8,9,14]),
-	new QuiX.Module('Date Picker', '__quix/datepicker.js', [14,8]),
-	new QuiX.Module('Timers', '__quix/timers.js', []),
-	new QuiX.Module('Forms & Fields 2', '__quix/formfields2.js', [3]),
-	new QuiX.Module('VBox & HBox', '__quix/box.js', []),
-	new QuiX.Module('Effects', '__quix/effects.js', [13]),
-    new QuiX.Module('Rich Text Editor', '__quix/richtext.js', [8,15,9]),
+	new QuiX.Module('Windows and Dialogs', QuiX.baseUrl + 'ui/windows.js', [3,15,16]),
+	new QuiX.Module('Menus', QuiX.baseUrl + 'ui/menus.js', [3,16]),
+	new QuiX.Module('Splitter', QuiX.baseUrl + 'ui/splitter.js', [15]),
+	new QuiX.Module('Labels & Buttons', QuiX.baseUrl + 'ui/buttons.js', []),
+	new QuiX.Module('Tab Pane', QuiX.baseUrl + 'ui/tabpane.js', []),
+	new QuiX.Module('List View', QuiX.baseUrl + 'ui/listview.js', []),
+	new QuiX.Module('Tree', QuiX.baseUrl + 'ui/tree.js', []),
+	new QuiX.Module('Toolbars', QuiX.baseUrl + 'ui/toolbars.js', [3]),
+	new QuiX.Module('Forms & Fields', QuiX.baseUrl + 'ui/formfields.js', [3]),
+	new QuiX.Module('Common Widgets', QuiX.baseUrl + 'ui/common.js', [3]),
+	new QuiX.Module('Datagrid', QuiX.baseUrl + 'ui/datagrid.js', [5,8]),
+	new QuiX.Module('File Control', QuiX.baseUrl + 'ui/file.js', [1,3,8,9,14]),
+	new QuiX.Module('Date Picker', QuiX.baseUrl + 'ui/datepicker.js', [14,8]),
+	new QuiX.Module('Timers', QuiX.baseUrl + 'ui/timers.js', []),
+	new QuiX.Module('Forms & Fields 2', QuiX.baseUrl + 'ui/formfields2.js', [3]),
+	new QuiX.Module('VBox & HBox', QuiX.baseUrl + 'ui/box.js', []),
+	new QuiX.Module('Effects', QuiX.baseUrl + 'ui/effects.js', [13]),
+    new QuiX.Module('Rich Text Editor', QuiX.baseUrl + 'ui/richtext.js', [8,15,9]),
 ];
 
 QuiX.tags = {
@@ -172,13 +195,32 @@ QuiX.tags = {
 };
 
 QuiX.__init__ = function() {
-	try {
-		window.moveTo(0,0);
-		window.resizeTo(screen.availWidth,screen.availHeight);
-	} catch(e) {}
-	var root = document.body.removeChild(document.getElementById("xul"));
-	var parser = new QuiX.Parser();
-	parser.parse(QuiX.domFromElement(root));
+    QuiX.load(
+        [QuiX.baseUrl + 'utils/utils.js', QuiX.baseUrl + 'utils/date.js',
+         QuiX.baseUrl + 'ui/widget.js', QuiX.baseUrl + 'rpc/rpc.js',
+         QuiX.baseUrl + 'rpc/xmlrpc.js', QuiX.getThemeUrl() + 'quix.css'],
+        function() {
+            var root = document.body.removeChild(document.getElementById("quix"));
+            var parser = new QuiX.Parser();
+            parser.parse(QuiX.domFromElement(root));
+        }
+    );
+}
+
+QuiX.load = function(modules, callback) {
+    function bootstrap() {
+        if (modules.length > 0) {
+            var r_info = modules.shift();
+            var m = new QuiX.Module(null, r_info, []);
+            m.type = (r_info.substring(r_info.length-3)=='css')?
+                     'stylesheet':'script';
+            m.load(bootstrap);
+        }
+        else {
+            callback();
+        }
+    }
+    bootstrap();
 }
 
 QuiX.addLoader = function() {
@@ -305,7 +347,7 @@ QuiX.createOutline = function(w) {
 		o.appendChild(inner);
 	}
 	
-	var t = QuiX.getImage('__quix/images/transp.gif');
+	var t = QuiX.getImage(QuiX.getThemeUrl() + 'images/transp.gif');
 	t.style.width = '100%';
 	t.style.height = '100%';
 	((macff)?inner:o).div.appendChild(t);
@@ -348,7 +390,7 @@ QuiX.getEventWrapper = function(f1, f2) {
 
 QuiX.getImage = function(url) {
 	var img = new Image();
-	img.src = url;
+	img.src = url.replace('$THEME_URL$', QuiX.getThemeUrl());
 	return img;
 }
 
@@ -547,7 +589,7 @@ QuiX.Parser.prototype.detectModules = function(oNode) {
 	this._addModule(iMod);
 	
 	if (iMod && oNode.getAttribute('img')) {
-		src = oNode.getAttribute('img');
+		var src = oNode.getAttribute('img');
 		if (src!='' && !QuiX.images.hasItem(src)) {
 			QuiX.images.push(src);
 			this.__imagesToLoad.push(src);
@@ -555,7 +597,7 @@ QuiX.Parser.prototype.detectModules = function(oNode) {
 	}
 	
 	if (sTag == 'script' || sTag == 'module' || sTag == 'stylesheet') {
-		params = this.getNodeParams(oNode);
+		var params = this.getNodeParams(oNode);
 		if (!document.getElementById(params.src)) {
 			var oMod = new QuiX.Module(params.name, params.src, []);
 			if (sTag == 'stylesheet')

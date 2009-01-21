@@ -18,7 +18,7 @@ function ListView(params) {
 	this.multiple = (params.multiple==true || params.multiple=="true");
 	this.nullText = params.nulltext || '&nbsp;';
 	this.dateFormat = params.dateformat || 'ddd dd/mmm/yyyy time';
-	this.trueImg = params.trueimg || '__quix/images/check16.gif';
+	this.trueImg = params.trueimg || '$THEME_URL$images/check16.gif';
 	this.sortfunc = QuiX.getEventListener(params.sortfunc);
 	this.altColors = (params.altcolors || ',').split(',');
 	this.highlightColors =
@@ -383,7 +383,8 @@ ListView.prototype.sort = function(colName, order) {
 	if (column) {
 		this._sortimg = new Image;
 		this._sortimg.src = (order.toUpperCase()=='ASC')?
-							'__quix/images/asc8.gif':'__quix/images/desc8.gif';
+							QuiX.getThemeUrl() + 'images/asc8.gif':
+                            QuiX.getThemeUrl() + 'images/desc8.gif';
 		this._sortimg.align = 'absmiddle';
 		column.appendChild(this._sortimg);
 	}

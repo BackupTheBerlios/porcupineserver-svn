@@ -15,7 +15,7 @@
 //  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //==============================================================================
 
-QuiX.browser = 'moz';
+QuiX.browser = 'ie';
 
 //Widget class
 function Widget(params) {
@@ -33,10 +33,10 @@ function Widget(params) {
 	this._isDisabled = false;
 	this._isContainer = true;
 	this.contextMenu = null;
-
+	
 	this.div = ce('DIV');
 	if (params.style)
-		this.div.setAttribute('style', params.style);
+		this.div.style.cssText = params.style;
 	this.div.widget = this;
 
 	this._id = undefined;
@@ -67,17 +67,17 @@ function Widget(params) {
 			params.onmouseout);
 	}
 	
-	if (typeof params.opacity != 'undefined') {
+	if (typeof(params.opacity) != 'undefined') {
 		this.setOpacity(parseFloat(params.opacity));
 	}
 	
 	this.dragable = (params.dragable == 'true' || params.dragable == true);
-	if (this.dragable){
+	if  (this.dragable){
 		params.onmousedown = QuiX.getEventWrapper(Widget__startdrag,
 			params.onmousedown);
 	}
 	this.dropable = (params.dropable == 'true' || params.dropable == true);
-	
+
 	this._buildEventRegistry(params);
 	this._attachEvents();
 
@@ -92,6 +92,8 @@ Widget.prototype.appendChild = function(w, p) {
 	p.widgets.push(w);
 	w.parent = p;
 	w.div = p.div.appendChild(w.div);
+	if (w.height=='100%' && w.width=='100%')
+		p.setOverflow('hidden');
 
 	w.bringToFront();
 	if (p._isDisabled)
@@ -154,7 +156,7 @@ Widget.prototype.parseFromUrl = function(url, oncomplete) {
 	}
 	QuiX.addLoader();
 	xmlhttp.open('GET', url, true);
-	xmlhttp.send('');
+	xmlhttp.send();
 }
 
 Widget.prototype.getParentByType = function(wtype) {
@@ -221,6 +223,7 @@ Widget.prototype.setId = function(id) {
 	this._id = id;
 	this.div.id = id;
 }
+
 Widget.prototype.getId = function() {
 	return this._id;
 }
@@ -252,7 +255,6 @@ Widget.prototype.getDisplay = function() {
 //overflow attribute
 Widget.prototype.setOverflow = function(sOverflow) {
 	this.div.style.overflow = sOverflow;
-	this._overflow = sOverflow;
 }
 Widget.prototype.getOverflow = function() {
 	return this.div.style.overflow;
@@ -268,11 +270,16 @@ Widget.prototype.getPosition = function() {
 
 //opacity attribute
 Widget.prototype.setOpacity = function(fOpacity) {
-	this.div.style.MozOpacity = fOpacity;
+	this.div.style.filter = 'alpha(opacity=' + fOpacity * 100 + ')';
 }
 
 Widget.prototype.getOpacity = function() {
-	return parseFloat(this.div.style.MozOpacity);
+	var re = /alpha\(opacity=(\d+)\)/;
+	var arrOpacity = re.exec(this.div.style.filter);
+	if (arrOpacity.length > 1)
+		return parseInt(arrOpacity[1]) / 100;
+	else
+		return 1;
 }
 
 //padding attribute
@@ -424,30 +431,31 @@ Widget.prototype._calcMinHeight = function() {
 Widget.prototype.getScreenLeft = function() {
 	var oElement = this.div;
 	var iX = 0, b;
-	while(oElement && oElement.tagName && oElement.tagName!='HTML')
-	{
-		if (oElement.tagName!='TR')
+	while(oElement) {
+		if (oElement.tagName!='TR') {
 			iX += oElement.offsetLeft - oElement.scrollLeft;
-		b = parseInt(oElement.style.borderWidth);
-		if (b)
-			iX += b;
-		oElement = oElement.parentNode;
+			b = parseInt(oElement.style.borderWidth);
+			if (b)
+				iX += b;
+		}
+		oElement = oElement.parentElement;
 	}
-	return(iX);
+	return(iX - 1);
 }
 
 Widget.prototype.getScreenTop = function() {
 	var oElement = this.div;
-	var iY = 0, b;
-	while(oElement && oElement.tagName && oElement.tagName!='HTML') {
-		if (oElement.tagName!='TR')
+	var iY = 0, b=0;
+	while(oElement) {
+		if (oElement.tagName!='TR') {
 			iY += oElement.offsetTop - oElement.scrollTop;
-		b = parseInt(oElement.style.borderWidth);
-		if (b)
-			iY += b;
-		oElement = oElement.parentNode;
+			b = parseInt(oElement.style.borderWidth);
+			if (b)
+				iY += b;
+		}
+		oElement = oElement.parentElement;
 	}
-	return(iY);
+	return(iY - 1);
 }
 
 Widget.prototype.bringToFront = function() {
@@ -457,7 +465,7 @@ Widget.prototype.bringToFront = function() {
 }
 
 Widget.prototype.click = function() {
-	QuiX.sendEvent(this.div, 'MouseEvents', 'onclick');
+	QuiX.sendEvent(this.div,'MouseEvents','onclick');
 }
 
 Widget.prototype.moveTo = function(x,y) {
@@ -588,7 +596,7 @@ Widget.prototype._startDrag = function(x, y) {
 	document.desktop.appendChild(dragable);
 	dragable.div.style.zIndex = QuiX.maxz;
 	dragable.redraw();
-	
+		
 	QuiX.tmpWidget = dragable;
 	QuiX.dragable = this;
 
@@ -597,8 +605,9 @@ Widget.prototype._startDrag = function(x, y) {
 }
 
 Widget.prototype.redraw = function(bForceAll) {
-	var container = this.div.parentNode;
-	if (container && this.div.style.display != 'none') {
+	var container = this.div.parentElement;
+	if (container &&  this.div.style.display != 'none') {
+        var i;
 		var wdth = this.div.style.width;
 		var hght = this.div.style.height;
 		if (this.div.clientWidth > 0) {
@@ -607,16 +616,21 @@ Widget.prototype.redraw = function(bForceAll) {
 		}
 		try {
 			this._setCommonProps();
-			if (this.getPosition() != '')
+			if (this.div.style.position != '')
 				this._setAbsProps();
-			for (var i=0; i<this.widgets.length; i++) {
+			for (i=0; i<this.widgets.length; i++) {
 				if (bForceAll || this.widgets[i]._mustRedraw())
 					this.widgets[i].redraw(bForceAll);
 			}
 		}
 		finally {
 			container.appendChild(this.div);
-			if (frag) frag = null;
+			if (frag) {
+				frag = null;
+				var radios = this.getWidgetsByAttribute('_checked');
+				for (i=0; i<radios.length; i++)
+					radios[i].div.firstChild.checked = radios[i]._checked;
+			}
 		}
 		if ((wdth && wdth != this.div.style.width) ||
 			(hght && hght != this.div.style.height)) {
@@ -634,21 +648,26 @@ Widget.prototype.print = function(expand) {
 	var iframe = document.getElementById('_print');
 	if (!iframe) {
 		iframe = ce('IFRAME');
+		iframe.name = '_print';
 		iframe.id = '_print';
-		iframe.onload = function() {
+		iframe.style.width = '0px';
+		iframe.style.height = '0px';
+		document.body.appendChild(iframe);
+		iframe.attachEvent('onload', function() {
 			var n;
-			var doc = iframe.contentWindow.document;
+			var frame = document.frames('_print');
+			var fbody = frame.document.body;
 			n = oWidget.div.cloneNode(true);
 			n.style.position = '';
 			if (expand) {
 				n.style.width = '';
 				n.style.height = '';
 			}
-			doc.body.appendChild(n);
-			iframe.contentWindow.print();
-		}
-		document.body.appendChild(iframe);
-		iframe.src = '__quix/print.htm';
+			fbody.innerHTML = n.outerHTML;
+			frame.focus();
+			frame.print();
+		});
+		iframe.src = QuiX.baseUrl + 'ui/print.htm';
 	}
 	else {
 		iframe.contentWindow.location.reload();
@@ -755,7 +774,7 @@ Widget.prototype.attachEvent = function(eventType, f) {
 	var isCustom = this.customEvents.hasItem(eventType);
 	var registry = (isCustom)?this._customRegistry:this._registry;
 	f = this._getHandler(eventType, f);
-	
+
 	if (f) {
 		if (!this._isDisabled && !isCustom)
 			this.detachEvent(eventType);
@@ -891,10 +910,11 @@ function Desktop(params, root) {
 	params.id = 'desktop';
 	params.width = 'document.documentElement.clientWidth';
 	params.height = 'document.documentElement.clientHeight';
-	params.overflow = 'hidden';
 	params.onmousedown = Desktop__onmousedown;
 	params.oncontextmenu = Desktop__oncontextmenu;
 	this.base(params);
+	this.setPosition();
+	this.div.onselectstart = function(){return false};
 	this._setCommonProps();
 	this.div.innerHTML = '<p align="right" style="color:#666666;margin:0px;">QuiX v' + QuiX.version + '</p>';
 	root.appendChild(this.div);
@@ -918,7 +938,7 @@ Desktop.prototype.msgbox = function(mtitle, message, buttons, image,
 	var handler;
 	var oButton;
 	var innHTML;
-	
+
 	mwidth = mwidth || 240;
 	mheight = mheight || 120;
 	if (image) {
@@ -928,7 +948,7 @@ Desktop.prototype.msgbox = function(mtitle, message, buttons, image,
 	}
 	else
 		innHTML = '<td>' + message + '</td>';
-		
+
 	if (typeof buttons=='object') {
 		for (var i=0; i<buttons.length; i++) {
 			oButton = buttons[i];
@@ -969,4 +989,3 @@ function Desktop__onmousedown(evt, w) {
 function Desktop__oncontextmenu(evt, w) {
 	QuiX.cancelDefault(evt);
 }
-

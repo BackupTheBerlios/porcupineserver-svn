@@ -15,7 +15,7 @@
 //  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //==============================================================================
 
-QuiX.browser = 'saf';
+QuiX.browser = 'moz';
 
 //Widget class
 function Widget(params) {
@@ -252,6 +252,7 @@ Widget.prototype.getDisplay = function() {
 //overflow attribute
 Widget.prototype.setOverflow = function(sOverflow) {
 	this.div.style.overflow = sOverflow;
+	this._overflow = sOverflow;
 }
 Widget.prototype.getOverflow = function() {
 	return this.div.style.overflow;
@@ -267,11 +268,11 @@ Widget.prototype.getPosition = function() {
 
 //opacity attribute
 Widget.prototype.setOpacity = function(fOpacity) {
-	this.div.style.opacity = fOpacity;
+	this.div.style.MozOpacity = fOpacity;
 }
 
 Widget.prototype.getOpacity = function() {
-	return parseFloat(this.div.style.opacity);
+	return parseFloat(this.div.style.MozOpacity);
 }
 
 //padding attribute
@@ -600,7 +601,10 @@ Widget.prototype.redraw = function(bForceAll) {
 	if (container && this.div.style.display != 'none') {
 		var wdth = this.div.style.width;
 		var hght = this.div.style.height;
-		QuiX.removeNode(this.div)
+		if (this.div.clientWidth > 0) {
+			var frag = document.createDocumentFragment();
+			frag.appendChild(QuiX.removeNode(this.div));
+		}
 		try {
 			this._setCommonProps();
 			if (this.getPosition() != '')
@@ -612,6 +616,7 @@ Widget.prototype.redraw = function(bForceAll) {
 		}
 		finally {
 			container.appendChild(this.div);
+			if (frag) frag = null;
 		}
 		if ((wdth && wdth != this.div.style.width) ||
 			(hght && hght != this.div.style.height)) {
@@ -643,7 +648,7 @@ Widget.prototype.print = function(expand) {
 			iframe.contentWindow.print();
 		}
 		document.body.appendChild(iframe);
-		iframe.src = '__quix/print.htm';
+		iframe.src = QuiX.baseUrl + 'ui/print.htm';
 	}
 	else {
 		iframe.contentWindow.location.reload();
@@ -750,7 +755,7 @@ Widget.prototype.attachEvent = function(eventType, f) {
 	var isCustom = this.customEvents.hasItem(eventType);
 	var registry = (isCustom)?this._customRegistry:this._registry;
 	f = this._getHandler(eventType, f);
-
+	
 	if (f) {
 		if (!this._isDisabled && !isCustom)
 			this.detachEvent(eventType);
@@ -913,7 +918,7 @@ Desktop.prototype.msgbox = function(mtitle, message, buttons, image,
 	var handler;
 	var oButton;
 	var innHTML;
-
+	
 	mwidth = mwidth || 240;
 	mheight = mheight || 120;
 	if (image) {
@@ -923,7 +928,7 @@ Desktop.prototype.msgbox = function(mtitle, message, buttons, image,
 	}
 	else
 		innHTML = '<td>' + message + '</td>';
-
+		
 	if (typeof buttons=='object') {
 		for (var i=0; i<buttons.length; i++) {
 			oButton = buttons[i];
@@ -964,3 +969,4 @@ function Desktop__onmousedown(evt, w) {
 function Desktop__oncontextmenu(evt, w) {
 	QuiX.cancelDefault(evt);
 }
+

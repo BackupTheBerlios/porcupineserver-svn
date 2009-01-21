@@ -36,12 +36,12 @@ function File(params) {
 	var oFile = this;
 	
 	this.contextMenu.addOption({
-		img:'__quix/images/upload.gif',
+		img:'$THEME_URL$images/upload.gif',
 		caption:'Upload file',
 		onclick: function(evt, w){oFile.showUploadDialog()}
 	});
 	this.contextMenu.addOption({
-		img:'__quix/images/download.gif',
+		img:'$THEME_URL$images/download.gif',
 		caption:'Download file',
 		onclick: function(evt, w){oFile.openDocument()}
 	});
@@ -57,7 +57,7 @@ function File(params) {
 			applet = ce('APPLET');
 			applet.id = '_uploaderapplet';
 			applet.code = 'ReadFile.class';
-			applet.archive = "__quix/ReadFile.jar";
+			applet.archive = QuiX.baseUrl + "ui/ReadFile.jar";
 			applet.style.width = "1px";
 			applet.style.height = "1px";
 			applet.style.visibility = 'hidden';
@@ -228,7 +228,7 @@ function MultiFile(params) {
 	this.removeButton = new FlatButton({
 		width : 24,
 		height : 24,
-		img : '__quix/images/remove16.gif',
+		img : '$THEME_URL$images/remove16.gif',
 		top : 'this.parent.getHeight()-24',
 		left : 'this.parent.getWidth()-24',
 		disabled : this.readonly
@@ -238,7 +238,7 @@ function MultiFile(params) {
 	this.addButton = new FlatButton({
 		width : 24,
 		height : 24,
-		img : '__quix/images/add16.gif',
+		img : '$THEME_URL$images/add16.gif',
 		top : 'this.parent.getHeight()-24',
 		left : 'this.parent.getWidth()-48',
 		disabled : this.readonly
@@ -352,7 +352,7 @@ MultiFile.prototype.addFile = function(params) {
 	oFileInfo.id = params.id || '';
 	oFileInfo.filename = params.filename;
 	oFileInfo.temp_file = params.tmpfile || '';
-	var fileimage = params.img || '__quix/images/document.gif';
+	var fileimage = params.img || '$THEME_URL$images/document.gif';
 	
 	this.files.push(oFileInfo);
 	var opt = this.selectlist.addOption({
@@ -390,7 +390,7 @@ MultiFile.prototype.onfilecomplete = function(filecontrol) {
 	multifile.addFile({
 		filename: file.filename,
 		tmpfile: filecontrol._tmpfile,
-		img:'__quix/images/file_temporary.gif'
+		img:'$THEME_URL$images/file_temporary.gif'
 	});
 
 	if (remaining_files.length>0) {
