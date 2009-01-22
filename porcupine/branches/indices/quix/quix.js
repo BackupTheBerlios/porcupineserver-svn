@@ -269,8 +269,12 @@ QuiX.cleanupOverlays = function() {
 
 QuiX.Exception = function(name, msg) {
 	this.name = name;
+    this.base = Error;
+    this.base(name);
 	this.message = msg;
 }
+
+QuiX.Exception.prototype = new Error
 
 QuiX.getTarget = function(evt) {
 	if (evt.target) {
@@ -810,8 +814,9 @@ QuiX.Parser.prototype.parseXul = function(oNode, parentW) {
                     if (attr_value!=null)
                         parentW.attributes[params['name']] = attr_value;
                     else
-                        throw new QuiX.Exception('Illegal custom property value',
-                            ' ' + params['name'] + '=' + params['value']);
+                        throw new QuiX.Exception('QuiX.Parser.parseXul',
+                            'Illegal custom property value. ' +
+                            params['name'] + '=' + params['value']);
                     break;
                 case 'xhtml':
                     parentW.div.innerHTML = QuiX.innerText(oNode);

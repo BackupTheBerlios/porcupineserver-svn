@@ -21,7 +21,7 @@ QuiX.rpc.handleError = function(req, e) {
 	QuiX.removeLoader();
 	document.desktop.parseFromString(
 		'<dialog xmlns="http://www.innoscript.org/quix" '+
-		'title="Error: ' + e.name + '" resizable="true" close="true" ' +
+		'title="RPC Error" resizable="true" close="true" ' +
 		'width="560" height="240" left="center" top="center">' +
 		'<wbody><box spacing="8" width="100%" height="100%">' +
 		'<icon width="56" height="56" padding="12,12,12,12" ' +

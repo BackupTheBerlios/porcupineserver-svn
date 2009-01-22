@@ -90,7 +90,7 @@ function Field(params) {
 			if (params.caption) this.setCaption(params.caption);
 			break;
 		case 'file':
-			throw new QuiX.Exception("Invalid field type.\nUse the file control instead.")
+			throw new QuiX.Exception('QuiX.ui.Field', 'Invalid field type');
 			break;
 		default:
 			this.div.className = 'field';

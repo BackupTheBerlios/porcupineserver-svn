@@ -119,8 +119,9 @@ Date.prototype.toIso8601 = function() {
 
 	function doYear(year) {
 		if(year > 9999 || year < 0)
-			throw new QuiX.Exception("Malformed XMLRPC request",
-									 "Unsupported year: " + year);
+			throw new QuiX.Exception('Date.toIso8601',
+                                     'Malformed date string. ' +
+									 'Unsupported year: ' + year);
 
 		year = new String("0000" + year)
 		return year.substr(year.length-4, 4);

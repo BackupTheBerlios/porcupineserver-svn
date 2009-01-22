@@ -37,8 +37,8 @@ XMLRPCRequest.prototype.processResult = function() {
             return QuiX.parsers.XMLRPC.parse(dom);
 		}
 		else {
-			throw new QuiX.Exception('Malformed XMLRPC response',
-									  this.xmlhttp.responseText);
+			throw new QuiX.Exception('QuiX.rpc.XMLRPCRequest',
+									 'Malformed XMLRPC response');
 		}
 	}
 	catch (e) {
@@ -82,7 +82,7 @@ XMLRPCRequest.prototype.callmethod = function(method_name) {
 			this.xmlhttp.send(message);
 		}
 		else
-			throw new QuiX.Exception('Malformed XMLRPC request',
+			throw new QuiX.Exception('QuiX.rpc.XMLRPCRequest.callMethod',
 									 'Invalid XMLRPC method name "' +
 									 method_name + '"');
 	}
