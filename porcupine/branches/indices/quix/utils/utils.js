@@ -15,6 +15,8 @@
 //  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //==============================================================================
 
+QuiX.utils = {};
+
 function ce(t) {
 	return(document.createElement(t));
 }
@@ -23,12 +25,14 @@ function ce(t) {
 //  String extensions
 //==============================================================================
 String.prototype.xmlDecode = function() {
-	var s = this.replace(/&amp;/g, '&').replace(/&gt;/g , '>').replace(/&lt;/g, '<').replace(/&quot;/g, '"');
+	var s = this.replace(/&amp;/g, '&').replace(/&gt;/g , '>').
+            replace(/&lt;/g, '<').replace(/&quot;/g, '"');
 	return s;
 }
 
 String.prototype.xmlEncode = function() {
-	var s = this.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+	var s = this.replace(/&/g, '&amp;').replace(/</g, '&lt;').
+            replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 	return s;
 }
 

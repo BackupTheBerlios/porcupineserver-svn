@@ -59,6 +59,13 @@
 		lang=".*"
 		action="$1.js"
 		max-age="1200"/>
+	<!-- Flash files -->
+	<context match="(.*)\.swf"
+		method="GET"
+		client=".*"
+		lang=".*"
+		action="$1.swf"
+		max-age="1200"/>
 	<!-- QuiX images-->
 	<context match="(.*)images/(.*)"
 		method="GET"

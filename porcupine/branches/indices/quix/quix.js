@@ -45,19 +45,26 @@ QuiX.constructors = {
 QuiX._activeLoaders = 0;
 QuiX.effectsEnabled = true;
 
-
 QuiX.queryString = function(param) {
-    var qs = window.location.search.substring(1);
-    if (!param)
-        return qs;
-    var p = null;
-    var vars = qs.split('&');
-    for (var i=0; i<vars.length; i++) {
-        p = vars[i].split('=');
-        if (p[0] == param)
-            return p[1];
+	function urlEncodeIfNecessary(s) {
+		var regex = /[\\\"<>\.;]/;
+		var hasBadChars = regex.exec(s) != null;
+		return hasBadChars ? encodeURIComponent(s) : s;
+	}
+    var q = document.location.search || document.location.hash;
+    if (param == null) {
+        return urlEncodeIfNecessary(q);
     }
-    return null;
+    if (q) {
+        var pairs = q.substring(1).split("&");
+        for (var i=0; i<pairs.length; i++) {
+            if (pairs[i].substring(0, pairs[i].indexOf("=")) == param) {
+                return urlEncodeIfNecessary(
+                    pairs[i].substring((pairs[i].indexOf("=") + 1)));
+            }
+        }
+    }
+    return "";
 }
 
 QuiX.getThemeUrl = function() {
@@ -65,11 +72,11 @@ QuiX.getThemeUrl = function() {
     return QuiX.baseUrl + 'themes/' + theme + '/';
 }
 
-QuiX.progress = '<rect xmlns="http://www.innoscript.org/quix" display="none" ' +
-	'width="18" height="18" overflow="auto" top="center" left="center">' +
-	'<rect width="100%" height="100%" overflow="hidden"><xhtml><![CDATA[' +
-	'<img src="' + QuiX.getThemeUrl() + 'images/loader.gif">' +
-	']]></xhtml></rect></rect>';
+QuiX.progress = '<rect xmlns="http://www.innoscript.org/quix" display="none" \
+    width="18" height="18" overflow="auto" top="center" left="center"> \
+    <rect width="100%" height="100%" overflow="hidden"><xhtml> \
+    <![CDATA[<img src="' + QuiX.getThemeUrl() + 'images/loader.gif">]]> \
+    </xhtml></rect></rect>';
 
 QuiX.Module = function(sName, sFile, d) {
 	this.isLoaded = false;
@@ -194,12 +201,26 @@ QuiX.tags = {
     'richtext':17
 };
 
+QuiX.bootLibraries = [
+    // utils
+    QuiX.baseUrl + 'utils/utils.js',
+    QuiX.baseUrl + 'utils/date.js',
+    QuiX.baseUrl + 'utils/swfobject.js',
+    // base widget
+    QuiX.baseUrl + 'ui/widget.js',
+    // parsers
+    QuiX.baseUrl + 'parsers/parsers.js',
+    // persistence
+    QuiX.baseUrl + 'persist/persist.js',
+    // rpc
+    QuiX.baseUrl + 'rpc/rpc.js',
+    QuiX.baseUrl + 'rpc/xmlrpc.js',
+    // theme css
+    QuiX.getThemeUrl() + 'quix.css'
+];
+
 QuiX.__init__ = function() {
-    QuiX.load(
-        [QuiX.baseUrl + 'utils/utils.js',QuiX.baseUrl + 'utils/date.js',
-         QuiX.baseUrl + 'ui/widget.js', QuiX.baseUrl + 'rpc/rpc.js',
-         QuiX.baseUrl + 'parsers/parsers.js',
-         QuiX.baseUrl + 'rpc/xmlrpc.js', QuiX.getThemeUrl() + 'quix.css'],
+    QuiX.load(QuiX.bootLibraries,
         function() {
             var root = document.body.removeChild(document.getElementById("quix"));
             var parser = new QuiX.Parser();
