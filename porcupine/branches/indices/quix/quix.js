@@ -222,7 +222,8 @@ QuiX.bootLibraries = [
 QuiX.__init__ = function() {
     QuiX.load(QuiX.bootLibraries,
         function() {
-            var root = document.body.removeChild(document.getElementById("quix"));
+            var root = document.body.removeChild(
+                document.getElementById("quix"));
             var parser = new QuiX.Parser();
             parser.parse(QuiX.domFromElement(root));
         }
