@@ -162,7 +162,7 @@ TreeNode.prototype.toggle = function() {
     var i;
 	this.isExpanded = !this.isExpanded;
 	if (this.isExpanded) {
-		this._expandImg.src = '$THEME_URL$images/collapse.gif';
+		this._expandImg.src = QuiX.getThemeUrl() + 'images/collapse.gif';
 		for (i=0; i < this.childNodes.length; i++) {
 			this.childNodes[i].show();
 		}
@@ -170,7 +170,7 @@ TreeNode.prototype.toggle = function() {
 			this.tree._customRegistry.onexpand(this);
 	}
 	else {
-		this._expandImg.src = '$THEME_URL$images/expand.gif';
+		this._expandImg.src = QuiX.getThemeUrl() + 'images/expand.gif';
 		for (i=0; i < this.childNodes.length; i++) {
 			this.childNodes[i].hide();
 		}
