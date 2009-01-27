@@ -40,7 +40,6 @@ AUTO_CONTROLS = {
                 width="this.parent.getWidth()-105" value="%s" readonly="%s"/>
         </rect>
         ''',
-
     datatypes.Boolean: '''
         <rect height="24">
             <label width="100" height="20" caption="%s:"/>
@@ -48,7 +47,6 @@ AUTO_CONTROLS = {
                 readonly="%s"/>
         </rect>
         ''',
-
     datatypes.File: '''
         <rect height="24">
             <label width="100" height="20" caption="%s:"/>
@@ -56,14 +54,12 @@ AUTO_CONTROLS = {
                 readonly="%s"/>
         </rect>
         ''',
-
     datatypes.Text: '''
         <tab caption="%s">
                 <field type="textarea" name="%s" width="100%%" height="100%%"
                     readonly="%s">%s</field>
         </tab>
         ''',
-
     datatypes.Date: '''
         <rect height="24">
             <label width="100" height="20" caption="%s:"/>
@@ -71,7 +67,6 @@ AUTO_CONTROLS = {
                 readonly="%s"/>
         </rect>
         ''',
-        
     datatypes.Reference1: '''
         <rect height="24">
             <custom classname="Reference1" width="100%%"
@@ -79,7 +74,6 @@ AUTO_CONTROLS = {
                 disabled="%s"/>
         </rect>
         ''',
-        
     datatypes.ReferenceN: '''
         <tab caption="%s">
             <custom classname="ReferenceN" width="100%%" height="100%%"
@@ -298,6 +292,7 @@ def rename(self, newName):
     self.update(txn)
     return True
 
+@filters.etag()
 @webmethods.remotemethod(of_type=Item)
 def getSecurity(self):
     "Returns information about the object's security descriptor"

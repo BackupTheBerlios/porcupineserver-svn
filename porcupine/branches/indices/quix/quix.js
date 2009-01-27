@@ -73,10 +73,10 @@ QuiX.getThemeUrl = function() {
 }
 
 QuiX.progress = '<rect xmlns="http://www.innoscript.org/quix" display="none" \
-    width="18" height="18" overflow="auto" top="center" left="center"> \
-    <rect width="100%" height="100%" overflow="hidden"><xhtml> \
-    <![CDATA[<img src="' + QuiX.getThemeUrl() + 'images/loader.gif">]]> \
-    </xhtml></rect></rect>';
+    width="18" height="18" overflow="auto" top="center" left="center">\
+    <rect width="100%" height="100%" overflow="hidden"><xhtml><![CDATA[\
+    <img src="' + QuiX.getThemeUrl() + 'images/loader.gif">\
+    ]]></xhtml></rect></rect>';
 
 QuiX.Module = function(sName, sFile, d) {
 	this.isLoaded = false;

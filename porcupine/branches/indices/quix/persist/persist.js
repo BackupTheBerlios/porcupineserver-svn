@@ -61,7 +61,7 @@
     }
 })();
 
-QuiX.Persist = (function() {
+QuiX.persist = (function() {
     var VERSION = '0.1.0', P, B, esc, empty, ec;
     ec = (function() {
         var EPOCH = 'Thu, 01-Jan-1970 00:00:01 GMT',
@@ -363,8 +363,10 @@ QuiX.Persist = (function() {
                 },
                 get: function(key, fn, scope) {
                     key = this.key(key);
-                    if (fn) fn.call(scope || this, true,
-                                    this.store.getItem(key));
+                    var value = this.store.getItem(key);
+                    if (value && !(typeof(value) == 'string'))
+                        value = value.value;
+                    if (fn) fn.call(scope || this, true, value);
                 },
                 set: function(key, val, fn, scope) {
                     key = this.key(key);
@@ -560,9 +562,10 @@ QuiX.Persist = (function() {
         Cookie: ec,
         Store: function(name, o) {
             if (!C.name_re.exec(name))
-                throw new Error("Invalid name");
+                throw new QuiX.Exception('QuiX.persist.Store', 'Invalid name');
             if (!P.type)
-                throw new Error("No suitable storage found");
+                throw new QuiX.Exception('QuiX.persist.Store',
+                                         'No suitable storage found');
             o = o || {};
             this.name = name;
             o.domain = o.domain || location.hostname || 'localhost.localdomain';

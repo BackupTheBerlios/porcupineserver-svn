@@ -20,16 +20,47 @@ QuiX.rpc = {};
 QuiX.rpc.handleError = function(req, e) {
 	QuiX.removeLoader();
 	document.desktop.parseFromString(
-		'<dialog xmlns="http://www.innoscript.org/quix" '+
-		'title="RPC Error" resizable="true" close="true" ' +
-		'width="560" height="240" left="center" top="center">' +
-		'<wbody><box spacing="8" width="100%" height="100%">' +
-		'<icon width="56" height="56" padding="12,12,12,12" ' +
-			'img="$THEME_URL$images/error32.gif"/>' +
-		'<rect padding="4,4,4,4" overflow="auto"><xhtml><![CDATA[' +
-		'<pre style="color:red;font-size:12px;font-family:monospace;' +
-			'padding-left:4px">' + e.message + '</pre>]]></xhtml>' +
-		'</rect></box></wbody><dlgbutton onclick="__closeDialog__" ' +
-			'width="70" height="22" caption="Close"></dlgbutton></dialog>');
+		'<dialog xmlns="http://www.innoscript.org/quix" title="RPC Error" \
+                resizable="true" close="true" width="560" height="240" \
+                left="center" top="center"> \
+            <wbody> \
+                <box spacing="8" width="100%" height="100%"> \
+                    <icon width="56" height="56" padding="12,12,12,12" \
+                        img="$THEME_URL$images/error32.gif"/> \
+                    <rect padding="4,4,4,4" overflow="auto"><xhtml><![CDATA[ \
+                        <pre style="color:red;font-size:12px; \
+                            font-family:monospace;padding-left:4px">' +
+                            e.name + '\n\n' + e.message +
+                        '</pre>]]></xhtml> \
+                    </rect> \
+                </box> \
+            </wbody> \
+            <dlgbutton onclick="__closeDialog__" width="70" height="22" \
+                caption="Close"/> \
+        </dialog>');
 	if (req.onerror) req.onerror(req, e);
 }
+
+QuiX.rpc._cache = (function() {
+    if (QuiX.persist.type) {
+        var cache = new QuiX.persist.Store('rpccache');
+        return {
+            get : function(key, callback) {
+                cache.get(key,
+                    function(ok, value){
+                        if (value)
+                            callback(QuiX.parsers.JSON.parse(unescape(value)));
+                        else
+                            callback(null);
+                    });
+            },
+            set : function(key, obj) {
+                var value = escape(QuiX.parsers.JSON.stringify(obj));
+                if (QuiX.persist.size < 0 || QuiX.persist.size > value.length)
+                    cache.set(key, value);
+            }
+        }
+    }
+    else
+        return null;
+})();

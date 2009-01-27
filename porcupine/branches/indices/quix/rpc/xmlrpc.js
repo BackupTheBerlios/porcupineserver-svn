@@ -23,6 +23,7 @@ function XMLRPCRequest(sUrl, async) {
 	
 	this.onreadystatechange = null;
 	this.oncomplete = null;
+    this._cached = null;
 	
 	this.callback_info = null;
 	this.response = null;
@@ -56,30 +57,62 @@ XMLRPCRequest.prototype.callmethod = function(method_name) {
                            QuiX.parsers.XMLRPC.stringify(arguments[i]) +
 		   				   '</value></param>';
 			message += '</params></methodCall>';
-			
+
+            var key = QuiX.utils.hashlib.hex_sha256(
+                            this.url +
+                            QuiX.parsers.JSON.stringify(
+                                Array.prototype.splice.call(arguments, 0)));
+
 			QuiX.addLoader();
 			
 			this.xmlhttp.open('POST', this.url, this.async);
 			this.xmlhttp.setRequestHeader("Content-type", "text/xml");
 			
-			var req = this;
+			var self = this;
 			this.xmlhttp.onreadystatechange = function() {
-				if (req.xmlhttp.readyState==4) {
+				if (self.xmlhttp.readyState==4) {
+                    var retVal = null;
+                    var status = self.xmlhttp.status;
 					// parse response...
-					QuiX.removeLoader();
-					var retVal = req.processResult();
-					if (retVal != null && req.oncomplete) {
-						req.response = retVal;
-						req.oncomplete(req);
-					}
-					QuiX.XHRPool.release(req.xmlhttp);
+                    try {
+                        if (status == 304) { //Not modified
+                            retVal = self._cached;
+                        }
+                        else {
+                            retVal = self.processResult();
+                            var etag = self.xmlhttp.getResponseHeader('Etag');
+                            if (QuiX.rpc._cache && etag) {
+                                QuiX.rpc._cache.set(key, [etag, retVal]);
+                            }
+                        }
+                        if (retVal != null && self.oncomplete) {
+                            self.response = retVal;
+                            self.oncomplete(self);
+                        }
+                    }
+                    finally {
+                        QuiX.removeLoader();
+                        QuiX.XHRPool.release(self.xmlhttp);
+                        self._cached = null;
+                    }
 				}
 				else {
-					if (req.onreadystatechange)
-						req.onreadystatechange(req);
+					if (self.onreadystatechange)
+						self.onreadystatechange(self);
 				}
 			}
-			this.xmlhttp.send(message);
+
+            if (QuiX.rpc._cache) {
+                QuiX.rpc._cache.get(key, function(val) {
+                    if (val != null) {
+                        self.xmlhttp.setRequestHeader("If-None-Match", val[0]);
+                        self._cached = val[1];
+                    }
+                    self.xmlhttp.send(message);
+                });
+            }
+            else
+                self.xmlhttp.send(message);
 		}
 		else
 			throw new QuiX.Exception('QuiX.rpc.XMLRPCRequest.callMethod',

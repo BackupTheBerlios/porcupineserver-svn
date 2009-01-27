@@ -125,6 +125,7 @@ def create(self, data):
     oNewItem.appendTo(self, txn)
     return oNewItem.id
 
+@filters.etag()
 @webmethods.remotemethod(of_type=Container)
 def getInfo(self):
     "Returns info about the container's contents"
@@ -162,7 +163,8 @@ def getInfo(self):
         'user_role' : objectAccess.getAccess(self, context.user),
         'contents' : lstChildren
     }
-    
+
+@filters.etag()
 @webmethods.remotemethod(of_type=Container)
 def getSubtree(self):
     l = []
