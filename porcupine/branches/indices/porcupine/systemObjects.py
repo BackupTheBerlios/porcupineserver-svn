@@ -767,7 +767,8 @@ class Item(GenericItem, Cloneable, Movable, Removable):
             if user_role == objectAccess.COORDINATOR:
                 # user is COORDINATOR
                 if (self.inheritRoles != old_item.inheritRoles) or \
-                (not self.inheritRoles and self.security != old_item.security):
+                        (not self.inheritRoles and \
+                         self.security != old_item.security):
                     oParent = _db.getItem(self._parentid, trans)
                     self._applySecurity(oParent, trans)
             else:

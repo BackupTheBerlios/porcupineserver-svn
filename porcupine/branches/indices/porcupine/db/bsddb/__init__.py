@@ -172,16 +172,21 @@ def test_natural_join(conditions, trans):
     [cur.close() for cur in cur_list]
     return result
 
-def check_unique(item, trans):
+def check_unique(item, old_item, trans):
     # check index uniqueness
     for index_name in [x[0] for x in settings['store']['indices'] if x[1]]:
         if hasattr(item, index_name):
-            if test_natural_join((('_parentid', item._parentid),
-                                  (index_name, getattr(item, index_name).value)),
-                                 trans):
-                raise exceptions.ContainmentError, (
-                    'The container already ' +
-                    'has an item with the same "%s" value.' % index_name)
+            value = getattr(item, index_name).value
+            if old_item != None and hasattr(old_item, index_name):
+                old_value = getattr(old_item, index_name).value
+            else:
+                old_value = None
+            if value != old_value:
+                join = (('_parentid', item._parentid), (index_name, value))
+                if test_natural_join(join, trans):
+                    raise exceptions.ContainmentError, (
+                        'The container already ' +
+                        'has an item with the same "%s" value.' % index_name)
 
 # transactions
 def getTransaction():
