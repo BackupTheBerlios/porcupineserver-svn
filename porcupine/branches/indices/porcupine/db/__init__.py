@@ -66,7 +66,7 @@ def transactional(auto_commit=False):
         def transactional_wrapper(*args):
             c_thread = currentThread()
             if c_thread.trans == None:
-                txn = _db.Transaction()
+                txn = _db.get_transaction()
                 c_thread.trans = txn
                 is_top_level = True
             else:

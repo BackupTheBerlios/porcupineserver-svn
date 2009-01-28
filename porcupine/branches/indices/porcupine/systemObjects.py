@@ -127,7 +127,7 @@ class Cloneable(object):
                 'Cannot copy item to destination.\n' + \
                 'The destination is contained in the source.'
         
-        #check permissions on target folder
+        # check permissions on target folder
         user = currentThread().context.user
         user_role = objectAccess.getAccess(target, user)
         if not(self._isSystem) and user_role > objectAccess.READER:
@@ -137,6 +137,9 @@ class Cloneable(object):
                     'objects of type\n"%s".' % contentclass
             
             self._copy(target, trans, clear_inherited=True)
+            # update parent
+            target.modified = time.time()
+            _db.putItem(target, trans)
         else:
             raise exceptions.PermissionDenied, \
                 'The object was not copied.\n' + \
@@ -166,7 +169,8 @@ class Movable(object):
         user_role = objectAccess.getAccess(self, user)
         can_move = (user_role > objectAccess.AUTHOR)
         ## or (user_role == objectAccess.AUTHOR and oItem.owner == user.id)
-        
+
+        parent_id = self._parentid
         target = _db.getItem(target_id, trans)
         if target == None or target._isDeleted:
             raise exceptions.ObjectNotFound, (
@@ -194,7 +198,17 @@ class Movable(object):
             
             self._parentid = target._id
             self.inheritRoles = False
+            _db.check_unique(self, None, trans)
             _db.putItem(self, trans)
+
+            # update target
+            target.modified = time.time()
+            _db.putItem(target, trans)
+
+            # update parent
+            parent = _db.getItem(parent_id, trans)
+            parent.modified = time.time()
+            _db.putItem(parent, trans)
         else:
             raise exceptions.PermissionDenied, \
                 'The object was not moved.\n' + \
@@ -244,6 +258,10 @@ class Removable(object):
         if (not(self._isSystem) and can_delete):
             # delete item physically
             self._delete(trans)
+            # update container
+            parent = _db.getItem(self._parentid, trans)
+            parent.modified = time.time()
+            _db.putItem(parent, trans)
         else:
             raise exceptions.PermissionDenied, \
                 'The object was not deleted.\n' + \
@@ -314,18 +332,23 @@ class Removable(object):
             deleted.modified = time.time()
             deleted._parentid = rb_id
             
+            # check recycle bin's containment
+            recycle_bin = _db.getItem(rb_id, trans)
+            if not(deleted.getContentclass() in recycle_bin.containment):
+                raise exceptions.ContainmentError, \
+                    'The target container does not accept ' + \
+                    'objects of type\n"%s".' % deleted.getContentclass()
+            
             _db.handle_update(deleted, None, trans)
             _db.putItem(deleted, trans)
             
             # delete item logically
             self._recycle(trans)
-                        
-            #update recycle bin
-            oRecycleBin = _db.getItem(rb_id, trans)
-            if not(deleted.getContentclass() in oRecycleBin.containment):
-                raise exceptions.ContainmentError, \
-                    'The target container does not accept ' + \
-                    'objects of type\n"%s".' % deleted.getContentclass()
+            
+            # update container
+            parent = _db.getItem(self._parentid, trans)
+            parent.modified = time.time()
+            _db.putItem(parent, trans)
         else:
             raise exceptions.PermissionDenied, \
                 'The object was not deleted.\n' + \
@@ -488,14 +511,17 @@ class GenericItem(object):
         else:
             # user is not COORDINATOR
             self.inheritRoles = True
-            self.security = parent.security   
+            self.security = parent.security
+        
         self._owner = user._id
         self._created = time.time()
         self.modifiedBy = user.displayName.value
         self.modified = time.time()
         self._parentid = parent._id
         _db.handle_update(self, None, trans)
+        parent.modified = self.modified
         _db.putItem(self, trans)
+        _db.putItem(parent, trans)
     
     def isContainedIn(self, item_id, trans=None):
         """
@@ -717,6 +743,10 @@ class DeletedItem(GenericItem, Removable):
         
         # try to restore original item
         self._restore(deleted, parent, trans)
+        # update parent
+        parent.modified = time.time()
+        _db.putItem(parent, trans)
+        # delete self
         self.delete(trans, _removeDeleted=False)
 
     def delete(self, trans, _removeDeleted=True):
@@ -758,6 +788,7 @@ class Item(GenericItem, Cloneable, Movable, Removable):
         @return: None
         """
         old_item = _db.getItem(self._id, trans)
+        parent = _db.getItem(self._parentid, trans)
         
         user = currentThread().context.user
         user_role = objectAccess.getAccess(old_item, user)
@@ -769,8 +800,7 @@ class Item(GenericItem, Cloneable, Movable, Removable):
                 if (self.inheritRoles != old_item.inheritRoles) or \
                         (not self.inheritRoles and \
                          self.security != old_item.security):
-                    oParent = _db.getItem(self._parentid, trans)
-                    self._applySecurity(oParent, trans)
+                    self._applySecurity(parent, trans)
             else:
                 # restore previous ACL
                 self.security = old_item.security
@@ -779,7 +809,9 @@ class Item(GenericItem, Cloneable, Movable, Removable):
             _db.handle_update(self, old_item, trans)
             self.modifiedBy = user.displayName.value
             self.modified = time.time()
+            parent.modified = self.modified
             _db.putItem(self, trans)
+            _db.putItem(parent, trans)
         else:
             raise exceptions.PermissionDenied, \
                     'The user does not have update permissions.'

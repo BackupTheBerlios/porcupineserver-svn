@@ -18,22 +18,24 @@
 import time
 import cPickle
 
+from porcupine import exceptions
 from porcupine.utils import misc
 from porcupine.config.settings import settings
 
-Transaction = None
 _db_handle = None
 _locks = 0
 _activeTxns = 0
 
 def open(**kwargs):
-    global _db_handle, Transaction
+    global _db_handle
     _db_handle = misc.getCallableByName(settings['store']['interface'])
-    Transaction = _db_handle.Transaction
     _db_handle.open(**kwargs)
     
 def is_open():
     return _db_handle.is_open()
+
+def get_transaction():
+    return _db_handle._transaction_class()
     
 def _getItemByPath(lstPath, trans=None):
     oItem = getItem('')
@@ -87,7 +89,7 @@ def handle_update(item, old_item, trans):
             # create
             [handler.on_create(item, trans)
              for handler in item._eventHandlers]
-    _db_handle.check_unique(item, old_item, trans)
+    check_unique(item, old_item, trans)
     for attr_name in item.__props__:
         try:
             attr = getattr(item, attr_name)
@@ -115,7 +117,7 @@ def handle_delete(item, trans, is_permanent):
      if attr._eventHandler]
 
 def handle_undelete(item, trans):
-    _db_handle.check_unique(item, None, trans)
+    check_unique(item, None, trans)
     attrs = [getattr(item, attr_name)
              for attr_name in item.__props__
              if hasattr(item, attr_name)]
@@ -134,6 +136,22 @@ def natural_join(conditions, trans, fetch_all=False, resolve_shortcuts=False):
 
 def test_natural_join(conditions, trans):
     return _db_handle.test_natural_join(conditions, trans)
+
+def check_unique(item, old_item, trans):
+    # check index uniqueness
+    for index_name in [x[0] for x in settings['store']['indices'] if x[1]]:
+        if hasattr(item, index_name):
+            value = getattr(item, index_name).value
+            if old_item != None and hasattr(old_item, index_name):
+                old_value = getattr(old_item, index_name).value
+            else:
+                old_value = None
+            if value != old_value:
+                join = (('_parentid', item._parentid), (index_name, value))
+                if test_natural_join(join, trans):
+                    raise exceptions.ContainmentError, (
+                        'The container already ' +
+                        'has an item with the same "%s" value.' % index_name)
 
 # transactions
 def createTransaction():
