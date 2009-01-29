@@ -34,9 +34,6 @@ def open(**kwargs):
 def is_open():
     return _db_handle.is_open()
 
-def get_transaction():
-    return _db_handle._transaction_class()
-    
 def _getItemByPath(lstPath, trans=None):
     oItem = getItem('')
     for name in lstPath[1:len(lstPath)]:
@@ -154,23 +151,8 @@ def check_unique(item, old_item, trans):
                         'has an item with the same "%s" value.' % index_name)
 
 # transactions
-def createTransaction():
-    global _activeTxns
-    while _locks:
-        time.sleep(1)
-    txn = _db_handle.getTransaction()
-    _activeTxns += 1
-    return(txn)
-   
-def abortTransaction(txn):
-    global _activeTxns
-    _db_handle.abortTransaction(txn)
-    _activeTxns -= 1
-
-def commitTransaction(txn):
-    global _activeTxns
-    _db_handle.commitTransaction(txn)
-    _activeTxns -= 1
+def get_transaction():
+    return _db_handle.get_transaction()
 
 # administrative
 def lock():

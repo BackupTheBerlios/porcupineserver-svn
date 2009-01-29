@@ -49,7 +49,7 @@ def getTransaction():
     Currently, nested transactions are not supported.
     Subsequent calls to C{getTransaction} will return the same handle.
     
-    @rtype: L{Transaction<porcupine.db.transaction.Transaction>}
+    @rtype: L{BaseTransaction<porcupine.db.basetransaction.BaseTransaction>}
     """
     txn = currentThread().trans
     if txn == None:

@@ -28,10 +28,10 @@ from threading import Thread
 from porcupine import exceptions
 from porcupine.config.settings import settings
 from porcupine.core.objectSet import ObjectSet
-from porcupine.db.transaction import Transaction
+from porcupine.utils.db.backup import BackupFile
+from porcupine.db.bsddb.transaction import Transaction
 from porcupine.db.bsddb.index import DbIndex
 from porcupine.db.bsddb.cursor import Cursor, Join
-from porcupine.utils.db.backup import BackupFile
 
 _running = False
 _env = None
@@ -41,7 +41,7 @@ _indices = {}
 _maintenance_thread = None
 _dir = None
 _checkpoint_interval = 1
-_transaction_class = Transaction
+#_transaction_class = Transaction
 
 logger = logging.getLogger('serverlog')
 
@@ -174,17 +174,8 @@ def test_natural_join(conditions, trans):
     return result
 
 # transactions
-def getTransaction():
-    return _env.txn_begin()
-
-def abortTransaction(txn):
-    txn.abort()
-
-def commitTransaction(txn):
-    try:
-        txn.commit()
-    except (db.DBLockDeadlockError, db.DBLockNotGrantedError):
-        raise exceptions.DBTransactionIncomplete
+def get_transaction():
+    return Transaction(_env)
 
 # administrative
 def __removeFiles():

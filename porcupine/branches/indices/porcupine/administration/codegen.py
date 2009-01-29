@@ -203,7 +203,7 @@ class ItemEditor(GenericSchemaEditor):
                 if len(rs):
                     try:
                         for item in rs:
-                            txn = offlinedb.OfflineTransaction()
+                            txn = db.get_transaction()
                             for name in self._removedProps:
                                 if hasattr(item, name):
                                     delattr(item, name)

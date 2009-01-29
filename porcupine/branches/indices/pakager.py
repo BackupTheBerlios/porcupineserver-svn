@@ -197,7 +197,7 @@ class Package(object):
         dbfiles = [x for x in contents if x[:4] == '_db/']
         if dbfiles:
             self.db = offlinedb.getHandle()
-            txn = offlinedb.OfflineTransaction()
+            txn = self.db.get_transaction()
             try:
                 for dbfile in dbfiles:
                     print 'INFO: importing object ' + os.path.basename(dbfile)
@@ -237,7 +237,7 @@ class Package(object):
         items = self.config_file.options('items')
         itemids = [self.config_file.get('items', x) for x in items]
         self.db = offlinedb.getHandle()
-        txn = offlinedb.OfflineTransaction()
+        txn = self.db.get_transaction()
         try:
             try:
                 for itemid in itemids:
@@ -403,13 +403,10 @@ class Package(object):
             )
             
         # definition file
-        self.package_files.append(
-            (
+        self.package_files.append((
                 self.package_file.gettarinfo(definition, '_pkg.ini'),
-                definition
-            )
-        )
-    
+                definition))
+
         # compact files
         print 'INFO: compacting...'
         for tarinfo, fname in self.package_files:

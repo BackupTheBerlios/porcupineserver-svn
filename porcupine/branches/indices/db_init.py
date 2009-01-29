@@ -91,7 +91,7 @@ if (answer.upper() == 'Y'):
     db.putItem(rb, None)
     sys.stdout.write('[OK]\n')
     
-    txn = offlinedb.OfflineTransaction()
+    txn = db.get_transaction()
     
     sys.stdout.write('Creating Categories folder...')
     catFolder = org.innoscript.desktop.schema.common.Category()
