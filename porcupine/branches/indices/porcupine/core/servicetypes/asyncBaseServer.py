@@ -14,45 +14,15 @@
 #    along with Porcupine; if not, write to the Free Software
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #===============================================================================
-"Porcupine base classes for threaded TCP server"
+"""
+Porcupine base classes for threaded network servers
+"""
 import socket
-import select
 import Queue
-from threading import Thread, currentThread, RLock
-from errno import EINTR, EISCONN, EADDRINUSE
+from threading import Thread, currentThread
 
-from porcupine.core.servicetypes import asyncore
+from porcupine.core import asyncore
 from porcupine.core.servicetypes.service import BaseService
-
-USE_POLL = False
-if hasattr(select, 'poll'):
-    USE_POLL = True
-
-SERVERS = 0
-# port range to use when the ephemeral port range is exhausted
-PORT_RANGE = range(65535, 49150, -1)
-SERVER_IP = socket.gethostbyname(socket.gethostname())
-HOST_PORTS = {}
-NEXT_PORT_LOCK = RLock()
-
-def nextPort(address):
-    NEXT_PORT_LOCK.acquire()
-    nextPortIndex = HOST_PORTS[address] = (
-        HOST_PORTS.setdefault(address, -1) + 1) % len(PORT_RANGE
-    )
-    NEXT_PORT_LOCK.release()
-    return PORT_RANGE[nextPortIndex]
-
-def asyncLoop():
-    try:
-        asyncore.loop(0.01, USE_POLL)
-    except select.error, v:
-        if v[0] == EINTR:
-            print "Shutdown not completely clean..."
-        else:
-            pass
-
-ASYNCORE_THREAD = Thread(target=asyncLoop, name='Asyncore thread')
 
 class BaseServerThread(Thread):
     def __init__(self, target, name):
@@ -87,7 +57,7 @@ class BaseServer(BaseService, asyncore.dispatcher):
             raise v
 
         self.listen(32)
-
+        
         for i in range(self.worker_threads):
             tname = '%s server thread %d' % (self.name, i+1)
             t = self.threadClass(target=self.threadLoop, name=tname)
@@ -95,13 +65,6 @@ class BaseServer(BaseService, asyncore.dispatcher):
             self.threadPool.append(t)
 
         self.activeConnections = 0
-
-        global SERVERS
-        SERVERS += 1
-        # if it is the first server start asyncore loop
-        if SERVERS==1:
-            ASYNCORE_THREAD.start()
-        
         self.running = True
 
     def readable(self):
@@ -161,14 +124,6 @@ class BaseServer(BaseService, asyncore.dispatcher):
         for i in self.threadPool:
             i.join()
 
-        global SERVERS
-        SERVERS -= 1
-        
-        # if it is the last one join the asyncore thread
-        if SERVERS == 0:
-            ASYNCORE_THREAD.join()
-            asyncore.close_all()
-
 class BaseRequestHandler(asyncore.dispatcher):
     "Base Request Handler Object"
     def __init__(self, server):
@@ -177,7 +132,6 @@ class BaseRequestHandler(asyncore.dispatcher):
         self.hasResponse = False
         self.output_buffer = ''
         self.input_buffer = []
-        self.sent = 0
 
     def activate(self, sock):
         self.set_socket(sock)
@@ -189,7 +143,7 @@ class BaseRequestHandler(asyncore.dispatcher):
         return not self.hasRequest
 
     def writable(self):
-        return self.hasResponse
+        return self.hasRequest
 
     def handle_connect(self):
         pass
@@ -208,13 +162,11 @@ class BaseRequestHandler(asyncore.dispatcher):
             self.server.requestQueue.put(self)
 
     def handle_write(self):
-        if self.sent < len(self.output_buffer):
-            self.sent += self.send(self.output_buffer[self.sent:self.sent + 8192])
-            if self.sent > 262144:
-                self.output_buffer = self.output_buffer[self.sent:]
-                self.sent = 0
-        else:
-            self.shutdown(1)
+        if len(self.output_buffer):
+            sent = self.send(self.output_buffer)
+            self.output_buffer = self.output_buffer[sent:]
+        elif self.hasResponse:
+            #self.shutdown(1)
             self.close()
 
     def close(self):
@@ -223,7 +175,6 @@ class BaseRequestHandler(asyncore.dispatcher):
         self.hasResponse = False
         self.input_buffer = []
         self.output_buffer = ''
-        self.sent = 0
         # put it in inactive request handlers queue
         self.server.rhQueue.put(self)
         self.server.activeConnections -= 1
@@ -231,50 +182,3 @@ class BaseRequestHandler(asyncore.dispatcher):
 
     def handleRequest(self):
         pass
-
-
-class BaseRequest(object):
-    def __init__(self, buffer=''):
-        self.buffer = buffer
-
-    def getResponse(self, address):
-        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        
-        try:
-            # TODO: remove this try
-            # THIS TRY IS FOR DEBUGGING PURPOSES
-            try:
-                err = s.connect_ex(address)
-                while not err in (0, EISCONN):
-                    if err == EADDRINUSE:  # address already in use
-                        # the ephemeral port range is exhausted
-                        s.close()
-                        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-                        s.bind((SERVER_IP, nextPort(address)))
-                    else:
-                        # the host refuses conncetion
-                        break
-                    err = s.connect_ex(address)
-
-                s.send(self.buffer)
-                s.shutdown(1)
-                # Get the response object from master
-                response = []
-                
-                rdata = s.recv(8192)
-                while rdata:
-                    response.append(rdata)
-                    rdata = s.recv(8192)
-            except socket.error, v:
-                import traceback
-                import sys
-                output = traceback.format_exception(*sys.exc_info())
-                output = ''.join(output)
-                print output
-                raise
-
-        finally:
-            s.close()
-
-        sResponse = ''.join(response)
-        return(sResponse)

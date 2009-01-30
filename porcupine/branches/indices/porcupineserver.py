@@ -24,6 +24,8 @@ import time
 import signal
 import imp
 import warnings
+import select
+from errno import EINTR
 from threading import Thread, Event
 
 def main_is_frozen():
@@ -36,6 +38,7 @@ if main_is_frozen():
 
 from porcupine.config import services, log
 from porcupine.utils import misc
+from porcupine.core import asyncore
 from porcupine.db import _db
 from porcupine.security import SessionManager
 
@@ -94,6 +97,11 @@ class Controller(object):
         except Exception, e:
             self.logger.log(logging.ERROR, e[0], *(), **{'exc_info' : True})
             raise e
+
+        # start asyn thread
+        self._asyn_thread = Thread(target=self._async_loop,
+                                   name='Asyncore thread')
+        self._asyn_thread.start()
         
         # start shutdown thread
         self.shutdownEvt = Event()
@@ -118,6 +126,18 @@ class Controller(object):
         print '''Porcupine comes with ABSOLUTELY NO WARRANTY.
 This is free software, and you are welcome to redistribute it under
 certain conditions; See COPYING for more details.'''
+
+    def _async_loop(self):
+        _use_poll = False
+        if hasattr(select, 'poll'):
+            _use_poll = True
+        try:
+            asyncore.loop(30.0, _use_poll)
+        except select.error, v:
+            if v[0] == EINTR:
+                print "Shutdown not completely clean..."
+            else:
+                pass
 
     def initiateShutdown(self, arg1=None, arg2=None):
         self.shutdowninprogress = True
@@ -144,6 +164,10 @@ certain conditions; See COPYING for more details.'''
         if _db.is_open():
             self.logger.info('Closing database...')
             _db.close()
+
+        # join asyn thread
+        self._asyn_thread.join()
+        asyncore.close_all()
 
         self.logger.info('All services have been shut down successfully')
         # shutdown logging

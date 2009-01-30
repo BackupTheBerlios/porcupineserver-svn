@@ -19,13 +19,14 @@ import logging
 from cPickle import dumps, loads
 
 from porcupine.core.servicetypes import asyncBaseServer
+from porcupine.core.networking.request import BaseRequest
 from porcupine.db import _db
 
 logger = logging.getLogger('serverlog')
 
-class MgtRequest(asyncBaseServer.BaseRequest):
+class MgtRequest(BaseRequest):
     def getResponse(self, addr):
-        resp = asyncBaseServer.BaseRequest.getResponse(self, addr)
+        resp = BaseRequest.getResponse(self, addr)
         response = MgtMessage()
         response.load(resp)
         return(response)
