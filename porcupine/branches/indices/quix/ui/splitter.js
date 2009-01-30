@@ -1,13 +1,13 @@
 /************************
 Splitter
 ************************/
-function Splitter(params) {
+QuiX.ui.Splitter = function(params) {
 	params = params || {};
 	var spacing = parseInt(params.spacing) || 6;
 	params.overflow = 'hidden';
 	params.spacing = 0;
 	params.onresize = Splitter__resize
-    this.base = Box;
+    this.base = QuiX.ui.Box;
 	this.base(params);
 
 	this._spacing = spacing;
@@ -16,24 +16,26 @@ function Splitter(params) {
 	this._handles = [];
 }
 
-QuiX.constructors['splitter'] = Splitter;
-Splitter.prototype = new Box;
+QuiX.constructors['splitter'] = QuiX.ui.Splitter;
+QuiX.ui.Splitter.prototype = new QuiX.ui.Box;
+// backwards compatibility
+var Splitter = QuiX.ui.Splitter;
 
-Splitter.prototype.free_length = 'this.parent._calcWidgetLength()';
+QuiX.ui.Splitter.prototype.free_length = 'this.parent._calcWidgetLength()';
 
-Splitter.prototype.appendChild = function(w) {
+QuiX.ui.Splitter.prototype.appendChild = function(w) {
 	if (this.panes.length > 0) {
 		this._addHandle();
 	}
-	Box.prototype.appendChild(w, this);
+	QuiX.ui.Box.prototype.appendChild(w, this);
 	w.destroy = SplitterPane__destroy;
 	this.panes.push(w);
 }
 
-Splitter.prototype._addHandle = function() {
+QuiX.ui.Splitter.prototype._addHandle = function() {
 	var handle;
 	if (this.orientation == "h") {
-		handle = new Widget({
+		handle = new QuiX.ui.Widget({
 			width : this._spacing,
 			border : 1,
 			overflow :'hidden'
@@ -42,7 +44,7 @@ Splitter.prototype._addHandle = function() {
 		handle.div.className = 'handleV';
 	}
 	else {
-		handle = new Widget({
+		handle = new QuiX.ui.Widget({
 			height : this._spacing,
 			border : 1,
 			overflow :'hidden'
@@ -50,18 +52,19 @@ Splitter.prototype._addHandle = function() {
 		handle.div.style.cursor = 'n-resize';
 		handle.div.className = 'handleH';
 	}
-	Box.prototype.appendChild(handle, this);
+	QuiX.ui.Box.prototype.appendChild(handle, this);
 	handle.redraw();
 	this._handles.push(handle);
 	handle.attachEvent('onmousedown', SplitterHandle__mousedown);
 	handle.attachEvent('ondblclick', SplitterHandle__dblclick);
 }
 
-Splitter.prototype._handleMoving = function(evt, iHandle) {
+QuiX.ui.Splitter.prototype._handleMoving = function(evt, iHandle) {
 	var length_var = (this.orientation == 'h')?'width':'height';
 	var length_func = (this.orientation == 'h')?'getWidth':'getHeight';
 	var offset_var = (this.orientation == 'h')?'X':'Y';
-	var min_length_var = (this.orientation == 'h')?'_calcMinWidth':'_calcMinHeight';
+	var min_length_var = (this.orientation == 'h')?
+                         '_calcMinWidth':'_calcMinHeight';
 
 	var offset = evt['client' + offset_var] - QuiX['start' + offset_var];
 
@@ -90,7 +93,7 @@ Splitter.prototype._handleMoving = function(evt, iHandle) {
 	}
 }
 
-Splitter.prototype._endMoveHandle = function(evt, iHandle) {
+QuiX.ui.Splitter.prototype._endMoveHandle = function(evt, iHandle) {
 	this.detachEvent('onmouseup');
 	this.detachEvent('onmousemove');
 	this.div.style.cursor = '';
@@ -98,7 +101,7 @@ Splitter.prototype._endMoveHandle = function(evt, iHandle) {
 	QuiX.dragging = false;
 }
 
-Splitter.prototype._getFillersCount = function() {
+QuiX.ui.Splitter.prototype._getFillersCount = function() {
 	var c = 0;
 	var length_var = (this.orientation == 'h')?'width':'height';
 	for (var i=0; i< this.panes.length; i++) {
@@ -113,7 +116,8 @@ function SplitterPane__destroy() {
 	var oSplitter = this.parent;
 	var length_var = (oSplitter.orientation == 'h')?'width':'height';
 	var idx = oSplitter.panes.indexOf(this);
-	if (this[length_var] == oSplitter.free_length && oSplitter.panes.length > 1) {
+	if (this[length_var] == oSplitter.free_length &&
+            oSplitter.panes.length > 1) {
 		if (idx == 0)
 			oSplitter.panes[1][length_var] = '-1';
 		else
@@ -129,7 +133,10 @@ function SplitterPane__destroy() {
 			oSplitter._handles.splice(idx-1, 1);
 		}
 	}
-	Widget.prototype.destroy.apply(this, arguments);
+	if (this.base)
+		this.base.prototype.destroy.apply(this, arguments);
+	else
+		QuiX.ui.Widget.prototype.destroy.apply(this, arguments);
 	oSplitter.panes.splice(idx, 1);
 	oSplitter.redraw(true);
 }
@@ -147,7 +154,8 @@ function SplitterHandle__mousedown(evt, w) {
 			function(evt, w){w._endMoveHandle(evt, idx)});
 		splitter.attachEvent('onmousemove',
 			function(evt, w){w._handleMoving(evt, idx)});
-		splitter.div.style.cursor = (w.parent.orientation == "h")?'e-resize':'n-resize';
+		splitter.div.style.cursor = (w.parent.orientation == "h")?
+                                    'e-resize':'n-resize';
 	}
 }
 
@@ -171,7 +179,8 @@ function SplitterHandle__dblclick(evt, w) {
 	
 	if (pane.isHidden()) {
 		w._isCollapsed = false;
-		w.div.style.cursor = (splitter.orientation == "h")?'e-resize':'n-resize';
+		w.div.style.cursor = (splitter.orientation == "h")?
+                             'e-resize':'n-resize';
 		if (pane2._statelength) {
 			pane2[length_var] = pane2._statelength;
 			pane2._statelength = null;
@@ -193,7 +202,8 @@ function SplitterHandle__dblclick(evt, w) {
 				pane2[length_var] = splitter.free_length;
 			}
 			else if (!islastfree) {
-				pane2[length_var] = pane[length_func](true) + pane2[length_func](true);
+				pane2[length_var] = pane[length_func](true) +
+                                    pane2[length_func](true);
 			}
 		}
 	}
@@ -202,7 +212,6 @@ function SplitterHandle__dblclick(evt, w) {
 
 function Splitter__resize(splitter, w, h) {
 	var length_var = (splitter.orientation == 'h')?'width':'height';
-	var length_func = (splitter.orientation == 'h')?'getWidth':'getHeight';
 	var ol = (splitter.orientation == 'h')?w:h;
 	var nl = parseInt(splitter.div.style[length_var]);
 	var pane;

@@ -2,10 +2,10 @@
 Box layout
 ************************/
 
-function Box(params) {
+QuiX.ui.Box = function(params) {
 	params = params || {};
 	params.overflow = params.overflow || 'hidden';
-	this.base = Widget;
+	this.base = QuiX.ui.Widget;
 	this.base(params);
 	this.div.className = 'box';
 	this.orientation = params.orientation || 'h';
@@ -16,20 +16,22 @@ function Box(params) {
 	this.childrenAlign = params.childrenalign;
 }
 
-QuiX.constructors['box'] = Box;
-Box.prototype = new Widget;
+QuiX.constructors['box'] = QuiX.ui.Box;
+QuiX.ui.Box.prototype = new QuiX.ui.Widget;
+// backwards compatibility
+var Box = QuiX.ui.Box;
 
-Box.prototype.appendChild = function(w, p) {
+QuiX.ui.Box.prototype.appendChild = function(w, p) {
 	p = p || this;
 	w.destroy = BoxWidget__destroy;
 	if (p.orientation == 'h')
 		w.height = w.height || '100%';
 	else
 		w.width = w.width || '100%';
-	Widget.prototype.appendChild(w, p);
+	QuiX.ui.Widget.prototype.appendChild(w, p);
 }
 
-Box.prototype.redraw = function(bForceAll) {
+QuiX.ui.Box.prototype.redraw = function(bForceAll) {
 	if (bForceAll) {
 		var oWidget;
 		var offset_var = (this.orientation=='h')?'left':'top';
@@ -47,10 +49,10 @@ Box.prototype.redraw = function(bForceAll) {
 				oWidget[width_var] = 'this.parent._calcWidgetWidth()';
 		}
 	}
-	Widget.prototype.redraw.apply(this, arguments);
+	QuiX.ui.Widget.prototype.redraw.apply(this, arguments);
 }
 
-Box.prototype._calcWidth = function(b) {
+QuiX.ui.Box.prototype._calcWidth = function(b) {
     if (this._auto_width && this.widgets.length > 0) {
         var width = 0;
         var w;
@@ -67,10 +69,10 @@ Box.prototype._calcWidth = function(b) {
             width += (this.widgets.length - 1) * this.spacing;
         this.width = width + offset;
     }
-    return Widget.prototype._calcWidth.apply(this, arguments);
+    return QuiX.ui.Widget.prototype._calcWidth.apply(this, arguments);
 }
 
-Box.prototype._calcHeight = function(b) {
+QuiX.ui.Box.prototype._calcHeight = function(b) {
     if (this._auto_height && this.widgets.length > 0) {
         var height = 0;
         var w;
@@ -87,10 +89,10 @@ Box.prototype._calcHeight = function(b) {
             height += (this.widgets.length - 1) * this.spacing;
         this.height = height + offset;
     }
-    return Widget.prototype._calcHeight.apply(this, arguments);
+    return QuiX.ui.Widget.prototype._calcHeight.apply(this, arguments);
 }
 
-Box.prototype._getWidgetPos = function(iPane) {
+QuiX.ui.Box.prototype._getWidgetPos = function(iPane) {
 	var oWidget = this.widgets[iPane];
 	var boxalign =  oWidget.boxAlign || this.childrenAlign;
 	var w1 = (this.orientation=='h')?this.getHeight():this.getWidth();
@@ -106,7 +108,7 @@ Box.prototype._getWidgetPos = function(iPane) {
 	}
 }
 
-Box.prototype._getWidgetOffset = function(iPane) {
+QuiX.ui.Box.prototype._getWidgetOffset = function(iPane) {
 	var offset = 0;
 	if (iPane > 0)
 	{
@@ -127,7 +129,7 @@ Box.prototype._getWidgetOffset = function(iPane) {
 	return(offset);
 }
 
-Box.prototype._calcWidgetLength = function() {
+QuiX.ui.Box.prototype._calcWidgetLength = function() {
 	var tl = 0;
 	var free_widgets = 0;
 	var length_var = (this.orientation=='h')?'width':'height';
@@ -149,7 +151,7 @@ Box.prototype._calcWidgetLength = function() {
 	return(nl>0?nl:0);
 }
 
-Box.prototype._calcWidgetWidth = function() {
+QuiX.ui.Box.prototype._calcWidgetWidth = function() {
 	var w;
 	var tl = 0;
 	var min_var = (this.orientation=='h')?'_calcMinHeight':'_calcMinWidth';
@@ -178,14 +180,14 @@ function BoxWidget__destroy() {
 	if (this.base)
 		this.base.prototype.destroy.apply(this, arguments);
 	else
-		Widget.prototype.destroy.apply(this, arguments);
+		QuiX.ui.Widget.prototype.destroy.apply(this, arguments);
 	oBox.redraw(true);
 }
 
-function FlowBox(params) {
+QuiX.ui.FlowBox = function(params) {
 	params = params || {};
 	params.overflow = params.overflow || 'auto';
-	this.base = Widget;
+	this.base = QuiX.ui.Widget;
 	this.base(params);
 	this.div.className = 'flowbox';
 	var iSpacing = params.spacing || 8;
@@ -201,10 +203,12 @@ function FlowBox(params) {
 			this._selection = null;
 }
 
-QuiX.constructors['flowbox'] = FlowBox;
-FlowBox.prototype = new Widget;
+QuiX.constructors['flowbox'] = QuiX.ui.FlowBox;
+QuiX.ui.FlowBox.prototype = new QuiX.ui.Widget;
+// backwards compatibility
+var FlowBox = QuiX.ui.FlowBox;
 
-FlowBox.prototype.appendChild = function(w) {
+QuiX.ui.FlowBox.prototype.appendChild = function(w) {
 	var show = false;
 	w.destroy = FlowBoxWidget__destroy;
 	if (this.select) {
@@ -217,25 +221,25 @@ FlowBox.prototype.appendChild = function(w) {
 		w.hide();
 		show = true;
 	}
-	Widget.prototype.appendChild(w, this);
+	QuiX.ui.Widget.prototype.appendChild(w, this);
 	this._rearrange(this.widgets.length - 1);
 	if (show)
 		w.show();
 }
 
-FlowBox.prototype.redraw = function(bForceAll) {
-	Widget.prototype.redraw.apply(this, arguments);
+QuiX.ui.FlowBox.prototype.redraw = function(bForceAll) {
+	QuiX.ui.Widget.prototype.redraw.apply(this, arguments);
 	this._rearrange(0);
 }
 
-FlowBox.prototype.getSelection = function() {
+QuiX.ui.FlowBox.prototype.getSelection = function() {
 	if (this.select)
 		return this._selection;
     else
         return null;
 }
 
-FlowBox.prototype._rearrange = function(iStart) {
+QuiX.ui.FlowBox.prototype._rearrange = function(iStart) {
 	var x = 0;
 	var y = 0;
 	var rowHeight = 0;
@@ -264,7 +268,7 @@ FlowBox.prototype._rearrange = function(iStart) {
 	}
 }
 
-FlowBox.prototype._calcRowHeight = function(iStart) {
+QuiX.ui.FlowBox.prototype._calcRowHeight = function(iStart) {
 	var rowHeight = 0;
 	var iCount = iStart - 1;
 	var prev;
@@ -290,7 +294,7 @@ function FlowBoxWidget__destroy() {
 	if (this.base)
 		this.base.prototype.destroy.apply(this, arguments);
 	else
-		Widget.prototype.destroy.apply(this, arguments);
+		QuiX.ui.Widget.prototype.destroy.apply(this, arguments);
 	if (i < fb.widgets.length)
 		fb._rearrange(i);
 }

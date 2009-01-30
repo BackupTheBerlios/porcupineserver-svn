@@ -2,13 +2,13 @@
 Data Grid
 ************************/
 
-function DataGrid(params) {
+QuiX.ui.DataGrid = function(params) {
 	params = params || {};
 	params.multiple = true;
 	params.cellborder = params.cellborder || 1;
 	params.cellpadding = params.cellpadding || 2;
 
-	this.base = ListView;
+	this.base = QuiX.ui.ListView;
 	this.base(params);
 	
 	this.name = params.name;
@@ -16,27 +16,29 @@ function DataGrid(params) {
 	this.editUndef = (params.editundef==false || params.editundef=='false')?false:true;
 }
 
-QuiX.constructors['datagrid'] = DataGrid;
-DataGrid.prototype = new ListView;
+QuiX.constructors['datagrid'] = QuiX.ui.DataGrid;
+QuiX.ui.DataGrid.prototype = new QuiX.ui.ListView;
+// backwards compatibility
+var DataGrid = QuiX.ui.DataGrid;
 
-DataGrid.prototype.addHeader = function(params) {
-	var oHeader = ListView.prototype.addHeader.apply(this, arguments);
+QuiX.ui.DataGrid.prototype.addHeader = function(params) {
+	var oHeader = QuiX.ui.ListView.prototype.addHeader.apply(this, arguments);
 	this.widgets[1].attachEvent('onclick', DataGrid__onclick);
 	this.widgets[1].attachEvent('onkeydown', DataGrid__onkeydown);
 	return(oHeader);
 }
 
-DataGrid.prototype.addColumn = function(params) {
-	var oCol = ListView.prototype.addColumn.apply(this, arguments);
+QuiX.ui.DataGrid.prototype.addColumn = function(params) {
+	var oCol = QuiX.ui.ListView.prototype.addColumn.apply(this, arguments);
 	oCol.editable = !(params.editable=='false' || params.editable == false);
 	return(oCol);
 }
 
-DataGrid.prototype.getValue = function(params) {
+QuiX.ui.DataGrid.prototype.getValue = function(params) {
 	return this.dataSet;
 }
 
-DataGrid.prototype._removeEditWidget = function() {
+QuiX.ui.DataGrid.prototype._removeEditWidget = function() {
 	if (this.attributes.__editwidget) {
 		this.attributes.__editwidget.destroy();
 		this.attributes.__editwidget = null;
@@ -44,17 +46,17 @@ DataGrid.prototype._removeEditWidget = function() {
 	}	
 }
 
-DataGrid.prototype.disable = function() {
+QuiX.ui.DataGrid.prototype.disable = function() {
 	this._removeEditWidget();
-	ListView.prototype.disable.apply(this, arguments);
+	QuiX.ui.ListView.prototype.disable.apply(this, arguments);
 }
 
-DataGrid.prototype.refresh = function() {
+QuiX.ui.DataGrid.prototype.refresh = function() {
 	this._removeEditWidget();
-	ListView.prototype.refresh.apply(this, arguments);
+	QuiX.ui.ListView.prototype.refresh.apply(this, arguments);
 }
 
-DataGrid.prototype.edit = function(cell) {
+QuiX.ui.DataGrid.prototype.edit = function(cell) {
 	var editValue, w2, w2_type;
 	var idx = cell.cellIndex;
 	var ridx = (cell.parentElement || cell.parentNode).rowIndex;
@@ -64,7 +66,7 @@ DataGrid.prototype.edit = function(cell) {
 			return;
 		switch (this.columns[idx].columnType) {
 			case 'optionlist':
-				w2 = new Combo({
+				w2 = new QuiX.ui.Combo({
 					top : cell.offsetTop,
 					left : cell.offsetLeft,
 					width : cell.offsetWidth,
@@ -85,7 +87,7 @@ DataGrid.prototype.edit = function(cell) {
 			case 'bool':
 				w2_type = 'checkbox';
 			default:
-				w2 = new Field({
+				w2 = new QuiX.ui.Field({
 					top : cell.offsetTop,
 					left : cell.offsetLeft,
 					width : cell.offsetWidth,

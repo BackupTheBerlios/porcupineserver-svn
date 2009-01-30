@@ -1,7 +1,7 @@
 // horizontal rule
-function HR(params) {
+QuiX.ui.HR = function(params) {
 	params = params || {};
-	this.base = Widget;
+	this.base = QuiX.ui.Widget;
 	params.border = params.border || 1;
 	params.height = params.height || 2;
 	params.overflow = 'hidden';
@@ -11,13 +11,15 @@ function HR(params) {
 }
 
 QuiX.constructors['hr'] = HR;
-HR.prototype = new Widget;
+QuiX.ui.HR.prototype = new QuiX.ui.Widget;
+// backwards compatibility
+var HR = QuiX.ui.HR;
 
 // iframe
-function IFrame(params) {
+QuiX.ui.IFrame = function(params) {
 	params = params || {};
 	params.overflow = 'hidden';
-	this.base = Widget;
+	this.base = QuiX.ui.Widget;
 	this.base(params);
 	this._isContainer = false;
 	this.div.className = 'ifrm';
@@ -31,30 +33,32 @@ function IFrame(params) {
 	this.div.appendChild(this.frame);
 }
 
-QuiX.constructors['iframe'] = IFrame;
-IFrame.prototype = new Widget;
-IFrame.prototype.customEvents =
-	Widget.prototype.customEvents.concat(['ondocumentload']);
+QuiX.constructors['iframe'] = QuiX.ui.IFrame;
+QuiX.ui.IFrame.prototype = new QuiX.ui.Widget;
+QuiX.ui.IFrame.prototype.customEvents =
+	QuiX.ui.Widget.prototype.customEvents.concat(['ondocumentload']);
+// backwards compatibility
+var IFrame = QuiX.ui.IFrame;
 
-IFrame.prototype.redraw = function(bForceAll) {
+QuiX.ui.IFrame.prototype.redraw = function(bForceAll) {
 	this.frame.style.visibility = 'hidden';
-	Widget.prototype.redraw.apply(this, arguments);
+	QuiX.ui.Widget.prototype.redraw.apply(this, arguments);
 	this.frame.style.visibility = '';
 }
 
-IFrame.prototype.setSource = function(src) {
+QuiX.ui.IFrame.prototype.setSource = function(src) {
 	this.frame.src = src;
 }
 
-IFrame.prototype.getSource = function() {
+QuiX.ui.IFrame.prototype.getSource = function() {
 	return this.frame.src;
 }
 
-IFrame.prototype.getDocument = function() {
+QuiX.ui.IFrame.prototype.getDocument = function() {
 	return this.frame.contentDocument || this.frame.contentWindow.document;
 }
 
-IFrame.prototype._onload = function(evt) {
+QuiX.ui.IFrame.prototype._onload = function(evt) {
 	evt = evt || event;
 	var w = QuiX.getTargetWidget(evt);
 	if (w._customRegistry.ondocumentload)
@@ -62,7 +66,7 @@ IFrame.prototype._onload = function(evt) {
 }
 
 // GroupBox
-function GroupBox(params) {
+QuiX.ui.GroupBox = function(params) {
 	params = params || {};
 	params.overflow = 'hidden';
 	
@@ -86,11 +90,11 @@ function GroupBox(params) {
 			caption: params.caption
 		});
 	
-	this.base = Widget;
+	this.base = QuiX.ui.Widget;
 	this.base(params);
 	this.div.className = 'groupbox';
 	
-	this.border = new Widget({
+	this.border = new QuiX.ui.Widget({
 		top: 8,
 		width:"100%",
 		padding:"12,12,12,12",
@@ -103,7 +107,7 @@ function GroupBox(params) {
 	this.appendChild(this.caption);
 	this.caption.div.className = this.div.className;
 
-	this.body = new Widget({
+	this.body = new QuiX.ui.Widget({
 		width: "100%",
 		height: "100%",
 		disabled: !v
@@ -111,21 +115,24 @@ function GroupBox(params) {
 	this.border.appendChild(this.body);
 }
 
-QuiX.constructors['groupbox'] = GroupBox;
-GroupBox.prototype = new Widget;
+QuiX.constructors['groupbox'] = QuiX.ui.GroupBox;
+QuiX.ui.GroupBox.prototype = new QuiX.ui.Widget;
+// backwards compatibility
+var GroupBox = QuiX.ui.GroupBox;
 
-GroupBox.prototype.customEvents = Widget.prototype.customEvents.concat(['onstatechange']);
+QuiX.ui.GroupBox.prototype.customEvents =
+    QuiX.ui.Widget.prototype.customEvents.concat(['onstatechange']);
 
-GroupBox.prototype.setBgColor = function(color) {
-	Widget.prototype.setBgColor(color,this);
+QuiX.ui.GroupBox.prototype.setBgColor = function(color) {
+	QuiX.ui.Widget.prototype.setBgColor(color,this);
 	this.caption.setBgColor(color);
 }
 
-GroupBox.prototype.getValue = function() {
+QuiX.ui.GroupBox.prototype.getValue = function() {
 	return (this.caption.getValue)?this.caption.getValue():true;
 }
 
-GroupBox.prototype.setValue = function(value) {
+QuiX.ui.GroupBox.prototype.setValue = function(value) {
 	if (this.caption.setValue) {
 		this.caption.setValue(value);
 		GroupBox__checkBody(null, this.caption);
@@ -145,14 +152,14 @@ function GroupBox__checkBody(evt ,w) {
 }
 
 // slider
-function Slider(params) {
+QuiX.ui.Slider = function(params) {
 	params = params || {};
 	
 	params.padding = '0,0,0,0',
 	params.height = params.height || 26;
 	params.overflow = 'visible';
 
-	this.base = Widget;
+	this.base = QuiX.ui.Widget;
 	this.base(params);
 	this.div.className = 'slider';
 
@@ -160,7 +167,7 @@ function Slider(params) {
 	this.max = parseInt(params.max) || 100;
 	this.name = params.name;
 	
-	var slot = new Widget({
+	var slot = new QuiX.ui.Widget({
 		top : 'center',
 		left : 4,
 		width : 'this.parent.getWidth() - 8',
@@ -172,7 +179,7 @@ function Slider(params) {
 	slot.div.className = 'slot';
 	this.appendChild(slot);
 	
-	var handle = new Icon({
+	var handle = new QuiX.ui.Icon({
 		img : '$THEME_URL$images/slider.gif',
 		top : 'center',
 		width : 10,
@@ -197,16 +204,19 @@ function Slider(params) {
 	this.setValue(params.value || this.min);
 }
 
-QuiX.constructors['slider'] = Slider;
-Slider.prototype = new Widget;
+QuiX.constructors['slider'] = QuiX.ui.Slider;
+QuiX.ui.Slider.prototype = new QuiX.ui.Widget;
+// backwards compatibility
+var Slider = QuiX.ui.Slider;
 
-Slider.prototype.customEvents = Widget.prototype.customEvents.concat(['onchange']);
+QuiX.ui.Slider.prototype.customEvents =
+    QuiX.ui.Widget.prototype.customEvents.concat(['onchange']);
 
-Slider.prototype.getValue = function() {
+QuiX.ui.Slider.prototype.getValue = function() {
 	return this._value;
 }
 
-Slider.prototype.setValue = function(val) {
+QuiX.ui.Slider.prototype.setValue = function(val) {
 	this._value = Math.round(parseFloat(val) * 100) / 100;
 	if (this._value > this.max)
 		this._value = this.max;
@@ -215,8 +225,10 @@ Slider.prototype.setValue = function(val) {
 	this._update();
 }
 
-Slider.prototype._update = function() {
-	var x = '((this.parent._value - this.parent.min) / (this.parent.max - this.parent.min)) * (this.parent.getWidth() - 8)';
+QuiX.ui.Slider.prototype._update = function() {
+	var x = '((this.parent._value - this.parent.min)/' +
+            '(this.parent.max - this.parent.min))*' +
+            '(this.parent.getWidth() - 8)';
 	this.handle.moveTo(x ,'center');
 	this.label.setCaption(this._value);
 }
@@ -261,14 +273,14 @@ function Slider__mouseup(evt, desktop) {
 }
 
 // progress bar
-function ProgressBar(params) {
+QuiX.ui.ProgressBar = function(params) {
 	params = params || {};
-	this.base = Widget;
+	this.base = QuiX.ui.Widget;
 	params.border = 1;
 	params.overflow = 'hidden';
 	this.base(params);
 	this.div.className = 'progressbar';
-	this.bar = new Widget({height:"100%",overflow:'hidden'});
+	this.bar = new QuiX.ui.Widget({height:"100%",overflow:'hidden'});
 	this.appendChild(this.bar);
 	this.bar.div.className = 'bar';
 	this.maxvalue = parseInt(params.maxvalue) || 100;
@@ -276,20 +288,22 @@ function ProgressBar(params) {
 	this.setValue(this.value);
 }
 
-QuiX.constructors['progressbar'] = ProgressBar;
-ProgressBar.prototype = new Widget;
+QuiX.constructors['progressbar'] = QuiX.ui.ProgressBar;
+QuiX.ui.ProgressBar.prototype = new QuiX.ui.Widget;
+// backwards compatibility
+var ProgressBar = QuiX.ui.ProgressBar;
 
-ProgressBar.prototype._update = function() {
+QuiX.ui.ProgressBar.prototype._update = function() {
 	this.bar.width = parseInt((this.value/this.maxvalue)*100) + '%';
 	this.bar.redraw();
 }
 
-ProgressBar.prototype.setValue = function(v) {
+QuiX.ui.ProgressBar.prototype.setValue = function(v) {
 	this.value = parseInt(v);
 	if (this.value>this.maxvalue) this.value=this.maxvalue;
 	this._update();
 }
 
-ProgressBar.prototype.increase = function(amount) {
+QuiX.ui.ProgressBar.prototype.increase = function(amount) {
 	this.setValue(this.value + parseInt(amount));
 }

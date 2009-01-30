@@ -2,17 +2,17 @@
 Tree node
 ************************/
 
-function TreeNode(params) {
+QuiX.ui.TreeNode = function(params) {
 	params = params || {};
 	params.display = 'none';
 	params.padding = '13,0,1,1';
 	params.onmousedown = QuiX.cancelDefault;
 	
-	this.base = Widget;
+	this.base = QuiX.ui.Widget;
 	this.base(params);
 
 	this.isExpanded = false;
-	this._hasChildren = (params.haschildren=='true' || params.haschildren==true)?true:false;
+	this._hasChildren = (params.haschildren=='true'||params.haschildren==true);
 	this.img = params.img || null;
 	
 	if (params.imgheight)
@@ -36,18 +36,20 @@ function TreeNode(params) {
 	this._putImage();
 }
 
-QuiX.constructors['treenode'] = TreeNode;
-TreeNode.prototype = new Widget;
+QuiX.constructors['treenode'] = QuiX.ui.TreeNode;
+QuiX.ui.TreeNode.prototype = new QuiX.ui.Widget;
+// backwards compatibility
+var TreeNode = QuiX.ui.TreeNode;
 
-TreeNode.prototype.appendChild = function (w) {
+QuiX.ui.TreeNode.prototype.appendChild = function (w) {
 	w.tree = this.tree;
 	w.div.style.margin = '2px 0px 0px ' + this.tree.levelpadding + 'px';
-	Widget.prototype.appendChild(w, this);
+	QuiX.ui.Widget.prototype.appendChild(w, this);
 	if (!w._isDisabled)
 		w.enable();
 }
 
-TreeNode.prototype._putImage = function() {
+QuiX.ui.TreeNode.prototype._putImage = function() {
 	if (this.img) {
 		if (this._imgElement != null) {
 			if (this._imgElement.src != this.img)
@@ -76,7 +78,7 @@ TreeNode.prototype._putImage = function() {
 	}
 }
 
-TreeNode.prototype.redraw = function(bForceAll) {
+QuiX.ui.TreeNode.prototype.redraw = function(bForceAll) {
 	this._putImage();
 	if (this.hasChildren())
 		this._addExpandImg();
@@ -95,31 +97,31 @@ TreeNode.prototype.redraw = function(bForceAll) {
 		// root node
 		this.show();
 	}
-	Widget.prototype.redraw.apply(this, arguments);
+	QuiX.ui.Widget.prototype.redraw.apply(this, arguments);
 }
 
-TreeNode.prototype._updateParent = function() {
+QuiX.ui.TreeNode.prototype._updateParent = function() {
 	var p = this.parent;
-	if (p instanceof TreeNode && p.childNodes.length == 1) {
+	if (p instanceof QuiX.ui.TreeNode && p.childNodes.length == 1) {
 		p._removeExpandImg();
 		p._hasChildren = false;
 	}
 }
 
-TreeNode.prototype.destroy = function() {
+QuiX.ui.TreeNode.prototype.destroy = function() {
 	this._updateParent();
 	var tree = this.tree; 
-	Widget.prototype.destroy.apply(this, arguments);
+	QuiX.ui.Widget.prototype.destroy.apply(this, arguments);
 	if (tree.selectedWidget && tree.selectedWidget.div == null)
 		tree.selectedWidget = null;
 }
 
-TreeNode.prototype.detach = function() {
+QuiX.ui.TreeNode.prototype.detach = function() {
 	this._updateParent();
-	Widget.prototype.detach.apply(this, arguments);
+	QuiX.ui.Widget.prototype.detach.apply(this, arguments);
 }
 
-TreeNode.prototype._addExpandImg = function() {
+QuiX.ui.TreeNode.prototype._addExpandImg = function() {
 	if (this._expandImg == null) {
 		var oTreeNode = this;
 		this.setPadding([0,0,1,1]);
@@ -140,7 +142,7 @@ TreeNode.prototype._addExpandImg = function() {
 	}
 }
 
-TreeNode.prototype._removeExpandImg = function() {
+QuiX.ui.TreeNode.prototype._removeExpandImg = function() {
 	if (this._expandImg) {
 		QuiX.removeNode(this._expandImg);
 		this._expandImg = null;
@@ -148,17 +150,17 @@ TreeNode.prototype._removeExpandImg = function() {
 	}
 }
 
-TreeNode.prototype.getCaption = function() {
+QuiX.ui.TreeNode.prototype.getCaption = function() {
 	return this.anchor.lastChild.data;
 }
 
-TreeNode.prototype.setCaption = function(sCaption) {
+QuiX.ui.TreeNode.prototype.setCaption = function(sCaption) {
 	if (this.anchor.lastChild)
 		QuiX.removeNode(this.anchor.lastChild);
 	this.anchor.appendChild(document.createTextNode(sCaption));
 }
 
-TreeNode.prototype.toggle = function() {
+QuiX.ui.TreeNode.prototype.toggle = function() {
     var i;
 	this.isExpanded = !this.isExpanded;
 	if (this.isExpanded) {
@@ -177,31 +179,31 @@ TreeNode.prototype.toggle = function() {
 	}
 }
 
-TreeNode.prototype.hasChildren = function() {
+QuiX.ui.TreeNode.prototype.hasChildren = function() {
 	return this._hasChildren || this.childNodes.length > 0;
 }
 
-TreeNode.prototype.disable = function() {
+QuiX.ui.TreeNode.prototype.disable = function() {
 	if (this.anchor) {
 		this.anchor.className = 'disabled';
 		this.anchor.onclick = null;
 	}
-	Widget.prototype.disable.apply(this, arguments);
+	QuiX.ui.Widget.prototype.disable.apply(this, arguments);
 }
 
-TreeNode.prototype.enable = function() {
+QuiX.ui.TreeNode.prototype.enable = function() {
 	var oTreeNode = this;
 	this.anchor.className = '';
 	this.anchor.onclick = function(){oTreeNode.tree.selectNode(oTreeNode)};
-	Widget.prototype.enable.apply(this, arguments);
+	QuiX.ui.Widget.prototype.enable.apply(this, arguments);
 }
 
 /************************
 Tree
 ************************/
 
-function Tree(params) {
-	this.base = Widget;
+QuiX.ui.Tree = function(params) {
+	this.base = QuiX.ui.Widget;
 	this.base(params);
 	
 	this.div.className = 'tree';
@@ -212,20 +214,22 @@ function Tree(params) {
 	this.roots = this.widgets;
 }
 
-QuiX.constructors['tree'] = Tree;
-Tree.prototype = new Widget;
+QuiX.constructors['tree'] = QuiX.ui.Tree;
+QuiX.ui.Tree.prototype = new QuiX.ui.Widget;
+// backwards compatibility
+var Tree = QuiX.ui.Tree;
 
-Tree.prototype.customEvents =
-	Widget.prototype.customEvents.concat(['onexpand', 'onselect']);
+QuiX.ui.Tree.prototype.customEvents =
+	QuiX.ui.Widget.prototype.customEvents.concat(['onexpand', 'onselect']);
 
-Tree.prototype.appendChild = function (w) {
+QuiX.ui.Tree.prototype.appendChild = function (w) {
 	w.tree = this;
-	Widget.prototype.appendChild(w, this);
+	QuiX.ui.Widget.prototype.appendChild(w, this);
 	if (!w._isDisabled)
 		w.enable();
 }
 
-Tree.prototype.selectNode = function(w) {
+QuiX.ui.Tree.prototype.selectNode = function(w) {
 	if (this.selectedWidget)
 		this.selectedWidget.anchor.className = '';
 	w.anchor.className = 'selected';
@@ -234,7 +238,7 @@ Tree.prototype.selectNode = function(w) {
 		this._customRegistry.onselect(w);
 }
 
-Tree.prototype.getSelection = function() {
+QuiX.ui.Tree.prototype.getSelection = function() {
 	return this.selectedWidget;
 }
 
@@ -242,8 +246,8 @@ Tree.prototype.getSelection = function() {
 Folder tree
 ************************/
 
-function FolderTree(params) {
-	this.base = Tree;
+QuiX.ui.FolderTree = function(params) {
+	this.base = QuiX.ui.Tree;
 	this.base(params);
 
 	this.method = params.method;
@@ -251,10 +255,12 @@ function FolderTree(params) {
 	this.attachEvent('onexpand', this.loadSubfolders);
 }
 
-QuiX.constructors['foldertree'] = FolderTree;
-FolderTree.prototype = new Tree;
+QuiX.constructors['foldertree'] = QuiX.ui.FolderTree;
+QuiX.ui.FolderTree.prototype = new QuiX.ui.Tree;
+// backwards compatibility
+var FolderTree = QuiX.ui.FolderTree;
 
-FolderTree.prototype.loadSubfolders = function(treeNode) {
+QuiX.ui.FolderTree.prototype.loadSubfolders = function(treeNode) {
 	var sID = treeNode.getId() || '';
 	var xmlrpc = new XMLRPCRequest(QuiX.root + sID);
 	xmlrpc.oncomplete = treeNode.tree.load_oncomplete;
@@ -265,7 +271,7 @@ FolderTree.prototype.loadSubfolders = function(treeNode) {
 	}
 }
 
-FolderTree.prototype.load_oncomplete = function(req) {
+QuiX.ui.FolderTree.prototype.load_oncomplete = function(req) {
 	var newNode;
 	var treeNode = req.callback_info;
 	var oFolders = req.response;
@@ -273,7 +279,7 @@ FolderTree.prototype.load_oncomplete = function(req) {
 		treeNode.childNodes[0].destroy();
 	}
 	for (var i=0; i<oFolders.length; i++) {
-		newNode = new TreeNode(oFolders[i]);
+		newNode = new QuiX.ui.TreeNode(oFolders[i]);
 		//custom attributes
 		if (oFolders[i].attributes) {
 			for (var attr in oFolders[i].attributes){

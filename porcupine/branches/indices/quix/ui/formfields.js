@@ -1,25 +1,27 @@
 /************************
 Form & Field controls
 ************************/
-function Form(params) {
+QuiX.ui.Form = function(params) {
 	params = params || {};
 	params.width = params.width || '100%';
 	params.height = params.height || '100%';
-	this.base = Widget;
+	this.base = QuiX.ui.Widget;
 	this.base(params);
 	this.files = [];
 	this.action = params.action;
 	this.method = params.method;
 }
 
-QuiX.constructors['form'] = Form;
-Form.prototype = new Widget;
+QuiX.constructors['form'] = QuiX.ui.Form;
+QuiX.ui.Form.prototype = new QuiX.ui.Widget;
+// backwards compatibility
+var Form = QuiX.ui.Form;
 
-Form.prototype.getElements = function() {
+QuiX.ui.Form.prototype.getElements = function() {
 	return this.getWidgetsByAttribute('getValue');
 }
 
-Form.prototype.getElementByName = function(name) {
+QuiX.ui.Form.prototype.getElementByName = function(name) {
 	var elements = this.getElements();
 	for (var i=0; i<elements.length; i++) {
 		if (elements[i].name == name)
@@ -28,7 +30,7 @@ Form.prototype.getElementByName = function(name) {
     return null;
 }
 
-Form.prototype.submit = function(f_callback) {
+QuiX.ui.Form.prototype.submit = function(f_callback) {
 	function submit_oncomplete(req) {
 		var form = req.callback_info;
 		if (f_callback)
@@ -42,7 +44,7 @@ Form.prototype.submit = function(f_callback) {
 	xmlrpc.callmethod(this.method, this.getData());
 }
 
-Form.prototype.getData = function()
+QuiX.ui.Form.prototype.getData = function()
 {
 	var formData = {};
 	var elements = this.getElements();
@@ -54,9 +56,9 @@ Form.prototype.getData = function()
 	return formData;	
 }
 
-function Field(params) {
+QuiX.ui.Field = function(params) {
 	params = params || {};
-	this.base = Widget;
+	this.base = QuiX.ui.Widget;
 	params.border = (typeof params.border == 'undefined')?1:params.border;
 	params.overflow = 'hidden';
 	this.type = params.type || 'text';
@@ -71,7 +73,7 @@ function Field(params) {
 	params.padding = '0,0,0,0';
 	this.base(params);
 	this.name = params.name;
-	this.readonly = (params.readonly=='true' || params.readonly==true)?true:false;
+	this.readonly = (params.readonly=='true' || params.readonly==true);
 	this.textAlign = params.textalign || 'left';
 	
 	var e;
@@ -124,12 +126,15 @@ function Field(params) {
 	}
 }
 
-QuiX.constructors['field'] = Field;
-Field.prototype = new Widget;
+QuiX.constructors['field'] = QuiX.ui.Field;
+QuiX.ui.Field.prototype = new QuiX.ui.Widget;
+// backwards compatibility
+var Field = QuiX.ui.Field;
 
-Field.prototype.customEvents = Widget.prototype.customEvents.concat(['onchange']);
+QuiX.ui.Field.prototype.customEvents =
+    QuiX.ui.Widget.prototype.customEvents.concat(['onchange']);
 
-Field.prototype.getValue = function() {
+QuiX.ui.Field.prototype.getValue = function() {
 	switch (this.type) {
 		case 'checkbox':
 			return this.div.firstChild.checked;
@@ -148,7 +153,7 @@ Field.prototype.getValue = function() {
 	}
 }
 
-Field.prototype.setValue = function(value) {
+QuiX.ui.Field.prototype.setValue = function(value) {
 	switch (this.type) {
 		case 'checkbox':
 			this.div.firstChild.checked = value;
@@ -170,7 +175,7 @@ Field.prototype.setValue = function(value) {
 	}
 }
 
-Field.prototype.getCaption = function() {
+QuiX.ui.Field.prototype.getCaption = function() {
 	if (this.type=='radio' || this.type=='checkbox') {
 		var oSpan = this.div.getElementsByTagName('SPAN')[0];
 		if (oSpan)
@@ -181,7 +186,7 @@ Field.prototype.getCaption = function() {
     return null;
 }
 
-Field.prototype.setCaption = function(caption) {
+QuiX.ui.Field.prototype.setCaption = function(caption) {
 	if (this.type=='radio' || this.type=='checkbox') {
 		var textnode = this.div.getElementsByTagName('SPAN')[0];
 		if (!textnode) {
@@ -197,39 +202,39 @@ Field.prototype.setCaption = function(caption) {
 	}
 }
 
-Field.prototype.enable = function() {
+QuiX.ui.Field.prototype.enable = function() {
 	if (this.div.firstChild) {
 		this.div.firstChild.disabled = false;
 		this.div.firstChild.style.backgroundColor = this.getBgColor();
 	}
-	Widget.prototype.enable.apply(this, arguments);
+	QuiX.ui.Widget.prototype.enable.apply(this, arguments);
 }
 
-Field.prototype.disable = function() {
+QuiX.ui.Field.prototype.disable = function() {
 	if (this.div.firstChild) {
 		this.div.firstChild.disabled = true;
 		this.div.firstChild.style.backgroundColor = 'menu';
 	}
-	Widget.prototype.disable.apply(this, arguments);
+	QuiX.ui.Widget.prototype.disable.apply(this, arguments);
 }
 
-Field.prototype.focus = function() {
+QuiX.ui.Field.prototype.focus = function() {
 	this.div.firstChild.focus();
 }
 
-Field.prototype.setBgColor = function(color) {
+QuiX.ui.Field.prototype.setBgColor = function(color) {
 	this.div.style.backgroundColor = color;
 	if (this.type == 'text' || this.type == 'textarea' || this.type == 'password')
 		this.div.firstChild.style.backgroundColor = color;
 }
 
-Field.prototype.redraw = function(bForceAll) {
+QuiX.ui.Field.prototype.redraw = function(bForceAll) {
 	if (this.type == 'text' || this.type == 'textarea' || this.type == 'password')
 		this.div.firstChild.style.padding = this.textPadding + 'px';
-	Widget.prototype.redraw.apply(this, arguments);
+	QuiX.ui.Widget.prototype.redraw.apply(this, arguments);
 }
 
-Field.prototype._adjustFieldSize = function() {
+QuiX.ui.Field.prototype._adjustFieldSize = function() {
 	if (this.type!='checkbox' && this.type!='radio' && this.div.firstChild) {
 		var nw = this.getWidth() || 0;
 		var nh = this.getHeight() || 0;
@@ -244,8 +249,8 @@ Field.prototype._adjustFieldSize = function() {
 	}
 }
 
-Field.prototype._setCommonProps = function() {
-	Widget.prototype._setCommonProps.apply(this, arguments);
+QuiX.ui.Field.prototype._setCommonProps = function() {
+	QuiX.ui.Widget.prototype._setCommonProps.apply(this, arguments);
 	this._adjustFieldSize();
 }
 
@@ -267,7 +272,7 @@ function Radio__click(evt, w) {
 }
 
 // spin button
-function Spin(params) {
+QuiX.ui.Spin = function(params) {
 	params = params || {};
 	params.bgcolor = params.bgcolor || 'white';
 	params.border = params.border || 1;
@@ -275,7 +280,7 @@ function Spin(params) {
 	params.overflow = 'hidden';
 	params.height = params.height || 22;
 
-	this.base = Widget;
+	this.base = QuiX.ui.Widget;
 	this.base(params);
 
 	this.div.className = 'combo';
@@ -301,14 +306,14 @@ function Spin(params) {
 	
 	var oSpin = this;
 
-	upbutton = new XButton({
+	upbutton = new QuiX.ui.Button({
 		left : "this.parent.getWidth()-16",
 		height : '50%', width : 16,
 		onclick : SpinUp__onclick
 	});
 	this.appendChild(upbutton);
 
-	downbutton = new XButton({
+	downbutton = new QuiX.ui.Button({
 		left : "this.parent.getWidth()-16",
 		height : '50%', top : '50%', width : 16,
 		onclick : SpinDown__onclick
@@ -341,12 +346,14 @@ function Spin(params) {
 	}
 }
 
-QuiX.constructors['spinbutton'] = Spin;
-Spin.prototype = new Widget;
+QuiX.constructors['spinbutton'] = QuiX.ui.Spin;
+QuiX.ui.Spin.prototype = new QuiX.ui.Widget;
+QuiX.ui.Spin.prototype.customEvents =
+    QuiX.ui.Widget.prototype.customEvents.concat(['onchange']);
+// backwards compatibility
+var Spin = QuiX.ui.Spin;
 
-Spin.prototype.customEvents = Widget.prototype.customEvents.concat(['onchange']);
-
-Spin.prototype._adjustFieldSize = function() {
+QuiX.ui.Spin.prototype._adjustFieldSize = function() {
 	if (this.div.firstChild) {
 		var nh = this.getHeight() - 2;
 		this.div.firstChild.style.width = (this.getWidth() - 18) + 'px';
@@ -354,12 +361,12 @@ Spin.prototype._adjustFieldSize = function() {
 	}
 }
 
-Spin.prototype._setCommonProps = function() {
-	Widget.prototype._setCommonProps.apply(this, arguments);
+QuiX.ui.Spin.prototype._setCommonProps = function() {
+	QuiX.ui.Widget.prototype._setCommonProps.apply(this, arguments);
 	this._adjustFieldSize();
 }
 
-Spin.prototype.validate = function(val) {
+QuiX.ui.Spin.prototype.validate = function(val) {
 	var min = this.min;
 	var max = this.max;
 	if (max && val > max )
@@ -369,17 +376,17 @@ Spin.prototype.validate = function(val) {
 	return 0;
 }
 
-Spin.prototype.setBgColor = function(color) {
+QuiX.ui.Spin.prototype.setBgColor = function(color) {
 	this.div.style.backgroundColor = color;
 	if (this.div.firstChild)
 		this.div.firstChild.style.backgroundColor = color;
 }
 
-Spin.prototype.getValue = function() {
+QuiX.ui.Spin.prototype.getValue = function() {
 	return( parseInt(this.div.firstChild.value) );
 }
 
-Spin.prototype.setValue = function(value) {
+QuiX.ui.Spin.prototype.setValue = function(value) {
 	if (value != this.getValue()) {
 		this.div.firstChild.value = parseInt(value);
 		if (this._customRegistry.onchange)

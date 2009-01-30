@@ -20,11 +20,11 @@
 //    59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 //==============================================================================
 
-function RichText(params) {
+QuiX.ui.RichText = function(params) {
 	params = params || {};
     params.orientation = 'v';
     params.spacing = 0;
-	this.base = Box;
+	this.base = QuiX.ui.Box;
 	this.base(params);
 
     var toolbarItems = params.toolbaritems ||
@@ -37,7 +37,7 @@ function RichText(params) {
     this.target = (typeof(params.target) == 'undefined')?'_blank':params.target;
 
     // create the toolbar
-    this.toolbar = new Box({
+    this.toolbar = new QuiX.ui.Box({
         height : 36,
         orientation : 'h',
         bgcolor : 'menu',
@@ -127,7 +127,7 @@ function RichText(params) {
     }
     for (var i=0; i<this.toolbarItems.length; i++) {
         this.toolbar.appendChild(
-            new FlatButton(tbuttons[this.toolbarItems[i]])
+            new QuiX.ui.FlatButton(tbuttons[this.toolbarItems[i]])
         );
     }
     var bt = this.toolbar.getWidgetById('format');
@@ -144,7 +144,7 @@ function RichText(params) {
         }
     }
 
-    this.field = new Field({
+    this.field = new QuiX.ui.Field({
         type : 'textarea',
         value : params.value,
         height : -1,
@@ -153,7 +153,7 @@ function RichText(params) {
     });
     this.appendChild(this.field);
 
-    this.frame = new IFrame({
+    this.frame = new QuiX.ui.IFrame({
         src : QuiX.baseUrl + 'ui/richtext.htm',
         border : 1
     });
@@ -177,21 +177,21 @@ function RichText(params) {
         });
 }
 
-RichText.prototype = new Box;
-RichText.prototype.blockOptions = ['<h1>', 'Heading 1',
-                                   '<h2>', 'Heading 2',
-                                   '<h3>', 'Heading 3',
-                                   '<h4>', 'Heading 4',
-                                   '<h5>', 'Heading 5',
-                                   '<h6>', 'Heading 6',
-                                   '<p>', 'Paragraph'];
+QuiX.ui.RichText.prototype = new QuiX.ui.Box;
+QuiX.ui.RichText.prototype.blockOptions = ['<h1>', 'Heading 1',
+                                           '<h2>', 'Heading 2',
+                                           '<h3>', 'Heading 3',
+                                           '<h4>', 'Heading 4',
+                                           '<h5>', 'Heading 5',
+                                           '<h6>', 'Heading 6',
+                                           '<p>', 'Paragraph'];
 
-RichText.prototype._supportsEdit = function() {
+QuiX.ui.RichText.prototype._supportsEdit = function() {
     return typeof(document.designMode) == 'string' &&
            (document.all || document.designMode == 'off');
 }
 
-RichText.prototype.getValue = function() {
+QuiX.ui.RichText.prototype.getValue = function() {
     var wysiwyg = this.wysiwyg;
     if (!wysiwyg)
        this.writeDocument(this.field.getValue());
@@ -205,14 +205,14 @@ RichText.prototype.getValue = function() {
     return this.doc.body.innerHTML;
 }
 
-RichText.prototype.redraw = function(bForceAll) {
+QuiX.ui.RichText.prototype.redraw = function(bForceAll) {
     if (QuiX.browser == 'moz' && this.wysiwyg && this.doc) {
         this._updateInput();
     }
-    Box.prototype.redraw.apply(this, arguments);
+    QuiX.ui.Box.prototype.redraw.apply(this, arguments);
 }
 
-RichText.prototype.cleanPaste = function() {
+QuiX.ui.RichText.prototype.cleanPaste = function() {
 	if (this.autoClean) {
 		var matchedHead = "";
 		var matchedTail = "";
@@ -314,7 +314,7 @@ RichText.prototype.cleanPaste = function() {
 	return true;
 }
 
-RichText.prototype.cleanSource = function() {
+QuiX.ui.RichText.prototype.cleanSource = function() {
 	var theHTML = "";
 	if (this.wysiwyg) {
 		theHTML = this.doc.body.innerHTML;
@@ -351,7 +351,7 @@ RichText.prototype.cleanSource = function() {
 	return true;
 }
 
-RichText.prototype.convertSPANs = function(theSwitch) {
+QuiX.ui.RichText.prototype.convertSPANs = function(theSwitch) {
     var j, theChildren;
 	if (theSwitch) {
 		/* Replace styled spans with their semantic equivalent */
@@ -436,7 +436,7 @@ RichText.prototype.convertSPANs = function(theSwitch) {
 	return true;
 }
 
-RichText.prototype.detectPaste = function(e) {
+QuiX.ui.RichText.prototype.detectPaste = function(e) {
 	if (e.ctrlKey && e.keyCode == 86 && this.wysiwyg && !this.locked) {
 		var self = this;
 		this.pasteCache = this.doc.body.innerHTML;
@@ -450,7 +450,7 @@ RichText.prototype.detectPaste = function(e) {
 	return true;
 }
 
-RichText.prototype.initEdit = function() {
+QuiX.ui.RichText.prototype.initEdit = function() {
 	var self = this;
     this.doc.designMode = 'on';
 	if (!(QuiX.browser == 'ie')) {
@@ -477,7 +477,8 @@ RichText.prototype.initEdit = function() {
 	return true;
 }
 
-RichText.prototype.newParagraph = function(elementArray, succeedingElement) {
+QuiX.ui.RichText.prototype.newParagraph = function(elementArray,
+                                                   succeedingElement) {
 	var theBody = this.doc.body;
 	var theParagraph = this.doc.createElement("p");
 	for (var i = 0; i < elementArray.length; i++) {
@@ -492,7 +493,7 @@ RichText.prototype.newParagraph = function(elementArray, succeedingElement) {
 	return true;
 }
 
-RichText.prototype.paragraphise = function() {
+QuiX.ui.RichText.prototype.paragraphise = function() {
 	if (this.insertParagraphs && this.wysiwyg) {
 		var theBody = this.doc.body;
         var nodes = theBody.childNodes;
@@ -559,7 +560,7 @@ RichText.prototype.paragraphise = function() {
 	return true;
 }
 
-RichText.prototype._updateInput = function() {
+QuiX.ui.RichText.prototype._updateInput = function() {
     /* Convert spans to semantics in Mozilla */
     if (!(QuiX.browser == 'ie')) {
         this.convertSPANs(true);
@@ -569,7 +570,7 @@ RichText.prototype._updateInput = function() {
     this.cleanSource();
 }
 
-RichText.prototype._updateAnchorsTarget = function() {
+QuiX.ui.RichText.prototype._updateAnchorsTarget = function() {
     if (this.target) {
         var links = this.doc.getElementsByTagName('A');
         for (var i=0; i<links.length; i++) {
@@ -578,7 +579,7 @@ RichText.prototype._updateAnchorsTarget = function() {
     }
 }
 
-RichText.prototype.switchMode = function() {
+QuiX.ui.RichText.prototype.switchMode = function() {
 	if (!this.locked) {
         var i, btn;
 		this.locked = true;
@@ -621,12 +622,12 @@ RichText.prototype.switchMode = function() {
 	return true;
 }
 
-RichText.prototype.writeDocument = function(documentContent) {
+QuiX.ui.RichText.prototype.writeDocument = function(documentContent) {
     this.doc.body.innerHTML = documentContent;
 	return true;
 }
 
-RichText.prototype._setButtonState = function(id , state) {
+QuiX.ui.RichText.prototype._setButtonState = function(id , state) {
     var btn = this.toolbar.getWidgetById(id);
     if (id != 'format') {
         if (btn.value != state) btn.toggle();
@@ -641,7 +642,7 @@ RichText.prototype._setButtonState = function(id , state) {
     }
 }
 
-RichText.prototype._getSelectionRange = function() {
+QuiX.ui.RichText.prototype._getSelectionRange = function() {
     var selection;
     var range = null;
 	if (this.doc.selection) {
@@ -660,18 +661,18 @@ RichText.prototype._getSelectionRange = function() {
     return range;
 }
 
-RichText.prototype._isInline = function(n) {
+QuiX.ui.RichText.prototype._isInline = function(n) {
     return ["#text", "a", "em", "font",
             "span", "strong", "u"].hasItem(n.toLowerCase());
 }
 
-RichText.prototype._isAcceptedElementName = function(n) {
+QuiX.ui.RichText.prototype._isAcceptedElementName = function(n) {
     return ["#text", "a", "em", "h1", "h2", "h3", "h4",
             "h5", "h6", "img", "li", "ol", "p", "strong",
             "ul"].hasItem(n.toLowerCase());
 }
 
-RichText.prototype._acceptableChildren = function(theNode) {
+QuiX.ui.RichText.prototype._acceptableChildren = function(theNode) {
 	var theChildren = theNode.childNodes;
     var i;
 	for (i=0; i<theChildren.length; i++) {
@@ -696,7 +697,7 @@ RichText.prototype._acceptableChildren = function(theNode) {
 	return true;
 }
 
-RichText.prototype._replaceNodeWithChildren = function(theNode) {
+QuiX.ui.RichText.prototype._replaceNodeWithChildren = function(theNode) {
 	var theChildren = new Array();
 	var theParent = theNode.parentNode;
     var i;
@@ -713,7 +714,7 @@ RichText.prototype._replaceNodeWithChildren = function(theNode) {
 	return true;
 }
 
-RichText.prototype._changeNodeType = function(theNode, nodeType) {
+QuiX.ui.RichText.prototype._changeNodeType = function(theNode, nodeType) {
 	var theChildren = new Array();
 	var theNewNode = document.createElement(nodeType);
 	var theParent = theNode.parentNode;
@@ -730,7 +731,7 @@ RichText.prototype._changeNodeType = function(theNode, nodeType) {
 	return true;
 }
 
-RichText.prototype._validTags = function(theString) {
+QuiX.ui.RichText.prototype._validTags = function(theString) {
 	/* Replace uppercase element names with lowercase */
 	theString = theString.replace(/<[^> ]*/g,
         function(match){return match.toLowerCase();});
@@ -756,7 +757,7 @@ RichText.prototype._validTags = function(theString) {
 }
 
 /* Action taken when toolbar item activated */
-RichText.prototype._toolbarAction = function(evt , btn) {
+QuiX.ui.RichText.prototype._toolbarAction = function(evt , btn) {
     //return;
 	var theWidgEditor = (btn.parent.owner || btn).parent.parent;
 	var theIframe = theWidgEditor.frame.frame;
@@ -891,7 +892,7 @@ RichText.prototype._toolbarAction = function(evt , btn) {
 	}
 }
 
-RichText.prototype._updateToolbarState = function(theWidgEditor) {
+QuiX.ui.RichText.prototype._updateToolbarState = function(theWidgEditor) {
     if (theWidgEditor._interval)
         clearInterval(theWidgEditor._interval);
     theWidgEditor._interval = setTimeout(
@@ -906,7 +907,7 @@ RichText.prototype._updateToolbarState = function(theWidgEditor) {
 }
 
 /* Check the nesting of the current cursor position/selection */
-RichText.prototype._updateToolbar = function(theWidgEditor) {
+QuiX.ui.RichText.prototype._updateToolbar = function(theWidgEditor) {
 	var theParentNode = null;
 	var theLevel = 0;
     var theRange = theWidgEditor._getSelectionRange();

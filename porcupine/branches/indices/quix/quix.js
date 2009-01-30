@@ -44,6 +44,7 @@ QuiX.constructors = {
 };
 QuiX._activeLoaders = 0;
 QuiX.effectsEnabled = true;
+QuiX.ui = {};
 
 QuiX.queryString = function(param) {
 	function urlEncodeIfNecessary(s) {
@@ -326,7 +327,7 @@ QuiX.removeNode = function(node) {
 }
 
 QuiX.getDraggable = function(w) {
-	var d = new Widget({
+	var d = new QuiX.ui.Widget({
 		left : w.getLeft(),
 		top : w.getTop(),
 		width : w.getWidth(true),
@@ -356,7 +357,7 @@ QuiX.createOutline = function(w) {
 	var macff = QuiX.browser == 'moz' && QuiX.getOS() == 'MacOS';
 	var fl = (macff)?'auto':'hidden';
 	
-	var o = new Widget({
+	var o = new QuiX.ui.Widget({
 		left : w.getLeft(),
 		top : w.getTop(),
 		width : w.getWidth(true),
@@ -366,7 +367,7 @@ QuiX.createOutline = function(w) {
 	});
 	
 	if (macff) {
-		var inner = new Widget({
+		var inner = new QuiX.ui.Widget({
 			width : '100%',
 			height : '100%',
 			overflow : 'hidden'
@@ -738,7 +739,7 @@ QuiX.Parser.prototype.parseXul = function(oNode, parentW) {
             var localName = QuiX.localName(oNode);
             switch(localName) {
                 case 'flatbutton':
-                    oWidget = new FlatButton(params);
+                    oWidget = new QuiX.ui.FlatButton(params);
                     if (params.type=='menu') {
                         parentW.appendChild(oWidget);
                         oWidget = oWidget.contextMenu;
@@ -747,11 +748,11 @@ QuiX.Parser.prototype.parseXul = function(oNode, parentW) {
                 case 'field':
                     if (params.type=='textarea')
                         params.value = QuiX.innerText(oNode);
-                    oWidget = new Field(params);
+                    oWidget = new QuiX.ui.Field(params);
                     break;
                 case 'richtext':
                     params.value = QuiX.innerText(oNode);
-                    oWidget = new RichText(params);
+                    oWidget = new QuiX.ui.RichText(params);
                     break;
                 case 'mfile':
                     parentW.addFile(params);
@@ -805,7 +806,7 @@ QuiX.Parser.prototype.parseXul = function(oNode, parentW) {
                     oWidget = parentW.addOption(-1);
                     break;
                 case 'groupbox':
-                    oWidget = new GroupBox(params);
+                    oWidget = new QuiX.ui.GroupBox(params);
                     parentW.appendChild(oWidget);
                     oWidget = oWidget.body;
                     break;

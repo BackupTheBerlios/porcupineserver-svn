@@ -2,12 +2,12 @@
 Date picker control
 ************************/
 
-function Datepicker(params) {
+QuiX.ui.Datepicker = function(params) {
 	params = params || {};
 	params.editable = false;
 	params.menuheight = 160;
 	params.img = params.img || '$THEME_URL$images/date16.gif';
-	this.base = Combo;
+	this.base = QuiX.ui.Combo;
 	this.base(params);
 	
 	this.format = params.dateformat || 'ddd dd/mmm/yyyy';
@@ -36,17 +36,19 @@ function Datepicker(params) {
 	}
 }
 
-QuiX.constructors['datepicker'] = Datepicker;
-Datepicker.prototype = new Combo;
+QuiX.constructors['datepicker'] = QuiX.ui.Datepicker;
+QuiX.ui.Datepicker.prototype = new QuiX.ui.Combo;
+// backwards compatibility
+var Datepicker = QuiX.ui.Datepicker;
 
-Datepicker.prototype.getValue = function(local) {
+QuiX.ui.Datepicker.prototype.getValue = function(local) {
 	if (!local && this.utc)
 		return this._dt.toUtc();
 	else
 		return this._dt;
 }
 
-Datepicker.prototype.setValue = function(val) {
+QuiX.ui.Datepicker.prototype.setValue = function(val) {
 	if (!(val instanceof Date)) {
 		if (val == '')
 			this._dt = new Date();
@@ -66,7 +68,7 @@ Datepicker.prototype.setValue = function(val) {
 	this.div.firstChild.value = this._dt.format(this.format);
 }
 
-Datepicker.prototype.render = function(container) {
+QuiX.ui.Datepicker.prototype.render = function(container) {
 	var oT1, oTR1, oTH1, cell;
 	var frg = document.createDocumentFragment();
 	frg.appendChild(oT1 = document.createElement('table'));
@@ -96,7 +98,7 @@ Datepicker.prototype.render = function(container) {
 	this._dayTable = container.firstChild;
 }
 
-Datepicker.prototype.fill = function() {
+QuiX.ui.Datepicker.prototype.fill = function() {
 	var nRow = 0;
 	var cell, nCol, iDate;
 	var d = new Date( this._navdt.getTime() );
@@ -132,7 +134,7 @@ Datepicker.prototype.fill = function() {
 	this.year.setValue(this._navdt.getFullYear());
 }
 
-Datepicker.prototype.clear = function() {
+QuiX.ui.Datepicker.prototype.clear = function() {
 	var cell;
 	for ( var j = 0; j < 6; j+=4)
 		for ( var i = 0; i < 7; i++ ) {
@@ -142,7 +144,7 @@ Datepicker.prototype.clear = function() {
 		}
 }
 
-Datepicker.prototype.onYear = function() {
+QuiX.ui.Datepicker.prototype.onYear = function() {
 	var y = this.year.getValue();
 	if ( y && !isNaN(y) ) {
 		this._navdt.setFullYear(parseInt(y));
@@ -150,12 +152,12 @@ Datepicker.prototype.onYear = function() {
 	}
 }
 
-Datepicker.prototype.onMonth = function() {
+QuiX.ui.Datepicker.prototype.onMonth = function() {
 	this._navdt.setMonth(this.month.getValue());
 	this.fill();
 }
 
-Datepicker.prototype.onDay = function(oCell) {
+QuiX.ui.Datepicker.prototype.onDay = function(oCell) {
 	var d = parseInt(oCell.innerHTML);
 	if ( d > 0 ) {
 		this._navdt.setDate(d);
@@ -174,7 +176,7 @@ Datepicker.prototype.onDay = function(oCell) {
 	}
 }
 
-Datepicker.prototype.onPrev = function() {
+QuiX.ui.Datepicker.prototype.onPrev = function() {
 	if ( this._navdt.getMonth() == 0 ) {
 		this._navdt.setFullYear(this._navdt.getFullYear() - 1);
 		this._navdt.setMonth(11);
@@ -184,7 +186,7 @@ Datepicker.prototype.onPrev = function() {
 	this.fill();
 }
 
-Datepicker.prototype.onNext = function() {
+QuiX.ui.Datepicker.prototype.onNext = function() {
 	if ( this._navdt.getMonth() == 11 ) {
 		this._navdt.setFullYear(this._navdt.getFullYear() + 1);
 		this._navdt.setMonth(0);
@@ -195,7 +197,7 @@ Datepicker.prototype.onNext = function() {
 	this.fill();
 }
 
-DatepickerMonth__click = function(evt, w) {
+function DatepickerMonth__click(evt, w) {
 	var oCombo;
 	if (w)
 		oCombo = w.parent

@@ -1,7 +1,7 @@
 /************************
 Effect widget
 ************************/
-function Effect(params) {
+QuiX.ui.Effect = function(params) {
 	params = params || {};
 	params.display = 'none';
 	params.handler = Effect__play;
@@ -37,17 +37,19 @@ function Effect(params) {
 	this.steps = parseInt(params.steps) || 5;
 	this._step = 0;
 	this._reverse = false;
-	this.base = Timer;
+	this.base = QuiX.ui.Timer;
 	this.base(params);
 }
 
-QuiX.constructors['effect'] = Effect;
-Effect.prototype = new Timer;
+QuiX.constructors['effect'] = QuiX.ui.Effect;
+QuiX.ui.Effect.prototype = new QuiX.ui.Timer;
+// backwards compatibility
+var Effect = QuiX.ui.Effect;
 
-Effect.prototype.customEvents = 
-	Timer.prototype.customEvents.concat(['oncomplete']);
+QuiX.ui.Effect.prototype.customEvents =
+	QuiX.ui.Timer.prototype.customEvents.concat(['oncomplete']);
 
-Effect.prototype._apply = function(wd) {
+QuiX.ui.Effect.prototype._apply = function(wd) {
 	// calculate value
 	var value, begin, end;
 	var stepping = 0;
@@ -120,9 +122,9 @@ Effect.prototype._apply = function(wd) {
 	this._step++;
 }
 
-Effect.prototype.stop = function() {
+QuiX.ui.Effect.prototype.stop = function() {
 	if (this._timerid) {
-		Timer.prototype.stop.apply(this, arguments);
+		QuiX.ui.Timer.prototype.stop.apply(this, arguments);
 		switch (this.type) {
 			case 'wipe-in':
 				var ev = this._reverse?this.begin:this.end;
@@ -138,9 +140,9 @@ Effect.prototype.stop = function() {
 	}
 }
 
-Effect.prototype.show = function() {}
+QuiX.ui.Effect.prototype.show = function() {}
 
-Effect.prototype.play = function(reverse) {
+QuiX.ui.Effect.prototype.play = function(reverse) {
 	this._reverse = reverse;
 	Effect__play(this);
 	if (this.parent) this.start();

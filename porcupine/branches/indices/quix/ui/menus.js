@@ -2,7 +2,7 @@
 Menus
 ************************/
 //menu option
-function MenuOption(params) {
+QuiX.ui.MenuOption = function(params) {
 	params.height = params.height || 21;
 	params.align = 'left';
 	params.imgalign = 'left';
@@ -13,7 +13,7 @@ function MenuOption(params) {
 	params.onmouseout = MenuOption__onmouseout;
 	params.onclick = QuiX.getEventWrapper(params.onclick, MenuOption__onclick);
 
-	this.base = Icon;
+	this.base = QuiX.ui.Icon;
 	this.base(params);
 	this.div.style.whiteSpace = 'nowrap';
 	this.setPosition('relative');
@@ -23,15 +23,17 @@ function MenuOption(params) {
 	this.selected = (params.selected=='true' || params.selected==true);
 }
 
-MenuOption.prototype = new Icon;
+QuiX.ui.MenuOption.prototype = new QuiX.ui.Icon;
+// backwards compatibility
+var MenuOption = QuiX.ui.MenuOption;
 
-MenuOption.prototype.addOption = function(params) {
+QuiX.ui.MenuOption.prototype.addOption = function(params) {
 	if (!this.subMenu)
 		this.subMenu = new ContextMenu({}, this);
 	return this.subMenu.addOption(params);
 }
 
-MenuOption.prototype.redraw = function(bForceAll) {
+QuiX.ui.MenuOption.prototype.redraw = function(bForceAll) {
 	if (this.subMenu) {
 		this.div.className = 'submenu';
 	}
@@ -45,7 +47,7 @@ MenuOption.prototype.redraw = function(bForceAll) {
 					this.img = '$THEME_URL$images/menu_radio.gif';
 					break;
 				case 'check':
-					this.img = '_$THEME_URL$images/menu_check.gif';
+					this.img = '$THEME_URL$images/menu_check.gif';
 			}
 		}
 		else
@@ -56,16 +58,16 @@ MenuOption.prototype.redraw = function(bForceAll) {
 		this.setPadding([24,8,3,2]);
 	else
 		this.setPadding([5,8,3,2]);
-	Icon.prototype.redraw.apply(this, arguments);
+	QuiX.ui.Icon.prototype.redraw.apply(this, arguments);
 }
 
-MenuOption.prototype.destroy = function() {
+QuiX.ui.MenuOption.prototype.destroy = function() {
 	var parent = this.parent;
 	parent.options.removeItem(this);
 	if (this.base)
 		this.base.prototype.destroy.apply(this, arguments);
 	else
-		Widget.prototype.destroy.apply(this, arguments);
+		QuiX.ui.Widget.prototype.destroy.apply(this, arguments);
 
 	if (parent.options.length==0 && parent.owner instanceof MenuOption) {
 		parent.owner.subMenu = null;
@@ -77,7 +79,7 @@ MenuOption.prototype.destroy = function() {
 	if (parent) parent.redraw();
 }
 
-MenuOption.prototype.select = function() {
+QuiX.ui.MenuOption.prototype.select = function() {
 	switch (this.type) {
 		case 'radio':
 			if (!this.selected) {
@@ -99,7 +101,7 @@ MenuOption.prototype.select = function() {
 	}
 }
 
-MenuOption.prototype.expand = function() {
+QuiX.ui.MenuOption.prototype.expand = function() {
 	if (this.parent.activeSub && this.parent.activeSub != this.subMenu) {
 		this.parent.activeSub.close();
 	}
@@ -141,8 +143,8 @@ function MenuOption__onclick(evt, w) {
 }
 
 //context menu
-function ContextMenu(params, owner) {
-	this.base = Widget;
+QuiX.ui.ContextMenu = function(params, owner) {
+	this.base = QuiX.ui.Widget;
 	this.base({
 		id : params.id,
 		width : 100,
@@ -155,13 +157,13 @@ function ContextMenu(params, owner) {
 	this.div.className = 'contextmenu';
 	if (QuiX.browser == 'moz' && QuiX.getOS() == 'MacOS')
 	{
-		var c = new Widget({
+		var c = new QuiX.ui.Widget({
 			width : '100%',
 			height : '100%',
 			overflow : 'auto'
 		});
 		this.appendChild(c);
-		c = new Widget({
+		c = new QuiX.ui.Widget({
 			width : '100%',
 			height : '100%',
 			overflow : 'hidden'
@@ -169,7 +171,7 @@ function ContextMenu(params, owner) {
 		this.appendChild(c);
 	}
 	
-	var rect = new Widget({
+	var rect = new QuiX.ui.Widget({
 		width: '22',
 		height: '100%',
 		bgcolor: 'silver',
@@ -188,7 +190,7 @@ function ContextMenu(params, owner) {
 	this.isOpen = false;
 	
 	if (QuiX.effectsEnabled) {
-		var show_effect = new Effect({
+		var show_effect = new QuiX.ui.Effect({
 			id : '_eff_show',
 			type : 'wipe-in',
 			steps : 6,
@@ -198,19 +200,20 @@ function ContextMenu(params, owner) {
 	}
 }
 
-QuiX.constructors['contextmenu'] = ContextMenu;
-ContextMenu.prototype = new Widget;
+QuiX.constructors['contextmenu'] = QuiX.ui.ContextMenu;
+QuiX.ui.ContextMenu.prototype = new QuiX.ui.Widget;
+QuiX.ui.ContextMenu.prototype.customEvents =
+	QuiX.ui.Widget.prototype.customEvents.concat(['onshow', 'onclose']);
+// backwards compatibility
+var ContextMenu = QuiX.ui.ContextMenu;
 
-ContextMenu.prototype.customEvents =
-	Widget.prototype.customEvents.concat(['onshow', 'onclose']);
-
-ContextMenu.prototype.destroy = function() {
+QuiX.ui.ContextMenu.prototype.destroy = function() {
 	this.owner.detachEvent('oncontextmenu');
 	this.owner.contextMenu = null;
-	Widget.prototype.destroy.apply(this, arguments);
+	QuiX.ui.Widget.prototype.destroy.apply(this, arguments);
 }
 
-ContextMenu.prototype.redraw = function(bForceAll) {
+QuiX.ui.ContextMenu.prototype.redraw = function(bForceAll) {
 	var oOption, optionWidth;
 	var iHeight = 0;
 	
@@ -235,10 +238,10 @@ ContextMenu.prototype.redraw = function(bForceAll) {
 	if (this.left + this.width > document.desktop.getWidth(true))
 		this.left = this.left - this.width;
 
-	Widget.prototype.redraw.apply(this, arguments);
+	QuiX.ui.Widget.prototype.redraw.apply(this, arguments);
 }
 
-ContextMenu.prototype.show = function(w, x, y) {
+QuiX.ui.ContextMenu.prototype.show = function(w, x, y) {
 	if (!this.isOpen) {
 		var bShow = true;
 		if (this._customRegistry.onshow) {
@@ -262,7 +265,7 @@ ContextMenu.prototype.show = function(w, x, y) {
 	}
 }
 
-ContextMenu.prototype.close = function() {
+QuiX.ui.ContextMenu.prototype.close = function() {
 	if (this.activeSub) {
 		this.activeSub.close();
 	}
@@ -276,13 +279,13 @@ ContextMenu.prototype.close = function() {
 		this._customRegistry.onclose(this);
 }
 
-ContextMenu.prototype.addOption = function(params) {
+QuiX.ui.ContextMenu.prototype.addOption = function(params) {
 	var oOption;
 	if (params != -1) { //not a separator
-		oOption = new MenuOption(params);
+		oOption = new QuiX.ui.MenuOption(params);
 	}
 	else {
-		oOption = new Widget({
+		oOption = new QuiX.ui.Widget({
 			width : 'this.parent.getWidth()-22',
 			height : 2,
 			left : 22,
@@ -307,12 +310,12 @@ function Widget__contextmenu(evt, w) {
 }
 
 // Menu Bar
-function MBar(params) {
+QuiX.ui.MenuBar = function(params) {
 	params = params || {};
 	params.border = params.border || 1;
 	params.padding = '2,4,0,1';
 	params.overflow = 'hidden';
-	this.base = Widget;
+	this.base = QuiX.ui.Widget;
 	this.base(params);
 	this.div.className = 'menubar';
 	var iSpacing = params.spacing || 2;
@@ -321,18 +324,20 @@ function MBar(params) {
 	this.menus = [];
 }
 
-QuiX.constructors['menubar'] = MBar;
-MBar.prototype = new Widget;
+QuiX.constructors['menubar'] = QuiX.ui.MenuBar;
+QuiX.ui.MenuBar.prototype = new QuiX.ui.Widget;
+// backwards compatibility
+var MBar = QuiX.ui.MenuBar;
 
-MBar.prototype.redraw = function(bForceAll) {
+QuiX.ui.MenuBar.prototype.redraw = function(bForceAll) {
 	for (var i=0; i<this.menus.length; i++) {
 		 this.menus[i].div.style.marginRight = this.spacing + 'px';
 	}
-	Widget.prototype.redraw.apply(this, arguments);
+	QuiX.ui.Widget.prototype.redraw.apply(this, arguments);
 }
 
-MBar.prototype.addRootMenu = function(params) {
-	var oMenu = new Label({
+QuiX.ui.MenuBar.prototype.addRootMenu = function(params) {
+	var oMenu = new QuiX.ui.Label({
 		top : 'center',
 		border : 0,
 		padding : '8,8,3,4',
@@ -349,7 +354,7 @@ MBar.prototype.addRootMenu = function(params) {
 	
 	this.menus.push(oMenu);
 
-	var oCMenu = new ContextMenu(params, oMenu);
+	var oCMenu = new QuiX.ui.ContextMenu(params, oMenu);
 	oMenu.contextMenu = oCMenu;
 	return(oCMenu);
 }

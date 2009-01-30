@@ -3,19 +3,19 @@ Field controls 2
 ************************/
 
 // combo box
-function Combo(params) {
+QuiX.ui.Combo = function(params) {
 	params = params || {};
 	params.bgcolor = params.bgcolor || 'white';
 	params.border = params.border || 1;
 	params.overflow = 'hidden';
 	params.height = params.height || 22;
 	
-	this.base = Widget;
+	this.base = QuiX.ui.Widget;
 	this.base(params);
 	
 	this.name = params.name;
-	this.editable = (params.editable=='true' || params.editable==true)?true:false;
-	this.readonly = (params.readonly=='true' || params.readonly==true)?true:false;
+	this.editable = (params.editable=='true'||params.editable==true);
+	this.readonly = (params.readonly=='true'||params.readonly==true);
 	this.menuHeight = parseInt(params.menuheight) || 100;
 	this.div.className = 'field';
 	this.selection = null;
@@ -30,7 +30,7 @@ function Combo(params) {
 	
 	var oCombo = this;
 	
-	this.dropdown = new Widget({
+	this.dropdown = new QuiX.ui.Widget({
 		border : 1,
 		onclick : function(evt, w) {
 			w.close();
@@ -47,7 +47,7 @@ function Combo(params) {
 		this.detach();
 	};
 	
-	var cont = new Widget({
+	var cont = new QuiX.ui.Widget({
 		width : '100%',
 		height: '100%',
 		overflow: 'auto',
@@ -57,7 +57,7 @@ function Combo(params) {
 	cont.div.style.overflowX = 'hidden';
 	this.options = cont.widgets;
 
-	var resizer = new Widget({
+	var resizer = new QuiX.ui.Widget({
 		left : 'this.parent.getWidth()-16',
 		top : 'this.parent.getHeight()-16',
 		width : 16,
@@ -73,7 +73,7 @@ function Combo(params) {
 		QuiX.cancelDefault(evt);
 	});
 	
-	this.button = new XButton({
+	this.button = new QuiX.ui.Button({
 		left : 'this.parent.getWidth()-20',
 		height : '100%', width : 20,
 		img : params.img || '$THEME_URL$images/desc8.gif'
@@ -91,7 +91,8 @@ function Combo(params) {
 			e.onblur = function() {
 				if (oCombo._old_value != this.value) {
 					if (oCombo._customRegistry.onchange)
-						QuiX.getEventListener(oCombo._customRegistry.onchange)(oCombo);
+						QuiX.getEventListener(oCombo._customRegistry.onchange)
+                             (oCombo);
 				}
 			}
 		}
@@ -109,12 +110,14 @@ function Combo(params) {
 		this.disable();
 }
 
-QuiX.constructors['combo'] = Combo;
-Combo.prototype = new Widget;
+QuiX.constructors['combo'] = QuiX.ui.Combo;
+QuiX.ui.Combo.prototype = new QuiX.ui.Widget;
+QuiX.ui.Combo.prototype.customEvents =
+    QuiX.ui.Widget.prototype.customEvents.concat(['onchange']);
+// backwards compatibility
+var Combo = QuiX.ui.Combo;
 
-Combo.prototype.customEvents = Widget.prototype.customEvents.concat(['onchange']);
-
-Combo.prototype._adjustFieldSize = function() {
+QuiX.ui.Combo.prototype._adjustFieldSize = function() {
 	if (this.div.firstChild) {
 		var nh = this.getHeight() - 2;
 		var nw = this.getWidth() - 22;
@@ -123,12 +126,12 @@ Combo.prototype._adjustFieldSize = function() {
 	}
 }
 
-Combo.prototype._setCommonProps = function() {
+QuiX.ui.Combo.prototype._setCommonProps = function() {
 	Widget.prototype._setCommonProps.apply(this, arguments);
 	this._adjustFieldSize();
 }
 
-Combo.prototype.getValue = function() {
+QuiX.ui.Combo.prototype.getValue = function() {
 	if (this.editable)
 		return this.div.firstChild.value;
 	else {
@@ -139,7 +142,7 @@ Combo.prototype.getValue = function() {
 	}
 }
 
-Combo.prototype.setValue = function(value) {
+QuiX.ui.Combo.prototype.setValue = function(value) {
 	if (this.editable){
 		this.div.firstChild.value = value;
 		if (this._old_value != value) {
@@ -173,25 +176,25 @@ Combo.prototype.setValue = function(value) {
 	}
 }
 
-Combo.prototype.enable = function() {
+QuiX.ui.Combo.prototype.enable = function() {
 	if (this.div.firstChild) {
 		this.div.firstChild.disabled = false;
 		this.div.firstChild.style.backgroundColor = '';
 		if (!this.readonly) this.div.firstChild.onclick = ComboBtn__onclick;
 	}
-	Widget.prototype.enable.apply(this, arguments);
+	QuiX.ui.Widget.prototype.enable.apply(this, arguments);
 }
 
-Combo.prototype.disable = function() {
+QuiX.ui.Combo.prototype.disable = function() {
 	if (this.div.firstChild) {
 		this.div.firstChild.disabled = true;
 		this.div.firstChild.style.backgroundColor = 'menu';
 		if (!this.readonly) this.div.firstChild.onclick = null;
 	}
-	Widget.prototype.disable.apply(this, arguments);
+	QuiX.ui.Widget.prototype.disable.apply(this, arguments);
 }
 
-Combo.prototype.selectOption = function(option) {
+QuiX.ui.Combo.prototype.selectOption = function(option) {
 	var value = (option.value!=undefined)?option.value:option.getCaption();
 	this.setValue(value);
 }
@@ -208,16 +211,16 @@ Combo.prototype.reset = function() {
 	}	
 }
 
-Combo.prototype.clearOptions = function() {
+QuiX.ui.Combo.prototype.clearOptions = function() {
 	this.dropdown.widgets[0].clear();
 	this.div.firstChild.value = '';
 }
 
-Combo.prototype.focus = function() {
+QuiX.ui.Combo.prototype.focus = function() {
 	this.div.firstChild.focus();
 }
 
-Combo.prototype.showDropdown = function() {
+QuiX.ui.Combo.prototype.showDropdown = function() {
 	var iLeft = this.getScreenLeft();
 	var iTop = this.getScreenTop() + this.getHeight(true);
 
@@ -237,23 +240,23 @@ Combo.prototype.showDropdown = function() {
 	this.isExpanded = true;
 }
 
-Combo.prototype.destroy = function() {
+QuiX.ui.Combo.prototype.destroy = function() {
 	if (this.isExpanded) this.dropdown.close();
 	Widget.prototype.destroy.apply(this, arguments);
 }
 
-Combo.prototype.setBgColor = function(color) {
+QuiX.ui.Combo.prototype.setBgColor = function(color) {
 	this.div.style.backgroundColor = color;
 	if (this.div.firstChild)
 		this.div.firstChild.style.backgroundColor = color;
 }
 
-Combo.prototype.addOption = function(params) {
+QuiX.ui.Combo.prototype.addOption = function(params) {
 	params.align = params.align || 'left';
 	params.width = '100%';
 	params.height = params.height || 24;
 	params.overflow = 'hidden';
-	var opt = new Icon(params);
+	var opt = new QuiX.ui.Icon(params);
 	opt._isContainer = false;
 	opt.selected = false;
 	opt.value = params.value;
@@ -441,8 +444,8 @@ SelectList.prototype.addOption = function(params) {
 	params.height = params.height || 24;
 	params.overflow = 'hidden';
 	params.onmousedown = QuiX.getEventWrapper(SelectOption__onmousedown,
-												params.onmousedown);
-	var w = new Icon(params);
+											  params.onmousedown);
+	var w = new QuiX.ui.Icon(params);
 	this.appendChild(w);
 	w.selected = false;
 	w.value = params.value;

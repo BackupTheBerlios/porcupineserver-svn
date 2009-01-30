@@ -2,7 +2,7 @@
 Tab Pane
 ************************/
 
-function TabPane(params) {
+QuiX.ui.TabPane = function(params) {
 	params = params || {};
 	this.base = Widget;
 	params.overflow = 'hidden';
@@ -13,11 +13,13 @@ function TabPane(params) {
 	this.activeTab = params.active || 0;
 }
 
-QuiX.constructors['tabpane'] = TabPane;
-TabPane.prototype = new Widget;
+QuiX.constructors['tabpane'] = QuiX.ui.TabPane;
+QuiX.ui.TabPane.prototype = new QuiX.ui.Widget;
+// backwards compatibility
+var TabPane = QuiX.ui.TabPane;
 
-TabPane.prototype.addTab = function(params) {
-	var oTab = new Label({
+QuiX.ui.TabPane.prototype.addTab = function(params) {
+	var oTab = new QuiX.ui.Label({
 		border : 1,
 		padding : '6,6,4,6',
 		overflow : 'hidden',
@@ -40,7 +42,7 @@ TabPane.prototype.addTab = function(params) {
 	params.padding = params.padding || '8,8,8,8';
 	params.overflow = 'auto';
 
-	var w = new Widget(params);
+	var w = new QuiX.ui.Widget(params);
 	this.appendChild(w);
 	w.redraw();
 	w.div.className = 'tabpage';
@@ -56,7 +58,7 @@ TabPane.prototype.addTab = function(params) {
 	return(w);
 }
 
-TabPane.prototype.activateTab = function(tab) {
+QuiX.ui.TabPane.prototype.activateTab = function(tab) {
 	var activeTabButton;
 	var iActive = this.activeTab;
 	var iTab;

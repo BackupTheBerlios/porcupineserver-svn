@@ -1,13 +1,13 @@
 /************************
 Labels & Buttons
 ************************/
-function Label(params) {
+QuiX.ui.Label = function(params) {
 	params = params || {};
 	params.padding = params.padding || '2,2,2,2';
 	params.onmousedown = QuiX.getEventWrapper(Label__onmousedown,
 		params.onmousedown);
 	
-	this.base = Widget;
+	this.base = QuiX.ui.Widget;
 	this.base(params);
 
 	this.div.className = 'label';
@@ -34,36 +34,38 @@ function Label(params) {
 	this.div.innerHTML += '<span>' + sCaption + '</span>';
 }
 
-QuiX.constructors['label'] = Label;
-Label.prototype = new Widget;
+QuiX.constructors['label'] = QuiX.ui.Label;
+QuiX.ui.Label.prototype = new QuiX.ui.Widget;
+// backwards compatibility
+var Label = QuiX.ui.Label;
 
-Label.prototype._calcWidth = function(b) {
+QuiX.ui.Label.prototype._calcWidth = function(b) {
     if (this._auto_width) {
         document.body.appendChild(this.div);
         this.width = this.div.offsetWidth;
         QuiX.removeNode(this.div);
     }
-    return Widget.prototype._calcWidth.apply(this, arguments);
+    return QuiX.ui.Widget.prototype._calcWidth.apply(this, arguments);
 }
 
-Label.prototype._calcHeight = function(b) {
+QuiX.ui.Label.prototype._calcHeight = function(b) {
     if (this._auto_height) {
         document.body.appendChild(this.div);
         this.height = this.div.offsetHeight;
         QuiX.removeNode(this.div);
     }
-    return Widget.prototype._calcHeight.apply(this, arguments);
+    return QuiX.ui.Widget.prototype._calcHeight.apply(this, arguments);
 }
 
-Label.prototype.setCaption = function(s) {
+QuiX.ui.Label.prototype.setCaption = function(s) {
 	this.div.getElementsByTagName('SPAN')[0].innerHTML = s;
 }
 
-Label.prototype.getCaption = function(s) {
+QuiX.ui.Label.prototype.getCaption = function(s) {
 	return(this.div.getElementsByTagName('SPAN')[0].innerHTML.xmlDecode());
 }
 
-Label.prototype.redraw = function(bForceAll) {
+QuiX.ui.Label.prototype.redraw = function(bForceAll) {
 	with (this.div.style) {
 		if (!this.wrap)
 			whiteSpace = 'nowrap';
@@ -71,7 +73,7 @@ Label.prototype.redraw = function(bForceAll) {
 			whiteSpace = '';
 		textAlign = this.align;
 	}
-	Widget.prototype.redraw.apply(this, arguments);
+	QuiX.ui.Widget.prototype.redraw.apply(this, arguments);
 }
 
 function Label__onmousedown(evt, w) {
@@ -81,13 +83,13 @@ function Label__onmousedown(evt, w) {
 		QuiX.stopPropag(evt);
 }
 
-function Icon(params) {
+QuiX.ui.Icon = function(params) {
 	params = params || {};
 	params.border = params.border || 0;
 	params.canSelect = false;
 	params.align = params.align || 'center';
 	
-	this.base = Label;
+	this.base = QuiX.ui.Label;
 	this.base(params);
 	this.img = params.img || null;
 	this.imageElement = null;
@@ -97,10 +99,12 @@ function Icon(params) {
 	this.redraw(true);
 }
 
-QuiX.constructors['icon'] = Icon;
-Icon.prototype = new Label;
+QuiX.constructors['icon'] = QuiX.ui.Icon;
+QuiX.ui.Icon.prototype = new QuiX.ui.Label;
+// backwards compatibility
+var Icon = QuiX.ui.Icon;
 
-Icon.prototype._calcHeight = function(b) {
+QuiX.ui.Icon.prototype._calcHeight = function(b) {
     var h, imgs;
     if (this._auto_height) {
         imgs = this.div.getElementsByTagName('IMG');
@@ -112,17 +116,17 @@ Icon.prototype._calcHeight = function(b) {
     return h;
 }
 
-Icon.prototype.setImageURL = function(s) {
+QuiX.ui.Icon.prototype.setImageURL = function(s) {
 	this.img = s;
 	if (this.imageElement)
 		this.imageElement.src = s;
 }
 
-Icon.prototype.getImageURL = function() {
+QuiX.ui.Icon.prototype.getImageURL = function() {
 	return (this.imageElement)?this.imageElement.src:'';
 }
 
-Icon.prototype._addDummyImage = function() {
+QuiX.ui.Icon.prototype._addDummyImage = function() {
 	var img = QuiX.getImage('$THEME_URL$images/transp.gif');
 	img.style.verticalAlign = 'middle';
 	img.style.height = '100%';
@@ -135,7 +139,7 @@ Icon.prototype._addDummyImage = function() {
 	}
 }
 
-Icon.prototype.redraw = function(bForceAll) {
+QuiX.ui.Icon.prototype.redraw = function(bForceAll) {
 	if (bForceAll) {
 		var imgs = this.div.getElementsByTagName('IMG');
 		while (imgs.length > 0)
@@ -192,15 +196,15 @@ Icon.prototype.redraw = function(bForceAll) {
 				(percentage == '%')?this.imgWidth:this.imgWidth + 'px';
 		}
 	}
-	Label.prototype.redraw.apply(this, arguments);
+	QuiX.ui.Label.prototype.redraw.apply(this, arguments);
 }
 
 //XButton class
 
-function XButton(params) {
+QuiX.ui.Button = function(params) {
 	params = params || {};
 	this.icon = null;
-	this.base = Widget;
+	this.base = QuiX.ui.Widget;
 	this.base({
 		id: params.id,
 		border: 1,
@@ -244,7 +248,7 @@ function XButton(params) {
 	this.imgAlign = params.imgAlign || 'left';
 	this.img = params.img || null;
 	
-	this.icon = new Icon(params);
+	this.icon = new QuiX.ui.Icon(params);
 	this.icon.div.className = 'l2';
 	this.icon.setPosition();
 	this.appendChild(this.icon);
@@ -253,19 +257,21 @@ function XButton(params) {
 		this._statecursor = 'pointer';
 }
 
-QuiX.constructors['button'] = XButton;
-XButton.prototype = new Widget;
+QuiX.constructors['button'] = QuiX.ui.Button;
+QuiX.ui.Button.prototype = new QuiX.ui.Widget;
+// backwards compatibility
+var XButton = QuiX.ui.Button;
 
-XButton.prototype._calcWidth = function(b) {
+QuiX.ui.Button.prototype._calcWidth = function(b) {
     if (this._auto_width) {
         document.body.appendChild(this.div);
         this.width = this.div.offsetWidth;
         QuiX.removeNode(this.div);
     }
-    return Widget.prototype._calcWidth.apply(this, arguments);
+    return QuiX.ui.Widget.prototype._calcWidth.apply(this, arguments);
 }
 
-XButton.prototype._calcHeight = function(b) {
+QuiX.ui.Button.prototype._calcHeight = function(b) {
     if (this._auto_height) {
         this.div.firstChild.style.height = '';
         var imgs = this.div.getElementsByTagName('IMG');
@@ -275,18 +281,18 @@ XButton.prototype._calcHeight = function(b) {
         QuiX.removeNode(this.div);
         imgs[imgs.length - 1].style.height = '100%';
     }
-    return Widget.prototype._calcHeight.apply(this, arguments);
+    return QuiX.ui.Widget.prototype._calcHeight.apply(this, arguments);
 }
 
-XButton.prototype.setCaption = function(s) {
+QuiX.ui.Button.prototype.setCaption = function(s) {
 	this.icon.setCaption(s);
 }
 
-XButton.prototype.getCaption = function() {
+QuiX.ui.Button.prototype.getCaption = function() {
 	return this.icon.getCaption();
 }
 
-XButton.prototype.redraw = function(bForceAll) {
+QuiX.ui.Button.prototype.redraw = function(bForceAll) {
 	if (bForceAll) {
 		this.icon.align = this.align;
 		this.icon.img = this.img;
@@ -294,7 +300,7 @@ XButton.prototype.redraw = function(bForceAll) {
 		this.icon.setPadding(this.iconPadding.split(','));
 		this.icon.redraw(true);
 	}
-	Widget.prototype.redraw.apply(this, arguments);
+	QuiX.ui.Widget.prototype.redraw.apply(this, arguments);
 }
 
 function XButton__onmouseover(evt, w) {
@@ -325,7 +331,7 @@ function XButton__onmouseup(evt, w) {
 }
 
 //FlatButton class
-function FlatButton(params) {
+QuiX.ui.FlatButton = function(params) {
 	params = params || {};
 	params.border = 0;
 	params.padding = params.padding || '4,4,4,4';
@@ -342,7 +348,7 @@ function FlatButton(params) {
 	params.onclick = QuiX.getEventWrapper(FlatButton__onclick,
 							params.onclick);
 
-	this.base = Icon;
+	this.base = QuiX.ui.Icon;
 	this.base(params);
 	this.div.className = 'flat';
 	
@@ -367,11 +373,13 @@ function FlatButton(params) {
 	}
 }
 
-QuiX.constructors['flatbutton'] = FlatButton;
-FlatButton.prototype = new Icon;
+QuiX.constructors['flatbutton'] = QuiX.ui.FlatButton;
+QuiX.ui.FlatButton.prototype = new QuiX.ui.Icon;
+// backwards compatibility
+var FlatButton = QuiX.ui.FlatButton;
 
-FlatButton.prototype.redraw = function(bForceAll) {
-	Icon.prototype.redraw.apply(this, arguments);
+QuiX.ui.FlatButton.prototype.redraw = function(bForceAll) {
+	QuiX.ui.Icon.prototype.redraw.apply(this, arguments);
 
 	if (this.type == 'menu' && (!this._menuImg || bForceAll)) {
 		this._menuImg = QuiX.getImage('$THEME_URL$images/desc8.gif');
@@ -381,7 +389,7 @@ FlatButton.prototype.redraw = function(bForceAll) {
 	}
 }
 
-FlatButton.prototype._addBorder = function() {
+QuiX.ui.FlatButton.prototype._addBorder = function() {
 	if (this.getBorderWidth()==0) {
 		this.setBorderWidth(1);
 		var padding = this.getPadding();
@@ -390,7 +398,7 @@ FlatButton.prototype._addBorder = function() {
 	}
 }
 
-FlatButton.prototype._removeBorder = function() {
+QuiX.ui.FlatButton.prototype._removeBorder = function() {
 	if (this.getBorderWidth()==1) {
 		this.setBorderWidth(0);
 		var padding = this.getPadding();
@@ -399,7 +407,7 @@ FlatButton.prototype._removeBorder = function() {
 	}
 }
 
-FlatButton.prototype.toggle = function() {
+QuiX.ui.FlatButton.prototype.toggle = function() {
 	if (this.value=='off') {
 		this._addBorder();
 		this.div.className='flaton';

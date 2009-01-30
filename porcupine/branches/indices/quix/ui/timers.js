@@ -2,10 +2,10 @@
 Timer widget
 ************************/
 
-function Timer(params) {
+QuiX.ui.Timer = function(params) {
 	params = params || {};
 
-	this.base = Widget;
+	this.base = QuiX.ui.Widget;
 	this.base(params);
 	
 	this.div.style.cursor = 'default';
@@ -33,10 +33,12 @@ function Timer(params) {
 	}
 }
 
-QuiX.constructors['timer'] = Timer;
-Timer.prototype = new Widget;
+QuiX.constructors['timer'] = QuiX.ui.Timer;
+QuiX.ui.Timer.prototype = new QuiX.ui.Widget;
+// backwards compatibility
+var Timer = QuiX.ui.Timer;
 
-Timer.prototype.start = function() {
+QuiX.ui.Timer.prototype.start = function() {
 	if (!this._timerid) {
 		var oTimer = this;
 		var handler_func = QuiX.getEventListener(this.handler);
@@ -54,7 +56,7 @@ Timer.prototype.start = function() {
 	}
 }
 
-Timer.prototype.stop = function() {
+QuiX.ui.Timer.prototype.stop = function() {
 	if (this._timerid) {
 		if (this.timeout)
 			this.clearTimeout(this._timerid);
@@ -64,11 +66,12 @@ Timer.prototype.stop = function() {
 	}
 }
 
-Timer.prototype.isRunning = function() {
+QuiX.ui.Timer.prototype.isRunning = function() {
 	return (this._timerid != null);
 } 
 
-Timer.prototype._detachEvents = function() {
+QuiX.ui.Timer.prototype._detachEvents = function() {
 	this.stop();
-	Widget.prototype._detachEvents.apply(this, arguments);
+	QuiX.ui.Widget.prototype._detachEvents.apply(this, arguments);
 }
+
