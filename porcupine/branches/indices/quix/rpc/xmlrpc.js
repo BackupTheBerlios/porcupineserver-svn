@@ -16,7 +16,7 @@
 //  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //==============================================================================
 
-function XMLRPCRequest(sUrl, async) {
+QuiX.rpc.XMLRPCRequest = function(sUrl, async) {
 	this.async = ((typeof async) == "undefined")?true:async;
 	this.url = sUrl;
 	this.xmlhttp = QuiX.XHRPool.getInstance();
@@ -31,7 +31,10 @@ function XMLRPCRequest(sUrl, async) {
 	this.onerror = null;
 }
 
-XMLRPCRequest.prototype.processResult = function() {
+// backwards compatibility
+var XMLRPCRequest = QuiX.rpc.XMLRPCRequest;
+
+QuiX.rpc.XMLRPCRequest.prototype.processResult = function() {
 	try {
 		var dom = this.xmlhttp.responseXML;
 		if (dom) {
@@ -47,7 +50,7 @@ XMLRPCRequest.prototype.processResult = function() {
 	}
 }
 
-XMLRPCRequest.prototype.callmethod = function(method_name) {
+QuiX.rpc.XMLRPCRequest.prototype.callmethod = function(method_name) {
 	try {
 		if (this._validateMethodName(method_name)) {
 			var message = '<?xml version="1.0"?><methodCall><methodName>' +
@@ -124,7 +127,7 @@ XMLRPCRequest.prototype.callmethod = function(method_name) {
 	}
 }
 
-XMLRPCRequest.prototype._validateMethodName = function(mname) {
+QuiX.rpc.XMLRPCRequest.prototype._validateMethodName = function(mname) {
 	if( /^[A-Za-z0-9\._\/:]+$/.test(mname) )
 		return true
 	else
