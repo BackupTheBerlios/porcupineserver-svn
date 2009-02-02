@@ -14,31 +14,14 @@
 #    along with Porcupine; if not, write to the Free Software
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #===============================================================================
-"Module for resolving object permissions"
+"""
+Deprecated module. Use "porcupine.utils.permsresolver instead"
+"""
+import logging
+from porcupine.utils import permsresolver
 
-# 1 - read
-# 2 - update, delete if owner
-# 4 - update, delete anyway
-# 8 - full control
-NO_ACCESS = 0
-READER = 1
-AUTHOR = 2
-CONTENT_CO = 4
-COORDINATOR = 8
-
-def getAccess(oItem, oUser):
-    memberOf = ['everyone']
-    userID = oUser._id
-    if oUser.isAdmin():
-        return COORDINATOR
-    memberOf.extend(oUser.memberof.value)
-    if hasattr(oUser, 'authenticate'):
-        memberOf.extend(['authusers']) 
-    try:
-        iPerm = oItem.security[userID]
-        # user explicitly set on ACL
-        return iPerm
-    except KeyError:
-        pass
-    lstPerms = [oItem.security.get(groupID, 0) for groupID in memberOf] or [0]
-    return(max(lstPerms))
+def getAccess(item, user):
+    logger = logging.getLogger('serverlog')
+    logger.warning("porcupine.security.objectAccess.getAccess is deprecated.\n" +
+                   "Use porcupine.utils.permsresolver.get_access instead.")
+    return permsresolver.get_access(item, user)
