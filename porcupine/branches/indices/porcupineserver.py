@@ -40,7 +40,7 @@ from porcupine.config import services, log
 from porcupine.utils import misc
 from porcupine.core import asyncore
 from porcupine.db import _db
-from porcupine.security import SessionManager
+from porcupine.core.session import SessionManager
 
 warnings.filterwarnings('ignore', '', Warning, 'logging')
 __version__ = '0.5.2 build(20081010)'

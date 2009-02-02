@@ -18,7 +18,7 @@
 import re
 
 from porcupine.core import serverProxy
-from porcupine.security import SessionManager
+from porcupine.core.session import SessionManager
 from porcupine.config.settings import settings
 from porcupine.db import _db
 
@@ -58,14 +58,14 @@ class HttpContext(object):
             
             cookiesEnabled = True
             if request.cookies.has_key('_sid'):
-                session = SessionManager.fetchSession(request.cookies['_sid'].value)
+                session = SessionManager.fetch_session(request.cookies['_sid'].value)
             else:
                 cookiesEnabled = False
                 session_match = re.match(self.sid_pattern, path_info)
                 if session_match:
                     path_info = path_info.replace(session_match.group(), '', 1) or '/'
                     request.serverVariables['PATH_INFO'] = path_info
-                    session = SessionManager.fetchSession(session_match.group(1))
+                    session = SessionManager.fetch_session(session_match.group(1))
             
             if session != None:
                 self.session = session

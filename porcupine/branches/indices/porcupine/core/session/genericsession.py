@@ -15,42 +15,30 @@
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #===============================================================================
 "Session classes for single server and replicated environments"
-import time
 import tempfile
 import os
 import glob
 
 from porcupine.config.settings import settings
-from porcupine.security import SessionManager
+from porcupine.core.session import SessionManager
 from porcupine.utils import misc
 
-class Session(object):
-    __slots__ = ('sessionid', 'lastAccessed', 'userid', '__data')
+class GenericSession(object):
     """
-    Porcupine server session type.
+    Porcupine server generic session type.
     
     @ivar sessionid: A unique identifier for the session
     @type sessionid: str
-    
+
+    @ivar userid: The object ID of the user that the session belongs
+    @type userid: str
     """
+    __slots__ = ('sessionid', 'userid', '__data')
+    
     def __init__(self, sessionid, userid, sessiondata):
         self.sessionid = sessionid
-        self.lastAccessed = time.time()
         self.userid = userid
         self.__data = sessiondata
-
-    def keepAlive(self):
-        """
-        Called by the application server. Updates the session's
-        last accessed time, thus the session does not expire.
-        
-        @return: None
-        """
-        # move sessionid at the end of the list
-        SessionManager._sessionList.append(self.sessionid)
-        SessionManager._sessionList.remove(self.sessionid)
-        # update last access time
-        self.lastAccessed = time.time()
 
     def terminate(self):
         """
@@ -58,34 +46,32 @@ class Session(object):
         
         @return: None
         """
-        SessionManager.sm.removeSession(self.sessionid)
-        SessionManager._sessionList.remove(self.sessionid)
-        self.removeTempFiles()
+        SessionManager.terminate_session(self)
 
-    def setValue(self, sName, value):
+    def setValue(self, name, value):
         """
         Creates or updates a session variable.
         
-        @param sName: the name of the variable
-        @type sName: str
+        @param name: the name of the variable
+        @type name: str
         
         @param value: the value of the variable.
         @type value: type
         
         @return: None
         """
-        self.__data[sName] = value
+        self.__data[name] = value
 
-    def getValue(self, sName):
+    def getValue(self, name):
         """
         Retrieves a session variable.
         
-        @param sName: the name of the variable
-        @type sName: str
+        @param name: the name of the variable
+        @type name: str
 
         @rtype: type
         """
-        return self.__data.get(sName, None)
+        return self.__data.get(name, None)
 
     def getTempFile(self):
         """
@@ -105,23 +91,23 @@ class Session(object):
                 
         @rtype: string
         """
-        return  settings['global']['temp_folder'] + \
-                '/' + self.sessionid + '_' + \
-                misc.generateOID()
+        return "%s/%s_%s" % (settings['global']['temp_folder'],
+                             self.sessionid,
+                             misc.generateOID())
 
-    def removeTempFiles(self):
+    def remove_temp_files(self):
         """
         Removes all the session's temporary files.
         
         @return: None
         """
-        tmpFiles = glob.glob(settings['global']['temp_folder'] +
-                             '/' + self.sessionid + '*')
-        for tmpFile in tmpFiles:
-            os.remove(tmpFile)
+        tmp_files = glob.glob("%s/%s*" % (settings['global']['temp_folder'],
+                                          self.sessionid + '*'))
+        for tmp_file in tmp_files:
+            os.remove(tmp_file)
 
 
-    def getData(self):
+    def get_data(self):
         """
         Returns all the session's variables.
         

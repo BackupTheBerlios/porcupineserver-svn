@@ -21,7 +21,7 @@ from threading import Thread
 from porcupine import exceptions
 from porcupine.db import _db
 from porcupine.core.http.context import HttpContext
-from porcupine.security import SessionManager
+from porcupine.core.session import SessionManager
 from porcupine.core.servicetypes.service import BaseService
 
 class _TaskThread(Thread):

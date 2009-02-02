@@ -14,30 +14,29 @@
 #    along with Porcupine; if not, write to the Free Software
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #===============================================================================
-"""
-Generic Session Manager class.
-Use this as a base class in order to implement
-your own session manager.
-"""
-from porcupine.security.session import Session
-from porcupine.utils import misc
+"Porcupine Server session manager singleton"
 
-class GenericSessionManager(object):
-    sessionClass = Session
+sm = None
+
+def open(sm_type, session_timeout):
+    global sm
+    sm = sm_type(session_timeout)
     
-    def createSession(self, userid):
-        session = self.sessionClass(misc.generateGUID(), userid, {})
-        return session
+def create(userid):
+    # create new session
+    new_session = sm.create_session(userid)
+    return(new_session)
+   
+def fetch_session(sessionid):
+    session = sm.get_session(sessionid)
+    if session:
+        # update last access time
+        sm.revive_session(session)
+    return(session)
 
-    # to be implemented by subclass
-    def getSession(self, sessionid):
-        raise NotImplementedError
-
-    def putSession(self, session):
-        raise NotImplementedError
-
-    def removeSession(self, sessionid):
-        raise NotImplementedError
-
-    def close(self):
-        raise NotImplementedError
+def terminate_session(session):
+    sm.remove_session(session.sessionid)
+    session.remove_temp_files()
+    
+def close():
+    sm.close()

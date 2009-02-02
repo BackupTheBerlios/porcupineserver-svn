@@ -15,25 +15,33 @@
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #===============================================================================
 """
-In-memory session manager class
+Generic Session Manager class.
+Use it as a base class in order to implement your own session manager.
 """
-from porcupine.security.genericSessionManager import GenericSessionManager
 
-class SessionManager(GenericSessionManager):
-    def __init__(self):
-        self.activeSessions = {}
-        GenericSessionManager.__init__(self)
+class GenericSessionManager(object):
+    
+    def __init__(self, timeout):
+        self.timeout = timeout
 
-    def getSession(self, sessionid):
-        session = self.activeSessions.get(sessionid, None)
-        return(session)
+    def create_session(self, userid):
+        raise NotImplementedError
 
-    def putSession(self, session):
-        self.activeSessions[session.sessionid] = session
+    def get_session(self, sessionid):
+        raise NotImplementedError
 
-    def removeSession(self, sessionid):
-        del self.activeSessions[sessionid]
-        
+    def remove_session(self, sessionid):
+        raise NotImplementedError
+
+    def revive_session(self, session):
+        """
+        Called by the application server.
+        What this method usually does is that updates the session's
+        last accessed time, thus the session does not expire.
+
+        @return: None
+        """
+        raise NotImplementedError
+
     def close(self):
-        pass
-
+        raise NotImplementedError
