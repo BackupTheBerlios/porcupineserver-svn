@@ -20,6 +20,16 @@ Deprecated module. Use "porcupine.utils.permsresolver instead"
 import logging
 from porcupine.utils import permsresolver
 
+# 1 - read
+# 2 - update, delete if owner
+# 4 - update, delete anyway
+# 8 - full control
+NO_ACCESS = 0
+READER = 1
+AUTHOR = 2
+CONTENT_CO = 4
+COORDINATOR = 8
+
 def getAccess(item, user):
     logger = logging.getLogger('serverlog')
     logger.warning("porcupine.security.objectAccess.getAccess is deprecated.\n" +
