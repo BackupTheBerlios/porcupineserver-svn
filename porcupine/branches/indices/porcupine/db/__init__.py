@@ -90,7 +90,7 @@ def transactional(auto_commit=False):
                     except exceptions.DBTransactionIncomplete:
                         if is_top_level:
                             txn.abort()
-                            time.sleep(0.05)
+                            time.sleep(0.03)
                             retries += 1
                             txn._retry()
                         else:

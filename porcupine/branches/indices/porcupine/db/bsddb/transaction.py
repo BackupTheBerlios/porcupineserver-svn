@@ -25,11 +25,11 @@ from porcupine.db.basetransaction import BaseTransaction
 class Transaction(BaseTransaction):
     def __init__(self, env):
         self.env = env
-        self.txn = env.txn_begin()
+        self.txn = env.txn_begin(None, db.DB_TXN_NOWAIT)
         BaseTransaction.__init__(self)
 
     def _retry(self):
-        self.txn = self.env.txn_begin()
+        self.txn = self.env.txn_begin(None, db.DB_TXN_NOWAIT)
         BaseTransaction._retry(self)
 
     def commit(self):

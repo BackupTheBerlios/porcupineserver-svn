@@ -35,28 +35,28 @@ def is_open():
     return _db_handle.is_open()
 
 def _getItemByPath(lstPath, trans=None):
-    oItem = getItem('')
+    child = getItem('', trans)
     for name in lstPath[1:len(lstPath)]:
         if name:
-            child_id = oItem.getChildId(name)
-            if child_id:
-                oItem = getItem(child_id)
-            else:
+            child_id = child.getChildId(name, trans)
+            if child_id == None:
                 return None
-    return(_db_handle.getItem(child_id, trans))
+            else:
+                child = getItem(child_id, trans)
+    return child
 
 def getItem(oid, trans=None):
     item = _db_handle.getItem(oid, trans)
     if item == None:
-        lstPath = oid.split('/')
-        iPathDepth = len(lstPath)
-        if iPathDepth > 1:
+        path_tokens = oid.split('/')
+        path_depth = len(path_tokens)
+        if path_depth > 1:
             # /[itemID]
-            if iPathDepth == 2:
-                item = _db_handle.getItem(lstPath[1], trans)
+            if path_depth == 2:
+                item = _db_handle.getItem(path_tokens[1], trans)
             # /folder1/folder2/item
             if not item:
-                item = _getItemByPath(lstPath, trans)
+                return _getItemByPath(path_tokens, trans)
     if item != None:
         item = cPickle.loads(item)
         return item

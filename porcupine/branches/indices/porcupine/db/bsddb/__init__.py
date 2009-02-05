@@ -41,7 +41,6 @@ _indices = {}
 _maintenance_thread = None
 _dir = None
 _checkpoint_interval = 1
-#_transaction_class = Transaction
 
 logger = logging.getLogger('serverlog')
 
@@ -63,7 +62,8 @@ def open(**kwargs):
     _env.open(
         _dir,
         db.DB_THREAD | db.DB_INIT_MPOOL | db.DB_INIT_LOCK |
-        db.DB_INIT_LOG | db.DB_INIT_TXN | db.DB_CREATE | additional_flags
+        db.DB_INIT_LOG | db.DB_INIT_TXN | db.DB_CREATE | 
+        additional_flags
     )
     
     dbMode = 0660
@@ -104,7 +104,7 @@ def is_open():
 # item operations
 def getItem(oid, trans=None):
     try:
-        return _itemdb.get(oid, txn=trans and trans.txn)
+        return _itemdb.get(oid, txn=trans and trans.txn, flags=db.DB_RMW)
     except (db.DBLockDeadlockError, db.DBLockNotGrantedError):
         raise exceptions.DBTransactionIncomplete
 
