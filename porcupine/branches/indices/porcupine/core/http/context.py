@@ -49,39 +49,39 @@ class HttpContext(object):
         self.response = response
         self.session = None
         self.user = None
-        
-        if request:
-            path_info = request.serverVariables['PATH_INFO'] or '/'
-            
-            # get session
-            session = None
-            
-            cookiesEnabled = True
-            if request.cookies.has_key('_sid'):
-                session = SessionManager.fetch_session(request.cookies['_sid'].value)
-            else:
-                cookiesEnabled = False
-                session_match = re.match(self.sid_pattern, path_info)
-                if session_match:
-                    path_info = path_info.replace(session_match.group(), '', 1) or '/'
-                    request.serverVariables['PATH_INFO'] = path_info
-                    session = SessionManager.fetch_session(session_match.group(1))
-            
-            if session != None:
-                self.session = session
-                self.user = _db.getItem(self.session.userid)
-                request.serverVariables["AUTH_USER"] = self.user.displayName.value
-                
-                if not cookiesEnabled:
-                    if not session.sessionid in request.serverVariables["SCRIPT_NAME"]:
-                        request.serverVariables["SCRIPT_NAME"] += '/{%s}' % session.sessionid
-                    else:
-                        lstScript = request.serverVariables["SCRIPT_NAME"].split('/')
-                        request.serverVariables["SCRIPT_NAME"] = \
-                            "/%s/{%s}" %(lstScript[1], session.sessionid)
-            else:
-                self.session = self.__create_guest_session()
-        
+
+    def _fetch_session(self):
+        path_info = self.request.serverVariables['PATH_INFO'] or '/'
+
+        # get session
+        session = None
+        cookiesEnabled = True
+        if self.request.cookies.has_key('_sid'):
+            session = SessionManager.fetch_session(
+                self.request.cookies['_sid'].value)
+        else:
+            cookiesEnabled = False
+            session_match = re.match(self.sid_pattern, path_info)
+            if session_match:
+                path_info = path_info.replace(session_match.group(), '', 1) or '/'
+                self.request.serverVariables['PATH_INFO'] = path_info
+                session = SessionManager.fetch_session(session_match.group(1))
+
+        if session != None:
+            self.session = session
+            self.user = _db.getItem(self.session.userid)
+            self.request.serverVariables["AUTH_USER"] = \
+                self.user.displayName.value
+            if not cookiesEnabled:
+                if not session.sessionid in self.request.serverVariables["SCRIPT_NAME"]:
+                    self.request.serverVariables["SCRIPT_NAME"] += \
+                        '/{%s}' % session.sessionid
+                else:
+                    lstScript = self.request.serverVariables["SCRIPT_NAME"].split('/')
+                    self.request.serverVariables["SCRIPT_NAME"] = \
+                        "/%s/{%s}" %(lstScript[1], session.sessionid)
+        else:
+            self.session = self.__create_guest_session()
 
     def __create_guest_session(self):
         # create new session with the specified guest user

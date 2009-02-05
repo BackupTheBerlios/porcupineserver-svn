@@ -51,6 +51,7 @@ class PorcupineThread(BaseServerThread):
                 sPath = request.serverVariables['PATH_INFO']
                 item = _db.getItem(sPath)
                 if item != None and not item._isDeleted:
+                    self.context._fetch_session()
                     self.dispatch_method(item)
                 else:
                     # dir request
@@ -69,12 +70,15 @@ class PorcupineThread(BaseServerThread):
                         raise exceptions.NotFound, \
                             'The resource "%s" does not exist' % sPath
                     
+                    rtype = registration.type
+                    if rtype == 1: # in case of psp fetch session
+                        self.context._fetch_session()
+
                     # apply pre-processing filters
                     [filter[0].apply(self.context, item, registration, **filter[1])
                      for filter in registration.filters
                      if filter[0].type == 'pre']
-                
-                    rtype = registration.type
+
                     if rtype == 1: # psp page
                         ServerPage.execute(self.context, registration.context)
                     elif rtype == 0: # static file
