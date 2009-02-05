@@ -325,7 +325,7 @@ class Removable(object):
                       self._owner == user._id)
         
         if (not(self._isSystem) and can_delete):
-            deleted = DeletedItem(self)
+            deleted = DeletedItem(self, trans)
             deleted._owner = user._id
             deleted._created = time.time()
             deleted.modifiedBy = user.displayName.value
@@ -926,9 +926,10 @@ class Container(Item):
                  else None.
         @rtype: str
         """
-        child = self.getChildByName(name, trans)
-        if child:
-            return child._id
+        conditions = (('_parentid', self._id), ('displayName', name))
+        child = [x for x in _db.natural_join(conditions, trans, True)]
+        if len(child) == 1:
+            return child[0]._id
     
     def getChildByName(self, name, trans=None):
         """
