@@ -59,6 +59,10 @@ def open(**kwargs):
     # create db environment
     additional_flags = kwargs.get('flags', 0)
     _env = db.DBEnv()
+    _env.set_timeout(int(settings['store']['lock_timeout']),
+                     db.DB_SET_LOCK_TIMEOUT)
+    _env.set_timeout(int(settings['store']['txn_timeout']),
+                     db.DB_SET_TXN_TIMEOUT)
     _env.open(
         _dir,
         db.DB_THREAD | db.DB_INIT_MPOOL | db.DB_INIT_LOCK |
@@ -237,7 +241,7 @@ def shrink():
 def __maintain():
     from porcupine.db import _db
     while _running:
-        time.sleep(1.0)
+        time.sleep(0.5)
         # deadlock detection
         try:
             aborted = _env.lock_detect(db.DB_LOCK_RANDOM, db.DB_LOCK_CONFLICT)
