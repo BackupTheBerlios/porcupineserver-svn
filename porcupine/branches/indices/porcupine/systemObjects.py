@@ -927,9 +927,10 @@ class Container(Item):
         @rtype: str
         """
         conditions = (('_parentid', self._id), ('displayName', name))
-        child = [x for x in _db.natural_join(conditions, trans, True)]
+        child = [x for x in _db.natural_join(conditions, trans,
+                                             use_primary=True)]
         if len(child) == 1:
-            return child[0]._id
+            return child[0]
     
     def getChildByName(self, name, trans=None):
         """

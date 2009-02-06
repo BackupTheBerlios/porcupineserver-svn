@@ -130,7 +130,7 @@ class Join(object):
             next = self._get(0)
             if next != None:
                 if self._primary:
-                    return next[1]
+                    return next
                 else:
                     item = cPickle.loads(next[1])
                     if self._fetch_all:

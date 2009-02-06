@@ -55,7 +55,7 @@ def getItem(oid, trans=None):
             if path_depth == 2:
                 item = _db_handle.getItem(path_tokens[1], trans)
             # /folder1/folder2/item
-            if not item:
+            if item == None:
                 return _getItemByPath(path_tokens, trans)
     if item != None:
         item = cPickle.loads(item)
@@ -127,8 +127,9 @@ def query_index(index, value, trans, fetch_all=False, resolve_shortcuts=False):
     return _db_handle.query_index(index, value, trans,
                                   fetch_all, resolve_shortcuts)
 
-def natural_join(conditions, trans, fetch_all=False, resolve_shortcuts=False):
-    return _db_handle.natural_join(conditions, trans,
+def natural_join(conditions, trans, use_primary=False,
+                 fetch_all=False, resolve_shortcuts=False):
+    return _db_handle.natural_join(conditions, trans, use_primary,
                                    fetch_all, resolve_shortcuts)
 
 def test_natural_join(conditions, trans):
