@@ -31,8 +31,7 @@ from porcupine import datatypes
 
 from porcupine.systemObjects import Container
 from porcupine.oql.command import OqlCommand
-from porcupine.security import objectAccess
-from porcupine.utils import date, misc
+from porcupine.utils import date, misc, permsresolver
 
 from org.innoscript.desktop.strings import resources
 from org.innoscript.desktop.webmethods import baseitem
@@ -94,8 +93,9 @@ def create(self, data):
     oNewItem = misc.getCallableByName(data.pop('CC'))()
 
     # get user role
-    iUserRole = objectAccess.getAccess(self, context.user)
-    if data.has_key('__rolesinherited') and iUserRole == objectAccess.COORDINATOR:
+    iUserRole = permsresolver.get_access(self, context.user)
+    if data.has_key('__rolesinherited') and \
+            iUserRole == permsresolver.COORDINATOR:
         oNewItem.inheritRoles = data.pop('__rolesinherited')
         if not oNewItem.inheritRoles:
             acl = data.pop('__acl')
@@ -160,7 +160,7 @@ def getInfo(self):
         'parentid' : self.parentid,
         'iscollection' : self.isCollection,
         'containment' : containment,
-        'user_role' : objectAccess.getAccess(self, context.user),
+        'user_role' : permsresolver.get_access(self, context.user),
         'contents' : lstChildren
     }
 

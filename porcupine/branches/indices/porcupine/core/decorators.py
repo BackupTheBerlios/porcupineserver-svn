@@ -19,10 +19,24 @@ import hashlib
 import types
 import os.path
 import sys
+import logging
 
 from porcupine import exceptions
-from porcupine.security import objectAccess
+from porcupine.utils import permsresolver
 from porcupine.config.settings import settings
+
+def deprecated(function):
+    """
+    Wrapper for deprecated API calls
+    """
+    def dep_wrapper(*args, **kwargs):
+        logger = logging.getLogger('serverlog')
+        logger.warning("DEPRECATION WARNING: " +
+                       "Use %s in module %s instead." % (function.func_name,
+                                                         function.__module__))
+        return function(*args, **kwargs)
+    dep_wrapper.func_name = function.func_name
+    return dep_wrapper
 
 class WebMethodDescriptor(object):
     def __init__(self, function, of_type, conditions,
@@ -48,7 +62,7 @@ class WebMethodDescriptor(object):
     
     def __get__(self, item, item_class):
         def wm_wrapper(item, context):
-            if objectAccess.getAccess(item, context.user) == 0:
+            if permsresolver.get_access(item, context.user) == 0:
                 raise exceptions.PermissionDenied
             context.response.content_type = self.content_type
             context.response.charset = self.encoding

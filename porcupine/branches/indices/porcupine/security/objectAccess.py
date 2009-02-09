@@ -17,8 +17,8 @@
 """
 Deprecated module. Use "porcupine.utils.permsresolver instead"
 """
-import logging
 from porcupine.utils import permsresolver
+from porcupine.core.decorators import deprecated
 
 # 1 - read
 # 2 - update, delete if owner
@@ -30,8 +30,4 @@ AUTHOR = 2
 CONTENT_CO = 4
 COORDINATOR = 8
 
-def getAccess(item, user):
-    logger = logging.getLogger('serverlog')
-    logger.warning("porcupine.security.objectAccess.getAccess is deprecated.\n" +
-                   "Use porcupine.utils.permsresolver.get_access instead.")
-    return permsresolver.get_access(item, user)
+getAccess = deprecated(permsresolver.get_access)

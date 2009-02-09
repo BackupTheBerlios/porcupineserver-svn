@@ -29,8 +29,7 @@ from porcupine.db import _db
 from porcupine import exceptions
 from porcupine import datatypes
 from porcupine.core.objectSet import ObjectSet
-from porcupine.utils import misc
-from porcupine.security import objectAccess
+from porcupine.utils import misc, permsresolver
 
 class _Shortcuts(datatypes.RelatorN):
     'Data type for keeping the shortcuts IDs that an object has'
@@ -129,8 +128,8 @@ class Cloneable(object):
         
         # check permissions on target folder
         user = currentThread().context.user
-        user_role = objectAccess.getAccess(target, user)
-        if not(self._isSystem) and user_role > objectAccess.READER:
+        user_role = permsresolver.get_access(target, user)
+        if not(self._isSystem) and user_role > permsresolver.READER:
             if not(contentclass in target.containment):
                 raise exceptions.ContainmentError, \
                     'The target container does not accept ' + \
@@ -166,9 +165,9 @@ class Movable(object):
             If the target container does not exist.
         """
         user = currentThread().context.user
-        user_role = objectAccess.getAccess(self, user)
-        can_move = (user_role > objectAccess.AUTHOR)
-        ## or (user_role == objectAccess.AUTHOR and oItem.owner == user.id)
+        user_role = permsresolver.get_access(self, user)
+        can_move = (user_role > permsresolver.AUTHOR)
+        ## or (user_role == permsresolver.AUTHOR and oItem.owner == user.id)
 
         parent_id = self._parentid
         target = _db.getItem(target_id, trans)
@@ -182,7 +181,7 @@ class Movable(object):
         else:
             contentclass = self.getContentclass()
         
-        user_role2 = objectAccess.getAccess(target, user)
+        user_role2 = permsresolver.get_access(target, user)
         
         if self.isCollection and target.isContainedIn(self._id, trans):
             raise exceptions.ContainmentError, \
@@ -190,7 +189,7 @@ class Movable(object):
                 'The destination is contained in the source.'
         
         if (not(self._isSystem) and can_move and
-                user_role2 > objectAccess.READER):
+                user_role2 > permsresolver.READER):
             if not(contentclass in target.containment):
                 raise exceptions.ContainmentError, \
                     'The target container does not accept ' + \
@@ -251,9 +250,9 @@ class Removable(object):
         user = currentThread().context.user
         self = _db.getItem(self._id, trans)
 
-        user_role = objectAccess.getAccess(self, user)
-        can_delete = (user_role > objectAccess.AUTHOR) or \
-            (user_role == objectAccess.AUTHOR and self._owner == user._id)
+        user_role = permsresolver.get_access(self, user)
+        can_delete = (user_role > permsresolver.AUTHOR) or \
+            (user_role == permsresolver.AUTHOR and self._owner == user._id)
         
         if (not(self._isSystem) and can_delete):
             # delete item physically
@@ -319,9 +318,9 @@ class Removable(object):
         user = currentThread().context.user
         self = _db.getItem(self._id, trans)
         
-        user_role = objectAccess.getAccess(self, user)
-        can_delete = (user_role > objectAccess.AUTHOR) or \
-                     (user_role == objectAccess.AUTHOR and
+        user_role = permsresolver.get_access(self, user)
+        can_delete = (user_role > permsresolver.AUTHOR) or \
+                     (user_role == permsresolver.AUTHOR and
                       self._owner == user._id)
         
         if (not(self._isSystem) and can_delete):
@@ -494,8 +493,8 @@ class GenericItem(object):
             contentclass = self.getContentclass()
         
         user = currentThread().context.user
-        user_role = objectAccess.getAccess(parent, user)
-        if user_role == objectAccess.READER:
+        user_role = permsresolver.get_access(parent, user)
+        if user_role == permsresolver.READER:
             raise exceptions.PermissionDenied, \
                 'The user does not have write permissions ' + \
                 'on the parent folder.'
@@ -505,7 +504,7 @@ class GenericItem(object):
                 'objects of type\n"%s".' % contentclass
 
         # set security to new item
-        if user_role == objectAccess.COORDINATOR:
+        if user_role == permsresolver.COORDINATOR:
             # user is COORDINATOR
             self._applySecurity(parent, trans)
         else:
@@ -659,9 +658,9 @@ class DeletedItem(GenericItem, Removable):
         """
         # check permissions
         user = currentThread().context.user
-        user_role = objectAccess.getAccess(target, user)
+        user_role = permsresolver.get_access(target, user)
         
-        if user_role > objectAccess.READER:
+        if user_role > permsresolver.READER:
             deleted._parentid = target._id
             deleted.inheritRoles = False
             deleted._undelete(trans)
@@ -791,11 +790,11 @@ class Item(GenericItem, Cloneable, Movable, Removable):
         parent = _db.getItem(self._parentid, trans)
         
         user = currentThread().context.user
-        user_role = objectAccess.getAccess(old_item, user)
+        user_role = permsresolver.get_access(old_item, user)
         
-        if user_role > objectAccess.READER:
+        if user_role > permsresolver.READER:
             # set security
-            if user_role == objectAccess.COORDINATOR:
+            if user_role == permsresolver.COORDINATOR:
                 # user is COORDINATOR
                 if (self.inheritRoles != old_item.inheritRoles) or \
                         (not self.inheritRoles and \

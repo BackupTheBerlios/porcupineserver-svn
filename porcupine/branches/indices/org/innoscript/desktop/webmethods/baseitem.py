@@ -29,8 +29,7 @@ from porcupine import datatypes
 
 from porcupine.systemObjects import Item
 from porcupine.systemObjects import GenericItem
-from porcupine.security import objectAccess
-from porcupine.utils import date, xml
+from porcupine.utils import date, xml, permsresolver
 
 AUTO_CONTROLS = {
     datatypes.String: '''
@@ -93,8 +92,8 @@ DATES_FORMAT = 'ddd, dd month yyyy h12:min:sec MM'
 
 def _getSecurity(forItem, user, rolesInherited=None):
     # get user role
-    iUserRole = objectAccess.getAccess(forItem, user)
-    if iUserRole == objectAccess.COORDINATOR:
+    iUserRole = permsresolver.get_access(forItem, user)
+    if iUserRole == permsresolver.COORDINATOR:
         rolesInherited = rolesInherited or forItem.inheritRoles
         return SECURITY_TAB % str(rolesInherited).lower()
     else:
@@ -184,7 +183,7 @@ def properties(self):
     sLang = context.request.getLang()
     
     user = context.user
-    iUserRole = objectAccess.getAccess(self, user)
+    iUserRole = permsresolver.get_access(self, user)
     readonly = (iUserRole==1)
     modified = date.Date(self.modified)
     
@@ -254,8 +253,9 @@ def update(self, data):
     "Updates an object based on values contained inside the data dictionary"
     context = HttpContext.current()
     # get user role
-    iUserRole = objectAccess.getAccess(self, context.user)
-    if data.has_key('__rolesinherited') and iUserRole == objectAccess.COORDINATOR:
+    iUserRole = permsresolver.get_access(self, context.user)
+    if data.has_key('__rolesinherited') and \
+            iUserRole == permsresolver.COORDINATOR:
         self.inheritRoles = data.pop('__rolesinherited')
         if not self.inheritRoles:
             acl = data.pop('__acl')

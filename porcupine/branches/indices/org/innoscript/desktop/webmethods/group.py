@@ -21,8 +21,7 @@ Web methods for the group content class
 from porcupine import HttpContext
 from porcupine import webmethods
 from porcupine import filters
-from porcupine.security import objectAccess
-from porcupine.utils import date, xml
+from porcupine.utils import date, xml, permsresolver
 
 from org.innoscript.desktop.schema.security import Group
 from org.innoscript.desktop.webmethods import baseitem
@@ -37,7 +36,7 @@ def properties(self):
     sLang = context.request.getLang()
 
     user = context.user
-    iUserRole = objectAccess.getAccess(self, user)
+    iUserRole = permsresolver.get_access(self, user)
     readonly = (iUserRole==1)
 
     params = {

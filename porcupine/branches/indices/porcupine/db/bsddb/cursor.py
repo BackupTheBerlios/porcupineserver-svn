@@ -23,7 +23,7 @@ from threading import currentThread
 
 from porcupine.db import _db
 from porcupine.db.basecursor import BaseCursor
-from porcupine.security import objectAccess
+from porcupine.utils import permsresolver
 from porcupine.systemObjects import Shortcut
 
 class Cursor(BaseCursor):
@@ -78,8 +78,9 @@ class Cursor(BaseCursor):
                                 yield item
                         else:
                             # check read permissions
-                            access = objectAccess.getAccess(item,
-                                                            thread.context.user)
+                            access = permsresolver.get_access(
+                                item,
+                                thread.context.user)
                             if not item._isDeleted and access > 0:
                                 if self._resolve_shortcuts and \
                                         isinstance(item, Shortcut):
@@ -140,8 +141,9 @@ class Join(object):
                                                    self._txn)
                     else:
                         # check read permissions
-                        access = objectAccess.getAccess(item,
-                                                        self._thread.context.user)
+                        access = permsresolver.get_access(
+                            item,
+                            self._thread.context.user)
                         if item._isDeleted or access == 0:
                             item = None
                         elif self._resolve_shortcuts and \

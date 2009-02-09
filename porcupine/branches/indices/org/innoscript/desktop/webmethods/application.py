@@ -21,8 +21,7 @@ Web methods for the application content class
 from porcupine import HttpContext
 from porcupine import webmethods
 from porcupine import filters
-from porcupine.security import objectAccess
-from porcupine.utils import date, xml
+from porcupine.utils import date, xml, permsresolver
 
 from org.innoscript.desktop.schema.common import Application
 from org.innoscript.desktop.webmethods import baseitem
@@ -37,8 +36,8 @@ def properties(self):
     context = HttpContext.current()
     sLang = context.request.getLang()
     user = context.user
-    iUserRole = objectAccess.getAccess(self, user)
-    readonly = (iUserRole==1)
+    iUserRole = permsresolver.get_access(self, user)
+    readonly = (iUserRole == 1)
     modified = date.Date(self.modified)
     return {
         'ID' : self.id,

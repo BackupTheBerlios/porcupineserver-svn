@@ -21,9 +21,8 @@ import time
 import copy
 from threading import currentThread
 
-from porcupine.db import _db
 from porcupine import exceptions
-from porcupine.security import objectAccess
+from porcupine.utils import permsresolver
 
 def getItem(oid, trans=None):
     """
@@ -40,7 +39,7 @@ def getItem(oid, trans=None):
     """
     item = _db.getItem(oid, trans)
     if item != None and not item._isDeleted and \
-            objectAccess.getAccess(item, currentThread().context.user) != 0:
+            permsresolver.get_access(item, currentThread().context.user) != 0:
         return item
 
 def getTransaction():
