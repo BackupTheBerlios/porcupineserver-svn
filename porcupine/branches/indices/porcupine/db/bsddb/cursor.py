@@ -109,18 +109,19 @@ class Join(object):
         self._resolve_shortcuts = resolve_shortcuts
         self._thread = currentThread()
         self._txn = txn
+        self._cur_list = cursor_list
         
         self._join = None
         self._get = None
         
         is_natural = True
         should_join = True
-        for cur in cursor_list:
+        for cur in self._cur_list:
             is_natural = (cur._value != None) and is_natural
             should_join = cur._is_set and should_join
         if should_join:
             if is_natural:
-                self._join = primary_db.join([c._cursor for c in cursor_list])
+                self._join = primary_db.join([c._cursor for c in self._cur_list])
                 if self._primary:
                     self._get = self._join.join_item
                 else:
@@ -161,5 +162,6 @@ class Join(object):
             next = self.next()
     
     def close(self):
+        [cur.close() for cur in self._cur_list]
         if self._join:
             self._join.close()

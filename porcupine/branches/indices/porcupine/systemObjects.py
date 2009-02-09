@@ -236,9 +236,10 @@ class Removable(object):
         _db.deleteItem(self, trans)
         
         if self.isCollection:
-            [child._delete(trans)
-             for child in _db.query_index('_parentid', self._id,
-                                          trans, fetch_all=True)]
+            cursor = _db.query_index('_parentid', self._id,
+                                     trans, fetch_all=True)
+            [child._delete(trans) for child in cursor]
+            cursor.close()
 
     def delete(self, trans):
         """
@@ -279,9 +280,10 @@ class Removable(object):
         self._isDeleted = int(self._isDeleted) + 1
         
         if self.isCollection:
-            [child._recycle(trans)
-             for child in _db.query_index('_parentid', self._id,
-                                          trans, fetch_all=True)]
+            cursor = _db.query_index('_parentid', self._id,
+                                     trans, fetch_all=True)
+            [child._recycle(trans) for child in cursor]
+            cursor.close()
         
         _db.putItem(self, trans)
         
@@ -298,9 +300,10 @@ class Removable(object):
         self._isDeleted = int(self._isDeleted) - 1
         
         if self.isCollection:
-            [child._undelete(trans)
-             for child in _db.query_index('_parentid', self._id,
-                                          trans, fetch_all=True)] 
+            cursor = _db.query_index('_parentid', self._id,
+                                     trans, fetch_all=True)
+            [child._undelete(trans) for child in cursor]
+            cursor.close()
         
         _db.putItem(self, trans)
 
@@ -469,10 +472,12 @@ class GenericItem(object):
         if self.inheritRoles:
             self.security = oParent.security
         if self.isCollection:
-            for child in _db.query_index('_parentid', self._id, trans,
-                                         fetch_all=True):
+            cursor = _db.query_index('_parentid', self._id, trans,
+                                     fetch_all=True)
+            for child in cursor:
                 child._applySecurity(self, trans)
-                _db.putItem(child, trans) 
+                _db.putItem(child, trans)
+            cursor.close()
 
     def appendTo(self, parent, trans):
         """
@@ -926,10 +931,10 @@ class Container(Item):
         @rtype: str
         """
         conditions = (('_parentid', self._id), ('displayName', name))
-        child = [x for x in _db.natural_join(conditions, trans,
-                                             use_primary=True)]
-        if len(child) == 1:
-            return child[0]
+        cursor = _db.natural_join(conditions, trans, use_primary=True)
+        child = cursor.next()
+        cursor.close()
+        return child
     
     def getChildByName(self, name, trans=None):
         """
@@ -943,9 +948,10 @@ class Container(Item):
         @rtype: L{GenericItem}
         """
         conditions = (('_parentid', self._id), ('displayName', name))
-        child = [x for x in _db.natural_join(conditions, trans)]
-        if len(child) == 1:
-            return child[0]
+        cursor = _db.natural_join(conditions, trans)
+        child = cursor.next()
+        cursor.close()
+        return child
     
     def getChildren(self, trans=None, resolve_shortcuts=False):
         """
@@ -954,8 +960,11 @@ class Container(Item):
         @param trans: A valid transaction handle
         @rtype: L{ObjectSet<porcupine.core.objectSet.ObjectSet>}
         """
-        return _db.query_index('_parentid', self._id, trans,
-                               resolve_shortcuts=resolve_shortcuts)
+        cursor = _db.query_index('_parentid', self._id, trans,
+                                  resolve_shortcuts=resolve_shortcuts)
+        children = ObjectSet([c for c in cursor])
+        cursor.close()
+        return children
     
     def getItems(self, trans=None, resolve_shortcuts=False):
         """
@@ -965,8 +974,11 @@ class Container(Item):
         @rtype: L{ObjectSet<porcupine.core.objectSet.ObjectSet>}
         """
         conditions = (('_parentid', self._id), ('isCollection', False))
-        return _db.natural_join(conditions, trans,
-                                resolve_shortcuts=resolve_shortcuts)
+        cursor = _db.natural_join(conditions, trans,
+                                  resolve_shortcuts=resolve_shortcuts)
+        items = ObjectSet([i for i in cursor])
+        cursor.close()
+        return items
     
     def getSubFolders(self, trans=None, resolve_shortcuts=False):
         """
@@ -976,8 +988,11 @@ class Container(Item):
         @rtype: L{ObjectSet<porcupine.core.objectSet.ObjectSet>}
         """
         conditions = (('_parentid', self._id), ('isCollection', True))
-        return _db.natural_join(conditions, trans,
-                                resolve_shortcuts=resolve_shortcuts)
+        cursor = _db.natural_join(conditions, trans,
+                                  resolve_shortcuts=resolve_shortcuts)
+        subfolders = ObjectSet([f for f in cursor])
+        cursor.close()
+        return subfolders
     
     def hasChildren(self, trans=None):
         """

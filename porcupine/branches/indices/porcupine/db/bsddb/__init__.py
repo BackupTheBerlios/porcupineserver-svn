@@ -150,9 +150,7 @@ def query_index(index, value, trans, fetch_all, resolve_shortcuts):
                     fetch_all=fetch_all,
                     resolve_shortcuts=resolve_shortcuts)
     cursor.set(value)
-    results = ObjectSet([x for x in cursor])
-    cursor.close()
-    return(results)
+    return cursor
 
 def natural_join(conditions, trans, use_primary, fetch_all, resolve_shortcuts):
     cur_list = []
@@ -166,10 +164,7 @@ def natural_join(conditions, trans, use_primary, fetch_all, resolve_shortcuts):
                   use_primary=use_primary,
                   fetch_all=fetch_all,
                   resolve_shortcuts=resolve_shortcuts)
-    results = ObjectSet([x for x in c_join])
-    c_join.close()
-    [cur.close() for cur in cur_list]
-    return results
+    return c_join
 
 def test_natural_join(conditions, trans):
     cur_list = []
@@ -183,7 +178,6 @@ def test_natural_join(conditions, trans):
                   trans)
     result = bool(c_join.next())
     c_join.close()
-    [cur.close() for cur in cur_list]
     return result
 
 # transactions
