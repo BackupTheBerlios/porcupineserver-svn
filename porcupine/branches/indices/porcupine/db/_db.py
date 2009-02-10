@@ -123,14 +123,11 @@ def handle_undelete(item, trans):
      if attr._eventHandler]
     
 # indices
-def query_index(index, value, trans, fetch_all=False, resolve_shortcuts=False):
-    return _db_handle.query_index(index, value, trans,
-                                  fetch_all, resolve_shortcuts)
+def query_index(index, value, trans):
+    return _db_handle.query_index(index, value, trans)
 
-def natural_join(conditions, trans, use_primary=False,
-                 fetch_all=False, resolve_shortcuts=False):
-    return _db_handle.natural_join(conditions, trans, use_primary,
-                                   fetch_all, resolve_shortcuts)
+def natural_join(conditions, trans):
+    return _db_handle.natural_join(conditions, trans)
 
 def test_natural_join(conditions, trans):
     return _db_handle.test_natural_join(conditions, trans)

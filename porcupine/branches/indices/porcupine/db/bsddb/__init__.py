@@ -144,26 +144,18 @@ def deleteExternal(id, trans):
         raise exceptions.DBTransactionIncomplete
 
 # indices
-def query_index(index, value, trans, fetch_all, resolve_shortcuts):
-    cursor = Cursor(_indices[index],
-                    trans and trans.txn,
-                    fetch_all=fetch_all,
-                    resolve_shortcuts=resolve_shortcuts)
+def query_index(index, value, trans):
+    cursor = Cursor(_indices[index], trans and trans.txn)
     cursor.set(value)
     return cursor
 
-def natural_join(conditions, trans, use_primary, fetch_all, resolve_shortcuts):
+def natural_join(conditions, trans):
     cur_list = []
     for index, value in conditions:
         cursor = Cursor(_indices[index], trans and trans.txn)
         cursor.set(value)
         cur_list.append(cursor)
-    c_join = Join(_itemdb,
-                  cur_list,
-                  trans and trans.txn,
-                  use_primary=use_primary,
-                  fetch_all=fetch_all,
-                  resolve_shortcuts=resolve_shortcuts)
+    c_join = Join(_itemdb, cur_list, trans and trans.txn)
     return c_join
 
 def test_natural_join(conditions, trans):

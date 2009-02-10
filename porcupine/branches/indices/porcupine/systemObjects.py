@@ -236,8 +236,8 @@ class Removable(object):
         _db.deleteItem(self, trans)
         
         if self.isCollection:
-            cursor = _db.query_index('_parentid', self._id,
-                                     trans, fetch_all=True)
+            cursor = _db.query_index('_parentid', self._id, trans)
+            cursor.fetch_all = True
             [child._delete(trans) for child in cursor]
             cursor.close()
 
@@ -280,8 +280,8 @@ class Removable(object):
         self._isDeleted = int(self._isDeleted) + 1
         
         if self.isCollection:
-            cursor = _db.query_index('_parentid', self._id,
-                                     trans, fetch_all=True)
+            cursor = _db.query_index('_parentid', self._id, trans)
+            cursor.fetch_all = True
             [child._recycle(trans) for child in cursor]
             cursor.close()
         
@@ -300,8 +300,8 @@ class Removable(object):
         self._isDeleted = int(self._isDeleted) - 1
         
         if self.isCollection:
-            cursor = _db.query_index('_parentid', self._id,
-                                     trans, fetch_all=True)
+            cursor = _db.query_index('_parentid', self._id, trans)
+            cursor.fetch_all = True
             [child._undelete(trans) for child in cursor]
             cursor.close()
         
@@ -472,8 +472,8 @@ class GenericItem(object):
         if self.inheritRoles:
             self.security = oParent.security
         if self.isCollection:
-            cursor = _db.query_index('_parentid', self._id, trans,
-                                     fetch_all=True)
+            cursor = _db.query_index('_parentid', self._id, trans)
+            cursor.fetch_all = True
             for child in cursor:
                 child._applySecurity(self, trans)
                 _db.putItem(child, trans)
@@ -931,7 +931,8 @@ class Container(Item):
         @rtype: str
         """
         conditions = (('_parentid', self._id), ('displayName', name))
-        cursor = _db.natural_join(conditions, trans, use_primary=True)
+        cursor = _db.natural_join(conditions, trans)
+        cursor.use_primary = True
         child = cursor.next()
         cursor.close()
         return child
@@ -960,8 +961,8 @@ class Container(Item):
         @param trans: A valid transaction handle
         @rtype: L{ObjectSet<porcupine.core.objectSet.ObjectSet>}
         """
-        cursor = _db.query_index('_parentid', self._id, trans,
-                                  resolve_shortcuts=resolve_shortcuts)
+        cursor = _db.query_index('_parentid', self._id, trans)
+        cursor.resolve_shortcuts = resolve_shortcuts
         children = ObjectSet([c for c in cursor])
         cursor.close()
         return children
@@ -974,8 +975,8 @@ class Container(Item):
         @rtype: L{ObjectSet<porcupine.core.objectSet.ObjectSet>}
         """
         conditions = (('_parentid', self._id), ('isCollection', False))
-        cursor = _db.natural_join(conditions, trans,
-                                  resolve_shortcuts=resolve_shortcuts)
+        cursor = _db.natural_join(conditions, trans)
+        cursor.resolve_shortcuts = resolve_shortcuts
         items = ObjectSet([i for i in cursor])
         cursor.close()
         return items
@@ -988,8 +989,8 @@ class Container(Item):
         @rtype: L{ObjectSet<porcupine.core.objectSet.ObjectSet>}
         """
         conditions = (('_parentid', self._id), ('isCollection', True))
-        cursor = _db.natural_join(conditions, trans,
-                                  resolve_shortcuts=resolve_shortcuts)
+        cursor = _db.natural_join(conditions, trans)
+        cursor.resolve_shortcuts = resolve_shortcuts
         subfolders = ObjectSet([f for f in cursor])
         cursor.close()
         return subfolders

@@ -18,14 +18,16 @@
 import cPickle
 
 class BaseCursor(object):
-    def __init__(self, index, use_primary, fetch_all, resolve_shortcuts):
+    def __init__(self, index):
         self._index = index
         self._value = None
         self._range = []
-        self._primary = use_primary
-        self._fetch_all = fetch_all
-        self._resolve_shortcuts = resolve_shortcuts
-        
+        self._reversed = False
+
+        self.use_primary = False
+        self.fetch_all = False
+        self.resolve_shortcuts = False
+
     def set(self, v):
         val = cPickle.dumps(v, 2)
         self._value = val
@@ -43,6 +45,9 @@ class BaseCursor(object):
             self._range.append(val2)
         else:
             self._range.append(None)
+
+    def reverse(self):
+        self._reversed = not self._reversed
     
     def get_current(self):
         raise NotImplementedError
