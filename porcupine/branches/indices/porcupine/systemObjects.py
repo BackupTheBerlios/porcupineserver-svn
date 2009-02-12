@@ -917,7 +917,7 @@ class Container(Item):
         @rtype: bool
         """
         conditions = (('_parentid', self._id), ('displayName', name))
-        return _db.test_natural_join(conditions, trans)
+        return _db.test_join(conditions, trans)
     
     def getChildId(self, name, trans=None):
         """
@@ -931,9 +931,14 @@ class Container(Item):
         @rtype: str
         """
         conditions = (('_parentid', self._id), ('displayName', name))
-        cursor = _db.natural_join(conditions, trans)
+        cursor = _db.join(conditions, trans)
         cursor.use_primary = True
-        child = cursor.next()
+        iterator = iter(cursor)
+        try:
+            child = iterator.next()
+        except StopIteration:
+            child = None
+        iterator.close()
         cursor.close()
         return child
     
@@ -949,8 +954,13 @@ class Container(Item):
         @rtype: L{GenericItem}
         """
         conditions = (('_parentid', self._id), ('displayName', name))
-        cursor = _db.natural_join(conditions, trans)
-        child = cursor.next()
+        cursor = _db.join(conditions, trans)
+        iterator = iter(cursor)
+        try:
+            child = iterator.next()
+        except StopIteration:
+            child = None
+        iterator.close()
         cursor.close()
         return child
     
@@ -975,7 +985,7 @@ class Container(Item):
         @rtype: L{ObjectSet<porcupine.core.objectSet.ObjectSet>}
         """
         conditions = (('_parentid', self._id), ('isCollection', False))
-        cursor = _db.natural_join(conditions, trans)
+        cursor = _db.join(conditions, trans)
         cursor.resolve_shortcuts = resolve_shortcuts
         items = ObjectSet([i for i in cursor])
         cursor.close()
@@ -989,7 +999,7 @@ class Container(Item):
         @rtype: L{ObjectSet<porcupine.core.objectSet.ObjectSet>}
         """
         conditions = (('_parentid', self._id), ('isCollection', True))
-        cursor = _db.natural_join(conditions, trans)
+        cursor = _db.join(conditions, trans)
         cursor.resolve_shortcuts = resolve_shortcuts
         subfolders = ObjectSet([f for f in cursor])
         cursor.close()
@@ -1003,7 +1013,7 @@ class Container(Item):
         @rtype: bool
         """
         conditions = (('_parentid', self._id), ('isCollection', False))
-        return _db.test_natural_join(conditions, trans)
+        return _db.test_join(conditions, trans)
     
     def hasSubfolders(self, trans=None):
         """
@@ -1013,7 +1023,7 @@ class Container(Item):
         @rtype: bool
         """
         conditions = (('_parentid', self._id), ('isCollection', True))
-        return _db.test_natural_join(conditions, trans)
+        return _db.test_join(conditions, trans)
 
 class RecycleBin(Container):
     """

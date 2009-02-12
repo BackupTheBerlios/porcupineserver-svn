@@ -144,31 +144,35 @@ def deleteExternal(id, trans):
         raise exceptions.DBTransactionIncomplete
 
 # indices
-def query_index(index, value, trans):
-    cursor = Cursor(_indices[index], trans and trans.txn)
-    cursor.set(value)
-    return cursor
-
-def natural_join(conditions, trans):
+def get_cursor_list(conditions, trans):
     cur_list = []
     for index, value in conditions:
         cursor = Cursor(_indices[index], trans and trans.txn)
-        cursor.set(value)
+        if type(value) == tuple:
+            cursor.set_range(value[0], value[1])
+        else:
+            cursor.set(value)
         cur_list.append(cursor)
+    return cur_list
+
+def query_index(index, value, trans):
+    cursor = get_cursor_list(((index, value),), trans)[0]
+    return cursor
+
+def join(conditions, trans):
+    cur_list = get_cursor_list(conditions, trans)
     c_join = Join(_itemdb, cur_list, trans and trans.txn)
     return c_join
 
-def test_natural_join(conditions, trans):
-    cur_list = []
-    for index, value in conditions:
-        cursor = Cursor(_indices[index],
-                        trans and trans.txn)
-        cursor.set(value)
-        cur_list.append(cursor)
-    c_join = Join(_itemdb,
-                  cur_list,
-                  trans)
-    result = bool(c_join.next())
+def test_join(conditions, trans):
+    cur_list = get_cursor_list(conditions, trans)
+    c_join = Join(_itemdb, cur_list, trans)
+    iterator = iter(c_join)
+    try:
+        result = bool(iterator.next())
+    except StopIteration:
+        result = False
+    iterator.close()
     c_join.close()
     return result
 

@@ -17,22 +17,16 @@
 """
 Porcupine Berkeley DB cursor classes
 """
-import cPickle
 from bsddb import db
-from threading import currentThread
 
-from porcupine.db import _db
 from porcupine.db.basecursor import BaseCursor
-from porcupine.utils import permsresolver
-from porcupine.systemObjects import Shortcut
 
 class Cursor(BaseCursor):
     "BerkeleyDB cursor class"
     def __init__(self, index, txn=None):
-        BaseCursor.__init__(self, index)
+        BaseCursor.__init__(self, index, txn)
         self._cursor = self._index.db.cursor(txn)
         self._is_set = False
-        self._txn = txn
         self._get_flag = db.DB_NEXT
         
     def set(self, v):
@@ -48,132 +42,131 @@ class Cursor(BaseCursor):
         if self._is_set:
             if self._reversed:
                 self._get_flag = db.DB_PREV
-                self._cursor.get(db.DB_NEXT_NODUP)
-                self._cursor.get(db.DB_PREV)
+                if self._value:
+                    # equality
+                    self._cursor.get(db.DB_NEXT_NODUP)
+                    self._cursor.get(db.DB_PREV)
+                else:
+                    # range
+                    if self._range[1] != None:
+                        self._cursor.set_range(self._range[1])
+                        self._cursor.get(db.DB_PREV)
+                    else:
+                        self._cursor.get(db.DB_LAST)
             else:
                 self._get_flag = db.DB_NEXT
-                self._cursor.set(self._value)
+                if self._value:
+                    # equality
+                    self._cursor.set(self._value)
+                else:
+                    # range
+                    self._cursor.set_range(self._range[0])
 
-    def get_both(self, key, value):
-        return self._cursor.get_both(cPickle.dumps(key, 2),
-                                     cPickle.dumps(value, 2))
-    
-    def get_current(self):
-        if self.use_primary:
-            return self._cusror.pget(db.DB_CURRENT)
+    def get_current(self, get_primary=False):
+        key, prim_key, value = self._cursor.pget(db.DB_CURRENT)
+        if get_primary:
+            return prim_key
         else:
-            return self._cursor.current()
-    
+            return self._get_item(value)
+
     def __iter__(self):
         if self._is_set:
-            thread = currentThread()
-            if self.use_primary:
-                get = self._cursor.pget
-            else:
-                get = self._cursor.get
-            key, value = get(db.DB_CURRENT)
             if self._value:
                 # equality
-                while key == self._value:
-                    if self.use_primary:
-                        yield value
-                    else:
-                        item = cPickle.loads(value)
-                        if self.fetch_all:
-                            if self.resolve_shortcuts:
-                                while item != None and isinstance(item, Shortcut):
-                                    item = _db.getItem(item.target.value,
-                                                       self._txn)
-                            if item != None:
-                                yield item
-                        else:
-                            # check read permissions
-                            access = permsresolver.get_access(
-                                item,
-                                thread.context.user)
-                            if not item._isDeleted and access > 0:
-                                if self.resolve_shortcuts and \
-                                        isinstance(item, Shortcut):
-                                    target = item.get_target(self._txn)
-                                    if target:
-                                        yield target
-                                else:
-                                    yield item
-                    next = get(self._get_flag)
-                    if not next:
-                        break
-                    key, value = next
+                cmp_key = self._value
+                cmp_value = [0]
             else:
                 # range
-                raise NotImplementedError            
+                if self._reversed:
+                    cmp_key = self._range[0]
+                    cmp_value = [1]
+                else:
+                    cmp_key = self._range[1]
+                    if cmp_key == None:
+                        cmp_value = [1]
+                    else:
+                        cmp_value = [-1]
+
+            key, prim_key, value = self._cursor.pget(db.DB_CURRENT)
+            
+            while cmp(key, cmp_key) in cmp_value:
+                if self.use_primary:
+                    yield prim_key
+                else:
+                    item = self._get_item(value)
+                    if item != None:
+                        yield item
+                next = self._cursor.pget(self._get_flag)
+                if not next:
+                    break
+                key, prim_key, value = next
     
     def close(self):
         self._cursor.close()
 
-class Join(object):
+class Join(BaseCursor):
     "Helper cursor for performing joins"
     def __init__(self, primary_db, cursor_list, txn=None):
-        self._thread = currentThread()
-        self._txn = txn
+        BaseCursor.__init__(self, None, txn)
         self._cur_list = cursor_list
         self._join = None
         self._is_set = True
+        self._db = primary_db
+        self._is_natural = True
 
-        self.use_primary = False
-        self.fetch_all = False
-        self.resolve_shortcuts = False
-
-        is_natural = True
         for cur in self._cur_list:
-            is_natural = (cur._value != None) and is_natural
+            self._is_natural = (cur._value != None) and self._is_natural
             self._is_set = cur._is_set and self._is_set
+        
         if self._is_set:
-            if is_natural:
-                self._join = primary_db.join([c._cursor
-                                              for c in self._cur_list])
-    
-    def next(self):
+            if self._is_natural:
+                self._join = self._db.join([c._cursor for c in self._cur_list])
+
+    def reverse(self):
+        if self._join:
+            self._join.close()
+        self._reversed = not self._reversed
+        [c.reverse() for c in self._cur_list]
+        if not self._reversed and self._is_natural:
+            self._join = self._db.join([c._cursor for c in self._cur_list])
+
+    def __iter__(self):
         if self._is_set:
             if self._join != None:
+                # natural join
                 if self.use_primary:
                     get = self._join.join_item
                 else:
                     get = self._join.get
-
                 next = get(0)
-                if next != None:
+                while next != None:
                     if self.use_primary:
-                        return next
+                        yield next
                     else:
-                        item = cPickle.loads(next[1])
-                        if self.fetch_all:
-                            if self.resolve_shortcuts:
-                                while item != None and isinstance(item,
-                                                                  Shortcut):
-                                    item = _db.getItem(item.target.value,
-                                                       self._txn)
-                        else:
-                            # check read permissions
-                            access = permsresolver.get_access(
-                                item,
-                                self._thread.context.user)
-                            if item._isDeleted or access == 0:
-                                item = None
-                            elif self.resolve_shortcuts and \
-                                    isinstance(item, Shortcut):
-                                item = item.get_target(self._txn)
-
+                        item = self._get_item(next[1])
                         if item != None:
-                            return item
+                            yield item
+                    next = get(0)
+            else:
+                # not a natural join
+                [setattr(c, 'use_primary', True) for c in self._cur_list]
+                [setattr(c, 'fetch_all', self.fetch_all)
+                 for c in self._cur_list]
+                ids = [id for id in self._cur_list[0]]
+                for cursor in self._cur_list[1:-1]:
+                    ids = [id for id in cursor
+                           if id in ids]
+                    if len(ids) == 0:
+                        raise StopIteration
+                for id in self._cur_list[-1]:
+                    if id in ids:
+                        if self.use_primary:
+                            yield id
                         else:
-                            return self.next()
-    
-    def __iter__(self):
-        next = self.next()
-        while next:
-            yield next
-            next = self.next()
-    
+                            item = self._cur_list[-1].get_current()
+                            if item:
+                                yield item
+
     def close(self):
         [cur.close() for cur in self._cur_list]
         if self._join:

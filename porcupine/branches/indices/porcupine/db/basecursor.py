@@ -16,17 +16,39 @@
 #===============================================================================
 "Base database cursor class"
 import cPickle
+from threading import currentThread
+
+from porcupine.db import _db
+from porcupine.utils import permsresolver
+from porcupine.systemObjects import Shortcut
 
 class BaseCursor(object):
-    def __init__(self, index):
+    def __init__(self, index, txn):
+        self._thread = currentThread()
         self._index = index
         self._value = None
         self._range = []
         self._reversed = False
+        self._txn = txn
 
         self.use_primary = False
         self.fetch_all = False
         self.resolve_shortcuts = False
+
+    def _get_item(self, s):
+        item = cPickle.loads(s)
+        if self.fetch_all:
+            if self.resolve_shortcuts:
+                while item != None and isinstance(item, Shortcut):
+                    item = _db.getItem(item.target.value, self._txn)
+        else:
+            # check read permissions
+            access = permsresolver.get_access(item, self._thread.context.user)
+            if item._isDeleted or access == 0:
+                item = None
+            elif self.resolve_shortcuts and isinstance(item, Shortcut):
+                item = item.get_target(self._txn)
+        return item
 
     def set(self, v):
         val = cPickle.dumps(v, 2)
@@ -35,11 +57,13 @@ class BaseCursor(object):
     
     def set_range(self, v1, v2):
         self._range = []
+        
         if v1 != None:
             val1 = cPickle.dumps(v1, 2)
             self._range.append(val1)
         else:
-            self._range.append('')
+            self._range.append(None)
+
         if v2 != None:
             val2 = cPickle.dumps(v2, 2)
             self._range.append(val2)
@@ -49,12 +73,9 @@ class BaseCursor(object):
     def reverse(self):
         self._reversed = not self._reversed
     
-    def get_current(self):
+    def get_current(self, get_primary=False):
         raise NotImplementedError
     
-    def get_both(self, key, value):
-        raise NotImplementedError
-
     def __iter__(self):
         raise NotImplementedError
     

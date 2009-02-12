@@ -126,11 +126,11 @@ def handle_undelete(item, trans):
 def query_index(index, value, trans):
     return _db_handle.query_index(index, value, trans)
 
-def natural_join(conditions, trans):
-    return _db_handle.natural_join(conditions, trans)
+def join(conditions, trans):
+    return _db_handle.join(conditions, trans)
 
-def test_natural_join(conditions, trans):
-    return _db_handle.test_natural_join(conditions, trans)
+def test_join(conditions, trans):
+    return _db_handle.test_join(conditions, trans)
 
 def check_unique(item, old_item, trans):
     # check index uniqueness
@@ -143,7 +143,7 @@ def check_unique(item, old_item, trans):
                 old_value = None
             if value != old_value:
                 join = (('_parentid', item._parentid), (index_name, value))
-                if test_natural_join(join, trans):
+                if test_join(join, trans):
                     raise exceptions.ContainmentError, (
                         'The container already ' +
                         'has an item with the same "%s" value.' % index_name)
