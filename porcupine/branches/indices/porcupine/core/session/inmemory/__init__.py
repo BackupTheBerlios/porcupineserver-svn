@@ -32,19 +32,18 @@ class SessionManager(GenericSessionManager):
     def __init__(self, timeout):
         GenericSessionManager.__init__(self, timeout)
         self._sessions = {}
-        self._is_active = True
         self._list = []
+        self._is_active = True
         self._expire_thread = Thread(target=self._expire_sessions,
                                      name='Session expriration thread')
         self._expire_thread.start()
-        self._is_active = True
 
     def _expire_sessions(self):
         logger = logging.getLogger('serverlog')
         while self._is_active:
             for sessionid in self._list:
-                session = self.get_session(sessionid)
-                if time.time() - session.last_accessed > self.timeout:
+                session = self.get_session(sessionid, revive=False)
+                if time.time() - session._last_accessed > self.timeout:
                     logger.debug('Expiring Session: %s' % sessionid)
                     session.terminate()
                     logger.debug('Total active sessions: %s' % \
@@ -59,20 +58,19 @@ class SessionManager(GenericSessionManager):
         self._list.append(session.sessionid)
         return session
 
-    def get_session(self, sessionid):
+    def get_session(self, sessionid, revive=True):
         session = self._sessions.get(sessionid, None)
-        return(session)
+        if session and revive:
+            # move sessionid at the end of the list
+            self._list.append(session.sessionid)
+            self._list.remove(session.sessionid)
+            # update last access time
+            session._last_accessed = time.time()
+        return session
 
     def remove_session(self, sessionid):
         self._list.remove(sessionid)
         del self._sessions[sessionid]
-
-    def revive_session(self, session):
-        # move sessionid at the end of the list
-        self._list.append(session.sessionid)
-        self._list.remove(session.sessionid)
-        # update last access time
-        session.last_accessed = time.time()
 
     def close(self):
         self._is_active = False
@@ -86,8 +84,16 @@ class Session(GenericSession):
     """
     Session class for the in memory session manager
     """
-    __slots__ = ('last_accessed',)
-
     def __init__(self, userid, sessiondata):
-        GenericSession.__init__(self, misc.generateGUID(), userid, sessiondata)
-        self.last_accessed = time.time()
+        GenericSession.__init__(self, misc.generateGUID(), userid)
+        self._last_accessed = time.time()
+        self.__data = sessiondata
+
+    def setValue(self, name, value):
+        self.__data[name] = value
+
+    def getValue(self, name):
+        return self.__data.get(name, None)
+
+    def get_data(self):
+        return(self.__data)

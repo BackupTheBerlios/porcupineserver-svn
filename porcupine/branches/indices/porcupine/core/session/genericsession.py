@@ -33,20 +33,9 @@ class GenericSession(object):
     @ivar userid: The object ID of the user that the session belongs
     @type userid: str
     """
-    __slots__ = ('sessionid', 'userid', '__data')
-    
-    def __init__(self, sessionid, userid, sessiondata):
+    def __init__(self, sessionid, userid):
         self.sessionid = sessionid
         self.userid = userid
-        self.__data = sessiondata
-
-    def terminate(self):
-        """
-        Kills the session.
-        
-        @return: None
-        """
-        SessionManager.terminate_session(self)
 
     def setValue(self, name, value):
         """
@@ -60,7 +49,7 @@ class GenericSession(object):
         
         @return: None
         """
-        self.__data[name] = value
+        raise NotImplementedError
 
     def getValue(self, name):
         """
@@ -71,7 +60,23 @@ class GenericSession(object):
 
         @rtype: type
         """
-        return self.__data.get(name, None)
+        raise NotImplementedError
+    
+    def get_data(self):
+        """
+        Returns all the session's variables.
+
+        @rtype: dict
+        """
+        raise NotImplementedError
+
+    def terminate(self):
+        """
+        Kills the session.
+
+        @return: None
+        """
+        SessionManager.terminate_session(self)
 
     def getTempFile(self):
         """
@@ -106,11 +111,3 @@ class GenericSession(object):
         for tmp_file in tmp_files:
             os.remove(tmp_file)
 
-
-    def get_data(self):
-        """
-        Returns all the session's variables.
-        
-        @rtype: dict
-        """
-        return(self.__data)

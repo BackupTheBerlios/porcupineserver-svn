@@ -25,14 +25,11 @@ def open(sm_type, session_timeout):
 def create(userid):
     # create new session
     new_session = sm.create_session(userid)
-    return(new_session)
+    return new_session
    
 def fetch_session(sessionid):
     session = sm.get_session(sessionid)
-    if session:
-        # update last access time
-        sm.revive_session(session)
-    return(session)
+    return session
 
 def terminate_session(session):
     sm.remove_session(session.sessionid)

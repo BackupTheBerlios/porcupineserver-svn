@@ -20,7 +20,6 @@ Use it as a base class in order to implement your own session manager.
 """
 
 class GenericSessionManager(object):
-    
     def __init__(self, timeout):
         self.timeout = timeout
 
@@ -31,16 +30,6 @@ class GenericSessionManager(object):
         raise NotImplementedError
 
     def remove_session(self, sessionid):
-        raise NotImplementedError
-
-    def revive_session(self, session):
-        """
-        Called by the application server.
-        What this method usually does is that updates the session's
-        last accessed time, thus the session does not expire.
-
-        @return: None
-        """
         raise NotImplementedError
 
     def close(self):
