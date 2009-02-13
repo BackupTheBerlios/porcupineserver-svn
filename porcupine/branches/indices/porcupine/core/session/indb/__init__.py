@@ -30,6 +30,7 @@ class SessionManager(GenericSessionManager):
     Database session manager implementation class
     """
     _expire_thread = Thread(name='Session expriration thread', target=None)
+    
     def __init__(self, timeout):
         GenericSessionManager.__init__(self, timeout)
         session_container = db._db.getItem('_sessions')
@@ -68,7 +69,7 @@ class SessionManager(GenericSessionManager):
             for session in sessions:
                 logger.debug('Expiring Session: %s' % session.id)
                 session.terminate()
-            time.sleep(10.0)
+            time.sleep(3.0)
 
     @db.transactional(auto_commit=True)
     def create_session(self, userid):
@@ -77,19 +78,21 @@ class SessionManager(GenericSessionManager):
         session.appendTo('_sessions', trans)
         return session
 
-    @db.transactional(auto_commit=True)
     def get_session(self, sessionid):
-        trans = db.getTransaction()
-        session = db._db.getItem(sessionid, trans)
-        if session:
-            session.update(trans)
-        return(session)
+        session = db._db.getItem(sessionid)
+        return session
 
     @db.transactional(auto_commit=True)
     def remove_session(self, sessionid):
         trans = db.getTransaction()
         session = db._db.getItem(sessionid, trans)
         session.delete(trans)
+
+    @db.transactional(auto_commit=True)
+    def revive_session(self, session):
+        trans = db.getTransaction()
+        # session = db._db.getItem(session._id, trans)
+        session.update(trans)
 
     def close(self):
         self._is_active = False

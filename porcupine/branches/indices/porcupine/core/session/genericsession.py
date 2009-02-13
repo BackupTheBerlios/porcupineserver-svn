@@ -70,6 +70,14 @@ class GenericSession(object):
         """
         raise NotImplementedError
 
+    def get_last_accessed(self):
+        """
+        Returns the session's last accessed time.
+
+        @rtype: float
+        """
+        raise NotImplementedError
+
     def terminate(self):
         """
         Kills the session.

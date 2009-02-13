@@ -15,25 +15,29 @@
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #===============================================================================
 "Porcupine Server session manager singleton"
+import time
 
-sm = None
+_sm = None
 
 def open(sm_type, session_timeout):
-    global sm
-    sm = sm_type(session_timeout)
+    global _sm
+    _sm = sm_type(session_timeout)
     
 def create(userid):
     # create new session
-    new_session = sm.create_session(userid)
+    new_session = _sm.create_session(userid)
     return new_session
    
 def fetch_session(sessionid):
-    session = sm.get_session(sessionid)
+    session = _sm.get_session(sessionid)
+    if session != None and \
+            time.time() - session.get_last_accessed() > _sm.revive_threshold:
+        _sm.revive_session(session)
     return session
 
 def terminate_session(session):
-    sm.remove_session(session.sessionid)
+    _sm.remove_session(session.sessionid)
     session.remove_temp_files()
     
 def close():
-    sm.close()
+    _sm.close()

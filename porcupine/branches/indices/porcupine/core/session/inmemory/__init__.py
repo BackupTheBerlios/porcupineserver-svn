@@ -60,17 +60,18 @@ class SessionManager(GenericSessionManager):
 
     def get_session(self, sessionid, revive=True):
         session = self._sessions.get(sessionid, None)
-        if session and revive:
-            # move sessionid at the end of the list
-            self._list.append(session.sessionid)
-            self._list.remove(session.sessionid)
-            # update last access time
-            session._last_accessed = time.time()
         return session
 
     def remove_session(self, sessionid):
         self._list.remove(sessionid)
         del self._sessions[sessionid]
+
+    def revive_session(self, session):
+        # move sessionid at the end of the list
+        self._list.append(session.sessionid)
+        self._list.remove(session.sessionid)
+        # update last access time
+        session._last_accessed = time.time()
 
     def close(self):
         self._is_active = False
@@ -97,3 +98,6 @@ class Session(GenericSession):
 
     def get_data(self):
         return(self.__data)
+
+    def get_last_accessed(self):
+        return self._last_accessed

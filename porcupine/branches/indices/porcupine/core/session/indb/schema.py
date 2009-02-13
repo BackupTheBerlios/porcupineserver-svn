@@ -100,3 +100,6 @@ class Session(GenericItem, GenericSession):
         A lighter delete
         """
         db._db.deleteItem(self, trans)
+
+    def get_last_accessed(self):
+        return self.modified

@@ -20,6 +20,9 @@ Use it as a base class in order to implement your own session manager.
 """
 
 class GenericSessionManager(object):
+    
+    revive_threshold = 4.0
+
     def __init__(self, timeout):
         self.timeout = timeout
 
@@ -30,6 +33,9 @@ class GenericSessionManager(object):
         raise NotImplementedError
 
     def remove_session(self, sessionid):
+        raise NotImplementedError
+
+    def revive_session(self, session):
         raise NotImplementedError
 
     def close(self):
