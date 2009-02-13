@@ -25,7 +25,7 @@ class Cursor(BaseCursor):
     "BerkeleyDB cursor class"
     def __init__(self, index, txn=None):
         BaseCursor.__init__(self, index, txn)
-        self._cursor = self._index.db.cursor(txn)
+        self._cursor = self._index.db.cursor(txn, db.DB_READ_COMMITTED)
         self._is_set = False
         self._get_flag = db.DB_NEXT
         

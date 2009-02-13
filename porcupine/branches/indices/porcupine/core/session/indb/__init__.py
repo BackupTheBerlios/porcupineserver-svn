@@ -19,9 +19,9 @@ Porcupine database session manager
 """
 import time
 import logging
-from threading import Thread
 
 from porcupine import db
+from porcupine.core.context import ContextThread
 from porcupine.core.session.indb import schema
 from porcupine.core.session.genericsessionmanager import GenericSessionManager
 
@@ -29,7 +29,8 @@ class SessionManager(GenericSessionManager):
     """
     Database session manager implementation class
     """
-    _expire_thread = Thread(name='Session expriration thread', target=None)
+    _expire_thread = ContextThread(name='Session expriration thread',
+                                   target=None)
     
     def __init__(self, timeout):
         GenericSessionManager.__init__(self, timeout)
@@ -38,7 +39,6 @@ class SessionManager(GenericSessionManager):
             self._create_container()
         self._is_active = True
         if not self._expire_thread.isAlive():
-            self._expire_thread.trans = None
             self._expire_thread._Thread__target = self._expire_sessions
             self._expire_thread.start()
 

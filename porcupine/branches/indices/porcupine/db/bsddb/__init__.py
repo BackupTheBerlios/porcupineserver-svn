@@ -27,7 +27,6 @@ from threading import Thread
 
 from porcupine import exceptions
 from porcupine.config.settings import settings
-from porcupine.core.objectSet import ObjectSet
 from porcupine.utils.db.backup import BackupFile
 from porcupine.db.bsddb.transaction import Transaction
 from porcupine.db.bsddb.index import DbIndex
@@ -59,10 +58,11 @@ def open(**kwargs):
     # create db environment
     additional_flags = kwargs.get('flags', 0)
     _env = db.DBEnv()
-    _env.set_timeout(int(settings['store']['lock_timeout']),
-                     db.DB_SET_LOCK_TIMEOUT)
-    _env.set_timeout(int(settings['store']['txn_timeout']),
-                     db.DB_SET_TXN_TIMEOUT)
+    #_env.set_flags(db.DB_TIME_NOTGRANTED, 1)
+    #_env.set_timeout(int(settings['store']['lock_timeout']),
+    #                 db.DB_SET_LOCK_TIMEOUT)
+    #_env.set_timeout(int(settings['store']['txn_timeout']),
+    #                 db.DB_SET_TXN_TIMEOUT)
     _env.open(
         _dir,
         db.DB_THREAD | db.DB_INIT_MPOOL | db.DB_INIT_LOCK |
@@ -108,8 +108,14 @@ def is_open():
 # item operations
 def getItem(oid, trans=None):
     try:
-        return _itemdb.get(oid, txn=trans and trans.txn, flags=db.DB_RMW)
-    except (db.DBLockDeadlockError, db.DBLockNotGrantedError):
+        if trans == None:
+            flags = 0
+        else:
+            flags = db.DB_RMW
+        return _itemdb.get(oid, txn=trans and trans.txn, flags=flags)
+    except (db.DBLockDeadlockError, db.DBLockNotGrantedError), e:
+        if trans == None:
+            print 'LOCK_NOT_GRANTED %s' % e
         raise exceptions.DBTransactionIncomplete
 
 def putItem(item, trans=None):
@@ -166,14 +172,20 @@ def join(conditions, trans):
 
 def test_join(conditions, trans):
     cur_list = get_cursor_list(conditions, trans)
-    c_join = Join(_itemdb, cur_list, trans)
-    iterator = iter(c_join)
+    c_join = None
+    iterator = None
     try:
-        result = bool(iterator.next())
-    except StopIteration:
-        result = False
-    iterator.close()
-    c_join.close()
+        c_join = Join(_itemdb, cur_list, trans)
+        iterator = iter(c_join)
+        try:
+            result = bool(iterator.next())
+        except StopIteration:
+            result = False
+    finally:
+        if iterator != None:
+            iterator.close()
+        if c_join != None:
+            c_join.close()
     return result
 
 # transactions
@@ -240,7 +252,7 @@ def shrink():
 def __maintain():
     from porcupine.db import _db
     while _running:
-        time.sleep(0.5)
+        time.sleep(10.0)
         # deadlock detection
         try:
             aborted = _env.lock_detect(db.DB_LOCK_RANDOM, db.DB_LOCK_CONFLICT)

@@ -19,10 +19,11 @@ import re
 
 from porcupine.core import serverProxy
 from porcupine.core.session import SessionManager
+from porcupine.core.context import SecurityContext
 from porcupine.config.settings import settings
 from porcupine.db import _db
 
-class HttpContext(object):
+class HttpContext(SecurityContext):
     """Http context class
     
     @cvar server: Gives access to the server utility object,
@@ -45,10 +46,10 @@ class HttpContext(object):
     sid_pattern = re.compile('/\{([a-f0-9]{32})\}')
     server = serverProxy.Server()
     def __init__(self, request=None, response=None):
+        SecurityContext.__init__(self)
         self.request = request
         self.response = response
         self.session = None
-        self.user = None
 
     def _fetch_session(self):
         path_info = self.request.serverVariables['PATH_INFO'] or '/'

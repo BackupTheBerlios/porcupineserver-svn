@@ -50,7 +50,7 @@ def getTransaction():
     
     @rtype: L{BaseTransaction<porcupine.db.basetransaction.BaseTransaction>}
     """
-    txn = currentThread().trans
+    txn = currentThread().context.trans
     if txn == None:
         raise exceptions.InternalServerError, \
             "The specified method is not defined as transactional."
@@ -64,12 +64,12 @@ def transactional(auto_commit=False):
         """
         def transactional_wrapper(*args):
             c_thread = currentThread()
-            if c_thread.trans == None:
+            if c_thread.context.trans == None:
                 txn = _db.get_transaction()
-                c_thread.trans = txn
+                c_thread.context.trans = txn
                 is_top_level = True
             else:
-                txn = c_thread.trans
+                txn = c_thread.context.trans
                 is_top_level = False
             retries = 0
             
@@ -91,6 +91,7 @@ def transactional(auto_commit=False):
                             txn.abort()
                             time.sleep(0.03)
                             retries += 1
+                            print retries
                             txn._retry()
                         else:
                             raise
@@ -101,7 +102,7 @@ def transactional(auto_commit=False):
                     # abort uncommitted transactions
                     if not txn._iscommited:
                         txn.abort()
-                    c_thread.trans = None
+                    c_thread.context.trans = None
         transactional_wrapper.func_name = function.func_name
         transactional_wrapper.func_doc = function.func_doc
         transactional_wrapper.__module__ = function.__module__

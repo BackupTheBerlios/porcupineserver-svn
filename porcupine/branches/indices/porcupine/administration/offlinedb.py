@@ -21,16 +21,14 @@ the Porcupine API.
 from threading import currentThread
 
 from porcupine.db import _db
-from porcupine.core.http.context import HttpContext
+from porcupine.core.context import SecurityContext
 
 def getHandle(identity=None):
     # open database
     _db.open()
     if identity==None:
         identity = _db.getItem('system')
-    currentThread().context = HttpContext()
-    currentThread().context.user = identity
-    currentThread().trans = None
+    currentThread().context = SecurityContext(identity)
     return _db
 
 def close():

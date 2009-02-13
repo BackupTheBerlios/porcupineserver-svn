@@ -21,6 +21,7 @@ import hashlib
 from porcupine.config.settings import settings
 from porcupine.config import pubdirs
 
+from porcupine.core.context import ContextThread
 from porcupine.core.http.context import HttpContext
 from porcupine.core.http.request import HttpRequest
 from porcupine.core.http.response import HttpResponse
@@ -31,12 +32,8 @@ from porcupine import exceptions
 from porcupine.core.servicetypes.asyncBaseServer import BaseServerThread
 from porcupine.utils import misc
 
-class PorcupineThread(BaseServerThread):
+class PorcupineThread(BaseServerThread, ContextThread):
     _method_cache = {}
-    def __init__(self, target, name):
-        BaseServerThread.__init__(self, target, name)
-        self.context = None
-        self.trans = None
 
     def get_response(self, raw_request):
         response = HttpResponse()

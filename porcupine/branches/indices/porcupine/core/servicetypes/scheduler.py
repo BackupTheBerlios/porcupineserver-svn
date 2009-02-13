@@ -16,21 +16,10 @@
 #===============================================================================
 "Porcupine scheduler base classes"
 import time
-from threading import Thread
 
 from porcupine import exceptions
-from porcupine.db import _db
-from porcupine.core.http.context import HttpContext
-from porcupine.core.session import SessionManager
+from porcupine.core.context import ContextThread
 from porcupine.core.servicetypes.service import BaseService
-
-class _TaskThread(Thread):
-    def __init__(self, name, target, identity):
-        Thread.__init__(self, name=name, target=target)
-        id = _db.getItem(identity)
-        self.context = HttpContext()
-        self.context.session = SessionManager.create(id)
-        self.trans = None
 
 class BaseTask(BaseService):
     "Porcupine base class for scheduled task services"
@@ -39,9 +28,9 @@ class BaseTask(BaseService):
         self.interval = interval
         
     def start(self):
-        self.thread = _TaskThread('%s thread' % self.name,
-                                 self.thread_loop,
-                                 'system')
+        self.thread = ContextThread('%s thread' % self.name,
+                                    self.thread_loop,
+                                    'system')
         self.running = True
         self.thread.start()
     
@@ -57,9 +46,10 @@ class BaseTask(BaseService):
             except:
                 e = exceptions.InternalServerError()
                 e.emit()
-            if self.thread.trans and not self.thread.trans._iscommited:
-                self.thread.trans.abort()
-            self.thread.trans = None
+            if self.thread.context.trans and \
+                    not self.thread.context.trans._iscommited:
+                self.thread.context.trans.abort()
+            self.thread.context.trans = None
             
     def execute(self):
         raise NotImplementedError
