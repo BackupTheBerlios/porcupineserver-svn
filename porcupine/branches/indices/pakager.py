@@ -20,11 +20,12 @@
 import getopt
 import sys
 import os
-import cPickle
 import tarfile
 import ConfigParser
 import imp
 from xml.dom import minidom
+
+from porcupine.core import persist
 
 def main_is_frozen():
    return (hasattr(sys, "frozen") or # new py2exe
@@ -93,7 +94,7 @@ class Package(object):
             if isinstance(prop, datatypes.ExternalAttribute):
                 prop.getValue()
         
-        it_file.write( cPickle.dumps(item, 2) )
+        it_file.write(persist.dumps(item))
         it_file.close()
         self.package_files.append(
             (
@@ -111,7 +112,7 @@ class Package(object):
     
     def _importItem(self, fileobj, txn):
         sItem = fileobj.read()
-        oItem = cPickle.loads(sItem)
+        oItem = persist.loads(sItem)
         oParent = self.db.getItem(oItem.parentid, txn)
         #check if the item already exists
         oOldItem = self.db.getItem(oItem.id, txn)

@@ -20,12 +20,12 @@ Porcupine server Berkeley DB interface
 import os
 import time
 import logging
-import cPickle
 import glob
 from bsddb import db
 from threading import Thread
 
 from porcupine import exceptions
+from porcupine.core import persist
 from porcupine.config.settings import settings
 from porcupine.utils.db.backup import BackupFile
 from porcupine.db.bsddb.transaction import Transaction
@@ -58,11 +58,6 @@ def open(**kwargs):
     # create db environment
     additional_flags = kwargs.get('flags', 0)
     _env = db.DBEnv()
-    #_env.set_flags(db.DB_TIME_NOTGRANTED, 1)
-    #_env.set_timeout(int(settings['store']['lock_timeout']),
-    #                 db.DB_SET_LOCK_TIMEOUT)
-    #_env.set_timeout(int(settings['store']['txn_timeout']),
-    #                 db.DB_SET_TXN_TIMEOUT)
     _env.open(
         _dir,
         db.DB_THREAD | db.DB_INIT_MPOOL | db.DB_INIT_LOCK |
@@ -114,13 +109,11 @@ def getItem(oid, trans=None):
             flags = db.DB_RMW
         return _itemdb.get(oid, txn=trans and trans.txn, flags=flags)
     except (db.DBLockDeadlockError, db.DBLockNotGrantedError), e:
-        if trans == None:
-            print 'LOCK_NOT_GRANTED %s' % e
         raise exceptions.DBTransactionIncomplete
 
 def putItem(item, trans=None):
     try:
-        _itemdb.put(item._id, cPickle.dumps(item, 2), trans and trans.txn)
+        _itemdb.put(item._id, persist.dumps(item), trans and trans.txn)
     except (db.DBLockDeadlockError, db.DBLockNotGrantedError):
         raise exceptions.DBTransactionIncomplete
 

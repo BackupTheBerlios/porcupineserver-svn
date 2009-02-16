@@ -16,8 +16,8 @@
 #===============================================================================
 "Porcupine Server DB Interface"
 import time
-import cPickle
 
+from porcupine.core import persist
 from porcupine import exceptions
 from porcupine.utils import misc
 from porcupine.config.settings import settings
@@ -58,7 +58,7 @@ def getItem(oid, trans=None):
             if item == None:
                 return _getItemByPath(path_tokens, trans)
     if item != None:
-        item = cPickle.loads(item)
+        item = persist.loads(item)
         return item
 
 def putItem(item, trans=None):

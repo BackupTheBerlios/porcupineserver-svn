@@ -17,6 +17,8 @@
 "Base database index class"
 import cPickle
 
+from porcupine.core import persist
+
 class BaseIndex(object):
     def __init__(self, name, unique):
         self.unique = unique
@@ -25,7 +27,7 @@ class BaseIndex(object):
     
     def _get_callback(self):
         def callback(key, value):
-            item = cPickle.loads(value)
+            item = persist.loads(value)
             if hasattr(item, self.name):
                 attr = getattr(item, self.name)
                 if attr.__class__.__module__ != '__builtin__':

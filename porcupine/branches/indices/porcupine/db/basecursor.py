@@ -18,6 +18,7 @@
 import cPickle
 from threading import currentThread
 
+from porcupine.core import persist
 from porcupine.db import _db
 from porcupine.utils import permsresolver
 from porcupine.systemObjects import Shortcut
@@ -36,7 +37,7 @@ class BaseCursor(object):
         self.resolve_shortcuts = False
 
     def _get_item(self, s):
-        item = cPickle.loads(s)
+        item = persist.loads(s)
         if self.fetch_all:
             if self.resolve_shortcuts:
                 while item != None and isinstance(item, Shortcut):
