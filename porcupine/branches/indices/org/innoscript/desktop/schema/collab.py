@@ -24,7 +24,6 @@ from org.innoscript.desktop.schema import properties
 class ContactsFolder(system.Container):
     "Contacts Folder"
     __image__ = "desktop/images/contact_folder.gif"
-    __slots__ = ()
     containment = (
         'org.innoscript.desktop.schema.collab.ContactsFolder',
         'org.innoscript.desktop.schema.collab.Contact',
@@ -43,8 +42,7 @@ class Contact(system.Item):
     @type categories: L{Categories<org.innoscript.desktop.schema.properties.Categories>}
     """
     __image__ = "desktop/images/contact.gif"
-    __slots__ = ('company', 'email', 'categories')
-    __props__ = system.Item.__props__ + __slots__
+    __props__ = system.Item.__props__ + ('company', 'email', 'categories')
     
     def __init__(self):
         system.Item.__init__(self)

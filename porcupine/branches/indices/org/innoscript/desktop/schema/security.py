@@ -30,7 +30,6 @@ class PoliciesFolder(system.Container):
     A container type for all the security policies
     """
     __image__ = "desktop/images/policies.gif"
-    __slots__ = ()
     containment = ('org.innoscript.desktop.schema.security.Policy',)
     
 class Policy(system.Item):
@@ -64,8 +63,7 @@ class Policy(system.Item):
     @type policyGranted: L{PolicyGranted<org.innoscript.desktop.schema.properties.PolicyGranted>}
     """
     __image__ = "desktop/images/policy.gif"
-    __slots__ = ('policyGranted', )
-    __props__ = system.Item.__props__ + __slots__
+    __props__ = system.Item.__props__ + ('policyGranted',)
     
     def __init__(self):
         system.Item.__init__(self)
@@ -78,7 +76,6 @@ class UsersFolder(system.Container):
     This is the container of all users and groups.
     """
     __image__ = "desktop/images/userfolder.gif"
-    __slots__ = ()
     containment = (
         'org.innoscript.desktop.schema.security.User',
         'org.innoscript.desktop.schema.security.Group'
@@ -98,8 +95,7 @@ class GenericUser(system.Item):
 
     """
     __image__ = "desktop/images/user.gif"
-    __slots__ = ('fullName', 'memberof', 'policies')
-    __props__ = system.Item.__props__ + __slots__
+    __props__ = system.Item.__props__ + ('fullName', 'memberof', 'policies')
     
     def __init__(self):
         system.Item.__init__(self)
@@ -138,8 +134,8 @@ class User(GenericUser):
     @ivar settings: User specific preferences.
     @type settings: L{Dictionary<porcupine.datatypes.Dictionary>}
     """
-    __slots__ = ('password', 'email', 'settings', 'personalFolder')
-    __props__ = GenericUser.__props__ + __slots__
+    __props__ = GenericUser.__props__ + ('password', 'email',
+                                         'settings', 'personalFolder')
     _eventHandlers = GenericUser._eventHandlers + [handlers.PersonalFolderHandler]
     
     def __init__(self):
@@ -171,7 +167,6 @@ class SystemUser(system.Item):
     method is called.
     """
     __image__ = "desktop/images/user.gif"
-    __slots__ = ()
     
     def isAdmin(self):
         """
@@ -190,7 +185,6 @@ class GuestUser(GenericUser):
     This is configurable. See the C{sessionmanager} section
     of C{porcupine.ini}.
     """
-    __slots__ = ()
 
 class GenericGroup(system.Item):
     """Generic Group class
@@ -198,8 +192,7 @@ class GenericGroup(system.Item):
     @ivar policies: The list of policies have been asigned to this group.
     @type policies: L{Policies<org.innoscript.desktop.schema.properties.Policies>}
     """
-    __slots__ = ('policies', )
-    __props__ = system.Item.__props__ + __slots__
+    __props__ = system.Item.__props__ + ('policies', )
     
     def __init__(self):
         system.Item.__init__(self)
@@ -219,8 +212,7 @@ class Group(GenericGroup):
     @type members: L{Members<org.innoscript.desktop.schema.properties.Members>}
     """
     __image__ = "desktop/images/group.gif"
-    __slots__ = ('members', )
-    __props__ = GenericGroup.__props__ + __slots__
+    __props__ = GenericGroup.__props__ + ('members', )
     
     def __init__(self):
         GenericGroup.__init__(self)
@@ -240,7 +232,6 @@ class Group(GenericGroup):
 class EveryoneGroup(GenericGroup):
     "Everyone Group"
     __image__ = "desktop/images/group.gif"
-    __slots__ = ()
     
     def hasMember(self, user):
         """
@@ -257,7 +248,6 @@ class EveryoneGroup(GenericGroup):
 class AuthUsersGroup(GenericGroup):
     "Authenticated Users Group"
     __image__ = "desktop/images/group.gif"
-    __slots__ = ()
     
     def hasMember(self, user):
         """

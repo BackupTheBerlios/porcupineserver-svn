@@ -33,14 +33,12 @@ from porcupine.utils import misc, permsresolver
 
 class _Shortcuts(datatypes.RelatorN):
     'Data type for keeping the shortcuts IDs that an object has'
-    __slots__ = ()
     relCc = ('porcupine.systemObjects.Shortcut',)
     relAttr = 'target'
     cascadeDelete = True
     
 class _TargetItem(datatypes.Relator1):
     'The object ID of the target item of the shortcut.'
-    __slots__ = ()
     relCc = ('porcupine.systemObjects.Item',)
     relAttr = 'shortcuts'
     isRequired = True
@@ -49,7 +47,6 @@ class displayName(datatypes.String):
     """Legacy data type. To be removed in the next version.
     Use L{porcupine.datatypes.RequiredString} instead.
     """
-    __slots__ = ()
     isRequired = True
 
 #================================================================================
@@ -63,8 +60,6 @@ class Cloneable(object):
     Adding I{Cloneable} to the base classes of a class
     makes instances of this class cloneable, allowing item copying.
     """
-    __slots__ = ()
-    
     def _copy(self, target, trans, clear_inherited=False):
         clone = self.clone()
         if clear_inherited:
@@ -151,8 +146,6 @@ class Movable(object):
     Adding I{Movable} to the base classes of a class
     makes instances of this class movable, allowing item moving.
     """
-    __slots__ = ()
-    
     def moveTo(self, target_id, trans):
         """
         Moves the item to the designated target.
@@ -223,8 +216,6 @@ class Removable(object):
     deleted - (moved to a L{RecycleBin} instance) - or physically
     deleted.
     """
-    __slots__ = ()
-    
     def _delete(self, trans):
         """
         Deletes the item physically.
@@ -387,7 +378,6 @@ class Composite(object):
     @see: L{porcupine.datatypes.Composition}.
     """
     __image__ = "desktop/images/object.gif"
-    __slots__ = ('_id', '_containerid', '_isDeleted', 'displayName')
     __props__ = ()
     _eventHandlers = []
 
@@ -454,11 +444,6 @@ class GenericItem(object):
     @type parentid: str
     """
     __image__ = "desktop/images/object.gif"
-    __slots__ = (
-        '_id', '_parentid', '_owner', '_isSystem', '_isDeleted',
-        '_created', 'modifiedBy', 'modified', 'security', 'inheritRoles',
-        'displayName', 'description'
-    )
     __props__ = ('displayName', 'description')
     isCollection = False
     _eventHandlers = []
@@ -653,8 +638,6 @@ class DeletedItem(GenericItem, Removable):
                             before the deletion
     @type originalLocation: str
     """
-    __slots__ = ('_deletedId', '__image__', 'originalLocation', 'originalName')
-    
     def __init__(self, deletedItem, trans=None):
         GenericItem.__init__(self)
 
@@ -793,8 +776,7 @@ class Item(GenericItem, Cloneable, Movable, Removable):
     Subclass the L{porcupine.systemObjects.Container} class if you want
     to create custom containers.
     """
-    __slots__ = ('shortcuts',)
-    __props__ = GenericItem.__props__ + __slots__
+    __props__ = GenericItem.__props__ + ('shortcuts',)
     
     def __init__(self):
         GenericItem.__init__(self)
@@ -852,8 +834,7 @@ class Shortcut(Item):
     L{get_target} method.
     """
     __image__ = "desktop/images/link.png"
-    __slots__ = ('target',)
-    __props__ = Item.__props__ + __slots__
+    __props__ = Item.__props__ + ('target',)
     
     def __init__(self):
         Item.__init__(self)
@@ -916,7 +897,6 @@ class Container(Item):
     @type isCollection: bool
     """
     __image__ = "desktop/images/folder.gif"
-    __slots__ = ()
     containment = ('porcupine.systemObjects.Shortcut',)
     isCollection = True
     
@@ -1071,7 +1051,6 @@ class RecycleBin(Container):
     It cannot be deleted, copied, moved or recycled.
     """
     __image__ = "desktop/images/trashcan_empty8.gif"
-    __slots__ = ()
     containment = ('porcupine.systemObjects.DeletedItem', )
 
     def __init__(self):

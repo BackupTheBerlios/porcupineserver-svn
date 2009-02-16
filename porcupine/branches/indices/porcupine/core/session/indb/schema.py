@@ -28,15 +28,12 @@ class SessionsContainer(Container):
     """
     Container used for keeping active sessions
     """
-    __slots__ = ()
     containment = ('porcupine.core.session.indb.schema.Session', )
 
 class Session(GenericItem, GenericSession):
     """
     Session object
     """
-    __slots__ = ('__data', '__userid')
-
     def __init__(self, userid, sessiondata):
         GenericItem.__init__(self)
         self.displayName.value = self._id

@@ -27,8 +27,7 @@ class File(system.Item):
     @type file: L{RequiredFile<porcupine.datatypes.RequiredFile>}
     """
     __image__ = "desktop/images/document.gif"
-    __slots__ = ('file',)
-    __props__ = system.Item.__props__ + __slots__
+    __props__ = system.Item.__props__ + ('file',)
     
     def __init__(self):
         system.Item.__init__(self)
@@ -48,8 +47,6 @@ class RecycleBin(system.RecycleBin):
     If you need a recycle bin for each user subclass the
     L{porcupine.systemObjects.RecycleBin}.
     """
-    __slots__ = ()
-    
     def getParent(self):
         return None
 
@@ -60,7 +57,6 @@ class RootFolder(system.Container):
     This is the root folder, the root container of all
     Porcupine objects.
     """
-    __slots__ = ()
     containment = system.Container.containment  + (
         'org.innoscript.desktop.schema.common.Folder',
         'org.innoscript.desktop.schema.collab.ContactsFolder',
@@ -77,14 +73,12 @@ class AdminTools(system.Container):
     the installed applications containers.
     """
     __image__ = "desktop/images/admintools.gif"
-    __slots__ = ()
         
 class AppsFolder(system.Container):
     """
     Installed Applications Folder
     """
     __image__ = "desktop/images/appsfolder.gif"
-    __slots__ = ()
     containment = system.Container.containment + \
         ('org.innoscript.desktop.schema.common.Application',)
 
@@ -99,11 +93,7 @@ class Application(system.Item):
     @type icon: L{String<porcupine.datatypes.String>}
     """
     __image__ = "desktop/images/app.gif"
-    __slots__ = (
-        'launchUrl',
-        'icon',
-    )
-    __props__ = system.Item.__props__ + __slots__
+    __props__ = system.Item.__props__ + ('launchUrl', 'icon')
     
     def __init__(self):
         system.Item.__init__(self)
@@ -116,7 +106,6 @@ class Folder(system.Container):
     =============
     This type of folder can contain folders and documents.
     """
-    __slots__ = ()
     containment = system.Container.containment  + (
         'org.innoscript.desktop.schema.common.Folder',
         'org.innoscript.desktop.schema.common.Document',
@@ -126,7 +115,6 @@ class PersonalFolders(system.Container):
     """
     Special container for keeping the users' personal folders
     """
-    __slots__ = ()
     containment = system.Container.containment  + (
         'org.innoscript.desktop.schema.common.PersonalFolder',
     )
@@ -138,7 +126,6 @@ class PersonalFolder(Folder):
     ===============
     Used for storing each user's personal objects.
     """
-    __slots__ = ()
 
 class Category(system.Container):
     """Category
@@ -148,8 +135,7 @@ class Category(system.Container):
                             CategoryObjects>}
     """
     __image__ = "desktop/images/category.gif"
-    __slots__ = ('category_objects',)
-    __props__ = system.Container.__props__ + __slots__
+    __props__ = system.Container.__props__ + ('category_objects',)
     containment = system.Container.containment  + \
         ('org.innoscript.desktop.schema.common.Category',)
     
@@ -163,8 +149,7 @@ class Document(File):
     @ivar categories: The document's categories
     @type categories: L{Categories<org.innoscript.desktop.schema.properties.Categories>}
     """
-    __slots__ = ('categories',)
-    __props__ = File.__props__ + __slots__
+    __props__ = File.__props__ + ('categories',)
     
     def __init__(self):
         File.__init__(self)

@@ -43,7 +43,6 @@ class DataType(object):
     @cvar isRequired: boolean indicating if the data type is mandatory
     @type isRequired: bool
     """
-    __slots__ = ()
     _eventHandler = None
     isRequired = False
 
@@ -77,7 +76,6 @@ class String(DataType):
     @ivar value: The datatype's value
     @type value: str
     """
-    __slots__ = ('value', )
     _safetype = str
     
     def __init__(self, **kwargs):
@@ -85,7 +83,6 @@ class String(DataType):
         
 class RequiredString(String):
     "Mandatory L{String} data type."
-    __slots__ = ()
     isRequired = True
 
 class Integer(DataType):
@@ -94,7 +91,6 @@ class Integer(DataType):
     @ivar value: The datatype's value
     @type value: int
     """
-    __slots__ = ('value', )
     _safetype = int
     
     def __init__(self, **kwargs):
@@ -102,7 +98,6 @@ class Integer(DataType):
         
 class RequiredInteger(Integer):
     "Mandatory L{Integer} data type."
-    __slots__ = ()
     isRequired = True
 
 class Float(DataType):
@@ -111,7 +106,6 @@ class Float(DataType):
     @ivar value: The datatype's value
     @type value: float
     """
-    __slots__ = ('value', )
     _safetype = float
     
     def __init__(self, **kwargs):
@@ -119,7 +113,6 @@ class Float(DataType):
         
 class RequiredFloat(Float):
     "Mandatory L{Float} data type."
-    __slots__ = ()
     isRequired = True
         
 class Boolean(DataType):
@@ -128,7 +121,6 @@ class Boolean(DataType):
     @ivar value: The datatype's value
     @type value: bool
     """
-    __slots__ = ('value', )
     _safetype = bool
     
     def __init__(self, **kwargs):
@@ -140,7 +132,6 @@ class List(DataType):
     @ivar value: The datatype's value
     @type value: list
     """
-    __slots__ = ('value', )
     _safetype = list
     
     def __init__(self, **kwargs):
@@ -148,7 +139,6 @@ class List(DataType):
 
 class RequiredList(List):
     "Mandatory L{List} data type."
-    __slots__ = ()
     isRequired = True
    
 class Dictionary(DataType):
@@ -157,7 +147,6 @@ class Dictionary(DataType):
     @ivar value: The datatype's value
     @type value: dict
     """
-    __slots__ = ('value', )
     _safetype = dict
     
     def __init__(self, **kwargs):
@@ -165,12 +154,10 @@ class Dictionary(DataType):
 
 class RequiredDictionary(Dictionary):
     "Mandatory L{Dictionary} data type."
-    __slots__ = ()
     isRequired = True
 
 class Date(DataType, date.Date):
     "Date data type"
-    __slots__ = ()
     _safetype = float
     
     def __init__(self, **kwargs):
@@ -178,7 +165,6 @@ class Date(DataType, date.Date):
 
 class DateTime(Date):
     "Datetime data type"
-    __slots__ = ()
 
 class Password(DataType):
     """
@@ -190,7 +176,6 @@ class Password(DataType):
     @ivar value: The datatype's value
     @type value: str
     """
-    __slots__ = ('_value', )
     _blank = 'd41d8cd98f00b204e9800998ecf8427e'
     
     def __init__(self, **kwrags):
@@ -211,7 +196,6 @@ class Password(DataType):
     
 class RequiredPassword(Password):
     "Mandatory L{Password} data type."
-    __slots__ = ()
     isRequired = True
 
 class Reference1(DataType):
@@ -227,7 +211,6 @@ class Reference1(DataType):
     @type value: str
 
     """
-    __slots__ = ('value', )
     _safetype = str
     relCc = ()
     
@@ -253,7 +236,6 @@ class Reference1(DataType):
 
 class RequiredReference1(Reference1):
     "Mandatory L{Reference1} data type."
-    __slots__ = ()
     isRequired = True
 
 class ReferenceN(DataType):
@@ -268,7 +250,6 @@ class ReferenceN(DataType):
     @cvar relCc: a list of strings containing all the permitted content
                  classes that the instances of this type can reference.
     """
-    __slots__ = ('value', )
     _safetype = list
     relCc = ()
 
@@ -289,7 +270,6 @@ class ReferenceN(DataType):
 
 class RequiredReferenceN(ReferenceN):
     "Mandatory L{ReferenceN} data type."
-    __slots__ = ()
     isRequired = True
 
 class Relator1(Reference1):
@@ -312,7 +292,6 @@ class Relator1(Reference1):
                          will be deleted upon the object's deletion.
     @type cascadeDelete: bool
     """
-    __slots__ = ()
     _eventHandler = dteventhandlers.Relator1EventHandler
     respectsReferences = False
     relAttr = ''
@@ -320,7 +299,6 @@ class Relator1(Reference1):
     
 class RequiredRelator1(Relator1):
     "Mandatory L{Relator1} data type."
-    __slots__ = ()
     isRequired = True
 
 class RelatorN(ReferenceN):
@@ -343,7 +321,6 @@ class RelatorN(ReferenceN):
                          will be deleted upon the object's deletion.
     @type cascadeDelete: bool
     """
-    __slots__ = ()
     _eventHandler = dteventhandlers.RelatorNEventHandler
     relAttr = ''
     respectsReferences = False
@@ -351,7 +328,6 @@ class RelatorN(ReferenceN):
     
 class RequiredRelatorN(RelatorN):
     "Mandatory L{RelatorN} data type."
-    __slots__ = ()
     isRequired = True
 
 class Composition(DataType):
@@ -367,7 +343,6 @@ class Composition(DataType):
     
     @see: L{porcupine.systemObjects.Composite}
     """
-    __slots__ = ('value', )
     _safetype = list
     _eventHandler = dteventhandlers.CompositionEventHandler
     compositeClass = ''
@@ -387,7 +362,6 @@ class Composition(DataType):
 
 class RequiredComposition(Composition):
     "Mandatory L{Composition} data type."
-    __slots__ = ()
     isRequired = True
 
 #===============================================================================
@@ -403,7 +377,6 @@ class ExternalAttribute(DataType):
     @type isDirty: bool
     @type value: str
     """
-    __slots__ = ('_id', '_value', '_isDirty')
     _safetype = str
     _eventHandler = dteventhandlers.ExternalAttributeEventHandler
     
@@ -447,8 +420,6 @@ class Text(ExternalAttribute):
     
     @type value: str
     """
-    __slots__ = ('_size', )
-    
     def __init__(self, **kwargs):
         ExternalAttribute.__init__(self, **kwargs)
         self._size = 0
@@ -468,7 +439,6 @@ class Text(ExternalAttribute):
 
 class RequiredText(Text):
     "Mandatory L{Text} data type."
-    __slots__ = ()
     isRequired = True
         
 class File(Text):
@@ -477,8 +447,6 @@ class File(Text):
     @ivar filename: the file's name
     @type filename: str
     """
-    __slots__ = ('filename', )
-    
     def __init__(self, **kwargs):
         Text.__init__(self, **kwargs)
         self.filename = ''
@@ -502,14 +470,12 @@ class File(Text):
 
 class RequiredFile(File):
     "Mandatory L{File} data type."
-    __slots__ = ()
     isRequired = True
         
 class ExternalFile(String):
     """Datatype for linking external files. Its value
     is a string which contains the path to the file.
     """
-    __slots__ = ()
     _eventHandler = dteventhandlers.ExternalFileEventHandler
     removeFileOnDeletion = True
     isRequired = True
@@ -535,5 +501,4 @@ class ExternalFile(String):
 
 class RequiredExternalFile(ExternalFile):
     "Mandatory L{ExternalFile} data type."
-    __slots__ = ()
     isRequired = True

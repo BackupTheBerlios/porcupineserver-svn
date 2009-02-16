@@ -27,7 +27,6 @@ class CategoryObjects(RelatorN):
     Added in:
         1. L{Category<org.innoscript.desktop.schema.common.Category>}
     """
-    __slots__ = ()
     relCc = (
         'org.innoscript.desktop.schema.common.Document', 
         'org.innoscript.desktop.schema.collab.Contact', 
@@ -42,7 +41,6 @@ class Categories(RelatorN):
         1. L{Document<org.innoscript.desktop.schema.common.Document>}
         2. L{Contact<org.innoscript.desktop.schema.collab.Contact>}
     """
-    __slots__ = ()
     relCc = (
         'org.innoscript.desktop.schema.common.Category',
     )
@@ -55,7 +53,6 @@ class MemberOf(RelatorN):
     Added in:
         1. L{GenericUser<org.innoscript.desktop.schema.security.GenericUser>}
     """
-    __slots__ = ()
     relCc = ('org.innoscript.desktop.schema.security.Group', )
     relAttr = 'members'
 
@@ -66,7 +63,6 @@ class Members(RelatorN):
     Added in:
         1. L{Group<org.innoscript.desktop.schema.security.Group>}
     """
-    __slots__ = ()
     relCc = (
         'org.innoscript.desktop.schema.security.GenericUser',
     )
@@ -80,7 +76,6 @@ class Policies(RelatorN):
         1. L{GuestUser<org.innoscript.desktop.schema.security.GenericUser>}
         2. L{Group<org.innoscript.desktop.schema.security.GenericGroup>}
     """
-    __slots__ = ()
     relCc = ('org.innoscript.desktop.schema.security.Policy', )
     relAttr = 'policyGranted'
 
@@ -91,7 +86,6 @@ class PolicyGranted(RelatorN):
     Added in:
         1. L{Policy<org.innoscript.desktop.schema.security.Policy>}
     """
-    __slots__ = ()
     relCc = (
         'org.innoscript.desktop.schema.security.GenericUser',
         'org.innoscript.desktop.schema.security.GenericGroup'
