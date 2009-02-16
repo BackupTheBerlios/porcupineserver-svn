@@ -42,7 +42,7 @@ class BaseRequest(object):
         self._next_port_lock.release()
         return self._port_range[next_port_index]
 
-    def getResponse(self, address):
+    def get_response(self, address):
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
         try:

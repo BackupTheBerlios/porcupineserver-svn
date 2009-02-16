@@ -25,8 +25,8 @@ from porcupine.db import _db
 logger = logging.getLogger('serverlog')
 
 class MgtRequest(BaseRequest):
-    def getResponse(self, addr):
-        resp = BaseRequest.getResponse(self, addr)
+    def get_response(self, addr):
+        resp = BaseRequest.get_response(self, addr)
         response = MgtMessage()
         response.load(resp)
         return(response)

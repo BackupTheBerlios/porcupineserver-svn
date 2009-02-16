@@ -120,7 +120,7 @@ else:
 request = management.MgtRequest(msg.serialize())
 
 try:
-    response = request.getResponse(address)
+    response = request.get_response(address)
 except socket.error:
     sys.exit('The host is unreachable...')
 
