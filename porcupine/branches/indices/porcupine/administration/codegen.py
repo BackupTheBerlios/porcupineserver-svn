@@ -46,8 +46,15 @@ class GenericSchemaEditor(object):
             self.boundaries = None
         
         self._instance = self._class()
-        for prop in self._class.__slots__:
-            self._attrs[prop] = getattr(self._instance, prop)
+
+        # find instance attributes
+        sub_attrs = []
+        for base_class in self._class.__bases__:
+            s = base_class()
+            sub_attrs += s.__dict__.keys()
+        for member_name in self._instance.__dict__:
+            if not member_name in sub_attrs:
+                self._attrs[member_name] = self._instance.__dict__[member_name]
 
         for member_name in self._class.__dict__:
             member = self._class.__dict__[member_name]
@@ -55,7 +62,7 @@ class GenericSchemaEditor(object):
                 self._methods[member_name] = member
             elif type(member) == property:
                 self._properties[member_name] = member
-                
+
         self._module = sys.modules[self._class.__module__]
         self._imports = {}
         
@@ -245,11 +252,6 @@ class ItemEditor(GenericSchemaEditor):
         # __image__
         code.append('    __image__ = "%s"\n' % self.image)
         
-        # slots
-        code.append('    __slots__ = (\n')
-        code.extend(["        '%s',\n" % prop for prop in self._attrs])
-        code.append('    )\n')
-
         # props
         dts = ["'%s'" % prop for prop in self._attrs
                if isinstance(self._attrs[prop], datatypes.DataType)]
@@ -297,14 +299,14 @@ class ItemEditor(GenericSchemaEditor):
                 else:
                     code.append('        self._id = misc.generateOID()\n')
         
-        #methods
+        # methods
         for meth in self._methods:
             method = self._methods[meth]
             if method.__name__ != '__init__':
                 code.append('\n')
                 code.extend(inspect.getsourcelines(self._methods[meth])[0])
             
-        #properties
+        # properties
         for property_name in self._properties:
             code.append('\n')
             prop_descriptor = self._properties[property_name]
@@ -351,11 +353,6 @@ class DatatypeEditor(GenericSchemaEditor):
             code.extend(['%s\n' % x for x in doc if x.strip()])
             code.append('    """\n')
         
-        # slots
-        code.append('    __slots__ = (\n')
-        code.extend(["        '%s',\n" % prop for prop in self._attrs])
-        code.append('    )\n')
-
         # isRequired
         code.append('    isRequired = %s\n' % str(self.isRequired))
         
@@ -374,7 +371,6 @@ class DatatypeEditor(GenericSchemaEditor):
                 issubclass(self._class, datatypes.Composition):
             code.append("    compositeClass = '%s'\n" % self.compositeClass)
         
-
         if self._attrs:
             #__init__
             code.append('\n')
