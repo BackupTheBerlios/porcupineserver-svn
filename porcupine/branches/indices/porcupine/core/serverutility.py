@@ -16,11 +16,6 @@
 #===============================================================================
 """
 Server proxy class module
-
-@var proxy: This is assigned to the
-    L{server<porcupine.core.servlet.BaseServlet.server>}
-    attribute of each servlet.
-@type proxy: L{Server}
 """
 from porcupineserver import __version__
 from porcupine.config.settings import settings
@@ -38,30 +33,27 @@ class Server(object):
     @type temp_folder: str
     @type version: str
     """
-    def __init__(self):
-        self.__db = db
-
-    def getTempFolder(self):
+    def get_temp_folder(self):
         """Getter of the L{temp_folder} property.
         
         @rtype: str
         """
         return settings['global']['temp_folder']
-    temp_folder = property(getTempFolder, None, None,
+    temp_folder = property(get_temp_folder, None, None,
                            'The server\'s temporary folder')
 
-    def getDb(self):
+    def get_db(self):
         """Getter of the L{db} property.
         
         @rtype: L{db<porcupine.db>}
         """
-        return self.__db
-    db = property(getDb, None, None, 'Porcupine database handle')
+        return db
+    db = property(get_db, None, None, 'Porcupine database handle')
     
-    def getVersion(self):
+    def get_version(self):
         """Getter of the L{version} property.
         
         @rtype: str
         """
         return __version__
-    version = property(getVersion, None, None, 'The server\'s version')
+    version = property(get_version, None, None, 'The server\'s version')

@@ -17,7 +17,7 @@
 "Http context class"
 import re
 
-from porcupine.core import serverProxy
+from porcupine.core import serverutility
 from porcupine.core.session import SessionManager
 from porcupine.core.context import SecurityContext
 from porcupine.config.settings import settings
@@ -29,7 +29,7 @@ class HttpContext(SecurityContext):
     @cvar server: Gives access to the server utility object,
                   which among others includes the server's
                   database handle.
-    @type server: L{Server<porcupine.core.serverProxy.Server>}
+    @type server: L{Server<porcupine.core.serverutility.Server>}
     
     @ivar session: The current session object
     @type session: L{Session<porcupine.security.session.Session>}
@@ -44,7 +44,7 @@ class HttpContext(SecurityContext):
     @type user: L{GenericItem<porcupine.systemObjects.GenericItem>}
     """
     sid_pattern = re.compile('/\{([a-f0-9]{32})\}')
-    server = serverProxy.Server()
+    server = serverutility.Server()
     def __init__(self, request=None, response=None):
         SecurityContext.__init__(self)
         self.request = request
