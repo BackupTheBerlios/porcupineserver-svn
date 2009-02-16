@@ -29,7 +29,7 @@ from porcupine.core.http import ServerPage
 
 from porcupine.db import _db
 from porcupine import exceptions
-from porcupine.core.servicetypes.asyncBaseServer import BaseServerThread
+from porcupine.core.servicetypes.asyncserver import BaseServerThread
 from porcupine.utils import misc
 
 class PorcupineThread(BaseServerThread, ContextThread):
