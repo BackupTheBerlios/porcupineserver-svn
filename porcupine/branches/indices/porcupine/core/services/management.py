@@ -18,7 +18,7 @@
 import logging
 from cPickle import dumps, loads
 
-from porcupine.core.servicetypes import asyncBaseServer
+from porcupine.core.servicetypes import asyncserver
 from porcupine.core.networking.request import BaseRequest
 from porcupine.db import _db
 
@@ -53,19 +53,19 @@ class MgtMessage(object):
         s = dumps(self.__msg)
         return(s)
 
-class ManagementServer(asyncBaseServer.BaseServer):
+class ManagementServer(asyncserver.BaseServer):
     "Management Service"
     def __init__(self, name, serverAddress, worker_threads):
-        asyncBaseServer.BaseServer.__init__(self, name, serverAddress,
-            worker_threads, asyncBaseServer.BaseServerThread, ManagementRequestHandler)
+        asyncserver.BaseServer.__init__(self, name, serverAddress,
+            worker_threads, asyncserver.BaseServerThread, ManagementRequestHandler)
 
     def shutdown(self):
         if self.running:
-            asyncBaseServer.BaseServer.shutdown(self)
+            asyncserver.BaseServer.shutdown(self)
 
-class ManagementRequestHandler(asyncBaseServer.BaseRequestHandler):
+class ManagementRequestHandler(asyncserver.BaseRequestHandler):
     "Porcupine Server Management request handler"
-    def handleRequest(self):
+    def handle_request(self):
         request = MgtMessage()
         request.load(self.input_buffer)   
         cmd = request.header

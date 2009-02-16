@@ -27,24 +27,24 @@ from porcupine.core.servicetypes.service import BaseService
 class BaseServerThread(Thread):
     def __init__(self, target, name):
         Thread.__init__(self, None, target, name)
-        self.requestHandler = None
+        self.request_handler = None
 
 class BaseServer(BaseService, asyncore.dispatcher):
     "Base class for threaded TCP server using asynchronous sockets"
-    def __init__(self, name, address, worker_threads, threadClass,
-                 requestHandler):
+    def __init__(self, name, address, worker_threads, thread_class,
+                 request_handler):
         # initialize base service
         BaseService.__init__(self, name)
         self.addr = address
         self.worker_threads = worker_threads
-        self.requestHandler = requestHandler
-        self.threadClass = threadClass
+        self.request_handler = request_handler
+        self.thread_class = thread_class
         # create client request queue
-        self.requestQueue = Queue.Queue(worker_threads*5)
+        self.request_queue = Queue.Queue(worker_threads*5)
         # create queue for inactive requestHandler objects i.e. those served
-        self.rhQueue = Queue.Queue(0)
+        self.rh_queue = Queue.Queue(0)
         # create threads tuple
-        self.threadPool = []
+        self.thread_pool = []
 
     def start(self):
         # activate socket
@@ -60,11 +60,11 @@ class BaseServer(BaseService, asyncore.dispatcher):
         
         for i in range(self.worker_threads):
             tname = '%s server thread %d' % (self.name, i+1)
-            t = self.threadClass(target=self.threadLoop, name=tname)
+            t = self.thread_class(target=self.thread_loop, name=tname)
             t.start()
-            self.threadPool.append(t)
+            self.thread_pool.append(t)
 
-        self.activeConnections = 0
+        self.active_connections = 0
         self.running = True
 
     def readable(self):
@@ -81,34 +81,34 @@ class BaseServer(BaseService, asyncore.dispatcher):
 
     def handle_accept(self):
         # accept client connection
-        clientSocket, addr = self.accept()
+        client_socket, addr = self.accept()
         try:
             # get inactive requestHandler from queue
-            rh = self.rhQueue.get_nowait()
+            rh = self.rh_queue.get_nowait()
         except Queue.Empty:
             # if empty then create new requestHandler
-            rh = self.requestHandler(self)
+            rh = self.request_handler(self)
         # set the client socket of requestHandler
-        self.activeConnections += 1
-        clientSocket.setblocking(0)
-        rh.activate(clientSocket)
+        self.active_connections += 1
+        client_socket.setblocking(0)
+        rh.activate(client_socket)
 
-    def threadLoop(self):
+    def thread_loop(self):
         "loop for threads serving content to clients"
-        oThread = currentThread()
+        thread = currentThread()
         while True:
             try:
                 # get next waiting client request
-                oThread.requestHandler = self.requestQueue.get()
-                if oThread.requestHandler == None:
+                thread.request_handler = self.request_queue.get()
+                if thread.request_handler == None:
                     break
                 else:
-                    if oThread.requestHandler.input_buffer:
-                        oThread.requestHandler.handleRequest()
-                        oThread.requestHandler.hasResponse = True
+                    if thread.request_handler.input_buffer:
+                        thread.request_handler.handle_request()
+                        thread.request_handler.hasResponse = True
                     else:
                         # we have a dead socket
-                        oThread.requestHandler.close()
+                        thread.request_handler.close()
             except Queue.Empty:
                 pass
 
@@ -120,8 +120,8 @@ class BaseServer(BaseService, asyncore.dispatcher):
 
         # kill all threads
         for i in range(self.worker_threads*5):
-            self.requestQueue.put(None)
-        for i in self.threadPool:
+            self.request_queue.put(None)
+        for i in self.thread_pool:
             i.join()
 
 class BaseRequestHandler(asyncore.dispatcher):
@@ -159,7 +159,7 @@ class BaseRequestHandler(asyncore.dispatcher):
             self.input_buffer = ''.join(self.input_buffer)
             self.hasRequest = True
             # put it in the queue so that is served
-            self.server.requestQueue.put(self)
+            self.server.request_queue.put(self)
 
     def handle_write(self):
         if len(self.output_buffer):
@@ -176,9 +176,9 @@ class BaseRequestHandler(asyncore.dispatcher):
         self.input_buffer = []
         self.output_buffer = ''
         # put it in inactive request handlers queue
-        self.server.rhQueue.put(self)
-        self.server.activeConnections -= 1
-        # print 'Total: ' + str(self.server.activeConnections)
+        self.server.rh_queue.put(self)
+        self.server.active_connections -= 1
+        # print 'Total: ' + str(self.server.active_connections)
 
-    def handleRequest(self):
+    def handle_request(self):
         pass

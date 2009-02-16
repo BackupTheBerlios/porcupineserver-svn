@@ -120,7 +120,7 @@ class PorcupineThread(BaseServerThread, ContextThread):
             e.emit(self.context, item)
         
         settings['requestinterfaces'][request.interface](
-              self.requestHandler, response)
+              self.request_handler, response)
 
     def dispatch_method(self, item):
         method_name = self.context.request.method or '__blank__'

@@ -18,17 +18,17 @@
 from threading import currentThread
 from cPickle import loads
 
-from porcupine.core.servicetypes import asyncBaseServer
+from porcupine.core.servicetypes import asyncserver
 from porcupine.core.services.pthread import PorcupineThread
 
-class PorcupineServer(asyncBaseServer.BaseServer):
+class PorcupineServer(asyncserver.BaseServer):
     "Porcupine server class"
     def __init__(self, name, address, threads):
-        asyncBaseServer.BaseServer.__init__(self, name,
+        asyncserver.BaseServer.__init__(self, name,
             address, threads, PorcupineThread, RequestHandler)
 
-class RequestHandler(asyncBaseServer.BaseRequestHandler):
+class RequestHandler(asyncserver.BaseRequestHandler):
     "Porcupine Server request handler"
-    def handleRequest(self):
+    def handle_request(self):
         raw_request = loads(self.input_buffer)
         currentThread().get_response(raw_request)

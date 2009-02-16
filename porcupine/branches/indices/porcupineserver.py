@@ -156,7 +156,7 @@ certain conditions; See COPYING for more details.'''
         self.running = False
         
         # shutdown session manager
-        if SessionManager.sm:
+        if SessionManager._sm:
             self.logger.info('Closing session manager...')
             SessionManager.close()
         
