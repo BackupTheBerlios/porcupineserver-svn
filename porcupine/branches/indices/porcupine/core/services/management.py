@@ -38,13 +38,13 @@ class MgtMessage(object):
     def __init__(self, header=None, data=None):
         self.__msg = [header, data]
 
-    def getHeader(self):
+    def get_header(self):
         return(self.__msg[0])
-    header = property(getHeader)
+    header = property(get_header)
 
-    def getData(self):
+    def get_data(self):
         return(self.__msg[1])
-    data = property(getData)
+    data = property(get_data)
 
     def load(self, s):
         self.__msg = loads(s)
@@ -71,7 +71,7 @@ class ManagementRequestHandler(asyncserver.BaseRequestHandler):
         cmd = request.header
         
         try:
-            args = self.executeCommand(cmd, request)
+            args = self.execute_command(cmd, request)
             if args:
                 response = MgtMessage(*args)
                 # send the response
@@ -82,7 +82,7 @@ class ManagementRequestHandler(asyncserver.BaseRequestHandler):
                             'Internal server error. See server log for details.')
             self.write_buffer(error_msg.serialize())
 
-    def executeCommand(self, cmd, request):        
+    def execute_command(self, cmd, request):
         #DB maintenance commands
         try:
             if cmd=='DB_BACKUP':
