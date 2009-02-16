@@ -87,7 +87,7 @@ class Gzip(PostProcessFilter):
             context.response._body = zBuf
 
 class I18n(PostProcessFilter):
-    _tokens = re.compile('(@@([\w\.]+)@@)')
+    _tokens = re.compile('(@@([\w\.]+)@@)', re.DOTALL)
     """
     Internationalization filter based on the browser's
     preferred language setting.
@@ -99,7 +99,7 @@ class I18n(PostProcessFilter):
         bundles = [misc.getCallableByName(x)
                    for x in lst_resources]
         output = context.response._body.getvalue()
-        tokens = frozenset(re.findall(I18n._tokens, output, re.DOTALL))
+        tokens = frozenset(re.findall(I18n._tokens, output))
         for token, key in tokens:
             for bundle in bundles:
                 res = bundle.getResource(key, language)
