@@ -22,9 +22,13 @@ Use it as a base class in order to implement your own session manager.
 class GenericSessionManager(object):
     
     revive_threshold = 4.0
+    supports_multiple_processes = False
 
     def __init__(self, timeout):
         self.timeout = timeout
+
+    def init_expiration_mechanism(self):
+        raise NotImplementedError
 
     def create_session(self, userid):
         raise NotImplementedError

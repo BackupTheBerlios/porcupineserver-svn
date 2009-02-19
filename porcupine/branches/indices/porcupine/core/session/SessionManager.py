@@ -19,9 +19,11 @@ import time
 
 _sm = None
 
-def open(sm_type, session_timeout):
+def open(sm_type, session_timeout, init_expiration):
     global _sm
     _sm = sm_type(session_timeout)
+    if init_expiration:
+        _sm.init_expiration_mechanism()
     
 def create(userid):
     # create new session
@@ -40,4 +42,7 @@ def terminate_session(session):
     session.remove_temp_files()
     
 def close():
-    _sm.close()
+    global _sm
+    if _sm != None:
+        _sm.close()
+        _sm = None

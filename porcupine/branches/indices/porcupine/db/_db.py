@@ -32,7 +32,7 @@ def open(**kwargs):
     _db_handle.open(**kwargs)
     
 def is_open():
-    return _db_handle.is_open()
+    return _db_handle and _db_handle.is_open()
 
 def _getItemByPath(lstPath, trans=None):
     child = getItem('', trans)

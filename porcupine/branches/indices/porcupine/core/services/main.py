@@ -15,20 +15,11 @@
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #===============================================================================
 "Porcupine main service"
-from threading import currentThread
-from cPickle import loads
-
 from porcupine.core.servicetypes import asyncserver
 from porcupine.core.services.pthread import PorcupineThread
 
 class PorcupineServer(asyncserver.BaseServer):
     "Porcupine server class"
-    def __init__(self, name, address, threads):
-        asyncserver.BaseServer.__init__(self, name,
-            address, threads, PorcupineThread, RequestHandler)
-
-class RequestHandler(asyncserver.BaseRequestHandler):
-    "Porcupine Server request handler"
-    def handle_request(self):
-        raw_request = loads(self.input_buffer)
-        currentThread().get_response(raw_request)
+    def __init__(self, name, address, processes, threads):
+        asyncserver.BaseServer.__init__(self, name, address, processes, threads,
+                                        PorcupineThread)

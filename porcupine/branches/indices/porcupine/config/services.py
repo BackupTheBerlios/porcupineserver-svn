@@ -29,8 +29,10 @@ def startServices():
         
         if type == 'TCPListener':
             address = misc.getAddressFromString(service['address'])
+            worker_processes = int(service['worker_processes'])
             worker_threads = int(service['worker_threads'])
-            services[name] = service_class(name, address, worker_threads)
+            services[name] = service_class(name, address, worker_processes,
+                                           worker_threads)
         elif type == 'ScheduledTask':
             interval = int(service['interval'])
             services[name] = service_class(name, interval)

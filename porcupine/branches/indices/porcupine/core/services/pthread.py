@@ -17,6 +17,7 @@
 "Porcupine Server Thread"
 import re
 import hashlib
+from cPickle import loads
 
 from porcupine.config.settings import settings
 from porcupine.config import pubdirs
@@ -35,7 +36,9 @@ from porcupine.utils import misc
 class PorcupineThread(BaseServerThread, ContextThread):
     _method_cache = {}
 
-    def get_response(self, raw_request):
+    def handle_request(self, rh, raw_request=None):
+        if raw_request == None:
+            raw_request = loads(rh.input_buffer)
         response = HttpResponse()
         request = HttpRequest(raw_request)
                 
@@ -110,7 +113,7 @@ class PorcupineThread(BaseServerThread, ContextThread):
                 raw_request['env']['QUERY_STRING'] = lstPathInfo[1]
             else:
                 raw_request['env']['QUERY_STRING'] = ''
-            self.get_response(raw_request)
+            self.handle_request(rh, raw_request)
             
         except exceptions.PorcupineException, e:
             e.emit(self.context, item)
@@ -118,9 +121,8 @@ class PorcupineThread(BaseServerThread, ContextThread):
         except:
             e = exceptions.InternalServerError()
             e.emit(self.context, item)
-        
-        settings['requestinterfaces'][request.interface](
-              self.request_handler, response)
+
+        settings['requestinterfaces'][request.interface](rh, response)
 
     def dispatch_method(self, item):
         method_name = self.context.request.method or '__blank__'

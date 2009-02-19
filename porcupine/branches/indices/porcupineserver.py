@@ -16,8 +16,6 @@
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #===============================================================================
 "Porcupine Server"
-
-import logging
 import sys
 import os
 import time
@@ -36,11 +34,9 @@ def main_is_frozen():
 if main_is_frozen():
     sys.path.insert(0, '')
 
-from porcupine.config import services, log
-from porcupine.utils import misc
+from porcupine.config import services
 from porcupine.core import asyncore
-from porcupine.db import _db
-from porcupine.core.session import SessionManager
+from porcupine.core.services import runtime
 
 warnings.filterwarnings('ignore', '', Warning, 'logging')
 __version__ = '0.5.2 build(20081010)'
@@ -50,52 +46,30 @@ class Controller(object):
     def __init__(self):
         self.shutdowninprogress = False
         self.running = False
-        self.logger = logging.getLogger('serverlog')
         self.services = services.services
     
     def start(self):
         try:
-            # read configuration file
-            from porcupine.config.settings import settings
-            # initialize logging
-            log.initialize_logging()
-            self.logger.info('Server starting...')
-            
-            # register request interfaces
-            for key, value in settings['requestinterfaces'].items():
-                settings['requestinterfaces'][key] = \
-                    misc.getCallableByName(value)
-            self.logger.info('Succesfullly registered %i request interfaces' % \
-                             len(settings['requestinterfaces']))
-            
-            # register template languages
-            for key, value in settings['templatelanguages'].items():
-                settings['templatelanguages'][key] = \
-                    misc.getCallableByName(value)
-            self.logger.info('Succesfullly registered %i template languages' % \
-                             len(settings['templatelanguages']))
-                        
-            # load published directories
-            self.logger.info('Loading published directories\' registrations...')
-            from porcupine.config import pubdirs
+            runtime.logger.info('Server starting...')
+
+            # load configuration settings
+            runtime.logger.info('Loading configuration...')
+            runtime.init_config()
 
             # open database
-            self.logger.info('Opening database...')
-            _db.open()
+            runtime.logger.info('Opening database...')
+            runtime.init_db()
 
             # create session manager
-            self.logger.info('Creating session manager...')
-            SessionManager.open(misc.getCallableByName(
-                            settings['sessionmanager']['interface']),
-                            int(settings['sessionmanager']['timeout']))
+            runtime.logger.info('Opening session manager...')
+            runtime.init_session_manager()
             
             self.services['_controller'] = self
             # start services
-            self.logger.info('Starting services...')
+            runtime.logger.info('Starting services...')
             services.startServices()
-            
         except Exception, e:
-            self.logger.log(logging.ERROR, e[0], *(), **{'exc_info' : True})
+            runtime.logger.error(e[0], *(), **{'exc_info' : True})
             raise e
 
         # start asyn thread
@@ -118,11 +92,11 @@ class Controller(object):
         pidfile.write( str(os.getpid()) )
         pidfile.close()
         
-        self.logger.info('Porcupine Server started succesfully')
+        runtime.logger.info('Porcupine Server started succesfully')
         print 'Porcupine Server v%s' % __version__
-        sPythonVersion = 'Python %s' % sys.version
-        self.logger.info(sPythonVersion)
-        print sPythonVersion
+        python_version = 'Python %s' % sys.version
+        runtime.logger.info(python_version)
+        print python_version
         print '''Porcupine comes with ABSOLUTELY NO WARRANTY.
 This is free software, and you are welcome to redistribute it under
 certain conditions; See COPYING for more details.'''
@@ -145,33 +119,21 @@ certain conditions; See COPYING for more details.'''
         
     def shutdown(self):
         self.shutdownEvt.wait()
-        self.logger.info('Initiating shutdown...')
+        runtime.logger.info('Initiating shutdown...')
 
         # stop services
-        self.logger.info('Stopping services...')
+        runtime.logger.info('Stopping services...')
         for service in [x for x in self.services.values()
                         if x is not self]:
             service.shutdown()
 
         self.running = False
         
-        # shutdown session manager
-        if SessionManager._sm:
-            self.logger.info('Closing session manager...')
-            SessionManager.close()
-        
-        # close database
-        if _db.is_open():
-            self.logger.info('Closing database...')
-            _db.close()
-
         # join asyn thread
         self._asyn_thread.join()
         asyncore.close_all()
 
-        self.logger.info('All services have been shut down successfully')
-        # shutdown logging
-        logging.shutdown()
+        runtime.shutdown()
         self.shutdowninprogress = False
 
 def main(args):

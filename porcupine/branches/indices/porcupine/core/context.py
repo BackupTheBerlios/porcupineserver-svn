@@ -23,8 +23,8 @@ class ContextThread(Thread):
     """
     Base thread class for providing the required security context.
     """
-    def __init__(self, target, name, user_id=None):
-        Thread.__init__(self, name=name, target=target)
+    def __init__(self, target, name, user_id=None, args=()):
+        Thread.__init__(self, name=name, target=target, args=args)
         if user_id != None:
             user = db._db.getItem(user_id)
         else:

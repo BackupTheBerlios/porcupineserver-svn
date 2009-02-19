@@ -19,13 +19,13 @@ Porcupine server Berkeley DB interface
 """
 import os
 import time
-import logging
 import glob
 from bsddb import db
 from threading import Thread
 
 from porcupine import exceptions
 from porcupine.core import persist
+from porcupine.core.services.runtime import logger
 from porcupine.config.settings import settings
 from porcupine.utils.db.backup import BackupFile
 from porcupine.db.bsddb.transaction import Transaction
@@ -40,8 +40,6 @@ _indices = {}
 _maintenance_thread = None
 _dir = None
 _checkpoint_interval = 1
-
-logger = logging.getLogger('serverlog')
 
 def open(**kwargs):
     global _env, _itemdb, _docdb, _running, _maintenance_thread, _dir
@@ -93,9 +91,12 @@ def open(**kwargs):
         _indices[name] = DbIndex(_env, _itemdb, name, unique)
     
     _running = True
-    _maintenance_thread = Thread(target=__maintain,
-                                 name='Berkeley DB maintenance thread')
-    _maintenance_thread.start()
+
+    maintain = kwargs.get('maintain', True)
+    if maintain and _maintenance_thread == None:
+        _maintenance_thread = Thread(target=__maintain,
+                                     name='Berkeley DB maintenance thread')
+        _maintenance_thread.start()
     
 def is_open():
     return _running
@@ -245,13 +246,14 @@ def shrink():
 def __maintain():
     from porcupine.db import _db
     while _running:
-        time.sleep(10.0)
+        time.sleep(2.0)
         # deadlock detection
         try:
             aborted = _env.lock_detect(db.DB_LOCK_RANDOM, db.DB_LOCK_CONFLICT)
             if aborted:
                 _db._activeTxns -= aborted
-                logger.critical("Deadlock: Aborted %d deadlocked transaction(s)" % aborted)
+                logger.critical("Deadlock: Aborted %d deadlocked transaction(s)"
+                                % aborted)
         except db.DBError:
             pass
         # checkpoint
@@ -259,11 +261,12 @@ def __maintain():
 
 def close():
     global _running
-    _running = False
-    if _maintenance_thread != None:
-        _maintenance_thread.join()
-    _itemdb.close()
-    _docdb.close()
-    for index in _indices:
-        _indices[index].close()
-    _env.close()
+    if _running:
+        _running = False
+        if _maintenance_thread != None:
+            _maintenance_thread.join()
+        _itemdb.close()
+        _docdb.close()
+        for index in _indices:
+            _indices[index].close()
+        _env.close()

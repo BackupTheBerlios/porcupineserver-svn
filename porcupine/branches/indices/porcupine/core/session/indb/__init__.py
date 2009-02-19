@@ -18,7 +18,6 @@
 Porcupine database session manager
 """
 import time
-import logging
 
 from porcupine import db
 from porcupine.core.context import ContextThread
@@ -29,6 +28,7 @@ class SessionManager(GenericSessionManager):
     """
     Database session manager implementation class
     """
+    supports_multiple_processes = True
     _expire_thread = ContextThread(name='Session expriration thread',
                                    target=None)
     
@@ -38,9 +38,6 @@ class SessionManager(GenericSessionManager):
         if session_container == None:
             self._create_container()
         self._is_active = True
-        if not self._expire_thread.isAlive():
-            self._expire_thread._Thread__target = self._expire_sessions
-            self._expire_thread.start()
 
     def _create_container(self):
         ftime = time.time()
@@ -56,8 +53,13 @@ class SessionManager(GenericSessionManager):
         session_container.security = {'administrators' : 8}
         db._db.putItem(session_container, None)
 
+    def init_expiration_mechanism(self):
+        if not self._expire_thread.isAlive():
+            self._expire_thread._Thread__target = self._expire_sessions
+            self._expire_thread.start()
+
     def _expire_sessions(self):
-        logger = logging.getLogger('serverlog')
+        from porcupine.core.services.runtime import logger
         while self._is_active:
             # get inactive sessions
             cursor = db._db.join((
@@ -98,6 +100,3 @@ class SessionManager(GenericSessionManager):
         self._is_active = False
         if self._expire_thread.isAlive():
             self._expire_thread.join()
-        # remove temporary files
-        # for sessionid in self._list:
-        #    self._sessions.get(sessionid).remove_temp_files()

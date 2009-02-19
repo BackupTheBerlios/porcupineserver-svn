@@ -18,7 +18,6 @@
 Porcupine in memory session manager classes
 """
 import time
-import logging
 from threading import Thread
 
 from porcupine.utils import misc
@@ -36,10 +35,13 @@ class SessionManager(GenericSessionManager):
         self._is_active = True
         self._expire_thread = Thread(target=self._expire_sessions,
                                      name='Session expriration thread')
-        self._expire_thread.start()
+
+    def init_expiration_mechanism(self):
+        if not self._expire_thread.isAlive():
+            self._expire_thread.start()
 
     def _expire_sessions(self):
-        logger = logging.getLogger('serverlog')
+        from porcupine.core.services.runtime import logger
         while self._is_active:
             for sessionid in self._list:
                 session = self.get_session(sessionid, revive=False)

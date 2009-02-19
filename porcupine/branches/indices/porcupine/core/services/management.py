@@ -15,14 +15,12 @@
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #===============================================================================
 "Porcupine Server management service"
-import logging
 from cPickle import dumps, loads
 
+from porcupine.core.services.runtime import logger
 from porcupine.core.servicetypes import asyncserver
 from porcupine.core.networking.request import BaseRequest
 from porcupine.db import _db
-
-logger = logging.getLogger('serverlog')
 
 class MgtRequest(BaseRequest):
     def get_response(self, addr):
@@ -55,19 +53,15 @@ class MgtMessage(object):
 
 class ManagementServer(asyncserver.BaseServer):
     "Management Service"
-    def __init__(self, name, serverAddress, worker_threads):
-        asyncserver.BaseServer.__init__(self, name, serverAddress,
-            worker_threads, asyncserver.BaseServerThread, ManagementRequestHandler)
+    def __init__(self, name, address, processes, worker_threads):
+        asyncserver.BaseServer.__init__(self, name, address, processes,
+                                        worker_threads, ManagementThread)
 
-    def shutdown(self):
-        if self.running:
-            asyncserver.BaseServer.shutdown(self)
-
-class ManagementRequestHandler(asyncserver.BaseRequestHandler):
-    "Porcupine Server Management request handler"
-    def handle_request(self):
+class ManagementThread(asyncserver.BaseServerThread):
+    "Porcupine Server Management thread"
+    def handle_request(self, rh):
         request = MgtMessage()
-        request.load(self.input_buffer)   
+        request.load(rh.input_buffer)
         cmd = request.header
         
         try:
@@ -75,12 +69,12 @@ class ManagementRequestHandler(asyncserver.BaseRequestHandler):
             if args:
                 response = MgtMessage(*args)
                 # send the response
-                self.write_buffer(response.serialize())
+                rh.write_buffer(response.serialize())
         except:
-            logger.log(logging.ERROR, 'Management Error:', *(), **{'exc_info':1})
+            logger.error('Management Error:', *(), **{'exc_info':1})
             error_msg = MgtMessage(-1,
                             'Internal server error. See server log for details.')
-            self.write_buffer(error_msg.serialize())
+            rh.write_buffer(error_msg.serialize())
 
     def execute_command(self, cmd, request):
         #DB maintenance commands

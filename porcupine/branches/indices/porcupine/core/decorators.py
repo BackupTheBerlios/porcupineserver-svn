@@ -19,7 +19,6 @@ import hashlib
 import types
 import os.path
 import sys
-import logging
 
 from porcupine import exceptions
 from porcupine.utils import permsresolver
@@ -30,7 +29,7 @@ def deprecated(function):
     Wrapper for deprecated API calls
     """
     def dep_wrapper(*args, **kwargs):
-        logger = logging.getLogger('serverlog')
+        from porcupine.core.services.runtime import logger
         logger.warning("DEPRECATION WARNING: " +
                        "Use %s in module %s instead." % (function.func_name,
                                                          function.__module__))

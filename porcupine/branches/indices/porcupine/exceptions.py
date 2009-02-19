@@ -15,7 +15,6 @@
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #===============================================================================
 "Porcupine Server Exception classes"
-
 import logging
 import sys
 import traceback
@@ -36,8 +35,8 @@ class PorcupineException(Exception):
         self.info = info
 
     def emit(self, context=None, item=None):
-        serverLogger = logging.getLogger('serverlog')
-        serverLogger.log(
+        from porcupine.core.services.runtime import logger
+        logger.log(
             self.severity,
             self.description,
             exc_info=self.outputTraceback

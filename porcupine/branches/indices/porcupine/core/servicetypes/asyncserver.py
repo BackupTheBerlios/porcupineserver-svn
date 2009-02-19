@@ -15,36 +15,51 @@
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #===============================================================================
 """
-Porcupine base classes for threaded network servers
+Porcupine base classes for multi processing, multi threaded network servers
 """
+import os
+import signal
 import socket
+import time
 import Queue
 from threading import Thread, currentThread
+try:
+    import multiprocessing
+except ImportError:
+    multiprocessing = None
 
 from porcupine.core import asyncore
+from porcupine.core.services import runtime
 from porcupine.core.servicetypes.service import BaseService
 
 class BaseServerThread(Thread):
-    def __init__(self, target, name):
-        Thread.__init__(self, None, target, name)
-        self.request_handler = None
+    def handle_request(self, request_handler):
+        pass
 
 class BaseServer(BaseService, asyncore.dispatcher):
     "Base class for threaded TCP server using asynchronous sockets"
-    def __init__(self, name, address, worker_threads, thread_class,
-                 request_handler):
+    def __init__(self, name, address, worker_processes, worker_threads,
+                 thread_class):
         # initialize base service
         BaseService.__init__(self, name)
         self.addr = address
+        self.worker_processes = worker_processes
         self.worker_threads = worker_threads
-        self.request_handler = request_handler
         self.thread_class = thread_class
-        # create client request queue
-        self.request_queue = Queue.Queue(worker_threads*5)
-        # create queue for inactive requestHandler objects i.e. those served
+        self.is_multiprocess = multiprocessing and worker_processes > 0
+
+        if self.is_multiprocess:
+            self.request_queue = multiprocessing.Queue(worker_threads * 2)
+            self.done_queue = multiprocessing.Queue(0)
+            # create queue for inactive proxy objects
+            self.rhp_queue = Queue.Queue(0)
+        else:
+            self.request_queue = Queue.Queue(worker_threads * 2)
+
+        # create queue for inactive RequestHandler objects i.e. those served
         self.rh_queue = Queue.Queue(0)
-        # create threads tuple
-        self.thread_pool = []
+        # create worker tuple
+        self.worker_pool = []
 
     def start(self):
         # activate socket
@@ -57,12 +72,28 @@ class BaseServer(BaseService, asyncore.dispatcher):
             raise v
 
         self.listen(32)
-        
-        for i in range(self.worker_threads):
-            tname = '%s server thread %d' % (self.name, i+1)
-            t = self.thread_class(target=self.thread_loop, name=tname)
-            t.start()
-            self.thread_pool.append(t)
+
+        if self.is_multiprocess:
+            self.task_dispatchers = []
+            for i in range(self.worker_processes):
+                pname = '%s server process %d' % (self.name, i+1)
+                p = SubProcess(pname, self.worker_threads,
+                               self.thread_class,
+                               self.request_queue, self.done_queue)
+                p.start()
+                self.worker_pool.append(p)
+            for i in range(self.worker_processes):
+                # start task dispatcher thread
+                t = Thread(target=self.task_dispatch,
+                           name='%s task dispatcher %d' % (self.name, i+1))
+                t.start()
+                self.task_dispatchers.append(t)
+        else:
+            for i in range(self.worker_threads):
+                tname = '%s server thread %d' % (self.name, i+1)
+                t = self.thread_class(target=self.thread_loop, name=tname)
+                t.start()
+                self.worker_pool.append(t)
 
         self.active_connections = 0
         self.running = True
@@ -87,49 +118,64 @@ class BaseServer(BaseService, asyncore.dispatcher):
             rh = self.rh_queue.get_nowait()
         except Queue.Empty:
             # if empty then create new requestHandler
-            rh = self.request_handler(self)
+            rh = RequestHandler(self)
         # set the client socket of requestHandler
         self.active_connections += 1
         client_socket.setblocking(0)
         rh.activate(client_socket)
 
+    def task_dispatch(self):
+        while True:
+            next = self.done_queue.get()
+            if next == None:
+                break
+            fd, buffer = next
+            try:
+                if buffer == None:
+                    asyncore.socket_map[fd].has_response = True
+                else:
+                    asyncore.socket_map[fd].write_buffer(buffer)
+            except KeyError:
+                pass
+
     def thread_loop(self):
         "loop for threads serving content to clients"
         thread = currentThread()
         while True:
-            try:
-                # get next waiting client request
-                thread.request_handler = self.request_queue.get()
-                if thread.request_handler == None:
-                    break
+            # get next waiting client request
+            request_handler = self.request_queue.get()
+            if request_handler == None:
+                break
+            else:
+                if request_handler.input_buffer:
+                    thread.handle_request(request_handler)
+                    request_handler.has_response = True
                 else:
-                    if thread.request_handler.input_buffer:
-                        thread.request_handler.handle_request()
-                        thread.request_handler.hasResponse = True
-                    else:
-                        # we have a dead socket
-                        thread.request_handler.close()
-            except Queue.Empty:
-                pass
+                    # we have a dead socket(?)
+                    request_handler.close()
 
     def shutdown(self):
-        self.running = False
+        if self.running:
+            self.running = False
+            self.close()
+            asyncore.dispatcher.close(self)
+            # kill all threads/processes
+            if self.is_multiprocess:
+                for i in range(len(self.task_dispatchers)):
+                    self.done_queue.put(None)
+                for t in self.task_dispatchers:
+                    t.join()
+            for i in range(self.worker_threads * 2):
+                self.request_queue.put(None)
+            for t in self.worker_pool:
+                t.join()
 
-        self.close()
-        asyncore.dispatcher.close(self)
-
-        # kill all threads
-        for i in range(self.worker_threads*5):
-            self.request_queue.put(None)
-        for i in self.thread_pool:
-            i.join()
-
-class BaseRequestHandler(asyncore.dispatcher):
-    "Base Request Handler Object"
+class RequestHandler(asyncore.dispatcher):
+    "Request handler object"
     def __init__(self, server):
         self.server = server
-        self.hasRequest = False
-        self.hasResponse = False
+        self.has_request = False
+        self.has_response = False
         self.output_buffer = ''
         self.input_buffer = []
 
@@ -140,10 +186,10 @@ class BaseRequestHandler(asyncore.dispatcher):
         self.output_buffer += s
 
     def readable(self):
-        return not self.hasRequest
+        return not self.has_request
 
     def writable(self):
-        return self.hasRequest
+        return self.has_request
 
     def handle_connect(self):
         pass
@@ -157,22 +203,34 @@ class BaseRequestHandler(asyncore.dispatcher):
             self.input_buffer.append(data)
         else:
             self.input_buffer = ''.join(self.input_buffer)
-            self.hasRequest = True
-            # put it in the queue so that is served
-            self.server.request_queue.put(self)
+            self.has_request = True
+            if self.server.is_multiprocess:
+                try:
+                    # get inactive proxy from queue
+                    proxy = self.server.rhp_queue.get_nowait()
+                    proxy.fd = self._fileno
+                    proxy.input_buffer = self.input_buffer
+                    proxy._has_response = False
+                except Queue.Empty:
+                    # if empty then create new proxy
+                    proxy = RequestHandlerProxy(self)
+                self.server.request_queue.put(proxy)
+                self.server.rhp_queue.put(proxy)
+            else:
+                # put it in the queue so that is served
+                self.server.request_queue.put(self)
 
     def handle_write(self):
         if len(self.output_buffer):
             sent = self.send(self.output_buffer)
             self.output_buffer = self.output_buffer[sent:]
-        elif self.hasResponse:
-            #self.shutdown(1)
+        elif self.has_response:
             self.close()
 
     def close(self):
         asyncore.dispatcher.close(self)
-        self.hasRequest = False
-        self.hasResponse = False
+        self.has_request = False
+        self.has_response = False
         self.input_buffer = []
         self.output_buffer = ''
         # put it in inactive request handlers queue
@@ -180,5 +238,90 @@ class BaseRequestHandler(asyncore.dispatcher):
         self.server.active_connections -= 1
         # print 'Total: ' + str(self.server.active_connections)
 
-    def handle_request(self):
-        pass
+if multiprocessing:
+    class RequestHandlerProxy(object):
+        def __init__(self, rh):
+            self.fd = rh._fileno
+            self.input_buffer = rh.input_buffer
+            self._has_response = False
+            self.done_queue = None
+
+        def write_buffer(self, s):
+            self.done_queue.put((self.fd, s))
+
+        def get_has_response(self):
+            return self._has_response
+
+        def set_has_response(self, value):
+            if value == True:
+                self.done_queue.put((self.fd, None))
+            self._has_response = value
+
+        has_response = property(get_has_response, set_has_response)
+
+        def close(self):
+            pass
+
+    class SubProcess(multiprocessing.Process):
+        def __init__(self, name, worker_threads, thread_class,
+                     request_queue, done_queue):
+            multiprocessing.Process.__init__(self, name=name)
+            self.worker_threads = worker_threads
+            self.thread_class = thread_class
+            self.request_queue = request_queue
+            self.done_queue = done_queue
+            self.thread_pool = []
+
+        def shutdown(self):
+            [t.join() for t in self.thread_pool]
+            runtime.shutdown()
+
+        def run(self):
+            runtime.logger = multiprocessing.get_logger()
+            # load configuration settings
+            runtime.init_config()
+            # init db without the maintanance thread which runs in the root
+            # process
+            runtime.init_db(init_maintenance=False)
+            # inititialize session manager without the expiration mechanism
+            # which runs in the root process
+            runtime.init_session_manager(init_expiration=False)
+
+            for i in range(self.worker_threads):
+                tname = '%s thread %d' % (self.name, i+1)
+                self.thread_pool.append(
+                    self.thread_class(target=self._thread_loop,
+                                      name=tname)
+                )
+
+            # start threads
+            [t.start() for t in self.thread_pool]
+
+            if (os.name=='nt'):
+                try:
+                    while self.is_alive():
+                        time.sleep(3.0)
+                except KeyboardInterrupt:
+                    self.shutdown()
+            else:
+                signal.signal(signal.SIGINT, self.shutdown)
+                signal.signal(signal.SIGTERM, self.shutdown)
+                while self.is_alive():
+                    time.sleep(3.0)
+
+        def _thread_loop(self):
+            "subprocess loop for threads serving content to clients"
+            thread = currentThread()
+            while True:
+                # get next waiting client request
+                request_handler = self.request_queue.get()
+                if request_handler == None:
+                    break
+                else:
+                    request_handler.done_queue = self.done_queue
+                    if request_handler.input_buffer:
+                        thread.handle_request(request_handler)
+                        request_handler.has_response = True
+                    else:
+                        # we have a dead socket
+                        request_handler.close()
