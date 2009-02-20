@@ -159,7 +159,7 @@ def main(args):
 
     try:
         while controller.running:
-            time.sleep(10.0)
+            time.sleep(30.0)
     except IOError:
         pass
 

@@ -48,9 +48,8 @@ class BaseServer(BaseService, asyncore.dispatcher):
 
         if self.is_multiprocess:
             self.request_queue = multiprocessing.Queue(worker_threads * 2)
-            self.done_queue = multiprocessing.Queue(0)
-            # create queue for inactive proxy objects
-            self.rhp_queue = Queue.Queue(0)
+            self.done_queue = multiprocessing.Queue(worker_threads *
+                                                    worker_processes)
         else:
             self.request_queue = Queue.Queue(worker_threads * 2)
 
@@ -80,8 +79,8 @@ class BaseServer(BaseService, asyncore.dispatcher):
                                self.request_queue, self.done_queue)
                 p.start()
                 self.worker_pool.append(p)
+            # start task dispatcher threads
             for i in range(self.worker_processes):
-                # start task dispatcher thread
                 t = Thread(target=self.task_dispatch,
                            name='%s task dispatcher %d' % (self.name, i+1))
                 t.start()
@@ -200,20 +199,11 @@ class RequestHandler(asyncore.dispatcher):
         if data:
             self.input_buffer.append(data)
         else:
-            self.input_buffer = ''.join(self.input_buffer)
             self.has_request = True
+            self.input_buffer = ''.join(self.input_buffer)
             if self.server.is_multiprocess:
-                try:
-                    # get inactive proxy from queue
-                    proxy = self.server.rhp_queue.get_nowait()
-                    proxy.fd = self._fileno
-                    proxy.input_buffer = self.input_buffer
-                    proxy._has_response = False
-                except Queue.Empty:
-                    # if empty then create new proxy
-                    proxy = RequestHandlerProxy(self)
+                proxy = RequestHandlerProxy(self)
                 self.server.request_queue.put(proxy)
-                self.server.rhp_queue.put(proxy)
             else:
                 # put it in the queue so that is served
                 self.server.request_queue.put(self)
@@ -241,21 +231,10 @@ if multiprocessing:
         def __init__(self, rh):
             self.fd = rh._fileno
             self.input_buffer = rh.input_buffer
-            self._has_response = False
             self.done_queue = None
 
         def write_buffer(self, s):
             self.done_queue.put((self.fd, s))
-
-        def get_has_response(self):
-            return self._has_response
-
-        def set_has_response(self, value):
-            if value == True:
-                self.done_queue.put((self.fd, None))
-            self._has_response = value
-
-        has_response = property(get_has_response, set_has_response)
 
         def close(self):
             pass
@@ -289,10 +268,8 @@ if multiprocessing:
 
             for i in range(self.worker_threads):
                 tname = '%s thread %d' % (self.name, i+1)
-                self.thread_pool.append(
-                    self.thread_class(target=self._thread_loop,
-                                      name=tname)
-                )
+                t = self.thread_class(target=self._thread_loop, name=tname)
+                self.thread_pool.append(t)
 
             # start threads
             [t.start() for t in self.thread_pool]
@@ -301,7 +278,7 @@ if multiprocessing:
             signal.signal(signal.SIGTERM, self.shutdown)
             try:
                 while self.is_alive():
-                    time.sleep(2.0)
+                    time.sleep(30.0)
             except IOError:
                 pass
 
@@ -317,7 +294,5 @@ if multiprocessing:
                     request_handler.done_queue = self.done_queue
                     if request_handler.input_buffer:
                         thread.handle_request(request_handler)
-                        request_handler.has_response = True
-                    else:
-                        # we have a dead socket
-                        request_handler.close()
+                        self.done_queue.put((request_handler.fd, None))
+
