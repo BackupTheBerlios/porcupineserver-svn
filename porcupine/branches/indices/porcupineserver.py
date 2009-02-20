@@ -66,12 +66,12 @@ class Controller(object):
         self._asyn_thread.start()
         
         # start shutdown thread
-        self.shutdownEvt = Event()
-        self.shutdownThread = Thread(
+        self.shutdown_evt = Event()
+        self.shutdown_thread = Thread(
             target=self.shutdown,
             name='Shutdown thread'
         )
-        self.shutdownThread.start()
+        self.shutdown_thread.start()
 
         self.running = True
 
@@ -103,10 +103,10 @@ certain conditions; See COPYING for more details.'''
 
     def initiateShutdown(self, arg1=None, arg2=None):
         self.shutdowninprogress = True
-        self.shutdownEvt.set()
+        self.shutdown_evt.set()
         
     def shutdown(self):
-        self.shutdownEvt.wait()
+        self.shutdown_evt.wait()
         print 'Initiating shutdown...'
         runtime.logger.info('Initiating shutdown...')
 
@@ -163,7 +163,7 @@ def main(args):
     except IOError:
         pass
 
-    controller.shutdownThread.join()
+    controller.shutdown_thread.join()
     sys.exit()
 
 if __name__=='__main__':

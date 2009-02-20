@@ -39,7 +39,7 @@ class PorcupineServerService(win32serviceutil.ServiceFramework):
 			from porcupineserver import Controller
 			self.controller = Controller()
 			self.controller.start()
-			self.controller.shutdownEvt.wait()
+			self.controller.shutdown_evt.wait()
 		except Exception, e:
 			print e
 			if self.controller:
