@@ -15,6 +15,7 @@
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #===============================================================================
 "Porcupine service base class"
+from porcupine.core import runtime
 
 class BaseService(object):
     def __init__(self, name):
@@ -27,3 +28,17 @@ class BaseService(object):
     
     def shutdown(self):
         raise NotImplementedError
+
+    def init_db(self, *args, **kwargs):
+        runtime.logger.info('Service "%s" - Opening database...' % self.name)
+        runtime.init_db(*args, **kwargs)
+
+    def init_session_manager(self, *args, **kwargs):
+        runtime.logger.info('Service "%s" - Opening session manager...' %
+                            self.name)
+        runtime.init_session_manager(*args, **kwargs)
+
+    def init_config(self, *args, **kwargs):
+        runtime.logger.info('Service "%s" - Loading configuration...' %
+                            self.name)
+        runtime.init_config(*args, **kwargs)

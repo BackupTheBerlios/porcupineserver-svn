@@ -17,7 +17,7 @@
 "Porcupine Server management service"
 from cPickle import dumps, loads
 
-from porcupine.core.services.runtime import logger
+from porcupine.core.runtime import logger
 from porcupine.core.servicetypes import asyncserver
 from porcupine.core.networking.request import BaseRequest
 from porcupine.db import _db
@@ -56,6 +56,8 @@ class ManagementServer(asyncserver.BaseServer):
     def __init__(self, name, address, processes, worker_threads):
         asyncserver.BaseServer.__init__(self, name, address, processes,
                                         worker_threads, ManagementThread)
+        # open database
+        self.init_db()
 
 class ManagementThread(asyncserver.BaseServerThread):
     "Porcupine Server Management thread"

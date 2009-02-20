@@ -36,7 +36,7 @@ if main_is_frozen():
 
 from porcupine.config import services
 from porcupine.core import asyncore
-from porcupine.core.services import runtime
+from porcupine.core import runtime
 
 warnings.filterwarnings('ignore', '', Warning, 'logging')
 __version__ = '0.5.2 build(20081010)'
@@ -51,25 +51,13 @@ class Controller(object):
     def start(self):
         try:
             runtime.logger.info('Server starting...')
-
-            # load configuration settings
-            runtime.logger.info('Loading configuration...')
-            runtime.init_config()
-
-            # open database
-            runtime.logger.info('Opening database...')
-            runtime.init_db()
-
-            # create session manager
-            runtime.logger.info('Opening session manager...')
-            runtime.init_session_manager()
-            
             self.services['_controller'] = self
             # start services
             runtime.logger.info('Starting services...')
             services.startServices()
         except Exception, e:
             runtime.logger.error(e[0], *(), **{'exc_info' : True})
+            runtime.shutdown()
             raise e
 
         # start asyn thread
@@ -89,7 +77,7 @@ class Controller(object):
 
         # record process id
         pidfile = file(PID_FILE, "w")
-        pidfile.write( str(os.getpid()) )
+        pidfile.write(str(os.getpid()))
         pidfile.close()
         
         runtime.logger.info('Porcupine Server started succesfully')
@@ -109,7 +97,7 @@ certain conditions; See COPYING for more details.'''
             asyncore.loop(30.0, _use_poll)
         except select.error, v:
             if v[0] == EINTR:
-                print "Shutdown not completely clean..."
+                print 'Shutdown not completely clean...'
             else:
                 pass
 
@@ -119,6 +107,7 @@ certain conditions; See COPYING for more details.'''
         
     def shutdown(self):
         self.shutdownEvt.wait()
+        print 'Initiating shutdown...'
         runtime.logger.info('Initiating shutdown...')
 
         # stop services
@@ -128,12 +117,13 @@ certain conditions; See COPYING for more details.'''
             service.shutdown()
 
         self.running = False
-        
-        # join asyn thread
-        self._asyn_thread.join()
-        asyncore.close_all()
 
         runtime.shutdown()
+
+        # join asyn thread
+        asyncore.close_all()
+        self._asyn_thread.join()
+
         self.shutdowninprogress = False
 
 def main(args):
@@ -164,18 +154,14 @@ def main(args):
     except Exception, e:
         sys.exit(e)
 
-    if (os.name=='nt'):
-        try:
-            while controller.running:
-                time.sleep(3.0)
-        except KeyboardInterrupt:
-            print 'Initiating shutdown...'
-            controller.initiateShutdown()
-    else:
-        signal.signal(signal.SIGINT, controller.initiateShutdown)
-        signal.signal(signal.SIGTERM, controller.initiateShutdown)
+    signal.signal(signal.SIGINT, controller.initiateShutdown)
+    signal.signal(signal.SIGTERM, controller.initiateShutdown)
+
+    try:
         while controller.running:
-            time.sleep(3.0)
+            time.sleep(10.0)
+    except IOError:
+        pass
 
     controller.shutdownThread.join()
     sys.exit()

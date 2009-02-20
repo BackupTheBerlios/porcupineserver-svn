@@ -17,7 +17,6 @@
 """
 Porcupine base classes for multi processing, multi threaded network servers
 """
-import os
 import signal
 import socket
 import time
@@ -29,12 +28,11 @@ except ImportError:
     multiprocessing = None
 
 from porcupine.core import asyncore
-from porcupine.core.services import runtime
 from porcupine.core.servicetypes.service import BaseService
 
 class BaseServerThread(Thread):
     def handle_request(self, request_handler):
-        pass
+        raise NotImplementedError
 
 class BaseServer(BaseService, asyncore.dispatcher):
     "Base class for threaded TCP server using asynchronous sockets"
@@ -262,7 +260,7 @@ if multiprocessing:
         def close(self):
             pass
 
-    class SubProcess(multiprocessing.Process):
+    class SubProcess(BaseService, multiprocessing.Process):
         def __init__(self, name, worker_threads, thread_class,
                      request_queue, done_queue):
             multiprocessing.Process.__init__(self, name=name)
@@ -272,20 +270,22 @@ if multiprocessing:
             self.done_queue = done_queue
             self.thread_pool = []
 
-        def shutdown(self):
-            [t.join() for t in self.thread_pool]
+        def shutdown(self, arg1=None, arg2=None):
+            from porcupine.core import runtime
             runtime.shutdown()
 
+        def start(self):
+            multiprocessing.Process.start(self)
+
         def run(self):
-            runtime.logger = multiprocessing.get_logger()
             # load configuration settings
-            runtime.init_config()
+            self.init_config()
             # init db without the maintanance thread which runs in the root
             # process
-            runtime.init_db(init_maintenance=False)
+            self.init_db(init_maintenance=False)
             # inititialize session manager without the expiration mechanism
             # which runs in the root process
-            runtime.init_session_manager(init_expiration=False)
+            self.init_session_manager(init_expiration=False)
 
             for i in range(self.worker_threads):
                 tname = '%s thread %d' % (self.name, i+1)
@@ -297,17 +297,13 @@ if multiprocessing:
             # start threads
             [t.start() for t in self.thread_pool]
 
-            if (os.name=='nt'):
-                try:
-                    while self.is_alive():
-                        time.sleep(3.0)
-                except KeyboardInterrupt:
-                    self.shutdown()
-            else:
-                signal.signal(signal.SIGINT, self.shutdown)
-                signal.signal(signal.SIGTERM, self.shutdown)
+            signal.signal(signal.SIGINT, self.shutdown)
+            signal.signal(signal.SIGTERM, self.shutdown)
+            try:
                 while self.is_alive():
-                    time.sleep(3.0)
+                    time.sleep(2.0)
+            except IOError:
+                pass
 
         def _thread_loop(self):
             "subprocess loop for threads serving content to clients"

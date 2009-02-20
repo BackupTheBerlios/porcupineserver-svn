@@ -15,6 +15,9 @@
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #===============================================================================
 "Porcupine main service"
+from porcupine import exceptions
+from porcupine.utils import misc
+from porcupine.config.settings import settings
 from porcupine.core.servicetypes import asyncserver
 from porcupine.core.services.pthread import PorcupineThread
 
@@ -23,3 +26,21 @@ class PorcupineServer(asyncserver.BaseServer):
     def __init__(self, name, address, processes, threads):
         asyncserver.BaseServer.__init__(self, name, address, processes, threads,
                                         PorcupineThread)
+        if not self.is_multiprocess:
+            # load configuration settings
+            self.init_config()
+
+        # open database
+        self.init_db()
+        
+        if self.is_multiprocess:
+            # check if session manager supports multiple processes
+            sm_class = misc.getCallableByName(
+                settings['sessionmanager']['interface'])
+            if not sm_class.supports_multiple_processes:
+                raise exceptions.ConfigurationError, \
+                    'The session manager class does not support ' \
+                    'multiple processes.'
+
+        # create session manager
+        self.init_session_manager()

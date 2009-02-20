@@ -41,7 +41,7 @@ class SessionManager(GenericSessionManager):
             self._expire_thread.start()
 
     def _expire_sessions(self):
-        from porcupine.core.services.runtime import logger
+        from porcupine.core.runtime import logger
         while self._is_active:
             for sessionid in self._list:
                 session = self.get_session(sessionid, revive=False)

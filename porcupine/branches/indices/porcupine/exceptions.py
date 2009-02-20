@@ -21,6 +21,9 @@ import traceback
 
 from porcupine.utils import xml
 
+class ConfigurationError(Exception):
+    pass
+
 class ResponseEnd(Exception):
     pass
 
@@ -35,7 +38,7 @@ class PorcupineException(Exception):
         self.info = info
 
     def emit(self, context=None, item=None):
-        from porcupine.core.services.runtime import logger
+        from porcupine.core.runtime import logger
         logger.log(
             self.severity,
             self.description,

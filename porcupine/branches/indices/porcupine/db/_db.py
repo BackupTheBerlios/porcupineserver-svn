@@ -181,4 +181,8 @@ def shrink():
     _db_handle.shrink()
 
 def close():
-    _db_handle.close()
+    global _db_handle
+    if _db_handle != None:
+        _db_handle.close()
+        _db_handle = None
+

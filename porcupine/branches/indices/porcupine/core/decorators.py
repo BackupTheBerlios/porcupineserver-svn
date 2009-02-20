@@ -29,7 +29,7 @@ def deprecated(function):
     Wrapper for deprecated API calls
     """
     def dep_wrapper(*args, **kwargs):
-        from porcupine.core.services.runtime import logger
+        from porcupine.core.runtime import logger
         logger.warning("DEPRECATION WARNING: " +
                        "Use %s in module %s instead." % (function.func_name,
                                                          function.__module__))

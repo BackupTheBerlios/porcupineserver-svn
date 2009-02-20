@@ -25,7 +25,7 @@ from threading import Thread
 
 from porcupine import exceptions
 from porcupine.core import persist
-from porcupine.core.services.runtime import logger
+from porcupine.core.runtime import logger
 from porcupine.config.settings import settings
 from porcupine.utils.db.backup import BackupFile
 from porcupine.db.bsddb.transaction import Transaction

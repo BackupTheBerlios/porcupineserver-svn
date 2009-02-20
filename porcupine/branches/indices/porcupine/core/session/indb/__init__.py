@@ -59,7 +59,7 @@ class SessionManager(GenericSessionManager):
             self._expire_thread.start()
 
     def _expire_sessions(self):
-        from porcupine.core.services.runtime import logger
+        from porcupine.core.runtime import logger
         while self._is_active:
             # get inactive sessions
             cursor = db._db.join((

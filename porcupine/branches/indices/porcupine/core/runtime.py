@@ -40,6 +40,7 @@ if multiprocessing:
     _loghandler.setFormatter(logging.Formatter(settings['log']['mp_format']))
 else:
     _loghandler.setFormatter(logging.Formatter(settings['log']['format']))
+
 logger.addHandler(_loghandler)
 logger.setLevel(int(settings['log']['level']))
 
@@ -69,11 +70,9 @@ def init_config():
 def shutdown():
     from porcupine.db import _db
     from porcupine.core.session import SessionManager
+    
+    logger.info('Shutting down runtime services...')
     # close session manager
-    if SessionManager._sm != None:
-        logger.info('Closing session manager...')
-        SessionManager.close()
+    SessionManager.close()
     # close database
-    if _db.is_open():
-        logger.info('Closing database...')
-        _db.close()
+    _db.close()
