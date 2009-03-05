@@ -53,7 +53,7 @@ QuiX.ui.Box.prototype.redraw = function(bForceAll) {
 }
 
 QuiX.ui.Box.prototype._calcWidth = function(b) {
-    if (this._auto_width && this.widgets.length > 0) {
+    if (this._auto_width) {
         var width = 0;
         var w;
         var pad = this.getPadding();
@@ -73,7 +73,7 @@ QuiX.ui.Box.prototype._calcWidth = function(b) {
 }
 
 QuiX.ui.Box.prototype._calcHeight = function(b) {
-    if (this._auto_height && this.widgets.length > 0) {
+    if (this._auto_height) {
         var height = 0;
         var w;
         var pad = this.getPadding();
