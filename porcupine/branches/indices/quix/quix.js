@@ -557,7 +557,8 @@ QuiX.removeWidget = function(w) {
 	
 	if (w.__tooltip || w.__tooltipID)
 		Widget__tooltipout(null, w);
-	
+	if (w._customRegistry.onunload)
+		w._customRegistry.onunload(w);
 	while (w.widgets.length>0)
 		QuiX.removeWidget(w.widgets[0]);
     if (w.contextMenu)

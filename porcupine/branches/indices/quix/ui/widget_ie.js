@@ -256,10 +256,20 @@ QuiX.ui.Widget.prototype.getDisplay = function() {
 
 //overflow attribute
 QuiX.ui.Widget.prototype.setOverflow = function(sOverflow) {
-	this.div.style.overflow = sOverflow;
+    if (sOverflow.indexOf(" ") == -1) {
+        this.div.style.overflow = sOverflow;
+    }
+    else {
+        var value = sOverflow.split(" ");
+        this.div.style.overflowX = value[0];
+        this.div.style.overflowY = value[1];
+    }
 }
 QuiX.ui.Widget.prototype.getOverflow = function() {
-	return this.div.style.overflow;
+    if (this.div.style.overflow != '')
+        return this.div.style.overflow;
+    else
+        return this.div.style.overflowX + " " + this.div.style.overflowY;
 }
 
 //position attribute
@@ -488,8 +498,6 @@ QuiX.ui.Widget.prototype.resize = function(x,y) {
 }
 
 QuiX.ui.Widget.prototype.destroy = function() {
-	if (this._customRegistry.onunload)
-		this._customRegistry.onunload(this);
 	QuiX.removeWidget(this);
 }
 

@@ -395,15 +395,13 @@ QuiX.ui.Window.prototype.bringToFront = function() {
 		if (macff) {
 			dt = document.desktop;
 			//hide scrollbars
-			sw = dt.getWidgetsByAttributeValue('_overflow', 'auto');
-			sw = sw.concat(dt.getWidgetsByAttributeValue('_overflow', 'scroll'));
+			sw = dt.query('/(auto|scroll)/.exec(w.getOverflow()) != param', null);
 			for (i=0; i<sw.length; i++) {
 				if (sw[i] != this.parent)
 					sw[i].div.style.overflow = 'hidden';
 			}
 			//restore scrollbars
-			sw = this.getWidgetsByAttributeValue('_overflow', 'auto');
-			sw = sw.concat(this.getWidgetsByAttributeValue('_overflow', 'scroll'));
+			sw = dt.query('/(auto|scroll)/.exec(w.getOverflow()) != param', null);
 			for (i=0; i<sw.length; i++)
 				sw[i].div.style.overflow = sw[i]._overflow;
 		}
