@@ -76,7 +76,7 @@ TreeNode.prototype._putImage = function() {
 	}
 }
 
-TreeNode.prototype.redraw = function(bForceAll) {
+TreeNode.prototype.redraw = function(bForceAll, memo) {
 	this._putImage();
 	if (this.hasChildren())
 		this._addExpandImg();

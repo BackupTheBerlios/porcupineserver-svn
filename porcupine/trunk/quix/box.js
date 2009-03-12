@@ -9,8 +9,6 @@ function Box(params) {
 	this.base(params);
 	this.div.className = 'box';
 	this.orientation = params.orientation || 'h';
-    this._auto_width = (params.width == 'auto');
-    this._auto_height = (params.height == 'auto');
 	var spacing = (typeof params.spacing == 'undefined')? 2:params.spacing;
 	this.spacing = parseInt(spacing);
 	this.childrenAlign = params.childrenalign;
@@ -29,7 +27,7 @@ Box.prototype.appendChild = function(w, p) {
 	Widget.prototype.appendChild(w, p);
 }
 
-Box.prototype.redraw = function(bForceAll) {
+Box.prototype.redraw = function(bForceAll, memo) {
 	if (bForceAll) {
 		var oWidget;
 		var offset_var = (this.orientation=='h')?'left':'top';
@@ -50,44 +48,35 @@ Box.prototype.redraw = function(bForceAll) {
 	Widget.prototype.redraw.apply(this, arguments);
 }
 
-Box.prototype._calcWidth = function(b) {
-    if (this._auto_width && this.widgets.length > 0) {
-        var width = 0;
-        var w;
-        var pad = this.getPadding();
-        var offset = pad[0] + pad[1];
+Box.prototype._calcSize = function(height, offset, getHeight, memo) {
+    if (this[height] == 'auto' &&
+            (!memo || (memo && !memo[this._uniqueid + height]))) {
+        var value = 0,
+            w_length;
+        var is_additive = this.orientation == 'h' && height == 'width' ||
+                          this.orientation == 'v' && height == 'height';
+        var padding_offset = (height == 'height')?2:0;
+        var padding = this.getPadding();
+        var length_func = (height=='height')?'_calcHeight':'_calcWidth';
         for (var i=0; i<this.widgets.length; i++) {
-            w = this.widgets[i];
-            if (this.orientation == 'h')
-                width += w._calcWidth(true);
+            w_length = this.widgets[i][length_func](true, memo);
+            if (is_additive)
+                value += w_length;
             else
-                width = Math.max(width, w._calcWidth(true));
+                value = Math.max(value, w_length);
         }
-        if (this.orientation == 'h')
-            width += (this.widgets.length - 1) * this.spacing;
-        this.width = width + offset;
+        if (is_additive && this.widgets.length > 0)
+            value += (this.widgets.length - 1) * this.spacing;
+        value = value +
+                padding[padding_offset] +
+                padding[padding_offset + 1] +
+                2 * this.getBorderWidth();
+        if (memo)
+            memo[this._uniqueid + height] = value;
+        return value - offset;
     }
-    return Widget.prototype._calcWidth.apply(this, arguments);
-}
-
-Box.prototype._calcHeight = function(b) {
-    if (this._auto_height && this.widgets.length > 0) {
-        var height = 0;
-        var w;
-        var pad = this.getPadding();
-        var offset = pad[2] + pad[3];
-        for (var i=0; i<this.widgets.length; i++) {
-            w = this.widgets[i];
-            if (this.orientation == 'v')
-                height += w._calcHeight(true);
-            else
-                height = Math.max(height, w._calcHeight(true));
-        }
-        if (this.orientation == 'v')
-            height += (this.widgets.length - 1) * this.spacing;
-        this.height = height + offset;
-    }
-    return Widget.prototype._calcHeight.apply(this, arguments);
+    else
+        return Widget.prototype._calcSize.apply(this, arguments);
 }
 
 Box.prototype._getWidgetPos = function(iPane) {
@@ -223,9 +212,9 @@ FlowBox.prototype.appendChild = function(w) {
 		w.show();
 }
 
-FlowBox.prototype.redraw = function(bForceAll) {
+FlowBox.prototype.redraw = function(bForceAll, memo) {
 	Widget.prototype.redraw.apply(this, arguments);
-	this._rearrange(0);
+	this._rearrange(0, memo);
 }
 
 FlowBox.prototype.getSelection = function() {
@@ -235,7 +224,7 @@ FlowBox.prototype.getSelection = function() {
         return null;
 }
 
-FlowBox.prototype._rearrange = function(iStart) {
+FlowBox.prototype._rearrange = function(iStart, memo) {
 	var x = 0;
 	var y = 0;
 	var rowHeight = 0;
@@ -243,15 +232,15 @@ FlowBox.prototype._rearrange = function(iStart) {
 	var icWidth;
 	
 	if (iStart > 0) {
-		x = this.widgets[iStart - 1]._calcLeft() +
-			this.widgets[iStart-1]._calcWidth(true);
+		x = this.widgets[iStart - 1]._calcLeft(memo) +
+			this.widgets[iStart-1]._calcWidth(true, memo);
 		y = this.widgets[iStart - 1].top;
-		rowHeight = this._calcRowHeight(iStart);
+		rowHeight = this._calcRowHeight(iStart, memo);
 	}
 	
 	for (var i=iStart; i<this.widgets.length; i++) {
 		with (this.widgets[i]) {
-			icWidth = _calcWidth(true);
+			icWidth = _calcWidth(true, memo);
 			if (x + icWidth + this.spacing > iWidth && x != 0) {
 				x = 0;
 				y += rowHeight + this.spacing;
@@ -264,13 +253,13 @@ FlowBox.prototype._rearrange = function(iStart) {
 	}
 }
 
-FlowBox.prototype._calcRowHeight = function(iStart) {
+FlowBox.prototype._calcRowHeight = function(iStart, memo) {
 	var rowHeight = 0;
 	var iCount = iStart - 1;
 	var prev;
 	do {
 		prev = this.widgets[iCount];
-		rowHeight = Math.max(rowHeight, prev._calcHeight(true));
+		rowHeight = Math.max(rowHeight, prev._calcHeight(true, memo));
 		iCount -= 1;
 	} while (iCount >= 0 && prev.left != 0)
 	return rowHeight;

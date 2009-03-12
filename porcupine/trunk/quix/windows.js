@@ -386,7 +386,7 @@ Window.prototype.bringToFront = function() {
 		var macff = QuiX.browser == 'moz' && QuiX.getOS() == 'MacOS';
 		Widget.prototype.bringToFront.apply(this, arguments);
 		if (macff) {
-			var dt = document.desktop;
+			dt = document.desktop;
 			//hide scrollbars
 			sw = dt.getWidgetsByAttributeValue('_overflow', 'auto');
 			sw = sw.concat(dt.getWidgetsByAttributeValue('_overflow', 'scroll'));
@@ -543,7 +543,7 @@ function Dialog__keypress(evt, w) {
 		w.close();
 }
 
-function Dialog__buttonHolderRedraw(bForceAll) {
+function Dialog__buttonHolderRedraw(bForceAll, memo) {
 	var iOffset = 0;
 	for (var i=0; i<this.widgets.length; i++) {
 		this.widgets[i].left = iOffset;

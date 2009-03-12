@@ -205,7 +205,7 @@ RichText.prototype.getValue = function() {
     return this.doc.body.innerHTML;
 }
 
-RichText.prototype.redraw = function(bForceAll) {
+RichText.prototype.redraw = function(bForceAll, memo) {
     if (QuiX.browser == 'moz' && this.wysiwyg && this.doc) {
         this._updateInput();
     }

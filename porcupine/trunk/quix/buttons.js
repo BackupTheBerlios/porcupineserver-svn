@@ -12,8 +12,6 @@ function Label(params) {
 
 	this.div.className = 'label';
 	this.align = params.align || 'left';
-    this._auto_width = (params.width == 'auto');
-    this._auto_height = (params.height == 'auto');
 	
 	if (params.color) {
 		if (!this._isDisabled)
@@ -37,22 +35,32 @@ function Label(params) {
 QuiX.constructors['label'] = Label;
 Label.prototype = new Widget;
 
-Label.prototype._calcWidth = function(b) {
-    if (this._auto_width) {
-        document.body.appendChild(this.div);
-        this.width = this.div.offsetWidth;
-        QuiX.removeNode(this.div);
+Label.prototype._calcSize = function(height, offset, getHeight, memo) {
+    if (this[height] == 'auto' &&
+            (!memo || (memo && !memo[this._uniqueid + height]))) {
+        // we need to measure
+        var div = ce('DIV');
+        div.style.position = 'absolute';
+        var other = (height == 'height')?'width':'height';
+        var other_func = (other == 'height')?'_calcHeight':'_calcWidth';
+        var measure = (height == 'height')?'offsetHeight':'offsetWidth';
+        var padding_offset = (height == 'height')?2:0;
+        var padding = this.getPadding();
+        if (this[other] != 'auto')
+            div.style[other] = this[other_func](true, memo);
+        div.innerHTML = this.div.innerHTML;
+        document.body.appendChild(div);
+        var value = div[measure] +
+                    padding[padding_offset] +
+                    padding[padding_offset + 1] +
+                    2*this.getBorderWidth();
+        QuiX.removeNode(div);
+        if (memo)
+            memo[this._uniqueid + height] = value;
+        return value - offset;
     }
-    return Widget.prototype._calcWidth.apply(this, arguments);
-}
-
-Label.prototype._calcHeight = function(b) {
-    if (this._auto_height) {
-        document.body.appendChild(this.div);
-        this.height = this.div.offsetHeight;
-        QuiX.removeNode(this.div);
-    }
-    return Widget.prototype._calcHeight.apply(this, arguments);
+    else
+        return Widget.prototype._calcSize.apply(this, arguments);
 }
 
 Label.prototype.setCaption = function(s) {
@@ -63,7 +71,7 @@ Label.prototype.getCaption = function(s) {
 	return(this.div.getElementsByTagName('SPAN')[0].innerHTML.xmlDecode());
 }
 
-Label.prototype.redraw = function(bForceAll) {
+Label.prototype.redraw = function(bForceAll, memo) {
 	with (this.div.style) {
 		if (!this.wrap)
 			whiteSpace = 'nowrap';
@@ -100,18 +108,6 @@ function Icon(params) {
 QuiX.constructors['icon'] = Icon;
 Icon.prototype = new Label;
 
-Icon.prototype._calcHeight = function(b) {
-    var h, imgs;
-    if (this._auto_height) {
-        imgs = this.div.getElementsByTagName('IMG');
-        imgs[imgs.length - 1].style.height = '';
-    }
-    h = Label.prototype._calcHeight.apply(this, arguments);
-    if (this._auto_height)
-        imgs[imgs.length - 1].style.height = '100%';
-    return h;
-}
-
 Icon.prototype.setImageURL = function(s) {
 	this.img = s;
 	if (this.imageElement)
@@ -135,7 +131,7 @@ Icon.prototype._addDummyImage = function() {
 	}
 }
 
-Icon.prototype.redraw = function(bForceAll) {
+Icon.prototype.redraw = function(bForceAll, memo) {
 	if (bForceAll) {
 		var imgs = this.div.getElementsByTagName('IMG');
 		while (imgs.length > 0)
@@ -225,8 +221,6 @@ function XButton(params) {
 	});
 	this.div.className = 'btn';
 	this.div.style.cursor = 'pointer';
-    this._auto_width = (params.width == 'auto');
-    this._auto_height = (params.height == 'auto');
 	
 	delete params.id; delete params.top; delete params.left;
 	delete params.minw;	delete params.minh; delete params.onclick;
@@ -256,26 +250,41 @@ function XButton(params) {
 QuiX.constructors['button'] = XButton;
 XButton.prototype = new Widget;
 
-XButton.prototype._calcWidth = function(b) {
-    if (this._auto_width) {
-        document.body.appendChild(this.div);
-        this.width = this.div.offsetWidth;
-        QuiX.removeNode(this.div);
-    }
-    return Widget.prototype._calcWidth.apply(this, arguments);
-}
+XButton.prototype._calcSize = function(height, offset, getHeight, memo) {
+    if (this[height] == 'auto' &&
+            (!memo || (memo && !memo[this._uniqueid + height]))) {
+        // we need to measure
+        var div = ce('DIV');
+        div.style.position = 'absolute';
+        div.style.border = this.icon.div.style.border;
+        div.style.padding = this.icon.div.style.padding;
 
-XButton.prototype._calcHeight = function(b) {
-    if (this._auto_height) {
-        this.div.firstChild.style.height = '';
-        var imgs = this.div.getElementsByTagName('IMG');
+        var other = (height == 'height')?'width':'height';
+        var other_func = (other == 'height')?'_calcHeight':'_calcWidth';
+        var measure = (height == 'height')?'offsetHeight':'offsetWidth';
+        var padding_offset = (height == 'height')?2:0;
+        var padding = this.getPadding();
+
+        if (this[other] != 'auto')
+            div.style[other] = this[other_func](true, memo);
+        div.innerHTML = this.div.firstChild.innerHTML;
+        // required by safari
+        var imgs = div.getElementsByTagName('IMG');
         imgs[imgs.length - 1].style.height = '';
-        document.body.appendChild(this.div);
-        this.height = this.div.offsetHeight;
-        QuiX.removeNode(this.div);
-        imgs[imgs.length - 1].style.height = '100%';
+        //
+        document.body.appendChild(div);
+        
+        var value = div[measure] +
+                    padding[padding_offset] +
+                    padding[padding_offset + 1] +
+                    2 * this.getBorderWidth();
+        QuiX.removeNode(div);
+        if (memo)
+            memo[this._uniqueid + height] = value;
+        return value - offset;
     }
-    return Widget.prototype._calcHeight.apply(this, arguments);
+    else
+        return Widget.prototype._calcSize.apply(this, arguments);
 }
 
 XButton.prototype.setCaption = function(s) {
@@ -286,13 +295,13 @@ XButton.prototype.getCaption = function() {
 	return this.icon.getCaption();
 }
 
-XButton.prototype.redraw = function(bForceAll) {
+XButton.prototype.redraw = function(bForceAll, memo) {
 	if (bForceAll) {
 		this.icon.align = this.align;
 		this.icon.img = this.img;
 		this.icon.imgAlign = this.imgAlign;
 		this.icon.setPadding(this.iconPadding.split(','));
-		this.icon.redraw(true);
+		this.icon.redraw(true, memo);
 	}
 	Widget.prototype.redraw.apply(this, arguments);
 }
@@ -370,7 +379,7 @@ function FlatButton(params) {
 QuiX.constructors['flatbutton'] = FlatButton;
 FlatButton.prototype = new Icon;
 
-FlatButton.prototype.redraw = function(bForceAll) {
+FlatButton.prototype.redraw = function(bForceAll, memo) {
 	Icon.prototype.redraw.apply(this, arguments);
 
 	if (this.type == 'menu' && (!this._menuImg || bForceAll)) {

@@ -181,6 +181,14 @@ QuiX.__init__ = function() {
 	parser.parse(QuiX.domFromElement(root));
 }
 
+QuiX.uid = (
+    function(){
+        var id=0;
+        return function(){
+            return id++ ;
+        };
+})();
+
 QuiX.addLoader = function() {
 	if (QuiX._activeLoaders == 0) {
 		document.body.onmousemove = function(evt) {

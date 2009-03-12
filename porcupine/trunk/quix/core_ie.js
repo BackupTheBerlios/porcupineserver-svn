@@ -39,7 +39,7 @@ function Widget(params) {
 		this.div.style.cssText = params.style;
 	this.div.widget = this;
 
-	this._id = undefined;
+	this._uniqueid = QuiX.uid();
 	if (params.id) {
 		this.setId(params.id)
 	}
@@ -206,16 +206,16 @@ Widget.prototype.getWidgetsByAttributeValue = function(attr_name, value, shallow
 	return this.query('w[param[0]] == param[1]', [attr_name, value], shallow);
 }
 
-Widget.prototype._setAbsProps = function() {
-	this.div.style.left = this._calcLeft() + 'px';
-	this.div.style.top = this._calcTop() + 'px';
+Widget.prototype._setAbsProps = function(memo) {
+	this.div.style.left = this._calcLeft(memo) + 'px';
+	this.div.style.top = this._calcTop(memo) + 'px';
 }
 
-Widget.prototype._setCommonProps = function() {
+Widget.prototype._setCommonProps = function(memo) {
 	if (this.height!=null)
-		this.div.style.height = this._calcHeight() + 'px';
+		this.div.style.height = this._calcHeight(false, memo) + 'px';
 	if (this.width!=null)
-		this.div.style.width = this._calcWidth() + 'px';
+		this.div.style.width = this._calcWidth(false, memo) + 'px';
 }
 
 // id attribute
@@ -357,67 +357,88 @@ Widget.prototype.getTop = function() {
 	return rg;
 }
 
-Widget.prototype._calcSize = function(height, offset, getHeight) {
-	height=(typeof(this[height])=='function')?this[height](this):this[height];
-	if (height == null)
-		return height;
-	if (!isNaN(height))
-		return parseInt(height)-offset;
-	else if (height.slice(height.length-1) == '%') {
-		var perc = parseInt(height)/100;
-		return (parseInt(this.parent[getHeight]()*perc)-offset) || 0;
-	}
-	else
-		return (eval(height) - offset) || 0;
+Widget.prototype._calcSize = function(height, offset, getHeight, memo) {
+    var value;
+    if (memo && memo[this._uniqueid + height]) {
+        value = memo[this._uniqueid + height] - offset;
+    }
+    else {
+        value = typeof(this[height]) == 'function'?
+                this[height](this):this[height];
+        if (value != null) {
+            if (!isNaN(value))
+                value =  parseInt(value) - offset;
+            else if (value.slice(value.length-1) == '%') {
+                var perc = parseInt(value)/100;
+                value = (parseInt(this.parent[getHeight]() * perc) - offset) || 0;
+            }
+            else
+                value = (eval(value) - offset) || 0;
+            if (memo)
+                memo[this._uniqueid + height + offset] = value;
+        }
+    }
+    return value;
 }
 
-Widget.prototype._calcPos = function(left, offset, getWidth) {
-	left = (typeof(this[left])=='function')?this[left](this):this[left];
-	if (!isNaN(left))
-		return parseInt(left) + offset;
-	else if (left.slice(left.length-1)=='%') {
-		var perc = parseInt(left)/100;
-		return (this.parent[getWidth]() * perc) || 0;
-	}
-	else {
-		if (left!='center')
-			return( (eval(left) + offset) || 0 );
-		else 
-			return parseInt((this.parent[getWidth]()/2) -
-							(this[getWidth](true)/2)) + offset || 0;
-	}
+Widget.prototype._calcPos = function(left, offset, getWidth, memo) {
+    var value;
+    if (memo && memo[this._uniqueid + left]) {
+        value = memo[this._uniqueid + left];
+    }
+    else {
+        value = typeof(this[left]) == 'function'?this[left](this):this[left];
+        if (!isNaN(value))
+            value = parseInt(value) + offset;
+        else if (value.slice(value.length-1) == '%') {
+            var perc = parseInt(value)/100;
+            value = (this.parent[getWidth]() * perc) || 0;
+        }
+        else if (value == 'center')
+            value = parseInt((this.parent[getWidth]() / 2) -
+                             (this[getWidth](true) / 2)) + offset || 0;
+        else
+            value = ((eval(value) + offset) || 0);
+        if (memo)
+            memo[this._uniqueid + left] = value;
+    }
+    return value;
 }
 
-Widget.prototype._calcHeight = function(b) {
+Widget.prototype._calcHeight = function(b, memo) {
 	var offset = 0;
 	if (!b)	offset = parseInt(this.div.style.paddingTop) +
 					 parseInt(this.div.style.paddingBottom) +
 					 2*this.getBorderWidth();
-	var s = this._calcSize("height", offset, "getHeight");
+	var s = this._calcSize("height", offset, "getHeight", memo);
 	var ms = this._calcMinHeight() - offset;
 	if (s < ms) s = ms;
 	return s>0?s:0;
 }
 
-Widget.prototype._calcWidth = function(b) {
+Widget.prototype._calcWidth = function(b, memo) {
 	var offset = 0;
 	if (!b)	offset = parseInt(this.div.style.paddingLeft) +
 					 parseInt(this.div.style.paddingRight) +
 					 2*this.getBorderWidth();
-	var s = this._calcSize("width", offset, "getWidth");
+	var s = this._calcSize("width", offset, "getWidth", memo);
 	var ms = this._calcMinWidth() - offset;
 	if (s < ms) s = ms;
 	return s>0?s:0;
 }
 
-Widget.prototype._calcLeft = function() {
+Widget.prototype._calcLeft = function(memo) {
 	return this._calcPos("left",
-		(this.parent? this.parent.getPadding()[0]:0), "getWidth");
+                         (this.parent? this.parent.getPadding()[0]:0),
+                         "getWidth",
+                         memo);
 }
 
-Widget.prototype._calcTop = function() {
+Widget.prototype._calcTop = function(memo) {
 	return this._calcPos("top",
-		(this.parent? this.parent.getPadding()[2]:0), "getHeight");
+                         (this.parent? this.parent.getPadding()[2]:0),
+                         "getHeight",
+                         memo);
 }
 
 Widget.prototype._calcMinWidth = function() {
@@ -604,23 +625,25 @@ Widget.prototype._startDrag = function(x, y) {
 	document.desktop.attachEvent('onmousemove', Widget__drag);
 }
 
-Widget.prototype.redraw = function(bForceAll) {
+Widget.prototype.redraw = function(bForceAll, memo) {
 	var container = this.div.parentElement;
 	if (container &&  this.div.style.display != 'none') {
         var i;
 		var wdth = this.div.style.width;
 		var hght = this.div.style.height;
+        if (!memo)
+            memo = {};
 		if (this.div.clientWidth > 0) {
 			var frag = document.createDocumentFragment();
 			frag.appendChild(QuiX.removeNode(this.div));
 		}
 		try {
-			this._setCommonProps();
+			this._setCommonProps(memo);
 			if (this.div.style.position != '')
-				this._setAbsProps();
+				this._setAbsProps(memo);
 			for (i=0; i<this.widgets.length; i++) {
 				if (bForceAll || this.widgets[i]._mustRedraw())
-					this.widgets[i].redraw(bForceAll);
+					this.widgets[i].redraw(bForceAll, memo);
 			}
 		}
 		finally {

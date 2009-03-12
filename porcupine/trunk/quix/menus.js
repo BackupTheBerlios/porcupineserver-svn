@@ -31,7 +31,7 @@ MenuOption.prototype.addOption = function(params) {
 	return this.subMenu.addOption(params);
 }
 
-MenuOption.prototype.redraw = function(bForceAll) {
+MenuOption.prototype.redraw = function(bForceAll, memo) {
 	if (this.subMenu) {
 		this.div.className = 'submenu';
 	}
@@ -210,7 +210,7 @@ ContextMenu.prototype.destroy = function() {
 	Widget.prototype.destroy.apply(this, arguments);
 }
 
-ContextMenu.prototype.redraw = function(bForceAll) {
+ContextMenu.prototype.redraw = function(bForceAll, memo) {
 	var oOption, optionWidth;
 	var iHeight = 0;
 	
@@ -324,7 +324,7 @@ function MBar(params) {
 QuiX.constructors['menubar'] = MBar;
 MBar.prototype = new Widget;
 
-MBar.prototype.redraw = function(bForceAll) {
+MBar.prototype.redraw = function(bForceAll, memo) {
 	for (var i=0; i<this.menus.length; i++) {
 		 this.menus[i].div.style.marginRight = this.spacing + 'px';
 	}

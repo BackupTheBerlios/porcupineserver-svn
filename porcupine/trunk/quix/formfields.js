@@ -221,7 +221,7 @@ Field.prototype.setBgColor = function(color) {
 		this.div.firstChild.style.backgroundColor = color;
 }
 
-Field.prototype.redraw = function(bForceAll) {
+Field.prototype.redraw = function(bForceAll, memo) {
 	if (this.type == 'text' || this.type == 'textarea' || this.type == 'password')
 		this.div.firstChild.style.padding = this.textPadding + 'px';
 	Widget.prototype.redraw.apply(this, arguments);

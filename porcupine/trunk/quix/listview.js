@@ -123,9 +123,9 @@ ListView.prototype.addHeader = function(params) {
 	return(this.header);
 }
 
-ListView.prototype.redraw = function(bForceAll) {
+ListView.prototype.redraw = function(bForceAll, memo) {
 	var columns = this.columns;
-	var header_width = this._calcWidth();
+	var header_width = this._calcWidth(false, memo);
 	var wdth;
 	// resize proportional cells
 	for (var i = this._deadCells; i<columns.length; i++) {
@@ -431,7 +431,7 @@ ListView.prototype.refresh = function() {
 ListView.prototype._refresh = function(start, step) {
 	var oRow, selector, oFiller;
 	var value, columnWidth;
-	var rowHeight, offset;
+	var rowHeight, offset, cell;
 	var w = this;
 	var tbody = w.list.tBodies[0];
 	var rowBgColor;

@@ -202,12 +202,11 @@ function SplitterHandle__dblclick(evt, w) {
 
 function Splitter__resize(splitter, w, h) {
 	var length_var = (splitter.orientation == 'h')?'width':'height';
-	var length_func = (splitter.orientation == 'h')?'getWidth':'getHeight';
 	var ol = (splitter.orientation == 'h')?w:h;
 	var nl = parseInt(splitter.div.style[length_var]);
 	var pane;
 	var perc = nl / ol;
-	for (i=0; i<splitter.panes.length; i++) {
+	for (var i=0; i<splitter.panes.length; i++) {
 		pane = splitter.panes[i];
 		if (pane._statelength) {
 			pane._statelength = Math.round(perc * pane._statelength);

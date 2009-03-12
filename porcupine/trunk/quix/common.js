@@ -36,7 +36,7 @@ IFrame.prototype = new Widget;
 IFrame.prototype.customEvents =
 	Widget.prototype.customEvents.concat(['ondocumentload']);
 
-IFrame.prototype.redraw = function(bForceAll) {
+IFrame.prototype.redraw = function(bForceAll, memo) {
 	this.frame.style.visibility = 'hidden';
 	Widget.prototype.redraw.apply(this, arguments);
 	this.frame.style.visibility = '';
