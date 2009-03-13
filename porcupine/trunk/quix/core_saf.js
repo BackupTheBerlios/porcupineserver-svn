@@ -644,6 +644,7 @@ Widget.prototype.redraw = function(bForceAll, memo) {
                                               parseInt(hght));
 		}
 	}
+    return memo;
 }
 
 Widget.prototype.print = function(expand) {

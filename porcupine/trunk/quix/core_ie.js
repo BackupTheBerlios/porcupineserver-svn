@@ -663,6 +663,7 @@ Widget.prototype.redraw = function(bForceAll, memo) {
                                               parseInt(hght));
 		}
 	}
+    return memo;
 }
 
 Widget.prototype.print = function(expand) {
@@ -943,7 +944,14 @@ function Desktop(params, root) {
 	root.appendChild(this.div);
 	this.div.className = 'desktop';
 	document.desktop = this;
-	window.onresize = function() {document.desktop.redraw()};
+	window.onresize = function() {
+        var dw = document.desktop.getWidth(true);
+        var dh = document.desktop.getHeight(true);
+        if (dw != document.documentElement.clientWidth ||
+                dh != document.documentElement.clientHeight) {
+            document.desktop.redraw()
+        }
+    };
 	this.overlays = [];
 	this.parseFromString(QuiX.progress,
 		function(loader){
