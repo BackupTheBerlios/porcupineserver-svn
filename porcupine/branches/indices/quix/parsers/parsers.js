@@ -27,21 +27,19 @@ QuiX.parsers.XMLRPC.stringify = function(obj) {
                                             !isFinite(obj)))
 		return false.toXMLRPC();
 	else {
-		var wo = obj.valueOf();
-		if(!wo.toXMLRPC) {
+		if(!obj.toXMLRPC) {
 			var retstr = "<struct>";
-			for(var prop in obj) {
-				if(typeof wo[prop] != "function") {
+			for (prop in obj) {
+				if(typeof obj[prop] != "function") {
 					retstr += "<member><name>" + prop + "</name><value>" +
-							  QuiX.parsers.XMLRPC.stringify(wo[prop]) +
-                              "</value></member>";
+							  QuiX.rpc.toXMLRPC(obj[prop]) + "</value></member>";
 				}
 			}
 			retstr += "</struct>";
 			return retstr;
 		}
 		else
-			return wo.toXMLRPC();
+			return obj.toXMLRPC();
 	}
 }
 

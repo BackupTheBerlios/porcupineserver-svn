@@ -78,7 +78,7 @@ QuiX.ui.TreeNode.prototype._putImage = function() {
 	}
 }
 
-QuiX.ui.TreeNode.prototype.redraw = function(bForceAll) {
+QuiX.ui.TreeNode.prototype.redraw = function(bForceAll, memo) {
 	this._putImage();
 	if (this.hasChildren())
 		this._addExpandImg();

@@ -33,7 +33,7 @@ QuiX.ui.MenuOption.prototype.addOption = function(params) {
 	return this.subMenu.addOption(params);
 }
 
-QuiX.ui.MenuOption.prototype.redraw = function(bForceAll) {
+QuiX.ui.MenuOption.prototype.redraw = function(bForceAll, memo) {
 	if (this.subMenu) {
 		this.div.className = 'submenu';
 	}
@@ -213,7 +213,7 @@ QuiX.ui.ContextMenu.prototype.destroy = function() {
 	QuiX.ui.Widget.prototype.destroy.apply(this, arguments);
 }
 
-QuiX.ui.ContextMenu.prototype.redraw = function(bForceAll) {
+QuiX.ui.ContextMenu.prototype.redraw = function(bForceAll, memo) {
 	var oOption, optionWidth;
 	var iHeight = 0;
 	
@@ -329,7 +329,7 @@ QuiX.ui.MenuBar.prototype = new QuiX.ui.Widget;
 // backwards compatibility
 var MBar = QuiX.ui.MenuBar;
 
-QuiX.ui.MenuBar.prototype.redraw = function(bForceAll) {
+QuiX.ui.MenuBar.prototype.redraw = function(bForceAll, memo) {
 	for (var i=0; i<this.menus.length; i++) {
 		 this.menus[i].div.style.marginRight = this.spacing + 'px';
 	}

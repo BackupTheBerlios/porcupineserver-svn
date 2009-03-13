@@ -17,6 +17,15 @@
 
 QuiX.utils = {};
 
+QuiX.utils.uid = (
+    /* uid generator */
+    function(){
+        var id=0;
+        return function(){
+            return id++ ;
+        };
+})();
+
 QuiX.utils.hashlib = (function() {
     /* A JavaScript implementation of the Secure Hash Standard
      * Version 0.3 Copyright Angel Marin 2003-2004 - http://anmar.eu.org/

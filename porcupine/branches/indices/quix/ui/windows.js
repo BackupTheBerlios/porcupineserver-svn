@@ -550,7 +550,7 @@ function Dialog__keypress(evt, w) {
 		w.close();
 }
 
-function Dialog__buttonHolderRedraw(bForceAll) {
+function Dialog__buttonHolderRedraw(bForceAll, memo) {
 	var iOffset = 0;
 	for (var i=0; i<this.widgets.length; i++) {
 		this.widgets[i].left = iOffset;

@@ -228,7 +228,7 @@ QuiX.ui.Field.prototype.setBgColor = function(color) {
 		this.div.firstChild.style.backgroundColor = color;
 }
 
-QuiX.ui.Field.prototype.redraw = function(bForceAll) {
+QuiX.ui.Field.prototype.redraw = function(bForceAll, memo) {
 	if (this.type == 'text' || this.type == 'textarea' || this.type == 'password')
 		this.div.firstChild.style.padding = this.textPadding + 'px';
 	QuiX.ui.Widget.prototype.redraw.apply(this, arguments);

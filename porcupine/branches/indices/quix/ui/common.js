@@ -40,7 +40,7 @@ QuiX.ui.IFrame.prototype.customEvents =
 // backwards compatibility
 var IFrame = QuiX.ui.IFrame;
 
-QuiX.ui.IFrame.prototype.redraw = function(bForceAll) {
+QuiX.ui.IFrame.prototype.redraw = function(bForceAll, memo) {
 	this.frame.style.visibility = 'hidden';
 	QuiX.ui.Widget.prototype.redraw.apply(this, arguments);
 	this.frame.style.visibility = '';
@@ -124,7 +124,7 @@ QuiX.ui.GroupBox.prototype.customEvents =
     QuiX.ui.Widget.prototype.customEvents.concat(['onstatechange']);
 
 QuiX.ui.GroupBox.prototype.setBgColor = function(color) {
-	QuiX.ui.Widget.prototype.setBgColor(color,this);
+	QuiX.ui.Widget.prototype.setBgColor.apply(this, arguments);
 	this.caption.setBgColor(color);
 }
 

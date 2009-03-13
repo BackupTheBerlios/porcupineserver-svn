@@ -12,8 +12,6 @@ QuiX.ui.Label = function(params) {
 
 	this.div.className = 'label';
 	this.align = params.align || 'left';
-    this._auto_width = (params.width == 'auto');
-    this._auto_height = (params.height == 'auto');
 	
 	if (params.color) {
 		if (!this._isDisabled)
@@ -39,22 +37,41 @@ QuiX.ui.Label.prototype = new QuiX.ui.Widget;
 // backwards compatibility
 var Label = QuiX.ui.Label;
 
-QuiX.ui.Label.prototype._calcWidth = function(b) {
-    if (this._auto_width) {
-        document.body.appendChild(this.div);
-        this.width = this.div.offsetWidth;
-        QuiX.removeNode(this.div);
+QuiX.ui.Label.prototype._calcSize = function(height, offset, getHeight, memo) {
+    if (this[height] == 'auto' &&
+            (!memo || (memo && !memo[this._uniqueid + height]))) {
+        // we need to measure
+        var div = ce('DIV');
+        div.style.position = 'absolute';
+        div.id = this.div.id;
+        div.style.whiteSpace = this.div.style.whiteSpace;
+        div.style.fontSize = this.div.style.fontSize;
+        div.style.fontWeight = this.div.style.fontWeight;
+        var other = (height == 'height')?'width':'height';
+        var other_func = (other == 'height')?'_calcHeight':'_calcWidth';
+        var measure = (height == 'height')?'offsetHeight':'offsetWidth';
+        var padding_offset = (height == 'height')?2:0;
+        var padding = this.getPadding();
+        if (this[other] != 'auto')
+            div.style[other] = this[other_func](true, memo) + 'px';
+        div.innerHTML = this.div.innerHTML;
+        // required by safari
+        var imgs = div.getElementsByTagName('IMG');
+        if (imgs.length > 0)
+            imgs[imgs.length - 1].style.height = '';
+        //
+        document.body.appendChild(div);
+        var value = div[measure] +
+                    padding[padding_offset] +
+                    padding[padding_offset + 1] +
+                    2*this.getBorderWidth();
+        QuiX.removeNode(div);
+        if (memo)
+            memo[this._uniqueid + height] = value;
+        return value - offset;
     }
-    return QuiX.ui.Widget.prototype._calcWidth.apply(this, arguments);
-}
-
-QuiX.ui.Label.prototype._calcHeight = function(b) {
-    if (this._auto_height) {
-        document.body.appendChild(this.div);
-        this.height = this.div.offsetHeight;
-        QuiX.removeNode(this.div);
-    }
-    return QuiX.ui.Widget.prototype._calcHeight.apply(this, arguments);
+    else
+        return Widget.prototype._calcSize.apply(this, arguments);
 }
 
 QuiX.ui.Label.prototype.setCaption = function(s) {
@@ -65,7 +82,7 @@ QuiX.ui.Label.prototype.getCaption = function(s) {
 	return(this.div.getElementsByTagName('SPAN')[0].innerHTML.xmlDecode());
 }
 
-QuiX.ui.Label.prototype.redraw = function(bForceAll) {
+QuiX.ui.Label.prototype.redraw = function(bForceAll, memo) {
 	with (this.div.style) {
 		if (!this.wrap)
 			whiteSpace = 'nowrap';
@@ -104,18 +121,6 @@ QuiX.ui.Icon.prototype = new QuiX.ui.Label;
 // backwards compatibility
 var Icon = QuiX.ui.Icon;
 
-QuiX.ui.Icon.prototype._calcHeight = function(b) {
-    var h, imgs;
-    if (this._auto_height) {
-        imgs = this.div.getElementsByTagName('IMG');
-        imgs[imgs.length - 1].style.height = '';
-    }
-    h = Label.prototype._calcHeight.apply(this, arguments);
-    if (this._auto_height)
-        imgs[imgs.length - 1].style.height = '100%';
-    return h;
-}
-
 QuiX.ui.Icon.prototype.setImageURL = function(s) {
 	this.img = s;
 	if (this.imageElement)
@@ -139,7 +144,7 @@ QuiX.ui.Icon.prototype._addDummyImage = function() {
 	}
 }
 
-QuiX.ui.Icon.prototype.redraw = function(bForceAll) {
+QuiX.ui.Icon.prototype.redraw = function(bForceAll, memo) {
 	if (bForceAll) {
 		var imgs = this.div.getElementsByTagName('IMG');
 		while (imgs.length > 0)
@@ -229,8 +234,6 @@ QuiX.ui.Button = function(params) {
 	});
 	this.div.className = 'btn';
 	this.div.style.cursor = 'pointer';
-    this._auto_width = (params.width == 'auto');
-    this._auto_height = (params.height == 'auto');
 	
 	delete params.id; delete params.top; delete params.left;
 	delete params.minw;	delete params.minh; delete params.onclick;
@@ -262,26 +265,41 @@ QuiX.ui.Button.prototype = new QuiX.ui.Widget;
 // backwards compatibility
 var XButton = QuiX.ui.Button;
 
-QuiX.ui.Button.prototype._calcWidth = function(b) {
-    if (this._auto_width) {
-        document.body.appendChild(this.div);
-        this.width = this.div.offsetWidth;
-        QuiX.removeNode(this.div);
-    }
-    return QuiX.ui.Widget.prototype._calcWidth.apply(this, arguments);
-}
+QuiX.ui.Button.prototype._calcSize = function(height, offset, getHeight, memo) {
+    if (this[height] == 'auto' &&
+            (!memo || (memo && !memo[this._uniqueid + height]))) {
+        // we need to measure
+        var div = ce('DIV');
+        div.style.position = 'absolute';
+        div.id = this.div.id;
+        div.style.border = this.icon.div.style.border;
+        div.style.padding = this.icon.div.style.padding;
 
-QuiX.ui.Button.prototype._calcHeight = function(b) {
-    if (this._auto_height) {
-        this.div.firstChild.style.height = '';
-        var imgs = this.div.getElementsByTagName('IMG');
+        var other = (height == 'height')?'width':'height';
+        var other_func = (other == 'height')?'_calcHeight':'_calcWidth';
+        var measure = (height == 'height')?'offsetHeight':'offsetWidth';
+        var padding_offset = (height == 'height')?2:0;
+        var padding = this.getPadding();
+
+        if (this[other] != 'auto')
+            div.style[other] = this[other_func](true, memo) + 'px';
+        div.innerHTML = this.div.firstChild.innerHTML;
+        // required by safari
+        var imgs = div.getElementsByTagName('IMG');
         imgs[imgs.length - 1].style.height = '';
-        document.body.appendChild(this.div);
-        this.height = this.div.offsetHeight;
-        QuiX.removeNode(this.div);
-        imgs[imgs.length - 1].style.height = '100%';
+        //
+        document.body.appendChild(div);
+        var value = div[measure] +
+                    padding[padding_offset] +
+                    padding[padding_offset + 1] +
+                    2 * this.getBorderWidth();
+        QuiX.removeNode(div);
+        if (memo)
+            memo[this._uniqueid + height] = value;
+        return value - offset;
     }
-    return QuiX.ui.Widget.prototype._calcHeight.apply(this, arguments);
+    else
+        return Widget.prototype._calcSize.apply(this, arguments);
 }
 
 QuiX.ui.Button.prototype.setCaption = function(s) {
@@ -292,13 +310,13 @@ QuiX.ui.Button.prototype.getCaption = function() {
 	return this.icon.getCaption();
 }
 
-QuiX.ui.Button.prototype.redraw = function(bForceAll) {
+QuiX.ui.Button.prototype.redraw = function(bForceAll, memo) {
 	if (bForceAll) {
 		this.icon.align = this.align;
 		this.icon.img = this.img;
 		this.icon.imgAlign = this.imgAlign;
 		this.icon.setPadding(this.iconPadding.split(','));
-		this.icon.redraw(true);
+		this.icon.redraw(true, memo);
 	}
 	QuiX.ui.Widget.prototype.redraw.apply(this, arguments);
 }
@@ -378,7 +396,7 @@ QuiX.ui.FlatButton.prototype = new QuiX.ui.Icon;
 // backwards compatibility
 var FlatButton = QuiX.ui.FlatButton;
 
-QuiX.ui.FlatButton.prototype.redraw = function(bForceAll) {
+QuiX.ui.FlatButton.prototype.redraw = function(bForceAll, memo) {
 	QuiX.ui.Icon.prototype.redraw.apply(this, arguments);
 
 	if (this.type == 'menu' && (!this._menuImg || bForceAll)) {
