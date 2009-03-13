@@ -90,20 +90,19 @@ QuiX.rpc.toXMLRPC = function(obj) {
 			(typeof obj == "number" && !isFinite(obj)) )
 		return false.toXMLRPC();
 	else {
-		var wo = obj.valueOf();
-		if(!wo.toXMLRPC) {
+		if(!obj.toXMLRPC) {
 			var retstr = "<struct>";
 			for(prop in obj) {
-				if(typeof wo[prop] != "function") {
+				if(typeof obj[prop] != "function") {
 					retstr += "<member><name>" + prop + "</name><value>" +
-							  QuiX.rpc.toXMLRPC(wo[prop]) + "</value></member>";
+							  QuiX.rpc.toXMLRPC(obj[prop]) + "</value></member>";
 				}
 			}
 			retstr += "</struct>";
 			return retstr;
 		}
 		else
-			return wo.toXMLRPC();
+			return obj.toXMLRPC();
 	}
 }
 
