@@ -174,7 +174,7 @@ QuiX.tags = {
 QuiX.__init__ = function() {
 	try {
 		window.moveTo(0,0);
-		window.resizeTo(screen.availWidth,screen.availHeight);
+		window.resizeTo(screen.availWidth, screen.availHeight);
 	} catch(e) {}
 	var root = document.body.removeChild(document.getElementById("xul"));
 	var parser = new QuiX.Parser();
@@ -632,11 +632,12 @@ QuiX.Parser.prototype.parse = function(oDom, parentW) {
 QuiX.Parser.prototype.beginRender = function() {
 	var on_load;
 	var widget = this.render();
-	widget.redraw(true);	
+    this.__onload.reverse();
 	while (this.__onload.length > 0) {
 		on_load = this.__onload.pop();
 		on_load[0](on_load[1]);
 	}
+	widget.redraw(true);
     this.dom = null;
 	if (this.oncomplete)
 		this.oncomplete(widget);
