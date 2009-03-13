@@ -168,7 +168,6 @@ function BoxWidget__destroy() {
 		this.base.prototype.destroy.apply(this, arguments);
 	else
 		Widget.prototype.destroy.apply(this, arguments);
-	oBox.redraw(true);
 }
 
 function FlowBox(params) {
