@@ -91,7 +91,8 @@ class BaseServer(BaseService, Dispatcher):
         if self.is_multiprocess:
             if not hasattr(socket, 'fromfd'):
                 # create multiprocessing queues for communicating
-                request_queue = multiprocessing.Queue(worker_threads * 2)
+                request_queue = multiprocessing.Queue(worker_threads *
+                                                      worker_processes)
                 done_queue = multiprocessing.Queue(worker_threads *
                                                    worker_processes)
         else:
@@ -144,8 +145,9 @@ class BaseServer(BaseService, Dispatcher):
                                    self.done_queue)
                     p.start()
                     self.worker_pool.append(p)
+                
                 # start task dispatcher thread(s)
-                for i in range(1):#(self.worker_processes):
+                for i in range(self.worker_processes):
                     t = Thread(target=self.task_dispatch,
                                name='%s task dispatcher %d' % (self.name, i+1))
                     t.start()
@@ -189,20 +191,29 @@ class BaseServer(BaseService, Dispatcher):
         if self.running:
             self.running = False
             if self.request_queue:
+                if self.is_multiprocess:
+                    qlen = self.worker_processes * self.worker_threads
+                else:
+                    qlen = self.worker_threads * 2
                 Dispatcher.close(self)
-                for i in range(self.worker_threads * 2):
+                for i in range(qlen):
                     self.request_queue.put(None)
 
             # join workers
             for t in self.worker_pool:
                 t.join()
 
-            if self.is_multiprocess:
+            if self.done_queue:
+                # we have multiprocessing queues
                 # join task dispatchers
-                for i in range(len(self.task_dispatchers)):
+                for i in range(self.worker_processes):
                     self.done_queue.put(None)
                 for t in self.task_dispatchers:
                     t.join()
+                self.request_queue.close()
+                self.done_queue.close()
+                self.request_queue.join_thread()
+                self.done_queue.join_thread()
 
             # shut down runtime services
             BaseService.shutdown(self)
@@ -356,12 +367,20 @@ if multiprocessing:
                 pass
 
             # join threads
-            [t.join for t in thread_pool]
+            for t in thread_pool:
+                t.join()
 
             if self.socket != None:
                 # join asyncore thread
                 asyncore.close_all(socket_map)
                 asyn_thread.join()
+
+            if self.done_queue:
+                # we have multiprocessing queues
+                self.request_queue.close()
+                self.done_queue.close()
+                self.request_queue.join_thread()
+                self.done_queue.join_thread()
 
             # shutdown runtime services
             BaseService.shutdown(self)
