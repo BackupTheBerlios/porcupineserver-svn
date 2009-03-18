@@ -17,7 +17,6 @@
 """
 OQL Parser
 """
-
 from porcupine.core import cache
 from porcupine.core.yacc import lex, yacc
 from porcupine.core.oql import core
@@ -541,7 +540,7 @@ class OqlParser:
         p[0] = [p[1]]
 
     def p_error(self, p):
-        if p:
+        if p != None:
             raise SyntaxError, ('', p.lineno, p.value)
         else:
             raise SyntaxError, ('', 0, '')
