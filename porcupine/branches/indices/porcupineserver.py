@@ -54,10 +54,11 @@ class Controller(object):
             self.services['_controller'] = self
             # start services
             runtime.logger.info('Starting services...')
-            services.startServices()
+            services.start()
         except Exception, e:
             runtime.logger.error(e[0], *(), **{'exc_info' : True})
-            runtime.shutdown()
+            # stop services
+            services.stop()
             raise e
 
         # start asyn thread
@@ -77,7 +78,10 @@ class Controller(object):
 
         # record process id
         pidfile = file(PID_FILE, "w")
-        pidfile.write(str(os.getpid()))
+        if os.name == 'posix':
+            pidfile.write(str(os.getpgid(os.getpid())))
+        else:
+            pidfile.write(str(os.getpid()))
         pidfile.close()
         
         runtime.logger.info('Porcupine Server started succesfully')
@@ -94,7 +98,7 @@ certain conditions; See COPYING for more details.'''
         if hasattr(select, 'poll'):
             _use_poll = True
         try:
-            asyncore.loop(30.0, _use_poll)
+            asyncore.loop(16.0, _use_poll)
         except select.error, v:
             if v[0] == EINTR:
                 print 'Shutdown not completely clean...'
@@ -109,16 +113,11 @@ certain conditions; See COPYING for more details.'''
         self.shutdown_evt.wait()
         print 'Initiating shutdown...'
         runtime.logger.info('Initiating shutdown...')
+        self.running = False
 
         # stop services
         runtime.logger.info('Stopping services...')
-        for service in [x for x in self.services.values()
-                        if x is not self]:
-            service.shutdown()
-
-        self.running = False
-
-        runtime.shutdown()
+        services.stop()
 
         # join asyn thread
         asyncore.close_all()
@@ -130,10 +129,10 @@ def main(args):
     for arg in args:
         if arg == 'daemon':
             if os.name == 'posix':
-                out = file('out', 'w')
+                out = open('nul', 'w')
                 sys.stdout = out
                 sys.stderr = out
-                pid=os.fork()
+                pid = os.fork()
                 if pid:
                     sys.exit()
             else:
@@ -143,7 +142,7 @@ def main(args):
             pid = int(pidfile.read())
             pidfile.close
             if os.name == 'posix':
-                os.kill(pid, signal.SIGINT)
+                os.killpg(pid, signal.SIGINT)
             else:
                 print 'Your operating system does not support this command.'
             sys.exit()
@@ -159,7 +158,7 @@ def main(args):
 
     try:
         while controller.running:
-            time.sleep(30.0)
+            time.sleep(16.0)
     except IOError:
         pass
 

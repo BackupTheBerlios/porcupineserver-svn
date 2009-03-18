@@ -28,12 +28,13 @@ _activeTxns = 0
 
 def open(**kwargs):
     global _db_handle
-    _db_handle = misc.getCallableByName(settings['store']['interface'])
-    _db_handle.open(**kwargs)
+    if _db_handle == None or not _db_handle.is_open():
+        _db_handle = misc.getCallableByName(settings['store']['interface'])
+        _db_handle.open(**kwargs)
+        return True
+    else:
+        return False
     
-def is_open():
-    return _db_handle and _db_handle.is_open()
-
 def _getItemByPath(lstPath, trans=None):
     child = getItem('', trans)
     for name in lstPath[1:len(lstPath)]:

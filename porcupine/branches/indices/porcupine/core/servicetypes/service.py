@@ -18,27 +18,40 @@
 from porcupine.core import runtime
 
 class BaseService(object):
+    runtime_services = []
     def __init__(self, name):
         self.name = name
         self.parameters = None
         self.running = False
+        self.started_services = []
         
     def start(self):
-        raise NotImplementedError
+        for service, args, kwargs in self.runtime_services:
+            inited = getattr(self, 'init_' + service)(*args, **kwargs)
+            if inited:
+                self.started_services.append(service)
     
     def shutdown(self):
-        raise NotImplementedError
+        self.started_services.reverse()
+        for service in self.started_services:
+            getattr(self, 'close_' +  service)()
 
     def init_db(self, *args, **kwargs):
         runtime.logger.info('Service "%s" - Opening database...' % self.name)
-        runtime.init_db(*args, **kwargs)
+        return runtime.init_db(*args, **kwargs)
 
     def init_session_manager(self, *args, **kwargs):
         runtime.logger.info('Service "%s" - Opening session manager...' %
                             self.name)
-        runtime.init_session_manager(*args, **kwargs)
+        return runtime.init_session_manager(*args, **kwargs)
 
     def init_config(self, *args, **kwargs):
         runtime.logger.info('Service "%s" - Loading configuration...' %
                             self.name)
         runtime.init_config(*args, **kwargs)
+
+    def close_db(self):
+        runtime.close_db()
+
+    def close_session_manager(self):
+        runtime.close_session_manager()

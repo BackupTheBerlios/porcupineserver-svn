@@ -46,33 +46,32 @@ logger.setLevel(int(settings['log']['level']))
 
 def init_db(init_maintenance=True):
     from porcupine.db import _db
-    if not _db.is_open():
-        _db.open(**{'maintain':init_maintenance})
+    return _db.open(**{'maintain':init_maintenance})
 
 def init_session_manager(init_expiration=True):
     from porcupine.core.session import SessionManager
-    SessionManager.open(
+    return SessionManager.open(
         misc.getCallableByName(settings['sessionmanager']['interface']),
         int(settings['sessionmanager']['timeout']),
         init_expiration
     )
 
 def init_config():
-    # register request interfaces
-    for key, value in settings['requestinterfaces'].items():
-        settings['requestinterfaces'][key] = misc.getCallableByName(value)
-    # register template languages
-    for key, value in settings['templatelanguages'].items():
-        settings['templatelanguages'][key] = misc.getCallableByName(value)
-    # load published directories
-    from porcupine.config import pubdirs
+    # check if config is inited
+    if type(settings['requestinterfaces'].values()[0]) == str:
+        # register request interfaces
+        for key, value in settings['requestinterfaces'].items():
+            settings['requestinterfaces'][key] = misc.getCallableByName(value)
+        # register template languages
+        for key, value in settings['templatelanguages'].items():
+            settings['templatelanguages'][key] = misc.getCallableByName(value)
+        # load published directories
+        from porcupine.config import pubdirs
 
-def shutdown():
+def close_db():
     from porcupine.db import _db
-    from porcupine.core.session import SessionManager
-    
-    logger.info('Shutting down runtime services...')
-    # close session manager
-    SessionManager.close()
-    # close database
     _db.close()
+
+def close_session_manager():
+    from porcupine.core.session import SessionManager
+    SessionManager.close()

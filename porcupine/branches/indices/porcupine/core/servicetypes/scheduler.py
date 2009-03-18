@@ -28,6 +28,7 @@ class BaseTask(BaseService):
         self.interval = interval
         
     def start(self):
+        BaseService.start(self)
         self.thread = ContextThread('%s thread' % self.name,
                                     self.thread_loop,
                                     'system')
@@ -37,6 +38,7 @@ class BaseTask(BaseService):
     def shutdown(self):
         self.running = False
         self.thread.join()
+        BaseService.shutdown(self)
         
     def thread_loop(self):
         while self.running:

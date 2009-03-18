@@ -59,8 +59,8 @@ def open(**kwargs):
     _env.open(
         _dir,
         db.DB_THREAD | db.DB_INIT_MPOOL | db.DB_INIT_LOCK |
-        db.DB_INIT_LOG | db.DB_INIT_TXN | db.DB_CREATE | 
-        additional_flags
+        db.DB_INIT_LOG | db.DB_INIT_TXN | db.DB_CREATE |
+        db.DB_RECOVER | db.DB_REGISTER | additional_flags
     )
     
     dbMode = 0660
@@ -265,8 +265,8 @@ def close():
         _running = False
         if _maintenance_thread != None:
             _maintenance_thread.join()
-        _itemdb.close()
-        _docdb.close()
         for index in _indices:
             _indices[index].close()
+        _itemdb.close()
+        _docdb.close()
         _env.close()

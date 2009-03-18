@@ -23,15 +23,13 @@ from porcupine.core.services.pthread import PorcupineThread
 
 class PorcupineServer(asyncserver.BaseServer):
     "Porcupine server class"
+    runtime_services = [('config', (), {}),
+                        ('db', (), {}),
+                        ('session_manager', (), {})]
+
     def __init__(self, name, address, processes, threads):
         asyncserver.BaseServer.__init__(self, name, address, processes, threads,
                                         PorcupineThread)
-        if not self.is_multiprocess:
-            # load configuration settings
-            self.init_config()
-
-        # open database
-        self.init_db()
         
         if self.is_multiprocess:
             # check if session manager supports multiple processes
@@ -41,6 +39,3 @@ class PorcupineServer(asyncserver.BaseServer):
                 raise exceptions.ConfigurationError, \
                     'The session manager class does not support ' \
                     'multiple processes.'
-
-        # create session manager
-        self.init_session_manager()

@@ -21,7 +21,7 @@ from porcupine.utils import misc
 
 services = {}
 
-def startServices():
+def start():
     for service in settings['services']:
         name = service['name']
         type = service['type']
@@ -43,3 +43,8 @@ def startServices():
             
         # start service
         services[name].start()
+
+def stop():
+    for service_name in services:
+        if service_name != '_controller':
+            services[service_name].shutdown()

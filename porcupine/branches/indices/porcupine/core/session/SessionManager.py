@@ -21,9 +21,13 @@ _sm = None
 
 def open(sm_type, session_timeout, init_expiration):
     global _sm
-    _sm = sm_type(session_timeout)
-    if init_expiration:
-        _sm.init_expiration_mechanism()
+    if _sm == None:
+        _sm = sm_type(session_timeout)
+        if init_expiration:
+            _sm.init_expiration_mechanism()
+        return True
+    else:
+        return False
     
 def create(userid):
     # create new session

@@ -53,11 +53,11 @@ class MgtMessage(object):
 
 class ManagementServer(asyncserver.BaseServer):
     "Management Service"
+    runtime_services = [('db', (), {})]
+    
     def __init__(self, name, address, processes, worker_threads):
         asyncserver.BaseServer.__init__(self, name, address, processes,
                                         worker_threads, ManagementThread)
-        # open database
-        self.init_db()
 
 class ManagementThread(asyncserver.BaseServerThread):
     "Porcupine Server Management thread"
