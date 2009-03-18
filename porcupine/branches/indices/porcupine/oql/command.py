@@ -62,12 +62,10 @@ class OqlCommand(object):
             script_lines = ['   ' + ln for ln in script_lines]
             script_lines[lineno - 1] = '->' + script_lines[lineno - 1][2:]
             helper_string = '\n'.join(script_lines)
-            raise exceptions.InternalServerError, (
-                '%s\n\n%s' % (helper_string,
-                              "OQL syntax error at line %d: '%s'" % \
-                              (lineno, errvalue)),
-                False) 
-        
+            error_string = '%s\n\n%s' % (helper_string,
+                                         "OQL syntax error at line %d: '%s'" % \
+                                         (lineno, errvalue))
+            raise exceptions.InternalServerError, (error_string, False)
         except TypeError, e:
             raise exceptions.InternalServerError, e[0]
         
