@@ -45,6 +45,7 @@ class Dispatcher(asyncore.dispatcher):
         self.request_queue = request_queue
         self.done_queue = done_queue
         self.socket_map = socket_map
+        self.accepting = 1
 
     def readable(self):
         return self.accepting
@@ -117,35 +118,23 @@ class BaseServer(BaseService, Dispatcher):
         sock.listen(64)
 
         if self.request_queue != None:
-            self.accepting = 1
             # activate server socket
             self.set_socket(sock)
 
         if self.is_multiprocess:
+            kwargs = {'request_queue' : self.request_queue,
+                      'done_queue' : self.done_queue,
+                      'socket' : None}
             if self.request_queue == None:
-                # start worker processes
-                for i in range(self.worker_processes):
-                    pname = '%s server process %d' % (self.name, i+1)
-                    p = SubProcess(pname,
-                                   self.worker_threads,
-                                   self.thread_class,
-                                   None,
-                                   None,
-                                   sock)
-                    p.start()
-                    self.worker_pool.append(p)
-            else:
-                # start worker processes
-                for i in range(self.worker_processes):
-                    pname = '%s server process %d' % (self.name, i+1)
-                    p = SubProcess(pname,
-                                   self.worker_threads,
-                                   self.thread_class,
-                                   self.request_queue,
-                                   self.done_queue)
-                    p.start()
-                    self.worker_pool.append(p)
-                
+                kwargs['socket'] = sock
+            # start worker processes
+            for i in range(self.worker_processes):
+                pname = '%s server process %d' % (self.name, i+1)
+                p = SubProcess(pname, self.worker_threads, self.thread_class,
+                               **kwargs)
+                p.start()
+                self.worker_pool.append(p)
+            if self.request_queue != None:
                 # start task dispatcher thread(s)
                 for i in range(self.worker_processes):
                     t = Thread(target=self.task_dispatch,
@@ -254,8 +243,8 @@ class RequestHandler(asyncore.dispatcher):
             if self.input_buffer:
                 self.has_request = True
                 if self.server.done_queue != None:
-                    proxy = RequestHandlerProxy(self)
-                    self.server.request_queue.put(proxy)
+                    self.server.request_queue.put((self._fileno,
+                                                   self.input_buffer))
                 else:
                     # put it in the queue so that is served
                     self.server.request_queue.put(self)
@@ -286,10 +275,10 @@ class RequestHandler(asyncore.dispatcher):
 
 if multiprocessing:
     class RequestHandlerProxy(object):
-        def __init__(self, rh):
-            self.fd = rh._fileno
-            self.input_buffer = rh.input_buffer
-            self.done_queue = None
+        def __init__(self, fileno, input_buffer, done_queue):
+            self.fd = fileno
+            self.input_buffer = input_buffer
+            self.done_queue = done_queue
 
         def write_buffer(self, s):
             self.done_queue.put((self.fd, s))
@@ -339,7 +328,6 @@ if multiprocessing:
                 self.request_queue = Queue.Queue(self.worker_threads * 2)
                 self.done_queue = None
                 server = Dispatcher(self.request_queue, None, socket_map)
-                server.accepting = 1
                 # activate server socket
                 server.set_socket(self.socket, socket_map)
 
@@ -348,6 +336,10 @@ if multiprocessing:
                                      args=(socket_map, ),
                                      name='%s asyncore thread' % self.name)
                 asyn_thread.start()
+            else:
+                # create queue for inactive RequestHandlerProxy objects
+                # i.e. those served
+                self.rhproxy_queue = Queue.Queue(0)
 
             thread_pool = []
             for i in range(self.worker_threads):
@@ -400,6 +392,19 @@ if multiprocessing:
                         request_handler.has_response = True
                     else:
                         # we have a RequestHandlerProxy
-                        request_handler.done_queue = self.done_queue
-                        thread.handle_request(request_handler)
-                        self.done_queue.put((request_handler.fd, None))
+                        fd, input_buffer = request_handler
+                        try:
+                            # get inactive RequestHandlerProxy from queue
+                            proxy = self.rhproxy_queue.get_nowait()
+                            proxy.fd = fd
+                            proxy.input_buffer = input_buffer
+                        except Queue.Empty:
+                            # if empty then create new RequestHandlerProxy
+                            proxy = RequestHandlerProxy(fd, input_buffer,
+                                                        self.done_queue)
+                        thread.handle_request(proxy)
+                        self.done_queue.put((fd, None))
+                        # add inactive proxy to proxy queue
+                        proxy.input_buffer = ''
+                        self.rhproxy_queue.put(proxy)
+
