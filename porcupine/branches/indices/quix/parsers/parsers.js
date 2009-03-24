@@ -32,7 +32,8 @@ QuiX.parsers.XMLRPC.stringify = function(obj) {
 			for (prop in obj) {
 				if(typeof obj[prop] != "function") {
 					retstr += "<member><name>" + prop + "</name><value>" +
-							  QuiX.rpc.toXMLRPC(obj[prop]) + "</value></member>";
+							  QuiX.parsers.XMLRPC.stringify(obj[prop]) +
+                              "</value></member>";
 				}
 			}
 			retstr += "</struct>";
