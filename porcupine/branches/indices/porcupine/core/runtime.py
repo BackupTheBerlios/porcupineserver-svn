@@ -24,6 +24,8 @@ try:
 except ImportError:
     multiprocessing = None
 
+from porcupine.db import _db
+from porcupine.core.session import SessionManager
 from porcupine.utils import misc
 from porcupine.config.settings import settings
 
@@ -44,12 +46,17 @@ else:
 logger.addHandler(_loghandler)
 logger.setLevel(int(settings['log']['level']))
 
-def init_db(init_maintenance=True):
-    from porcupine.db import _db
-    return _db.open(**{'maintain':init_maintenance})
+def init_db(init_maintenance=True, recover=0):
+    return _db.open(**{'maintain' : init_maintenance,
+                       'recover' : recover})
+
+def lock_db():
+    _db.lock()
+
+def unlock_db():
+    _db.unlock()
 
 def init_session_manager(init_expiration=True):
-    from porcupine.core.session import SessionManager
     return SessionManager.open(
         misc.getCallableByName(settings['sessionmanager']['interface']),
         int(settings['sessionmanager']['timeout']),
@@ -69,9 +76,10 @@ def init_config():
         from porcupine.config import pubdirs
 
 def close_db():
-    from porcupine.db import _db
     _db.close()
 
 def close_session_manager():
-    from porcupine.core.session import SessionManager
     SessionManager.close()
+
+def close_config():
+    pass

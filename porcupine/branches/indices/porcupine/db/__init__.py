@@ -91,7 +91,7 @@ def transactional(auto_commit=False):
                             txn.abort()
                             time.sleep(0.03)
                             retries += 1
-                            print retries
+                            #print retries
                             txn._retry()
                         else:
                             raise

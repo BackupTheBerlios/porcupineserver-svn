@@ -15,11 +15,13 @@
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #===============================================================================
 "Porcupine Server management service"
+import os
 from cPickle import dumps, loads
 
 from porcupine.core.runtime import logger
 from porcupine.core.servicetypes import asyncserver
 from porcupine.core.networking.request import BaseRequest
+from porcupine.config import services
 from porcupine.db import _db
 
 class MgtRequest(BaseRequest):
@@ -27,7 +29,7 @@ class MgtRequest(BaseRequest):
         resp = BaseRequest.get_response(self, addr)
         response = MgtMessage()
         response.load(resp)
-        return(response)
+        return response
 
 class MgtMessage(object):
     """
@@ -75,32 +77,33 @@ class ManagementThread(asyncserver.BaseServerThread):
         except:
             logger.error('Management Error:', *(), **{'exc_info':1})
             error_msg = MgtMessage(-1,
-                            'Internal server error. See server log for details.')
+                        'Internal server error. See server log for details.')
             rh.write_buffer(error_msg.serialize())
 
     def execute_command(self, cmd, request):
-        #DB maintenance commands
         try:
-            if cmd=='DB_BACKUP':
+            # DB maintenance commands
+            if cmd == 'DB_BACKUP':
                 output_file = request.data
+                if not os.path.isdir(os.path.dirname(output_file)):
+                    raise IOError
                 try:
-                    _db.lock()
-                    backfiles = _db.backup(output_file)
+                    services.services['_controller'].lock_db()
+                    _db.backup(output_file)
                 finally:
-                    _db.unlock()
+                    services.services['_controller'].unlock_db()
                 return (0, 'Database backup completed successfully.')
             
-            elif cmd=='DB_RESTORE':
+            elif cmd == 'DB_RESTORE':
                 backup_set = request.data
+                if not os.path.exists(backup_set):
+                    raise IOError
+                services.services['_controller'].close_db()
                 _db.restore(backup_set)
+                services.services['_controller'].open_db()
                 return (0, 'Database restore completed successfully.')
     
-            elif cmd=='DB_RECOVER':
-                _db.close()
-                _db.recover()
-                return (0, 'Database recovery completed successfully.')
-            
-            elif cmd=='DB_SHRINK':
+            elif cmd == 'DB_SHRINK':
                 iLogs = _db.shrink()
                 if iLogs:
                     return (0, 'Successfully removed %d log files.' % iLogs)

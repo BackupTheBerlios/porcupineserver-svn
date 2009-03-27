@@ -55,13 +55,17 @@ def open(**kwargs):
     
     # create db environment
     additional_flags = kwargs.get('flags', 0)
+    recovery_mode = kwargs.get('recover', 0)
+    if recovery_mode == 2:
+        additional_flags = additional_flags | db.DB_RECOVER_FATAL
+    elif recovery_mode == 1:
+        additional_flags = additional_flags | db.DB_RECOVER
+
     _env = db.DBEnv()
-    _env.open(
-        _dir,
-        db.DB_THREAD | db.DB_INIT_MPOOL | db.DB_INIT_LOCK |
-        db.DB_INIT_LOG | db.DB_INIT_TXN | db.DB_CREATE |
-        db.DB_RECOVER | db.DB_REGISTER | additional_flags
-    )
+    _env.open(_dir,
+              db.DB_THREAD | db.DB_INIT_MPOOL | db.DB_INIT_LOCK |
+              db.DB_INIT_LOG | db.DB_INIT_TXN | db.DB_CREATE |
+              additional_flags)
     
     dbMode = 0660
     dbFlags = db.DB_THREAD | db.DB_CREATE | db.DB_AUTO_COMMIT
@@ -188,6 +192,7 @@ def get_transaction():
 
 # administrative
 def __removeFiles():
+    # environment files
     oldFiles = glob.glob(_dir + '__db.*')
     for oldFile in oldFiles:
         os.remove(oldFile)
@@ -213,12 +218,7 @@ def truncate():
         # open db
         open()
     
-def recover():
-    open(flags=db.DB_RECOVER)
-
 def backup(output_file):
-    if not os.path.isdir(os.path.dirname(output_file)):
-        raise IOError
     # force checkpoint
     _env.txn_checkpoint(0, 0, db.DB_FORCE)
     logs = _env.log_archive(db.DB_ARCH_LOG)
@@ -229,13 +229,9 @@ def backup(output_file):
     backupFile.addfiles(backfiles)
         
 def restore(bset):
-    if not os.path.exists(bset):
-        raise IOError
-    close()
     __removeFiles()
     backupFile = BackupFile(bset)
     backupFile.extractTo(_dir)
-    open()
 
 def shrink():
     logs = _env.log_archive()

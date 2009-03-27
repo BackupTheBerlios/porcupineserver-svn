@@ -41,8 +41,8 @@ DATABASE COMMANDS
         $ python porcupineadmin.py --shrink --server=SERVERNAME:SERVERPORT
         
     Recover database:
-        $ python porcupineadmin.py -c [-s SERVERNAME:SERVERPORT] or
-        $ python porcupineadmin.py --recover [--server=SERVERNAME:SERVERPORT]
+        $ python porcupineadmin.py -c or
+        $ python porcupineadmin.py --recover
     
     SERVERNAME:SERVERPORT - The management server address (i.e. localhost:6001)
     BACKUPFILE - The server's local path to the backup file
@@ -106,9 +106,8 @@ Are you sure you want proceed(Y/N)?''')
     if (answer.upper() == 'Y'):
         try:
             from porcupine.administration import offlinedb
-            print 'Recovering database...'
-            db = offlinedb.getHandle()
-            db.recover()
+            print 'Recovering database. Please wait...'
+            db = offlinedb.getHandle(recover=2)
             db.close()
             print 'Database recovery completed successfully.'
         except Exception, e:

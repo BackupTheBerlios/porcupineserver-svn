@@ -43,6 +43,8 @@ __version__ = '0.5.2 build(20081010)'
 PID_FILE = 'conf/.pid'
 
 class Controller(object):
+    type = 'Controller'
+
     def __init__(self):
         self.shutdowninprogress = False
         self.running = False
@@ -104,6 +106,20 @@ certain conditions; See COPYING for more details.'''
                 print 'Shutdown not completely clean...'
             else:
                 pass
+
+    def lock_db(self):
+        [s.lock_db() for s in services.services.values() if s != self]
+
+    def unlock_db(self):
+        [s.unlock_db() for s in services.services.values() if s != self]
+
+    def open_db(self):
+        [s.add_runtime_service('db') for s in services.services.values()
+         if s != self]
+
+    def close_db(self):
+        [s.remove_runtime_service('db') for s in services.services.values()
+         if s != self]
 
     def initiateShutdown(self, arg1=None, arg2=None):
         self.shutdowninprogress = True

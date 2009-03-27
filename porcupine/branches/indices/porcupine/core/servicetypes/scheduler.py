@@ -23,6 +23,8 @@ from porcupine.core.servicetypes.service import BaseService
 
 class BaseTask(BaseService):
     "Porcupine base class for scheduled task services"
+    type = 'ScheduledTask'
+
     def __init__(self, name, interval):
         BaseService.__init__(self, name)
         self.interval = interval

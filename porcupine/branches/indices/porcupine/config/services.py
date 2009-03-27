@@ -44,6 +44,10 @@ def start():
         # start service
         services[name].start()
 
+def get_services_by_type(t):
+    return [service for service in services.values()
+            if service.type == t]
+
 def stop():
     for service_name in services:
         if service_name != '_controller':

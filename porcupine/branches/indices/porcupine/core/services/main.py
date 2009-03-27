@@ -24,7 +24,7 @@ from porcupine.core.services.pthread import PorcupineThread
 class PorcupineServer(asyncserver.BaseServer):
     "Porcupine server class"
     runtime_services = [('config', (), {}),
-                        ('db', (), {}),
+                        ('db', (), {'recover':1}),
                         ('session_manager', (), {})]
 
     def __init__(self, name, address, processes, threads):

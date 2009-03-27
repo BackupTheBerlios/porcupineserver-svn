@@ -23,10 +23,10 @@ from threading import currentThread
 from porcupine.db import _db
 from porcupine.core.context import SecurityContext
 
-def getHandle(identity=None):
+def getHandle(identity=None, recover=0):
     # open database
-    _db.open()
-    if identity==None:
+    _db.open(recover=recover, maintain=False)
+    if identity == None:
         identity = _db.getItem('system')
     currentThread().context = SecurityContext(identity)
     return _db

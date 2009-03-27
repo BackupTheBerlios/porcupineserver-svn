@@ -20,7 +20,6 @@ Use it as a base class in order to implement your own session manager.
 """
 
 class GenericSessionManager(object):
-    
     revive_threshold = 4.0
     supports_multiple_processes = False
 

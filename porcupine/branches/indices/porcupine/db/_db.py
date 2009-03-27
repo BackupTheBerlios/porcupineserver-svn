@@ -166,9 +166,6 @@ def unlock():
     if _locks:
         _locks -= 1
 
-def recover():
-    _db_handle.recover()
-    
 def backup(output_file):
     _db_handle.backup(output_file)
     
@@ -183,7 +180,5 @@ def shrink():
 
 def close():
     global _db_handle
-    if _db_handle != None:
+    if _db_handle.is_open():
         _db_handle.close()
-        _db_handle = None
-

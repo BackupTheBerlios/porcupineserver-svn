@@ -61,16 +61,19 @@ class SessionManager(GenericSessionManager):
     def _expire_sessions(self):
         from porcupine.core.runtime import logger
         while self._is_active:
-            # get inactive sessions
-            cursor = db._db.join((
-                ('_parentid', '_sessions'),
-                ('modified', (None, time.time() - self.timeout))), None)
-            cursor.fetch_all = True
-            sessions = [session for session in cursor]
-            cursor.close()
-            for session in sessions:
-                logger.debug('Expiring Session: %s' % session.id)
-                session.terminate()
+            try:
+                # get inactive sessions
+                cursor = db._db.join((
+                    ('_parentid', '_sessions'),
+                    ('modified', (None, time.time() - self.timeout))), None)
+                cursor.fetch_all = True
+                sessions = [session for session in cursor]
+                cursor.close()
+                for session in sessions:
+                    logger.debug('Expiring Session: %s' % session.id)
+                    session.terminate()
+            except Exception, e:
+                logger.error('Error in session expiration thread: %s' % e)
             time.sleep(3.0)
 
     @db.transactional(auto_commit=True)
