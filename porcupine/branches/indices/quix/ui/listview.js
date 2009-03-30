@@ -252,7 +252,7 @@ QuiX.ui.ListView.prototype.addColumn = function(params) {
 		if (params.width.slice(params.width.length-1) == '%')
 			oCol.proportion = parseInt(params.width) / 100;
 		else {
-			var offset = (QuiX.browser == 'saf')?
+			var offset = (QuiX.utils.BrowserInfo.family == 'saf')?
                          0:2*this.cellPadding + 2*this.cellBorder;
 			oCol.style.width = (params.width - offset) + 'px';
 		}
@@ -313,8 +313,8 @@ QuiX.ui.ListView.prototype.addColumn = function(params) {
 QuiX.ui.ListView.prototype._calcResizerOffset = function(w) {
 	var oHeader = this.header;
 	var left = (this.hasSelector)?10:0;
-	var offset = (QuiX.browser=='saf')?-2:2*this.cellPadding;
-	var offset2 = (QuiX.browser=='saf')?0:this.cellBorder;
+	var offset = (QuiX.utils.BrowserInfo.family=='saf')?-2:2*this.cellPadding;
+	var offset2 = (QuiX.utils.BrowserInfo.family=='saf')?0:this.cellBorder;
 	var column_width;
 	for (var i=this._deadCells; i<this.columns.length; i++) {
 		column_width = parseInt(this.columns[i].style.width);
@@ -442,7 +442,7 @@ QuiX.ui.ListView.prototype._refresh = function(start, step) {
 	var rowBgColor;
 	//var listBgColor = w.getBgColor();
 	if (w.rowHeight) {
-		if (QuiX.browser == 'ie')
+		if (QuiX.utils.BrowserInfo.family == 'ie')
 			offset = 2 * w.cellPadding;
 		else
 			offset = 0;
@@ -460,7 +460,8 @@ QuiX.ui.ListView.prototype._refresh = function(start, step) {
 			oRow.style.height = rowHeight;
 		if (w.hasSelector) {
 			selector = w._getSelector();
-			offset = (QuiX.browser=='saf')?0:2*w.cellPadding - 2;
+			offset = (QuiX.utils.BrowserInfo.family=='saf')?
+                0:2*w.cellPadding - 2;
 			selector.style.width = (8 - offset) + 'px';
 			oRow.appendChild(selector);
 		}
@@ -469,7 +470,7 @@ QuiX.ui.ListView.prototype._refresh = function(start, step) {
 			cell.className = 'cell';
 			columnWidth = w.columns[j].style.width;
 			if (i==0 && columnWidth) {
-				offset = (QuiX.browser=='saf')?0:w.cellBorder;
+				offset = (QuiX.utils.BrowserInfo.family=='saf')?0:w.cellBorder;
 				if (w.columns[j].proportion) {
 					cell.style.width =
 						(parseInt(w._calcWidth() * w.columns[j].proportion) -

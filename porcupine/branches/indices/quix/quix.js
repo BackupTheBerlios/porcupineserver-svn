@@ -207,6 +207,7 @@ QuiX.bootLibraries = [
     QuiX.baseUrl + 'utils/utils.js',
     QuiX.baseUrl + 'utils/date.js',
     QuiX.baseUrl + 'utils/swfobject.js',
+    QuiX.baseUrl + 'utils/browserdetect.js',
     // base widget
     QuiX.baseUrl + 'ui/widget.js',
     // parsers
@@ -272,19 +273,6 @@ QuiX.removeLoader = function() {
 	}
 }
 
-QuiX.getOS = function() {
-	var os_name = 'Unknown OS';
-	if (navigator.appVersion.indexOf("Win")!=-1)
-		os_name="Windows";
-	if (navigator.appVersion.indexOf("Mac")!=-1)
-		os_name="MacOS";
-	if (navigator.appVersion.indexOf("X11")!=-1)
-		os_name="UNIX";
-	if (navigator.appVersion.indexOf("Linux")!=-1)
-		os_name="Linux";
-	return os_name;
-}
-
 QuiX.cleanupOverlays = function() {
 	var ovr = document.desktop.overlays;
 	while (ovr.length>0) ovr[0].close();
@@ -294,7 +282,6 @@ QuiX.Exception = function(name, msg) {
 	this.name = name;
 	this.message = msg;
 }
-
 QuiX.Exception.prototype = new Error
 
 QuiX.getTarget = function(evt) {
@@ -342,7 +329,7 @@ QuiX.getDraggable = function(w) {
 
 QuiX.getMouseButton = function(evt) {
 	var iButton = evt.button;
-	if (QuiX.browser == 'ie') {
+	if (QuiX.utils.BrowserInfo.family == 'ie') {
 		if (iButton == 1) //left
 			iButton = 0;
 		else if (iButton == 4) //middle
@@ -352,7 +339,8 @@ QuiX.getMouseButton = function(evt) {
 }
 
 QuiX.createOutline = function(w) {
-	var macff = QuiX.browser == 'moz' && QuiX.getOS() == 'MacOS';
+	var macff = QuiX.utils.BrowserInfo.family == 'moz'
+        && QuiX.utils.BrowserInfo.OS == 'MacOS';
 	var fl = (macff)?'auto':'hidden';
 	
 	var o = new QuiX.ui.Widget({

@@ -15,8 +15,6 @@
 //  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //==============================================================================
 
-QuiX.browser = 'saf';
-
 //Widget class
 QuiX.ui.Widget = function(params) {
 	params = params || {};

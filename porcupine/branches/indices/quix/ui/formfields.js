@@ -238,7 +238,7 @@ QuiX.ui.Field.prototype._adjustFieldSize = function() {
 	if (this.type!='checkbox' && this.type!='radio' && this.div.firstChild) {
 		var nw = this.getWidth() || 0;
 		var nh = this.getHeight() || 0;
-		if (this.type=='textarea' && QuiX.browser=='moz')
+		if (this.type == 'textarea' && QuiX.utils.BrowserInfo.family == 'moz')
 			this.div.firstChild.style.top = '-1px';
 		nw = nw - 2 * this.textPadding;
 		nh = nh - 2 * this.textPadding;
@@ -395,7 +395,8 @@ QuiX.ui.Spin.prototype.setValue = function(value) {
 }
 
 function Spin__onkeypress(evt, w) {
-	var keycode = (QuiX.browser=='ie')? evt.keyCode:evt.charCode;
+	var keycode = (QuiX.utils.BrowserInfo.family=='ie')?
+        evt.keyCode:evt.charCode;
 	if (!(keycode>47 && keycode<58) && keycode!=0)
 		QuiX.cancelDefault(evt);
 }

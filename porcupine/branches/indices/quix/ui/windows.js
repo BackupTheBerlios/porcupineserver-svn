@@ -18,8 +18,8 @@ QuiX.ui.Window = function(params) {
 												params.onmousedown);
 	params.oncontextmenu = QuiX.getEventWrapper(Window__oncontextmenu,
 												params.oncontextmenu);
-	params.overflow = (QuiX.browser == 'moz' && QuiX.getOS() == 'MacOS')?
-						'auto':'hidden';
+	params.overflow = (QuiX.utils.BrowserInfo.family == 'moz'
+        && QuiX.utils.BrowserInfo.OS == 'MacOS')?'auto':'hidden';
 	this.base = QuiX.ui.Widget;
 	this.base(params);
 	this.minw = params.minw || 120;
@@ -390,7 +390,8 @@ QuiX.ui.Window.prototype.bringToFront = function() {
 	QuiX.cleanupOverlays();
 	if (this.div.style.zIndex < this.parent.maxz) {
 		var sw, dt, i;
-		var macff = QuiX.browser == 'moz' && QuiX.getOS() == 'MacOS';
+		var macff = QuiX.utils.BrowserInfo.family == 'moz'
+            && QuiX.utils.BrowserInfo.OS == 'MacOS';
 		Widget.prototype.bringToFront.apply(this, arguments);
 		if (macff) {
 			dt = document.desktop;

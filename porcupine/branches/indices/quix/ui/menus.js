@@ -155,7 +155,8 @@ QuiX.ui.ContextMenu = function(params, owner) {
 		onclose : params.onclose
 	});
 	this.div.className = 'contextmenu';
-	if (QuiX.browser == 'moz' && QuiX.getOS() == 'MacOS')
+	if (QuiX.utils.BrowserInfo.family == 'moz'
+        && QuiX.utils.BrowserInfo.OS == 'MacOS')
 	{
 		var c = new QuiX.ui.Widget({
 			width : '100%',
@@ -220,7 +221,7 @@ QuiX.ui.ContextMenu.prototype.redraw = function(bForceAll, memo) {
 	for (var i=0; i<this.options.length; i++) {
 		oOption = this.options[i];
 		if (oOption instanceof Icon) {
-			if (QuiX.browser == 'ie')
+			if (QuiX.utils.BrowserInfo.family == 'ie')
                 optionWidth = oOption.div.getElementsByTagName('SPAN')[0].offsetWidth + 26;
 			else
 				optionWidth = oOption.div.offsetWidth;

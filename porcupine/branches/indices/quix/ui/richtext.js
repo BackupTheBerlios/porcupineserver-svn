@@ -206,7 +206,7 @@ QuiX.ui.RichText.prototype.getValue = function() {
 }
 
 QuiX.ui.RichText.prototype.redraw = function(bForceAll, memo) {
-    if (QuiX.browser == 'moz' && this.wysiwyg && this.doc) {
+    if (QQuiX.utils.BrowserInfo.family == 'moz' && this.wysiwyg && this.doc) {
         this._updateInput();
     }
     QuiX.ui.Box.prototype.redraw.apply(this, arguments);
@@ -307,7 +307,7 @@ QuiX.ui.RichText.prototype.cleanPaste = function() {
         value = value.replace(/&lt;!--[^>]+--&gt;/g, "");
         
         this.doc.body.innerHTML	= value;
-		if (!(QuiX.browser == 'ie')) {
+		if (!(QuiX.utils.BrowserInfo.family == 'ie')) {
 			this.convertSPANs();
 		}
 	}
@@ -453,7 +453,7 @@ QuiX.ui.RichText.prototype.detectPaste = function(e) {
 QuiX.ui.RichText.prototype.initEdit = function() {
 	var self = this;
     this.doc.designMode = 'on';
-	if (!(QuiX.browser == 'ie')) {
+	if (!(QuiX.utils.BrowserInfo.family == 'ie')) {
 		this.convertSPANs(false);
 	}
     QuiX.addEvent(this.doc, "onmouseup",
@@ -562,7 +562,7 @@ QuiX.ui.RichText.prototype.paragraphise = function() {
 
 QuiX.ui.RichText.prototype._updateInput = function() {
     /* Convert spans to semantics in Mozilla */
-    if (!(QuiX.browser == 'ie')) {
+    if (!(QuiX.utils.BrowserInfo.family == 'ie')) {
         this.convertSPANs(true);
     }
     this._updateAnchorsTarget();
@@ -613,7 +613,7 @@ QuiX.ui.RichText.prototype.switchMode = function() {
             }
             this.frame.show();
             this.field.hide();
-            if (QuiX.browser == 'ie')
+            if (QuiX.utils.BrowserInfo.family == 'ie')
                 this.writeDocument(this.field.getValue());
 			this.wysiwyg = true;
 		}
@@ -816,7 +816,7 @@ QuiX.ui.RichText.prototype._toolbarAction = function(evt , btn) {
                         url.focus();
                         dlg.attachEvent('onclose', function(){
                             if (dlg.buttonIndex == 0 && url.getValue() != '') {
-                                if (QuiX.browser=='ie')
+                                if (QuiX.utils.BrowserInfo.family=='ie')
                                     theRange.select();
                                 theWidgEditor.doc.execCommand("CreateLink",
                                                               false,
@@ -852,7 +852,7 @@ QuiX.ui.RichText.prototype._toolbarAction = function(evt , btn) {
                     url.focus();
                     dlg.attachEvent('onclose', function(){
                         if (dlg.buttonIndex == 0 && url.getValue() != '') {
-                            if (QuiX.browser=='ie')
+                            if (QuiX.utils.BrowserInfo.family=='ie')
                                 theRange.select();
                             theRange.collapse(false);
                             /* IE selections */
@@ -902,7 +902,7 @@ QuiX.ui.RichText.prototype._updateToolbarState = function(theWidgEditor) {
         }, 200);
     /* strange bug in IE requires a redraw
      * to update curret position correctly */
-    if (QuiX.browser == 'ie')
+    if (QuiX.utils.BrowserInfo.family == 'ie')
         theWidgEditor.toolbar.widgets[0].redraw();
 }
 

@@ -232,7 +232,7 @@ function DatepickerPrev__click(evt, w) {
 
 function DatepickerCell__click() {
 	var oDatepicker;
-	if (QuiX.browser=='moz')
+	if (QuiX.utils.BrowserInfo.family == 'moz')
 		oDatepicker = this.parentNode.parentNode.parentNode.datepicker;
 	else
 		oDatepicker = this.parentElement.parentElement.parentElement.datepicker;
