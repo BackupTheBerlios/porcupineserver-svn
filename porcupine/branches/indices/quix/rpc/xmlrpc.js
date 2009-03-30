@@ -61,10 +61,9 @@ QuiX.rpc.XMLRPCRequest.prototype.callmethod = function(method_name) {
 		   				   '</value></param>';
 			message += '</params></methodCall>';
 
+            var argsArray = Array.prototype.concat.apply([], arguments);
             var key = QuiX.utils.hashlib.hex_sha256(
-                            this.url +
-                            QuiX.parsers.JSON.stringify(
-                                Array.prototype.splice.call(arguments, 0)));
+                this.url + QuiX.parsers.JSON.stringify(argsArray));
 
 			QuiX.addLoader();
 			
