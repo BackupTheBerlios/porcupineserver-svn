@@ -64,7 +64,7 @@ QuiX.ui.ListView.prototype._registerHandler = function(eventType, handler,
 		}
 	wrapper = wrapper || handler;
 	QuiX.ui.Widget.prototype._registerHandler.apply(this,
-                                                [eventType, wrapper, isCustom]);
+        [eventType, wrapper, isCustom]);
 }
 
 QuiX.ui.ListView.prototype.addHeader = function(params) {
@@ -171,7 +171,7 @@ QuiX.ui.ListView.prototype._unselrow = function(r) {
 }
 
 QuiX.ui.ListView.prototype._selectline = function(evt, row) {
-	if (row.isSelected && QuiX.getMouseButton(evt)==2) {
+	if (row.isSelected && QuiX.getMouseButton(evt) == 2) {
 		return false;
 	}
 	var fire = this.multiple || !row.isSelected;
@@ -311,9 +311,10 @@ QuiX.ui.ListView.prototype.addColumn = function(params) {
 
 QuiX.ui.ListView.prototype._calcResizerOffset = function(w) {
 	var oHeader = this.header;
-	var left = (this.hasSelector)?10:0;
-	var offset = (QuiX.utils.BrowserInfo.family=='saf')?-2:2*this.cellPadding;
-	var offset2 = (QuiX.utils.BrowserInfo.family=='saf')?0:this.cellBorder;
+    var webkit = (QuiX.utils.BrowserInfo.family == 'saf');
+	var left = this.hasSelector?(webkit?6:10):0;
+	var offset = (webkit)?-2:2*this.cellPadding;
+	var offset2 = (webkit)?0:this.cellBorder;
 	var column_width;
 	for (var i=this._deadCells; i<this.columns.length; i++) {
 		column_width = parseInt(this.columns[i].style.width);
@@ -433,12 +434,12 @@ QuiX.ui.ListView.prototype.refresh = function() {
 }
 
 QuiX.ui.ListView.prototype._refresh = function(start, step) {
-	var oRow, selector, oFiller;
-	var value, columnWidth;
-	var rowHeight, offset, cell;
+	var oRow, selector, oFiller,
+        value, columnWidth, rowBgColor,
+        rowHeight, offset, cell;
 	var w = this;
 	var tbody = w.list.tBodies[0];
-	var rowBgColor;
+    var webkit = (QuiX.utils.BrowserInfo.family=='saf');
 	if (w.rowHeight) {
 		if (QuiX.utils.BrowserInfo.family == 'ie')
 			offset = 2 * w.cellPadding;
@@ -458,8 +459,7 @@ QuiX.ui.ListView.prototype._refresh = function(start, step) {
 			oRow.style.height = rowHeight;
 		if (w.hasSelector) {
 			selector = w._getSelector();
-			offset = (QuiX.utils.BrowserInfo.family=='saf')?
-                0:2*w.cellPadding - 2;
+			offset = webkit?0:2*w.cellPadding - 2;
 			selector.style.width = (8 - offset) + 'px';
 			oRow.appendChild(selector);
 		}
@@ -468,7 +468,7 @@ QuiX.ui.ListView.prototype._refresh = function(start, step) {
 			cell.className = 'cell';
 			columnWidth = w.columns[j].style.width;
 			if (i==0 && columnWidth) {
-				offset = (QuiX.utils.BrowserInfo.family=='saf')?0:w.cellBorder;
+				offset = webkit?0:w.cellBorder;
 				if (w.columns[j].proportion) {
 					cell.style.width =
 						(parseInt(w._calcWidth() * w.columns[j].proportion) -

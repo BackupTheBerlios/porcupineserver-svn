@@ -7,7 +7,7 @@
 		max-age="1200"/>
     <context path="ui/widget.js"
 			method="GET"
-			client="Version/3.\d(.*)Safari|Chrome/\d.\d"
+			client="Version/[3-4].\d(.*)Safari|Chrome/\d.\d"
 			lang=".*"
 			action="ui/widget_saf.js"
 			max-age="1200">
