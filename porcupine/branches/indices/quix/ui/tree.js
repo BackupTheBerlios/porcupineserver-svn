@@ -201,7 +201,6 @@ QuiX.ui.TreeNode.prototype.enable = function() {
 /************************
 Tree
 ************************/
-
 QuiX.ui.Tree = function(params) {
 	this.base = QuiX.ui.Widget;
 	this.base(params);
@@ -245,7 +244,6 @@ QuiX.ui.Tree.prototype.getSelection = function() {
 /************************
 Folder tree
 ************************/
-
 QuiX.ui.FolderTree = function(params) {
 	this.base = QuiX.ui.Tree;
 	this.base(params);
@@ -275,7 +273,7 @@ QuiX.ui.FolderTree.prototype.load_oncomplete = function(req) {
 	var newNode;
 	var treeNode = req.callback_info;
 	var oFolders = req.response;
-	while ( treeNode.childNodes.length > 0 ) {
+	while (treeNode.childNodes.length > 0) {
 		treeNode.childNodes[0].destroy();
 	}
 	for (var i=0; i<oFolders.length; i++) {
