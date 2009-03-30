@@ -116,7 +116,7 @@ QuiX.ui.ListView.prototype.addHeader = function(params) {
 	var oTable = ce('TABLE');
 	oTable.cellSpacing = 0;
 	oTable.cellPadding = this.cellPadding;
-	if (QuiX.browser != 'ie') oTable.width = '100%';
+    oTable.width = '100%';
 	oTable.onmousedown = ListView__onmousedown;
 	var tbody = ce('TBODY');
 	oTable.appendChild(tbody);

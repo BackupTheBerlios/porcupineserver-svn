@@ -4,7 +4,7 @@ Effect widget
 QuiX.ui.Effect = function(params) {
 	params = params || {};
 	params.display = 'none';
-	params.handler = Effect__play;
+	params.handler = this._handler;
 	params.interval = params.interval || 50;
 	
 	this.type = params.type;
@@ -130,7 +130,8 @@ QuiX.ui.Effect.prototype.stop = function() {
 				var ev = this._reverse?this.begin:this.end;
 				if (ev==1)
 					if (QuiX.browser == 'ie')
-						this.parent.div.style.clip = 'rect(auto,auto,auto,auto)';
+                        this.parent.div.style.cssText =
+                            this.parent.div.style.cssText.replace(/CLIP:.*?;/i, '');
 					else
 						this.parent.div.style.clip = '';
 		}
@@ -144,11 +145,11 @@ QuiX.ui.Effect.prototype.show = function() {}
 
 QuiX.ui.Effect.prototype.play = function(reverse) {
 	this._reverse = reverse;
-	Effect__play(this);
+	this._handler(this);
 	if (this.parent) this.start();
 }
 
-function Effect__play(effect) {
+QuiX.ui.Effect.prototype._handler = function(effect) {
 	var w = effect.parent;
 	if (w) {
 		effect._apply(w);

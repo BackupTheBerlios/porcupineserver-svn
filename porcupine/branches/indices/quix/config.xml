@@ -1,7 +1,7 @@
 <config>
     <context path="ui/widget.js"
 		method="GET"
-		client="MSIE [6-7]"
+		client="MSIE [6-8]"
 		lang=".*"
 		action="ui/widget_ie.js"
 		max-age="1200"/>

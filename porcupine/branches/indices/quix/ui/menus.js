@@ -221,7 +221,7 @@ QuiX.ui.ContextMenu.prototype.redraw = function(bForceAll, memo) {
 		oOption = this.options[i];
 		if (oOption instanceof Icon) {
 			if (QuiX.browser == 'ie')
-				optionWidth = oOption.div.getElementsByTagName('SPAN')[0].offsetWidth + 26;
+                optionWidth = oOption.div.getElementsByTagName('SPAN')[0].offsetWidth + 26;
 			else
 				optionWidth = oOption.div.offsetWidth;
 			oOption.width = '100%';
@@ -258,7 +258,7 @@ QuiX.ui.ContextMenu.prototype.show = function(w, x, y) {
 				effect.play();
 			}
 			this.redraw();
-			if (w==document.desktop)
+			if (w == document.desktop)
 				document.desktop.overlays.push(this);
 			this.isOpen = true;
 		}
