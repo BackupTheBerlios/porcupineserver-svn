@@ -217,7 +217,6 @@ QuiX.ui.ListView.prototype.clearSelection = function() {
 }
 
 QuiX.ui.ListView.prototype.removeSelected = function() {
-	var selRow;
 	this.selection.sort(function(a,b){
 		return(a>b?-1:1)
 	});
@@ -230,7 +229,7 @@ QuiX.ui.ListView.prototype.removeSelected = function() {
 }
 
 QuiX.ui.ListView.prototype.getSelection = function() {
-	sel = [];
+	var sel = [];
 	for (var i=0; i<this.selection.length; i++)
 		sel.push(this.dataSet[this.selection[i]]);
 	if (sel.length==0)
@@ -440,7 +439,6 @@ QuiX.ui.ListView.prototype._refresh = function(start, step) {
 	var w = this;
 	var tbody = w.list.tBodies[0];
 	var rowBgColor;
-	//var listBgColor = w.getBgColor();
 	if (w.rowHeight) {
 		if (QuiX.utils.BrowserInfo.family == 'ie')
 			offset = 2 * w.cellPadding;

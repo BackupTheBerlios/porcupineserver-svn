@@ -54,6 +54,8 @@ QuiX.ui.DataGrid.prototype.disable = function() {
 QuiX.ui.DataGrid.prototype.refresh = function() {
 	this._removeEditWidget();
 	QuiX.ui.ListView.prototype.refresh.apply(this, arguments);
+    if (QuiX.utils.BrowserInfo.family == 'ie') //strange bug in IE8
+        this.widgets[1].redraw();
 }
 
 QuiX.ui.DataGrid.prototype.edit = function(cell) {
