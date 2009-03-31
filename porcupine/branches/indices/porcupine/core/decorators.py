@@ -19,6 +19,7 @@ import hashlib
 import types
 import os.path
 import sys
+import traceback
 
 from porcupine import exceptions
 from porcupine.utils import permsresolver
@@ -30,9 +31,16 @@ def deprecated(function):
     """
     def dep_wrapper(*args, **kwargs):
         from porcupine.core.runtime import logger
-        logger.warning("DEPRECATION WARNING: " +
-                       "Use %s in module %s instead." % (function.func_name,
-                                                         function.__module__))
+        try:
+            raise DeprecationWarning
+        except:
+            upper_stack = traceback.extract_stack()[-2]
+            pfile, line_no, where, line = upper_stack
+            logger.warning(
+                "DEPRECATION WARNING\n" +
+                "File \"%s\".\n" % pfile +
+                "Line %d:\n    %s\nin \"%s\". " % (line_no, line, where) +
+                "Use \"%s\" instead." % function.func_name)
         return function(*args, **kwargs)
     dep_wrapper.func_name = function.func_name
     return dep_wrapper
