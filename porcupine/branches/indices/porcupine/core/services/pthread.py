@@ -49,7 +49,7 @@ class PorcupineThread(BaseServerThread, ContextThread):
             try:
                 self.context = HttpContext(request, response)
                 sPath = request.serverVariables['PATH_INFO']
-                item = _db.getItem(sPath)
+                item = _db.get_item(sPath)
                 if item != None and not item._isDeleted:
                     self.context._fetch_session()
                     self.dispatch_method(item)

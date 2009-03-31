@@ -19,6 +19,7 @@
 from porcupine import systemObjects as system
 from org.innoscript.desktop.schema import properties
 from porcupine import datatypes
+from porcupine.core.decorators import deprecated
 
 class File(system.Item):
     """Simple file object
@@ -47,8 +48,9 @@ class RecycleBin(system.RecycleBin):
     If you need a recycle bin for each user subclass the
     L{porcupine.systemObjects.RecycleBin}.
     """
-    def getParent(self):
+    def get_parent(self):
         return None
+    getParent = deprecated(get_parent)
 
 class RootFolder(system.Container):
     """
@@ -62,8 +64,9 @@ class RootFolder(system.Container):
         'org.innoscript.desktop.schema.collab.ContactsFolder',
     )
     
-    def getParent(self):
+    def get_parent(self):
         return None
+    getParent = deprecated(get_parent)
 
 class AdminTools(system.Container):
     """

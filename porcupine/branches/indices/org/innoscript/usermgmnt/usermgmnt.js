@@ -3,7 +3,7 @@ function usermgmnt() {}
 usermgmnt.getUsers = function(w) {
     var folderUri = w.attributes.FolderID;
     var query = "select id, __image__ as image, displayName, description," +
-        "isNone(fullName,'') as fname, isSystem as issystem, hasattr('password') as haspsw " +
+        "isNone(fullName,'') as fname, issystem, hasattr('password') as haspsw " +
         "from '" + folderUri + "'";
     if (w.attributes.filter)
         query += " where contentclass='" + w.attributes.filter + "'";

@@ -85,7 +85,7 @@ class Package(object):
     
     def _exportItem(self, id, clearRolesInherited=True):
         it_file = file(self.tmp_folder + '/' + id, 'wb')
-        item = self.db.getItem(id)
+        item = self.db.get_item(id)
         if clearRolesInherited:
             item.inheritRoles = False
         
@@ -113,9 +113,9 @@ class Package(object):
     def _importItem(self, fileobj, txn):
         sItem = fileobj.read()
         oItem = persist.loads(sItem)
-        oParent = self.db.getItem(oItem.parentid, txn)
+        oParent = self.db.get_item(oItem.parentid, txn)
         #check if the item already exists
-        oOldItem = self.db.getItem(oItem.id, txn)
+        oOldItem = self.db.get_item(oItem.id, txn)
         if oOldItem == None:
             # write external attributes
             for prop in [getattr(oItem, x) for x in oItem.__props__]:
@@ -129,8 +129,8 @@ class Package(object):
                     oParent._subfolders[oItem.displayName.value] = oItem._id
                 else:
                     oParent._items[oItem.displayName.value] = oItem._id
-                self.db.putItem(oParent, txn)
-            self.db.putItem(oItem, txn)
+                self.db.put_item(oParent, txn)
+            self.db.put_item(oItem, txn)
         else:
             print 'WARNING: Item "%s" already exists. Upgrading object...' % \
                 oItem.displayName.value
@@ -144,7 +144,7 @@ class Package(object):
             if oItem.isCollection:
                 oItem._subfolders = oOldItem._subfolders
                 oItem._items = oOldItem._items
-            self.db.putItem(oItem, txn)
+            self.db.put_item(oItem, txn)
         
     def _deltree(self, top):
         for root, dirs, files in os.walk(top, topdown=False):
@@ -244,7 +244,7 @@ class Package(object):
                 for itemid in itemids:
                     print 'INFO: removing object %s' % itemid
                     try:
-                        oItem = self.db.getItem(itemid, txn)
+                        oItem = self.db.get_item(itemid, txn)
                     except:
                         pass
                     else:

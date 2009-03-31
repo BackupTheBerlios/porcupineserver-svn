@@ -106,7 +106,7 @@ def is_open():
     return _running
 
 # item operations
-def getItem(oid, trans=None):
+def get_item(oid, trans=None):
     try:
         if trans == None:
             flags = 0
@@ -116,32 +116,32 @@ def getItem(oid, trans=None):
     except (db.DBLockDeadlockError, db.DBLockNotGrantedError), e:
         raise exceptions.DBTransactionIncomplete
 
-def putItem(item, trans=None):
+def put_item(item, trans=None):
     try:
         _itemdb.put(item._id, persist.dumps(item), trans and trans.txn)
     except (db.DBLockDeadlockError, db.DBLockNotGrantedError):
         raise exceptions.DBTransactionIncomplete
 
-def deleteItem(oid, trans):
+def delete_item(oid, trans):
     try:
         _itemdb.delete(oid, trans and trans.txn)
     except (db.DBLockDeadlockError, db.DBLockNotGrantedError):
         raise exceptions.DBTransactionIncomplete
 
 # external attributes
-def getExternal(id, trans):
+def get_external(id, trans):
     try:
         return _docdb.get(id, txn=trans and trans.txn)
     except (db.DBLockDeadlockError, db.DBLockNotGrantedError):
         raise exceptions.DBTransactionIncomplete
 
-def putExternal(id, stream, trans):
+def put_external(id, stream, trans):
     try:
         _docdb.put(id, stream, trans and trans.txn)
     except (db.DBLockDeadlockError, db.DBLockNotGrantedError):
         raise exceptions.DBTransactionIncomplete
 
-def deleteExternal(id, trans):
+def delete_external(id, trans):
     try:
         _docdb.delete(id, trans and trans.txn)
     except (db.DBLockDeadlockError, db.DBLockNotGrantedError):

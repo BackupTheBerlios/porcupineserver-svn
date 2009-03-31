@@ -33,7 +33,7 @@ class PorcupineServer(asyncserver.BaseServer):
         
         if self.is_multiprocess:
             # check if session manager supports multiple processes
-            sm_class = misc.getCallableByName(
+            sm_class = misc.get_rto_by_name(
                 settings['sessionmanager']['interface'])
             if not sm_class.supports_multiple_processes:
                 raise exceptions.ConfigurationError, \

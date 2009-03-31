@@ -55,7 +55,7 @@ class CompositionEventHandler(DatatypeEventHandler):
             if isinstance(obj, Composite):
                 obj._containerid = item._id
             elif isinstance(obj, str):
-                obj = _db.getItem(obj, trans)
+                obj = _db.get_item(obj, trans)
                 new_attr.value[i] = obj
             else:
                 raise exceptions.ContainmentError, \
@@ -64,13 +64,13 @@ class CompositionEventHandler(DatatypeEventHandler):
             dctObjects[obj._id] = obj
         
         # check containment
-        composite_type = misc.getCallableByName(new_attr.compositeClass)
+        composite_type = misc.get_rto_by_name(new_attr.compositeClass)
         
         if [obj for obj in dctObjects.values()
                 if not isinstance(obj, composite_type)]:
             raise exceptions.ContainmentError, \
                 'Invalid content class "%s" in composition.' % \
-                obj.getContentclass()
+                obj.get_contentclass()
         
         # get previous value
         if old_attr != None:
@@ -84,19 +84,19 @@ class CompositionEventHandler(DatatypeEventHandler):
         lstAdded = list(new_ids - old_ids)
         for obj_id in lstAdded:
             _db.handle_update(dctObjects[obj_id], None, trans)
-            _db.putItem(dctObjects[obj_id], trans)
+            _db.put_item(dctObjects[obj_id], trans)
         
         # calculate constant composites
         lstConstant = list(new_ids & old_ids)
         for obj_id in lstConstant:
             _db.handle_update(dctObjects[obj_id],
-                              _db.getItem(obj_id, trans),
+                              _db.get_item(obj_id, trans),
                               trans)
-            _db.putItem(dctObjects[obj_id], trans)
+            _db.put_item(dctObjects[obj_id], trans)
         
         # calculate removed composites
         lstRemoved = list(old_ids - new_ids)
-        [CompositionEventHandler._removeComposite(_db.getItem(id, trans),
+        [CompositionEventHandler._removeComposite(_db.get_item(id, trans),
                                                   trans)
          for id in lstRemoved]
                 
@@ -105,20 +105,20 @@ class CompositionEventHandler(DatatypeEventHandler):
     @staticmethod
     def on_delete(item, attr, trans, bPermanent):
         if bPermanent:
-            [CompositionEventHandler._removeComposite(_db.getItem(id, trans),
+            [CompositionEventHandler._removeComposite(_db.get_item(id, trans),
                                                       trans)
              for id in attr.value]
         else:
             for sID in attr.value:
-                composite = _db.getItem(sID, trans)
+                composite = _db.get_item(sID, trans)
                 _db.handle_delete(composite, trans, False)
                 composite._isDeleted = 1
-                _db.putItem(composite, trans)
+                _db.put_item(composite, trans)
     
     @staticmethod
     def _removeComposite(composite, trans):
         _db.handle_delete(composite, trans, True)
-        _db.deleteItem(composite, trans)
+        _db.delete_item(composite, trans)
 
 class RelatorNEventHandler(DatatypeEventHandler):
     "RelatorN datatype event handler"
@@ -164,11 +164,11 @@ class RelatorNEventHandler(DatatypeEventHandler):
                     'Cannot delete object "%s" ' % item.displayName.value +
                     'because it is being referenced by other objects.')
             if attr.cascadeDelete:
-                [_db.getItem(id, trans)._recycle(trans)
+                [_db.get_item(id, trans)._recycle(trans)
                  for id in attr.value]
         if bPermanent:
             if attr.cascadeDelete:
-                [_db.getItem(id, trans)._delete(trans)
+                [_db.get_item(id, trans)._delete(trans)
                  for id in attr.value]
             else:
                 # remove all references
@@ -178,16 +178,16 @@ class RelatorNEventHandler(DatatypeEventHandler):
     @staticmethod
     def on_undelete(item, attr, trans):
         if attr.cascadeDelete:
-            [_db.getItem(id, trans)._undelete(trans)
+            [_db.get_item(id, trans)._undelete(trans)
              for id in attr.value]
     
     @staticmethod
     def _add_references(attr, ids, oid, trans):
         from porcupine.datatypes import Relator1, RelatorN
         for id in ids:
-            ref_item = _db.getItem(id, trans)
+            ref_item = _db.get_item(id, trans)
             if ref_item != None and isinstance(ref_item,
-                                               tuple([misc.getCallableByName(cc)
+                                               tuple([misc.get_rto_by_name(cc)
                                                       for cc in attr.relCc])):
                 ref_attr = getattr(ref_item, attr.relAttr)
                 if isinstance(ref_attr, RelatorN):
@@ -195,7 +195,7 @@ class RelatorNEventHandler(DatatypeEventHandler):
                 elif isinstance(ref_attr, Relator1):
                     ref_attr.value = oid
                 ref_attr.validate()
-                _db.putItem(ref_item, trans)
+                _db.put_item(ref_item, trans)
             else:
                 attr.value.remove(id)
     
@@ -204,7 +204,7 @@ class RelatorNEventHandler(DatatypeEventHandler):
         # remove references
         from porcupine.datatypes import Relator1, RelatorN
         for id in ids:
-            ref_item = _db.getItem(id, trans)
+            ref_item = _db.get_item(id, trans)
             ref_attr = getattr(ref_item, attr.relAttr)
             if isinstance(ref_attr, RelatorN):
                 try:
@@ -214,12 +214,12 @@ class RelatorNEventHandler(DatatypeEventHandler):
             elif isinstance(ref_attr, Relator1):
                 ref_attr.value = ''
             ref_attr.validate()
-            _db.putItem(ref_item, trans)
+            _db.put_item(ref_item, trans)
     
     @staticmethod
     def _get_no_access_ids(attr, trans):
         ids = [id for id in attr.value
-               if db.getItem(id, trans) == None]
+               if db.get_item(id, trans) == None]
         return ids
     
 class Relator1EventHandler(DatatypeEventHandler):
@@ -253,10 +253,10 @@ class Relator1EventHandler(DatatypeEventHandler):
                     'Cannot delete object "%s" ' % item.displayName.value +
                     'because it is referenced by other objects.')
             if attr.cascadeDelete:
-                _db.getItem(attr.value, trans)._recycle(trans)
+                _db.get_item(attr.value, trans)._recycle(trans)
         if bPermanent and attr.value:
             if attr.cascadeDelete:
-                _db.getItem(attr.value, trans)._delete(trans)
+                _db.get_item(attr.value, trans)._delete(trans)
             else:
                 # remove reference
                 Relator1EventHandler._remove_reference(attr, item._id, trans)
@@ -264,14 +264,14 @@ class Relator1EventHandler(DatatypeEventHandler):
     @staticmethod
     def on_undelete(item, attr, trans):
         if attr.cascadeDelete:
-            _db.getItem(attr.value, trans)._undelete(trans)
+            _db.get_item(attr.value, trans)._undelete(trans)
     
     @staticmethod
     def _add_reference(attr, oid, trans):
         from porcupine.datatypes import Relator1, RelatorN
-        ref_item = _db.getItem(attr.value, trans)
+        ref_item = _db.get_item(attr.value, trans)
         if ref_item != None and isinstance(ref_item,
-                                           tuple([misc.getCallableByName(cc)
+                                           tuple([misc.get_rto_by_name(cc)
                                                   for cc in attr.relCc])):
             ref_attr = getattr(ref_item, attr.relAttr)
             if isinstance(ref_attr, RelatorN):
@@ -279,14 +279,14 @@ class Relator1EventHandler(DatatypeEventHandler):
             elif isinstance(ref_attr, Relator1):
                 ref_attr.value = oid
             ref_attr.validate()
-            _db.putItem(ref_item, trans)
+            _db.put_item(ref_item, trans)
         else:
             attr.value = None
     
     @staticmethod
     def _remove_reference(attr, oid, trans):
         from porcupine.datatypes import Relator1, RelatorN
-        ref_item = _db.getItem(attr.value, trans)
+        ref_item = _db.get_item(attr.value, trans)
         ref_attr = getattr(ref_item, attr.relAttr)
         if isinstance(ref_attr, RelatorN):
             try:
@@ -296,7 +296,7 @@ class Relator1EventHandler(DatatypeEventHandler):
         elif isinstance(ref_attr, Relator1):
             ref_attr.value = None
         ref_attr.validate()
-        _db.putItem(ref_item, trans)        
+        _db.put_item(ref_item, trans)
 
 class ExternalAttributeEventHandler(DatatypeEventHandler):
     "External attribute event handler"
@@ -308,13 +308,13 @@ class ExternalAttributeEventHandler(DatatypeEventHandler):
     @staticmethod
     def on_update(item, new_attr, old_attr, trans):
         if new_attr.isDirty:
-            _db.putExternal(new_attr._id, new_attr.value, trans)
+            _db.put_external(new_attr._id, new_attr.value, trans)
         new_attr._reset()
     
     @staticmethod
     def on_delete(item, attr, trans, bPermanent):
         if bPermanent:
-            _db.deleteExternal(attr._id, trans)
+            _db.delete_external(attr._id, trans)
 
 class ExternalFileEventHandler(DatatypeEventHandler):
     "External file event handler"

@@ -17,6 +17,7 @@
 """
 Porcupine database session manager content classes
 """
+from porcupine.core.decorators import deprecated
 import time
 
 from porcupine import db
@@ -41,13 +42,15 @@ class Session(GenericItem, GenericSession):
         self.__userid = userid
 
     @db.transactional(auto_commit=True)
-    def setValue(self, name, value):
+    def set_value(self, name, value):
         self.__data[name] = value
-        trans = db.getTransaction()
+        trans = db.get_transaction()
         self.update(trans)
+    setValue = deprecated(set_value)
 
-    def getValue(self, name):
+    def get_value(self, name):
         return self.__data.get(name, None)
+    getValue = deprecated(get_value)
     
     def get_data(self):
         return(self.__data)
@@ -58,7 +61,7 @@ class Session(GenericItem, GenericSession):
     @db.transactional(auto_commit=True)
     def set_userid(self, value):
         self.__userid = value
-        trans = db.getTransaction()
+        trans = db.get_transaction()
         self.update(trans)
     userid = property(get_userid, set_userid)
 
@@ -66,14 +69,14 @@ class Session(GenericItem, GenericSession):
         return self._id
     sessionid = property(get_sessionid)
 
-    def appendTo(self, parent, trans):
+    def append_to(self, parent, trans):
         """
-        A lighter appendTo
+        A lighter append_to
         """
         if type(parent) == str:
-            parent = db._db.getItem(parent, trans)
+            parent = db._db.get_item(parent, trans)
         
-        if not(self.getContentclass() in parent.containment):
+        if not(self.get_contentclass() in parent.containment):
             raise exceptions.ContainmentError, \
                 'The target container does not accept ' + \
                 'objects of type\n"%s".' % contentclass
@@ -83,20 +86,20 @@ class Session(GenericItem, GenericSession):
         self.modifiedBy = 'SYSTEM'
         self.modified = time.time()
         self._parentid = parent._id
-        db._db.putItem(self, trans)
+        db._db.put_item(self, trans)
 
     def update(self, trans):
         """
         A lighter update
         """
         self.modified = time.time()
-        db._db.putItem(self, trans)
+        db._db.put_item(self, trans)
 
     def delete(self, trans):
         """
         A lighter delete
         """
-        db._db.deleteItem(self, trans)
+        db._db.delete_item(self, trans)
 
     def get_last_accessed(self):
         return self.modified

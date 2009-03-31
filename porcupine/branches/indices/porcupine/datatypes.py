@@ -217,7 +217,7 @@ class Reference1(DataType):
     def __init__(self, **kwargs):
         self.value = None
 
-    def getItem(self, trans=None):
+    def get_item(self, trans=None):
         """
         This method returns the object that this data type
         instance references. If the current user has no read
@@ -231,7 +231,7 @@ class Reference1(DataType):
         """
         item = None
         if self.value:
-            item = db.getItem(self.value, trans)
+            item = db.get_item(self.value, trans)
         return item
 
 class RequiredReference1(Reference1):
@@ -265,7 +265,7 @@ class ReferenceN(DataType):
         
         @rtype: list}
         """
-        return filter(None, [db.getItem(id, trans)
+        return filter(None, [db.get_item(id, trans)
                              for id in self.value])
 
 class RequiredReferenceN(ReferenceN):
@@ -358,7 +358,7 @@ class Composition(DataType):
         
         @rtype: list
         """
-        return [db._db.getItem(id, trans) for id in self.value]
+        return [db._db.get_item(id, trans) for id in self.value]
 
 class RequiredComposition(Composition):
     "Mandatory L{Composition} data type."
@@ -381,7 +381,7 @@ class ExternalAttribute(DataType):
     _eventHandler = dteventhandlers.ExternalAttributeEventHandler
     
     def __init__(self, **kwargs):
-        self._id = misc.generateOID()
+        self._id = misc.generate_oid()
         self._reset()
 
     def _reset(self):
@@ -390,7 +390,7 @@ class ExternalAttribute(DataType):
 
     def __deepcopy__(self, memo):
         clone = copy.copy(self)
-        clone._id = misc.generateOID()
+        clone._id = misc.generate_oid()
         clone.value = self.getValue()
         return clone
 
@@ -399,7 +399,7 @@ class ExternalAttribute(DataType):
         if self._value is None:
             #trans = currentThread().trans
             self._value = \
-                db._db.getExternal(self._id, txn) or ''
+                db._db.get_external(self._id, txn) or ''
         return(self._value)
 
     def setValue(self, value):

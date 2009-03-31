@@ -41,7 +41,7 @@ class BaseCursor(object):
         if self.fetch_all:
             if self.resolve_shortcuts:
                 while item != None and isinstance(item, Shortcut):
-                    item = _db.getItem(item.target.value, self._txn)
+                    item = _db.get_item(item.target.value, self._txn)
         else:
             # check read permissions
             access = permsresolver.get_access(item, self._thread.context.user)

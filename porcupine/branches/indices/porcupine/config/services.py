@@ -25,10 +25,10 @@ def start():
     for service in settings['services']:
         name = service['name']
         type = service['type']
-        service_class = misc.getCallableByName(service['class'])
+        service_class = misc.get_rto_by_name(service['class'])
         
         if type == 'TCPListener':
-            address = misc.getAddressFromString(service['address'])
+            address = misc.get_address_from_string(service['address'])
             worker_processes = int(service['worker_processes'])
             worker_threads = int(service['worker_threads'])
             services[name] = service_class(name, address, worker_processes,

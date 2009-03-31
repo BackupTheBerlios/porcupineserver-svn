@@ -70,7 +70,7 @@ class HttpContext(SecurityContext):
 
         if session != None:
             self.session = session
-            self.user = _db.getItem(self.session.userid)
+            self.user = _db.get_item(self.session.userid)
             self.request.serverVariables["AUTH_USER"] = \
                 self.user.displayName.value
             if not cookiesEnabled:
@@ -86,7 +86,7 @@ class HttpContext(SecurityContext):
 
     def __create_guest_session(self):
         # create new session with the specified guest user
-        self.user = _db.getItem(settings['sessionmanager']['guest'])
+        self.user = _db.get_item(settings['sessionmanager']['guest'])
         new_session = SessionManager.create(settings['sessionmanager']['guest'])
         
         session_id = new_session.sessionid

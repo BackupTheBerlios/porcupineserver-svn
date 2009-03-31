@@ -30,7 +30,7 @@ class ObjectSet(object):
     An unresolved object set may contain references to objects that are not
     accessible given the current security context. Such kind of object sets
     are returned from methods such as:
-    L{getChildren<porcupine.systemObjects.Container.getChildren>} and
+    L{get_children<porcupine.systemObjects.Container.get_children>} and
     L{getItems<porcupine.datatypes.ReferenceN.getItems>}.
     
     The OQL C{select} statement always returns resolved object sets. Resolved

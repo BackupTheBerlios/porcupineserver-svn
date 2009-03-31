@@ -30,7 +30,7 @@ from porcupine.administration import offlinedb
 
 class GenericSchemaEditor(object):
     def __init__(self, classobj):
-        self._class = misc.getCallableByName(classobj)
+        self._class = misc.get_rto_by_name(classobj)
         self._bases = self._class.__bases__
         self.doc = self._class.__doc__
         self._attrs = {}
@@ -72,7 +72,7 @@ class GenericSchemaEditor(object):
                 self._imports[moduledict[x]] = x
             elif callable(moduledict[x]) and \
                     (sys.modules[moduledict[x].__module__] != self._module):
-                imported = misc.getCallableByName(moduledict[x].__module__ +
+                imported = misc.get_rto_by_name(moduledict[x].__module__ +
                                                   '.' + x)
                 self._imports[imported] = x
     
@@ -82,7 +82,7 @@ class GenericSchemaEditor(object):
     def _getFullName(self, callable):
         if callable.__module__ == '__builtin__':
             return callable.__name__
-        module = misc.getCallableByName(callable.__module__)
+        module = misc.get_rto_by_name(callable.__module__)
         if self._imports.has_key(module):
             return self._imports[module] + '.' + callable.__name__
         else:
@@ -198,7 +198,7 @@ class ItemEditor(GenericSchemaEditor):
             if generate_code:
                 GenericSchemaEditor.commitChanges(self)
                 # we must reload the class module
-                oMod = misc.getCallableByName(self._class.__module__)
+                oMod = misc.get_rto_by_name(self._class.__module__)
                 reload(oMod)
             
             db = offlinedb.getHandle()
@@ -229,7 +229,7 @@ class ItemEditor(GenericSchemaEditor):
                                         new_attr.value = old_value
                             if self.xform:
                                 item = self.xform(item)
-                            db.putItem(item, txn)
+                            db.put_item(item, txn)
                             txn.commit()
                     except Exception, e:
                         txn.abort()

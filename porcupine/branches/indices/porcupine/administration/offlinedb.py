@@ -27,7 +27,7 @@ def getHandle(identity=None, recover=0):
     # open database
     _db.open(recover=recover, maintain=False)
     if identity == None:
-        identity = _db.getItem('system')
+        identity = _db.get_item('system')
     currentThread().context = SecurityContext(identity)
     return _db
 

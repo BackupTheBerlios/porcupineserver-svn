@@ -42,14 +42,14 @@ def properties(self):
         'LOC': xml.xml_encode(self.originalLocation),
         'MODIFIED': modified.format(baseitem.DATES_FORMAT, sLang),
         'MODIFIED_BY': xml.xml_encode(self.modifiedBy),
-        'CONTENTCLASS': self.getDeletedItem().contentclass
+        'CONTENTCLASS': self.get_deleted_item().contentclass
     }
     
 @webmethods.remotemethod(of_type=DeletedItem)
 @db.transactional(auto_commit=True)
 def restore(self):
     "Restores the deleted item to its orginal location"
-    txn = db.getTransaction()
+    txn = db.get_transaction()
     self.restore(txn)
     return True
 
@@ -57,14 +57,14 @@ def restore(self):
 @db.transactional(auto_commit=True)
 def restoreTo(self, targetid):
     "Restores the deleted item to the designated target container"
-    txn = db.getTransaction()
-    self.restoreTo(targetid, txn)
+    txn = db.get_transaction()
+    self.restore_to(targetid, txn)
     return True
 
 @webmethods.remotemethod(of_type=DeletedItem)
 @db.transactional(auto_commit=True)
 def delete(self):
     "Removes the deleted item"
-    txn = db.getTransaction()
+    txn = db.get_transaction()
     self.delete(txn)
     return True

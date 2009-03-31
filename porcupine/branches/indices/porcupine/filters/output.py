@@ -96,7 +96,7 @@ class I18n(PostProcessFilter):
     def apply(context, item, registration, **kwargs):
         language = context.request.getLang()
         lst_resources = kwargs['using'].split(',')
-        bundles = [misc.getCallableByName(x)
+        bundles = [misc.get_rto_by_name(x)
                    for x in lst_resources]
         output = context.response._body.getvalue()
         tokens = frozenset(re.findall(I18n._tokens, output))

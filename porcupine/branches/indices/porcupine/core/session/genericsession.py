@@ -37,7 +37,7 @@ class GenericSession(object):
         self.sessionid = sessionid
         self.userid = userid
 
-    def setValue(self, name, value):
+    def set_value(self, name, value):
         """
         Creates or updates a session variable.
         
@@ -51,7 +51,7 @@ class GenericSession(object):
         """
         raise NotImplementedError
 
-    def getValue(self, name):
+    def get_value(self, name):
         """
         Retrieves a session variable.
         
@@ -106,7 +106,7 @@ class GenericSession(object):
         """
         return "%s/%s_%s" % (settings['global']['temp_folder'],
                              self.sessionid,
-                             misc.generateOID())
+                             misc.generate_oid())
 
     def remove_temp_files(self):
         """

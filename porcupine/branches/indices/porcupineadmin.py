@@ -87,7 +87,7 @@ if not command or (command != 'DB_RECOVER' and not address):
     
 try:
     if address:
-        address = misc.getAddressFromString(address)
+        address = misc.get_address_from_string(address)
 except:
     sys.exit('Invalid server address...')
 

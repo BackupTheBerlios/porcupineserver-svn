@@ -34,7 +34,7 @@ class SessionManager(GenericSessionManager):
     
     def __init__(self, timeout):
         GenericSessionManager.__init__(self, timeout)
-        session_container = db._db.getItem('_sessions')
+        session_container = db._db.get_item('_sessions')
         if session_container == None:
             self._create_container()
         self._is_active = True
@@ -51,7 +51,7 @@ class SessionManager(GenericSessionManager):
         session_container.modified = ftime
         session_container.inheritRoles = False
         session_container.security = {'administrators' : 8}
-        db._db.putItem(session_container, None)
+        db._db.put_item(session_container, None)
 
     def init_expiration_mechanism(self):
         if not self._expire_thread.isAlive():
@@ -78,24 +78,24 @@ class SessionManager(GenericSessionManager):
 
     @db.transactional(auto_commit=True)
     def create_session(self, userid):
-        trans = db.getTransaction()
+        trans = db.get_transaction()
         session = schema.Session(userid, {})
-        session.appendTo('_sessions', trans)
+        session.append_to('_sessions', trans)
         return session
 
     def get_session(self, sessionid):
-        session = db._db.getItem(sessionid)
+        session = db._db.get_item(sessionid)
         return session
 
     @db.transactional(auto_commit=True)
     def remove_session(self, sessionid):
-        trans = db.getTransaction()
-        session = db._db.getItem(sessionid, trans)
+        trans = db.get_transaction()
+        session = db._db.get_item(sessionid, trans)
         session.delete(trans)
 
     @db.transactional(auto_commit=True)
     def revive_session(self, session):
-        trans = db.getTransaction()
+        trans = db.get_transaction()
         # session = db._db.getItem(session._id, trans)
         session.update(trans)
 

@@ -23,6 +23,7 @@ from threading import Thread
 from porcupine.utils import misc
 from porcupine.core.session.genericsessionmanager import GenericSessionManager
 from porcupine.core.session.genericsession import GenericSession
+from porcupine.core.decorators import deprecated
 
 class SessionManager(GenericSessionManager):
     """
@@ -88,15 +89,17 @@ class Session(GenericSession):
     Session class for the in memory session manager
     """
     def __init__(self, userid, sessiondata):
-        GenericSession.__init__(self, misc.generateGUID(), userid)
+        GenericSession.__init__(self, misc.generate_guid(), userid)
         self._last_accessed = time.time()
         self.__data = sessiondata
 
-    def setValue(self, name, value):
+    def set_value(self, name, value):
         self.__data[name] = value
+    setValue = deprecated(set_value)
 
-    def getValue(self, name):
+    def get_value(self, name):
         return self.__data.get(name, None)
+    getValue = deprecated(get_value)
 
     def get_data(self):
         return(self.__data)

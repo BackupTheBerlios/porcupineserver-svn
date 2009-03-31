@@ -23,8 +23,9 @@ from threading import currentThread
 
 from porcupine import exceptions
 from porcupine.utils import permsresolver
+from porcupine.core.decorators import deprecated
 
-def getItem(oid, trans=None):
+def get_item(oid, trans=None):
     """
     Fetches an object from the database.
     If the user has no read permissions on the object
@@ -37,12 +38,13 @@ def getItem(oid, trans=None):
     
     @rtype: L{GenericItem<porcupine.systemObjects.GenericItem>}
     """
-    item = _db.getItem(oid, trans)
+    item = _db.get_item(oid, trans)
     if item != None and not item._isDeleted and \
             permsresolver.get_access(item, currentThread().context.user) != 0:
         return item
+getItem = deprecated(get_item)
 
-def getTransaction():
+def get_transaction():
     """
     Returns a transaction handle required for database updates.
     Currently, nested transactions are not supported.
@@ -55,6 +57,7 @@ def getTransaction():
         raise exceptions.InternalServerError, \
             "The specified method is not defined as transactional."
     return txn
+getTransaction = deprecated(get_transaction)
 
 def transactional(auto_commit=False):
     def transactional_decorator(function):

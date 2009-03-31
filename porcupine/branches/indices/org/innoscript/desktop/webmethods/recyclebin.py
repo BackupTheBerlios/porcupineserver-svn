@@ -37,7 +37,7 @@ def list(self):
 def getInfo(self):
     "Returns info about its children"
     lstChildren = []
-    children = self.getChildren()
+    children = self.get_children()
     for child in children:
         obj = {
             'id' : child.id,
@@ -58,6 +58,6 @@ def getInfo(self):
 @db.transactional(auto_commit=True)
 def empty(self):
     "Empties the bin"
-    txn = db.getTransaction()
+    txn = db.get_transaction()
     self.empty(txn)
     return True

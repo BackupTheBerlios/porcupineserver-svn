@@ -29,53 +29,53 @@ _activeTxns = 0
 def open(**kwargs):
     global _db_handle
     if _db_handle == None or not _db_handle.is_open():
-        _db_handle = misc.getCallableByName(settings['store']['interface'])
+        _db_handle = misc.get_rto_by_name(settings['store']['interface'])
         _db_handle.open(**kwargs)
         return True
     else:
         return False
     
-def _getItemByPath(lstPath, trans=None):
-    child = getItem('', trans)
+def _get_item_by_path(lstPath, trans=None):
+    child = get_item('', trans)
     for name in lstPath[1:len(lstPath)]:
         if name:
-            child_id = child.getChildId(name, trans)
+            child_id = child.get_child_id(name, trans)
             if child_id == None:
                 return None
             else:
-                child = getItem(child_id, trans)
+                child = get_item(child_id, trans)
     return child
 
-def getItem(oid, trans=None):
-    item = _db_handle.getItem(oid, trans)
+def get_item(oid, trans=None):
+    item = _db_handle.get_item(oid, trans)
     if item == None:
         path_tokens = oid.split('/')
         path_depth = len(path_tokens)
         if path_depth > 1:
             # /[itemID]
             if path_depth == 2:
-                item = _db_handle.getItem(path_tokens[1], trans)
+                item = _db_handle.get_item(path_tokens[1], trans)
             # /folder1/folder2/item
             if item == None:
-                return _getItemByPath(path_tokens, trans)
+                return _get_item_by_path(path_tokens, trans)
     if item != None:
         item = persist.loads(item)
         return item
 
-def putItem(item, trans=None):
-    _db_handle.putItem(item, trans)
+def put_item(item, trans=None):
+    _db_handle.put_item(item, trans)
     
-def deleteItem(item, trans):
-    _db_handle.deleteItem(item._id, trans)
+def delete_item(item, trans):
+    _db_handle.delete_item(item._id, trans)
 
-def getExternal(id, trans):
-    return _db_handle.getExternal(id, trans)
+def get_external(id, trans):
+    return _db_handle.get_external(id, trans)
 
-def putExternal(id, stream, trans):
-    _db_handle.putExternal(id, stream, trans)
+def put_external(id, stream, trans):
+    _db_handle.put_external(id, stream, trans)
     
-def deleteExternal(id, trans):
-    _db_handle.deleteExternal(id, trans)
+def delete_external(id, trans):
+    _db_handle.delete_external(id, trans)
 
 def handle_update(item, old_item, trans):
     if item._eventHandlers:

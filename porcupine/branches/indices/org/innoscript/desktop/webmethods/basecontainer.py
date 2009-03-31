@@ -57,7 +57,7 @@ def new(self):
     context = HttpContext.current()
     
     sCC = context.request.queryString['cc'][0]
-    oNewItem = misc.getCallableByName(sCC)()
+    oNewItem = misc.get_rto_by_name(sCC)()
     
     params = {
         'CC': sCC,
@@ -90,7 +90,7 @@ def new(self):
 def create(self, data):
     "Creates a new item"
     context = HttpContext.current()
-    oNewItem = misc.getCallableByName(data.pop('CC'))()
+    oNewItem = misc.get_rto_by_name(data.pop('CC'))()
 
     # get user role
     iUserRole = permsresolver.get_access(self, context.user)
@@ -121,8 +121,8 @@ def create(self, data):
         else:
             oAttr.value = data[prop]
             
-    txn = db.getTransaction()
-    oNewItem.appendTo(self, txn)
+    txn = db.get_transaction()
+    oNewItem.append_to(self, txn)
     return oNewItem.id
 
 @filters.etag()
@@ -132,7 +132,7 @@ def getInfo(self):
     context = HttpContext.current()
     sLang = context.request.getLang()
     lstChildren = []
-    children = self.getChildren()
+    children = self.get_children()
     for child in children:
         obj = {
             'id' : child.id,
@@ -148,7 +148,7 @@ def getInfo(self):
     
     containment = []
     for contained in self.containment:
-        image = misc.getCallableByName(contained).__image__
+        image = misc.get_rto_by_name(contained).__image__
         if not type(image) == str:
             image = ''
         localestring = resources.getResource(contained, sLang)
@@ -156,7 +156,7 @@ def getInfo(self):
         
     return {
         'displayName' : self.displayName.value,
-        'path' : misc.getFullPath(self),
+        'path' : misc.get_full_path(self),
         'parentid' : self.parentid,
         'iscollection' : self.isCollection,
         'containment' : containment,
@@ -168,13 +168,13 @@ def getInfo(self):
 @webmethods.remotemethod(of_type=Container)
 def getSubtree(self):
     l = []
-    folders = self.getSubFolders()
+    folders = self.get_subfolders()
     for folder in folders:
         o = {
             'id' : folder.id,
             'caption' : folder.displayName.value,
             'img' : folder.__image__,
-            'haschildren' : folder.hasSubfolders()
+            'haschildren' : folder.has_subfolders()
         }
         l.append(o)
     return l

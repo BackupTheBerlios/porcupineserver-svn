@@ -118,7 +118,7 @@ def _getControlFromAttribute(item, attrname, attr, readonly, isNew=False):
     elif isinstance(attr, datatypes.Date):
         sControl = AUTO_CONTROLS[datatypes.Date] % \
             (attrlabel, attrname,
-             attr.toIso8601(), str(readonly).lower())
+             attr.to_iso_8601(), str(readonly).lower())
         
     elif isinstance(attr, datatypes.File):
         if isNew:
@@ -138,7 +138,7 @@ def _getControlFromAttribute(item, attrname, attr, readonly, isNew=False):
         )
         
     elif isinstance(attr, datatypes.Reference1):
-        oRefItem = attr.getItem()
+        oRefItem = attr.get_item()
         if oRefItem:
             refid = oRefItem.id
             refname = oRefItem.displayName.value
@@ -233,7 +233,7 @@ def rename(self):
 def selectcontainer(self):
     "Displays a dialog for selecting the destination container"
     context = HttpContext.current()
-    rootFolder = db.getItem('')
+    rootFolder = db.get_item('')
     params = {
         'ROOT_ID': '/',
         'ROOT_IMG': rootFolder.__image__,
@@ -279,7 +279,7 @@ def update(self, data):
             oAttr.value = int(data[prop])
         else:
             oAttr.value = data[prop]
-    txn = db.getTransaction()
+    txn = db.get_transaction()
     self.update(txn)
     return True
 
@@ -287,7 +287,7 @@ def update(self, data):
 @db.transactional(auto_commit=True)
 def rename(self, newName):
     "Changes the display name of an object"
-    txn = db.getTransaction()
+    txn = db.get_transaction()
     self.displayName.value = newName
     self.update(txn)
     return True
@@ -298,42 +298,42 @@ def getSecurity(self):
     "Returns information about the object's security descriptor"
     l = []
     for sID in self.security:
-        oUser = db.getItem(sID)
+        oUser = db.get_item(sID)
         if oUser != None:
             dn = oUser.displayName.value
         else:
             dn = sID
         l.append({
-                'id': sID,
-                'displayName': dn,
-                'role': str(self.security[sID])
+            'id': sID,
+            'displayName': dn,
+            'role': str(self.security[sID])
         })
     return l
 
 @webmethods.remotemethod(of_type=Item)
 @db.transactional(auto_commit=True)
 def copyTo(self, targetid):
-    txn = db.getTransaction()
-    self.copyTo(targetid, txn)
+    txn = db.get_transaction()
+    self.copy_to(targetid, txn)
     return True
 
 @webmethods.remotemethod(of_type=Item)
 @db.transactional(auto_commit=True)
 def moveTo(self, targetid):
-    txn = db.getTransaction()
-    self.moveTo(targetid, txn)
+    txn = db.get_transaction()
+    self.move_to(targetid, txn)
     return True
 
 @webmethods.remotemethod(of_type=GenericItem)
 @db.transactional(auto_commit=True)
 def delete(self):
-    txn = db.getTransaction()
+    txn = db.get_transaction()
     self.recycle('rb', txn)
     return True
 
 @webmethods.remotemethod(of_type=GenericItem)
 @db.transactional(auto_commit=True)
 def deletePermanent(self):
-    txn = db.getTransaction()
+    txn = db.get_transaction()
     self.delete(txn)
     return True

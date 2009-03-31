@@ -39,7 +39,7 @@ class RequiresLogin(PreProcessFilter):
 class RunAs(PreProcessFilter):
     @staticmethod
     def apply(context, item, registration, **kwargs):
-        user = _db.getItem(kwargs['userid'])
+        user = _db.get_item(kwargs['userid'])
         context.original_user = context.user
         context.user = user
 
@@ -47,7 +47,7 @@ class RequiresPolicy(PreProcessFilter):
     @staticmethod
     def apply(context, item, registration, **kwargs):
         policyid = kwargs['policyid']
-        policy = _db.getItem(policyid)
+        policy = _db.get_item(policyid)
         user = context.user
         policyGrantedTo = policy.policyGranted.value
         

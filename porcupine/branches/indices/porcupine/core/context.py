@@ -26,7 +26,7 @@ class ContextThread(Thread):
     def __init__(self, target, name, user_id=None, args=()):
         Thread.__init__(self, name=name, target=target, args=args)
         if user_id != None:
-            user = db._db.getItem(user_id)
+            user = db._db.get_item(user_id)
         else:
             user = None
         self.context = SecurityContext(user)

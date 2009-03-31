@@ -74,12 +74,12 @@ fn  = {
     'str' : str,
     'lower' : lambda a: a.lower(),
     'upper' : lambda a: a.upper(),
-    'date' : lambda a: Date(time.mktime(time.strptime(a, '%Y-%m-%dT%H:%M:%S'))),
+    'date' : lambda a: Date.from_iso_8601(a),
     'trunc' : lambda a: int(a),
     'round' : lambda a: int(a+0.5),
     'sgn' : lambda a: ( (a<0 and -1) or (a>0 and 1) or 0 ),
     'isnone' : lambda a,b: a or b,
-    'getattr' : lambda a,b : getAttribute(a, [b])
+    'getattr' : lambda a,b: getAttribute(a, [b])
 }
 
 def evaluateStack(stack, variables, forObject=None):
@@ -144,7 +144,7 @@ def getAttribute(obj, name_list):
         oAttr = getattr(obj, attr) 
         if isinstance(oAttr, datatypes.DataType):
             if isinstance(oAttr, datatypes.Reference1):
-                obj = oAttr.getItem()
+                obj = oAttr.get_item()
             elif isinstance(oAttr, datatypes.ReferenceN) or \
                     isinstance(oAttr, datatypes.Composition):
                 obj = oAttr.getItems()
@@ -282,7 +282,7 @@ def h_65(params, variables, forObject):
 #================================================================================
 def h_66(params, variables, forObject):
     className = evaluateStack(params[0][:], variables, forObject)
-    return isinstance(forObject, misc.getCallableByName(className))
+    return isinstance(forObject, misc.get_rto_by_name(className))
 
 #================================================================================
 # GETPARENT command handler
@@ -292,7 +292,7 @@ def h_67(params, variables, forObject):
         obj = evaluateStack(params[0][:], variables, forObject)
     else:
         obj = forObject
-    return obj.getParent()
+    return obj.get_parent()
 
 #================================================================================
 # assignment command handler
@@ -319,7 +319,7 @@ def select(deep, children, fields, condition, variables):
             results.append(tuple(fieldlist))
             
         if deep and child.isCollection:
-            results1 = select(deep, child.getChildren(), fields,
+            results1 = select(deep, child.get_children(), fields,
                               condition, variables)
             results.extend(results1)
     
@@ -391,7 +391,7 @@ def h_200(params, variables, forObject = None):
                 if isinstance(attr, datatypes.ReferenceN):
                     refObjects = attr.getItems()
                 elif isinstance(attr, datatypes.Reference1):
-                    refObjects = [attr.getItem()]
+                    refObjects = [attr.get_item()]
                 else:
                     raise TypeError, ('Inner scopes using "this:" are ' +
                                       'valid only ReferenceN or Reference1 ' +
@@ -401,9 +401,9 @@ def h_200(params, variables, forObject = None):
                 results.extend(r)
         else:
             # swallow-deep
-            obj = db.getItem(object_id)    
+            obj = db.get_item(object_id)
             if obj != None and obj.isCollection:
-                children = obj.getChildren()
+                children = obj.get_children()
                 r = select(deep, children, all_fields,
                            where_condition, variables)
                 results.extend(r)

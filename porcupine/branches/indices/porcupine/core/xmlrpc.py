@@ -72,7 +72,7 @@ class XMLRPCParams(list):
             elif param.tagName == 'double':
                 return(float(param.childNodes[0].data))
             elif param.tagName == 'dateTime.iso8601':
-                oDate = date.Date.fromIso8601(param.childNodes[0].data)
+                oDate = date.Date.from_iso_8601(param.childNodes[0].data)
                 return(oDate)
             elif param.tagName == 'array':
                 arr = []
@@ -162,6 +162,6 @@ class XMLRPCParams(list):
             return self.__serializeParam(xmlrpc_object)
         elif isinstance(param, date.Date):
             return '<value><dateTime.iso8601>%s</dateTime.iso8601></value>' % \
-                    param.toIso8601()
+                    param.to_iso_8601()
         else:
             return None#self.__serializeParam(str(param))

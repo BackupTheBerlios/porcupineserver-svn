@@ -42,8 +42,8 @@ DESKSTOP_PANE = '''<rect height="-1" overflow="hidden">
 def login(self, username, password):
     "Remote method for authenticating users"
     http_context = HttpContext.current()
-    users_container = db.getItem('users')
-    user = users_container.getChildByName(username)
+    users_container = db.get_item('users')
+    user = users_container.get_child_by_name(username)
     if user and hasattr(user, 'authenticate'):
         if user.authenticate(password):
             http_context.session.userid = user.id
@@ -138,7 +138,7 @@ def applySettings(self, data):
     activeUser = context.original_user
     for key in data:
         activeUser.settings.value[key] = data[key]
-    txn = db.getTransaction()
+    txn = db.get_transaction()
     activeUser.update(txn)
     return True
 
@@ -181,7 +181,7 @@ def __blank__(self):
     
     # has the user access to recycle bin?
     rb_icon = ''
-    rb = db.getItem('rb')
+    rb = db.get_item('rb')
     if rb:
         rb_icon = '''
             <icon top="80" left="10" width="80" height="80"

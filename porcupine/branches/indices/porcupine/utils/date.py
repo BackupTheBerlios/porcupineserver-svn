@@ -21,6 +21,7 @@ import time
 
 from porcupine.config.resources import Locale
 from porcupine.config.resources import ResourceStrings
+from porcupine.core.decorators import deprecated
 
 class Date(object):
     """
@@ -34,31 +35,54 @@ class Date(object):
     resources = ResourceStrings({
         '*' : Locale({
             # dates
-            'DAYS' : [
-                'Monday','Tuesday','Wednesday',
-                'Thursday','Friday','Saturday','Sunday'
-            ],
-            'MONTHS' : [
-                'January','February','March','April','May','June',
-                'July','August','September','October','November','December'
-            ], 
+            'DAYS' : ['Monday',
+                      'Tuesday',
+                      'Wednesday',
+                      'Thursday',
+                      'Friday',
+                      'Saturday',
+                      'Sunday'],
+            'MONTHS' : ['January',
+                        'February',
+                        'March',
+                        'April',
+                        'May',
+                        'June',
+                        'July',
+                        'August',
+                        'September',
+                        'October',
+                        'November',
+                        'December'],
             'AM' : 'AM',
             'PM' : 'PM',
         }),
         'el' : Locale({
             # dates 
-            'DAYS' : [
-                'Δευτέρα','Τρίτη','Τετάρτη',
-                'Πέμπτη','Παρασκευή','Σάββατο','Κυριακή'
-            ],
-            'MONTHS' : [
-                'Ιανουάριος','Φεβρουάριος','Μάρτιος','Απρίλιος','Μάϊος','Ιούνιος',
-                'Ιούλιος','Αύγουστος','Σεπτέμβριος','Οκτώβριος','Νοέμβριος','Δεκέμβριος'
-            ],
+            'DAYS' : ['Δευτέρα',
+                      'Τρίτη',
+                      'Τετάρτη',
+                      'Πέμπτη',
+                      'Παρασκευή',
+                      'Σάββατο',
+                      'Κυριακή'],
+            'MONTHS' : ['Ιανουάριος',
+                        'Φεβρουάριος',
+                        'Μάρτιος',
+                        'Απρίλιος',
+                        'Μάϊος',
+                        'Ιούνιος',
+                        'Ιούλιος',
+                        'Αύγουστος',
+                        'Σεπτέμβριος',
+                        'Οκτώβριος',
+                        'Νοέμβριος',
+                        'Δεκέμβριος'],
             'AM' : 'πμ',
             'PM' : 'μμ',
         })
     })
+    
     def __init__(self, fTime=None):
         """
         @param fTime: a floating point number expressed
@@ -75,7 +99,8 @@ class Date(object):
         """
         Convert the date to a string as specified by the format argument.
         
-        @param format: The following directives can be embedded in the format string::
+        @param format: The following directives can be embedded in the
+                       format string::
             
                 -yyyy  four digit year
                 -yy    two digit year
@@ -119,13 +144,15 @@ class Date(object):
         format = format.replace('yy', sYear[2:4])
         
         format = format.replace('month', months[iMonth])
-        format = format.replace('mmm', unicode(months[iMonth], 'utf-8')[0:3].encode('utf-8'))
+        format = format.replace('mmm', unicode(months[iMonth],
+                                               'utf-8')[0:3].encode('utf-8'))
         format = format.replace('mm', str(iMonth + 1))
         
         format = format.replace('min', '%02d' % iMins)
         format = format.replace('sec', '%02d' % iSecs)
         
-        format = format.replace('ddd', unicode(days[iWeekday], 'utf-8')[0:3].encode('utf-8'))
+        format = format.replace('ddd', unicode(days[iWeekday],
+                                'utf-8')[0:3].encode('utf-8'))
         format = format.replace('dd', str(iDate))
         format = format.replace('day', days[iWeekday])
         
@@ -135,7 +162,7 @@ class Date(object):
         
         return format
 
-    def toIso8601(self):
+    def to_iso_8601(self):
         """
         This method formats the date in the Iso8601 format
         
@@ -145,9 +172,10 @@ class Date(object):
         """
         tupTime = time.localtime(self.value)
         return('%04i-%02i-%02iT%02i:%02i:%02i' % tupTime[:6])
+    toIso8601 = deprecated(to_iso_8601)
 
-    @staticmethod
-    def fromIso8601(s):
+    #@staticmethod
+    def from_iso_8601(s):
         """
         Convert an Iso8601 string to a L{Date} object.
 
@@ -157,4 +185,6 @@ class Date(object):
         @rtype: L{Date}
         """
         tupTime = time.strptime(s, "%Y-%m-%dT%H:%M:%S")
-        return Date( time.mktime(tupTime) )
+        return Date(time.mktime(tupTime))
+    fromIso8601 = staticmethod(deprecated(from_iso_8601))
+    from_iso_8601 = staticmethod(from_iso_8601)

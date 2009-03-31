@@ -34,7 +34,7 @@ class PersonalFolderHandler(events.ContentclassEventHandler):
                 user.id : 2
             }
             
-            personal_folder.appendTo('personal', trans)
+            personal_folder.append_to('personal', trans)
             
     @staticmethod
     def on_update(user, old_user, trans):

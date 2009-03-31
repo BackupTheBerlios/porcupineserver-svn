@@ -58,7 +58,7 @@ def unlock_db():
 
 def init_session_manager(init_expiration=True):
     return SessionManager.open(
-        misc.getCallableByName(settings['sessionmanager']['interface']),
+        misc.get_rto_by_name(settings['sessionmanager']['interface']),
         int(settings['sessionmanager']['timeout']),
         init_expiration
     )
@@ -68,10 +68,10 @@ def init_config():
     if type(settings['requestinterfaces'].values()[0]) == str:
         # register request interfaces
         for key, value in settings['requestinterfaces'].items():
-            settings['requestinterfaces'][key] = misc.getCallableByName(value)
+            settings['requestinterfaces'][key] = misc.get_rto_by_name(value)
         # register template languages
         for key, value in settings['templatelanguages'].items():
-            settings['templatelanguages'][key] = misc.getCallableByName(value)
+            settings['templatelanguages'][key] = misc.get_rto_by_name(value)
         # load published directories
         from porcupine.config import pubdirs
 
