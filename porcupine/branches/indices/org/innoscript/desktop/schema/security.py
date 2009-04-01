@@ -22,6 +22,7 @@ from porcupine import systemObjects as system
 from porcupine import datatypes
 from org.innoscript.desktop.schema import properties
 from org.innoscript.desktop.schema import handlers
+from porcupine.core.decorators import deprecated
 
 class PoliciesFolder(system.Container):
     """
@@ -102,7 +103,7 @@ class GenericUser(system.Item):
         self.memberof = properties.MemberOf()
         self.policies = properties.Policies()
 
-    def isMemberOf(self, group):
+    def is_member_of(self, group):
         """
         Checks if the user is member of the given group.
         
@@ -112,14 +113,16 @@ class GenericUser(system.Item):
         @rtype: bool
         """
         return group.id in self.memberof.value
+    isMemberOf = deprecated('is_member_of')
 
-    def isAdmin(self):
+    def is_admin(self):
         """
         Checks if the user is member of the administrators group.
         
         @rtype: bool
         """
         return 'administrators' in self.memberof.value
+    isAdmin = deprecated(is_admin)
 
 class User(GenericUser):
     """Porcupine User object
@@ -167,13 +170,14 @@ class SystemUser(system.Item):
     """
     __image__ = "desktop/images/user.gif"
     
-    def isAdmin(self):
+    def is_admin(self):
         """
         System User is an administative account.
         
         @return: C{True}
         """
         return True
+    isAdmin = deprecated(is_admin)
 
 class GuestUser(GenericUser):
     """
@@ -198,7 +202,7 @@ class GenericGroup(system.Item):
         system.Item.__init__(self)
         self.policies = properties.Policies()
     
-    def hasMember(self, user):
+    def has_member(self, user):
         """
         Not Implemented.
         It must be implemented by subclasses.
@@ -217,7 +221,7 @@ class Group(GenericGroup):
         GenericGroup.__init__(self)
         self.members = properties.Members()
 
-    def hasMember(self, user):
+    def has_member(self, user):
         """
         Checks if a user belongs is in this group.
         
@@ -227,11 +231,12 @@ class Group(GenericGroup):
         @rtype: bool
         """
         return user.id in self.members.value
+    hasMember = deprecated(has_member)
 
 class EveryoneGroup(GenericGroup):
     "Everyone Group"
     
-    def hasMember(self, user):
+    def has_member(self, user):
         """
         This method always returns C{True}.
         
@@ -242,11 +247,12 @@ class EveryoneGroup(GenericGroup):
         @rtype: bool
         """
         return True
+    hasMember = deprecated(has_member)
 
 class AuthUsersGroup(GenericGroup):
     "Authenticated Users Group"
     
-    def hasMember(self, user):
+    def has_member(self, user):
         """
         This method returns C{True} only if the user object has
         an attribute named C{password} else it returns C{False}.
@@ -257,3 +263,4 @@ class AuthUsersGroup(GenericGroup):
         @rtype: bool
         """
         return hasattr(user, 'password')
+    hasMember = deprecated(has_member)
