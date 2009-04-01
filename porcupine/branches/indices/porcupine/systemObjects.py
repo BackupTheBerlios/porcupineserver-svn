@@ -44,12 +44,6 @@ class _TargetItem(datatypes.Relator1):
     relAttr = 'shortcuts'
     isRequired = True
 
-class displayName(datatypes.String):
-    """Legacy data type. To be removed in the next version.
-    Use L{porcupine.datatypes.RequiredString} instead.
-    """
-    isRequired = True
-
 #================================================================================
 # Porcupine server top level content classes
 #================================================================================
