@@ -594,7 +594,7 @@ class GenericItem(object):
         return self._isSystem
     issystem = property(get_is_system, None, None,
                         "Indicates if this is a systemic object")
-    isSystem = property(deprecated(get_is_system), None, None,
+    isSystem = property(deprecated(get_is_system, "issystem"), None, None,
                         "Deprecated property. Use issystem instead.")
     
     def get_owner(self):

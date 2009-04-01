@@ -25,7 +25,7 @@ from porcupine import exceptions
 from porcupine.utils import permsresolver
 from porcupine.config.settings import settings
 
-def deprecated(function):
+def deprecated(function, member=None):
     """
     Wrapper for deprecated API calls
     """
@@ -37,7 +37,7 @@ def deprecated(function):
             "DEPRECATION WARNING\n" +
             "File \"%s\".\n" % pfile +
             "Line %d:\n    %s\nin \"%s\". " % (line_no, line, where) +
-            "Use \"%s\" instead." % function.func_name)
+            "Use \"%s\" instead." % member or function.func_name)
         return function(*args, **kwargs)
     dep_wrapper.func_name = function.func_name
     return dep_wrapper
