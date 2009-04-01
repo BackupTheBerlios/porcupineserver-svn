@@ -37,7 +37,7 @@ def deprecated(function, member=None):
             "DEPRECATION WARNING\n" +
             "File \"%s\".\n" % pfile +
             "Line %d:\n    %s\nin \"%s\". " % (line_no, line, where) +
-            "Use \"%s\" instead." % member or function.func_name)
+            "Use \"%s\" instead." % (member or function.func_name))
         return function(*args, **kwargs)
     dep_wrapper.func_name = function.func_name
     return dep_wrapper
