@@ -165,6 +165,7 @@ class SystemUser(system.Item):
     L{BaseServlet.runAsSystem<porcupine.core.servlet.BaseServlet.runAsSystem>}
     method is called.
     """
+    __image__ = "desktop/images/user.gif"
     
     def isAdmin(self):
         """
