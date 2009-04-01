@@ -34,10 +34,10 @@ class File(system.Item):
         system.Item.__init__(self)
         self.file = datatypes.RequiredFile()
 
-    def getSize(self):
+    def get_size(self):
         "Getter for L{size} property"
-        return(len(self.file))
-    size = property(getSize, None, None, "The file's size")
+        return len(self.file)
+    size = property(get_size, None, None, "The file's size")
 
 class RecycleBin(system.RecycleBin):
     """
