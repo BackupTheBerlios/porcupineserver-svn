@@ -181,7 +181,7 @@ class GuestUser(GenericUser):
     This user instance is assigned by the session manager
     to all new sessions.
     This is configurable. See the C{sessionmanager} section
-    of C{porcupine.ini}.
+    of C{porcupine.conf}.
     """
 
 class GenericGroup(system.Item):
