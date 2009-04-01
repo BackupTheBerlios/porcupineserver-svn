@@ -112,7 +112,7 @@ class GenericUser(system.Item):
         
         @rtype: bool
         """
-        return(group.id in self.memberof.value)
+        return group.id in self.memberof.value
 
     def isAdmin(self):
         """
@@ -120,7 +120,7 @@ class GenericUser(system.Item):
         
         @rtype: bool
         """
-        return('administrators' in self.memberof.value)
+        return 'administrators' in self.memberof.value
 
 class User(GenericUser):
     """Porcupine User object
@@ -166,7 +166,6 @@ class SystemUser(system.Item):
     L{BaseServlet.runAsSystem<porcupine.core.servlet.BaseServlet.runAsSystem>}
     method is called.
     """
-    __image__ = "desktop/images/user.gif"
     
     def isAdmin(self):
         """
@@ -174,7 +173,7 @@ class SystemUser(system.Item):
         
         @return: C{True}
         """
-        return(True)
+        return True
 
 class GuestUser(GenericUser):
     """
@@ -192,6 +191,7 @@ class GenericGroup(system.Item):
     @ivar policies: The list of policies have been asigned to this group.
     @type policies: L{Policies<org.innoscript.desktop.schema.properties.Policies>}
     """
+    __image__ = "desktop/images/group.gif"
     __props__ = system.Item.__props__ + ('policies', )
     
     def __init__(self):
@@ -211,7 +211,6 @@ class Group(GenericGroup):
     @ivar members: The group's members.
     @type members: L{Members<org.innoscript.desktop.schema.properties.Members>}
     """
-    __image__ = "desktop/images/group.gif"
     __props__ = GenericGroup.__props__ + ('members', )
     
     def __init__(self):
@@ -227,11 +226,10 @@ class Group(GenericGroup):
         
         @rtype: bool
         """
-        return(user.id in self.members.value)
+        return user.id in self.members.value
 
 class EveryoneGroup(GenericGroup):
     "Everyone Group"
-    __image__ = "desktop/images/group.gif"
     
     def hasMember(self, user):
         """
@@ -243,11 +241,10 @@ class EveryoneGroup(GenericGroup):
         @return: C{True}
         @rtype: bool
         """
-        return(True)
+        return True
 
 class AuthUsersGroup(GenericGroup):
     "Authenticated Users Group"
-    __image__ = "desktop/images/group.gif"
     
     def hasMember(self, user):
         """
@@ -259,4 +256,4 @@ class AuthUsersGroup(GenericGroup):
         
         @rtype: bool
         """
-        return(hasattr(user, 'password'))
+        return hasattr(user, 'password')
