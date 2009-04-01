@@ -36,24 +36,23 @@ class Policy(system.Item):
     """
     Server Policy
     =============
-    Policy is a way for securing HTTP exposed methods.
+    Policy is a way for securing web methods.
     Policies take precedence over security descriptors.
     
-    They are extremely usefull, if used on XML-RPC servlets
-    which have arbitary methods. Sample usage::
+    They are extremely usefull when a remote method is required
+    to be accessed by acertain group of users. Sample usage::
         
-        from porcupine.security.policy import policymethod
-        from porcupine.core.servlet import XMLRPCServlet
-        
-        class MyServlet(XMLRPCServlet):
-            ...
-            def myMethod(self):
+        from porcupine import filters
+        from porcupine import webmethods
+
+        @filters.requires_policy(my_policy_object_id)
+        @webmethods.remotemethod(of_type=MyContentClass)
+        def myMethod(self):
                 ...
-            myMethod = policymethod(myMethod, policyID)
             
-    The C{myMethod} method is secured by the policy with ID C{policyID}.
-    Only the users and groups that have been granted this policy can
-    execute this XML-RPC method.
+    The C{myMethod} method is secured by the policy with ID
+    C{my_policy_object_id}. Only the users and groups that have been
+    granted this policy can execute this remote method.
     
     If a non-authorized user calls C{myMethod} a 
     L{PermissionDenied<porcupine.exceptions.PermissionDenied>}
