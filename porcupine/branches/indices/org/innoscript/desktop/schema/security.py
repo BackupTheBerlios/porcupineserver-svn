@@ -113,7 +113,7 @@ class GenericUser(system.Item):
         @rtype: bool
         """
         return group.id in self.memberof.value
-    isMemberOf = deprecated('is_member_of')
+    isMemberOf = deprecated(is_member_of)
 
     def is_admin(self):
         """

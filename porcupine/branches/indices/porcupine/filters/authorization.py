@@ -52,7 +52,7 @@ class RequiresPolicy(PreProcessFilter):
         policyGrantedTo = policy.policyGranted.value
         
         userID = user._id
-        if userID in policyGrantedTo or user.isAdmin():
+        if userID in policyGrantedTo or user.is_admin():
             return
         
         memberOf = ['everyone']
