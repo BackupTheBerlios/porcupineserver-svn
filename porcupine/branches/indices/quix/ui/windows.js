@@ -575,12 +575,12 @@ QuiX.ui.DialogButton.prototype._registerHandler = function(eventType, handler,
                                                            isCustom) {
 	var wrapper;
 	if (handler && handler.toString().lastIndexOf(
-            'return handler(evt || event, w)') == -1)
+            'return handler(evt || event, self)') == -1)
 		wrapper = function(evt, w) {
 			w.dialog.buttonIndex = w.dialog.buttons.indexOf(w);
 			handler(evt, w);
 		}
 	wrapper = wrapper || handler;
 	QuiX.ui.Widget.prototype._registerHandler.apply(this,
-                                                [eventType, wrapper, isCustom]);
+        [eventType, wrapper, isCustom]);
 }

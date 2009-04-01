@@ -56,7 +56,7 @@ QuiX.ui.ListView.prototype._registerHandler = function(eventType, handler,
 			case "ondblclick":
 				//if it not wrapped wrap it...
 				if(handler && handler.toString().lastIndexOf(
-						'return handler(evt || event, w)')==-1)
+						'return handler(evt || event, self)')==-1)
 					wrapper = function(evt, w) {
 						return ListView__onclick(evt, w, handler)
 					};
