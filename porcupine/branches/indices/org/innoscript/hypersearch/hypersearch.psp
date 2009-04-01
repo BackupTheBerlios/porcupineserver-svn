@@ -6,7 +6,7 @@
 	
 	if Request.queryString.has_key("id"):
 		container_id = Request.queryString["id"][0]
-		container = Server.db.getItem(container_id)
+		container = Server.db.get_item(container_id)
 		container_title = container.displayName.value
 	end
 %>

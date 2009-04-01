@@ -144,9 +144,9 @@ class XMLRPCParams(list):
                 elif isinstance(oAttr, datatypes.ReferenceN):
                     xmlrpc_object[attr] = [{'id': x._id,
                                             'displayName': x.displayName.value}
-                                            for x in oAttr.getItems()]
+                                            for x in oAttr.get_items()]
                 elif isinstance(oAttr, datatypes.Reference1):
-                    item_ref = oAttr.getItem()
+                    item_ref = oAttr.get_item()
                     xmlrpc_object[attr] = {'id': oAttr.value}
                     if item_ref != None:
                         xmlrpc_object[attr]['displayName'] = \

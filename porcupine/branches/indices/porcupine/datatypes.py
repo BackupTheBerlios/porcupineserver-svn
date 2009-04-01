@@ -22,7 +22,6 @@ Base classes for custom data types.
 See also the L{org.innoscript.desktop.schema.properties} module as
 a usage guideline.
 """
-
 import copy
 import hashlib
 import os.path
@@ -32,7 +31,7 @@ import cStringIO
 from porcupine import db
 from porcupine.utils import misc, date
 from porcupine.core import dteventhandlers
-
+from porcupine.core.decorators import deprecated
 
 class DataType(object):
     """
@@ -233,6 +232,7 @@ class Reference1(DataType):
         if self.value:
             item = db.get_item(self.value, trans)
         return item
+    getItem = deprecated(get_item)
 
 class RequiredReference1(Reference1):
     "Mandatory L{Reference1} data type."
@@ -256,7 +256,7 @@ class ReferenceN(DataType):
     def __init__(self, **kwargs):
         self.value = []
     
-    def getItems(self, trans=None):
+    def get_items(self, trans=None):
         """
         This method returns the items that this data type
         instance references.
@@ -267,6 +267,7 @@ class ReferenceN(DataType):
         """
         return filter(None, [db.get_item(id, trans)
                              for id in self.value])
+    getItems = deprecated(get_items)
 
 class RequiredReferenceN(ReferenceN):
     "Mandatory L{ReferenceN} data type."
@@ -350,7 +351,7 @@ class Composition(DataType):
     def __init__(self, **kwargs):
         self.value = []
 
-    def getItems(self, trans=None):
+    def get_items(self, trans=None):
         """
         Returns the items that this data type instance embeds.
         
@@ -359,6 +360,7 @@ class Composition(DataType):
         @rtype: list
         """
         return [db._db.get_item(id, trans) for id in self.value]
+    getItems = deprecated(get_items)
 
 class RequiredComposition(Composition):
     "Mandatory L{Composition} data type."

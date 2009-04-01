@@ -57,7 +57,7 @@ def properties(self):
     }
     
     memberof_options = []
-    memberof = self.memberof.getItems()
+    memberof = self.memberof.get_items()
     for group in memberof:
         memberof_options += [xml.xml_encode(group.__image__),
                              group.id,
@@ -65,7 +65,7 @@ def properties(self):
     params['MEMBEROF'] = ';'.join(memberof_options)
     
     policies_options = []
-    policies = self.policies.getItems()
+    policies = self.policies.get_items()
     for policy in policies:
         policies_options += [xml.xml_encode(policy.__image__),
                              policy.id,

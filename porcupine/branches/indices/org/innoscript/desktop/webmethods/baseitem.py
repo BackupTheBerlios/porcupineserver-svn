@@ -156,7 +156,7 @@ def _getControlFromAttribute(item, attrname, attr, readonly, isNew=False):
         
     elif isinstance(attr, datatypes.ReferenceN):
         options = []
-        rel_items = attr.getItems()
+        rel_items = attr.get_items()
         for item in rel_items:
             options += [xml.xml_encode(item.__image__),
                         item.id,

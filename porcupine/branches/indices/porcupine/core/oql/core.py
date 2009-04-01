@@ -147,7 +147,7 @@ def getAttribute(obj, name_list):
                 obj = oAttr.get_item()
             elif isinstance(oAttr, datatypes.ReferenceN) or \
                     isinstance(oAttr, datatypes.Composition):
-                obj = oAttr.getItems()
+                obj = oAttr.get_items()
             elif isinstance(oAttr, datatypes.Date):
                 obj = oAttr
             else:
@@ -389,7 +389,7 @@ def h_200(params, variables, forObject = None):
             if hasattr(forObject, object_id):
                 attr = getattr(forObject, object_id)
                 if isinstance(attr, datatypes.ReferenceN):
-                    refObjects = attr.getItems()
+                    refObjects = attr.get_items()
                 elif isinstance(attr, datatypes.Reference1):
                     refObjects = [attr.get_item()]
                 else:

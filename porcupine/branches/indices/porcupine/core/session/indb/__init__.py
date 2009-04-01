@@ -96,7 +96,6 @@ class SessionManager(GenericSessionManager):
     @db.transactional(auto_commit=True)
     def revive_session(self, session):
         trans = db.get_transaction()
-        # session = db._db.getItem(session._id, trans)
         session.update(trans)
 
     def close(self):

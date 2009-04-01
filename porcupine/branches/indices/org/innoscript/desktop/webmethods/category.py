@@ -33,7 +33,7 @@ def getInfo(self):
     info = s_getInfo(self)
         
     lstObjects = []
-    category_objects = self.category_objects.getItems()
+    category_objects = self.category_objects.get_items()
     for item in category_objects:
         obj = {
             'id' : item.id,

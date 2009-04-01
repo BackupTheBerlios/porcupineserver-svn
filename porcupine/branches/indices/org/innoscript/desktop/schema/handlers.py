@@ -41,12 +41,12 @@ class PersonalFolderHandler(events.ContentclassEventHandler):
         new_name = user.displayName.value
         old_name = old_user.displayName.value
         if new_name != old_name:
-            personal_folder = user.personalFolder.getItem(trans)
+            personal_folder = user.personalFolder.get_item(trans)
             personal_folder.displayName.value = new_name
             personal_folder.update(trans)
     
     @staticmethod
     def on_delete(user, trans, bPermanent):
         if bPermanent:
-            personal_folder = user.personalFolder.getItem(trans)
+            personal_folder = user.personalFolder.get_item(trans)
             personal_folder.delete(trans)

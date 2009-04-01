@@ -55,7 +55,7 @@ def properties(self):
     }
 
     members_options = []
-    members = self.members.getItems()
+    members = self.members.get_items()
     for user in members:
         members_options += [xml.xml_encode(user.__image__),
                             user.id,
@@ -63,7 +63,7 @@ def properties(self):
     params['MEMBERS'] = ';'.join(members_options)
 
     policies_options = []
-    policies = self.policies.getItems()
+    policies = self.policies.get_items()
     for policy in policies:
         policies_options += [xml.xml_encode(policy.__image__),
                              policy.id,
