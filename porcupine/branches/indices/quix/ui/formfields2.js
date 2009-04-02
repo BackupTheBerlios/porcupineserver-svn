@@ -199,7 +199,7 @@ QuiX.ui.Combo.prototype.selectOption = function(option) {
 	this.setValue(value);
 }
 
-Combo.prototype.reset = function() {
+QuiX.ui.Combo.prototype.reset = function() {
 	if (this.editable)
 		this.div.firstChild.value = '';
 	else {
