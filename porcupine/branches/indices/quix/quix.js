@@ -1,5 +1,5 @@
 //==============================================================================
-//  Copyright 2005-2008 Tassos Koutsovassilis and Contributors
+//  Copyright 2005-2009 Tassos Koutsovassilis and Contributors
 //
 //  This file is part of Porcupine.
 //  Porcupine is free software; you can redistribute it and/or modify
@@ -17,7 +17,7 @@
 
 //QuiX compatibility layer
 var QuiX = {};
-QuiX.version = '0.9.5 build 20081010';
+QuiX.version = '1.0 build 20090402';
 QuiX.namespace = 'http://www.innoscript.org/quix';
 QuiX.root = (new RegExp(
 	"https?://[^/]+(?:/[^/\?]+)?(?:/(?:{|%7B)[0-9a-f]{32}(?:}|%7D))?",

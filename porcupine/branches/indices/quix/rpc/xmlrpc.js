@@ -1,6 +1,6 @@
 //==============================================================================
 //  Copyright 2000, 2001, 2002 Virtual Cowboys (info@virtualcowboys.nl)
-//  Copyright 2005 - 2008 Tassos Koutsovassilis and contributors
+//  Copyright 2005-2009 Tassos Koutsovassilis and contributors
 //
 //  This file is part of Porcupine.
 //  Porcupine is free software; you can redistribute it and/or modify

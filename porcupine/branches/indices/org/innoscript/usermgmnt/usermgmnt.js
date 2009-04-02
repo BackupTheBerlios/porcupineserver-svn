@@ -166,7 +166,7 @@ usermgmnt.resetPassword = function(evt, w) {
 usermgmnt.about = function(evt, w) {
     document.desktop.msgbox(
         w.getCaption(),
-        "User and Groups Management v0.1<br/>(c)2005-2008 Innoscript",
+        "User and Groups Management v0.1<br/>(c)2005-2009 Innoscript",
         [['OK', 60]],
         'desktop/images/messagebox_info.gif', 'center', 'center', 260, 112
     );

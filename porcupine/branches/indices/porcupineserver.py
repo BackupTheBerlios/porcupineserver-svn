@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #===============================================================================
-#    Copyright 2005-2008, Tassos Koutsovassilis
+#    Copyright 2005-2009, Tassos Koutsovassilis
 #
 #    This file is part of Porcupine.
 #    Porcupine is free software; you can redistribute it and/or modify
@@ -39,7 +39,7 @@ from porcupine.core import asyncore
 from porcupine.core import runtime
 
 warnings.filterwarnings('ignore', '', Warning, 'logging')
-__version__ = '0.5.2 build(20081010)'
+__version__ = '0.6 build(20090402)'
 PID_FILE = 'conf/.pid'
 
 class Controller(object):

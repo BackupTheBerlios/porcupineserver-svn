@@ -1,5 +1,5 @@
 #===============================================================================
-#    Copyright 2005-2008, Tassos Koutsovassilis
+#    Copyright 2005-2009, Tassos Koutsovassilis
 #
 #    This file is part of Porcupine.
 #    Porcupine is free software; you can redistribute it and/or modify
@@ -17,9 +17,6 @@
 """
 OQL Core Interpreter
 """
-
-import time
-
 from porcupine import datatypes
 from porcupine import db
 from porcupine.core.objectSet import ObjectSet
