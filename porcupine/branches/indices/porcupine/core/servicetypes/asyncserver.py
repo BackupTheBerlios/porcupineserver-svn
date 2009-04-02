@@ -409,6 +409,7 @@ if multiprocessing:
             self.done_queue = done_queue
             self.sentinel = sentinel
             self.socket = socket
+            self.is_alive = True
 
         def start(self):
             multiprocessing.Process.start(self)
@@ -440,6 +441,7 @@ if multiprocessing:
                     self.remove_runtime_service('db')
                 self.connection.send(True)
             self.connection.send(None)
+            self.is_alive = False
 
         def run(self):
             # start runtime services
@@ -484,8 +486,8 @@ if multiprocessing:
             [t.start() for t in thread_pool]
 
             try:
-                while self.is_alive():
-                    time.sleep(30.0)
+                while self.is_alive:
+                    time.sleep(8.0)
             except KeyboardInterrupt:
                 pass
             except IOError:
