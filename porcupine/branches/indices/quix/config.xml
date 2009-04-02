@@ -21,6 +21,14 @@
             max-age="1200">
         <filter type="porcupine.filters.output.Gzip"/>
     </context>
+    <context path="ui/widget.js"
+			method="GET"
+			client="Opera/9"
+			lang=".*"
+			action="ui/widget_op.js"
+            max-age="1200">
+        <filter type="porcupine.filters.output.Gzip"/>
+    </context>
 	<context path="utils/date.js"
 		method="GET"
 		client=".*"
