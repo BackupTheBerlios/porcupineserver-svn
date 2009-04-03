@@ -186,6 +186,7 @@ class Movable(object):
             
             self._parentid = target._id
             self.inheritRoles = False
+            self.modified = time.time()
             _db.check_unique(self, None, trans)
             _db.put_item(self, trans)
 
