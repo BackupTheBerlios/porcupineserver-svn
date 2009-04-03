@@ -65,7 +65,7 @@ class PorcupineThread(BaseServerThread, ContextThread):
                             sDirPath,
                             request.serverVariables['REQUEST_METHOD'],
                             request.serverVariables['HTTP_USER_AGENT'],
-                            request.getLang())
+                            request.get_lang())
                     if not registration:
                         raise exceptions.NotFound, \
                             'The resource "%s" does not exist' % sPath
@@ -88,8 +88,8 @@ class PorcupineThread(BaseServerThread, ContextThread):
                                 '"%s"' % misc.generate_file_etag(f_name):
                             response._code = 304
                         else: 
-                            response.loadFromFile(f_name)
-                            response.setHeader('ETag', '"%s"' %
+                            response.load_from_file(f_name)
+                            response.set_header('ETag', '"%s"' %
                                                misc.generate_file_etag(f_name))
                             if registration.encoding:
                                 response.charset = registration.encoding
@@ -100,7 +100,7 @@ class PorcupineThread(BaseServerThread, ContextThread):
             if registration != None and response._code == 200:
                 # do we have caching directive?
                 if registration.max_age:
-                    response.setExpiration(registration.max_age)
+                    response.set_expiration(registration.max_age)
                 # apply post-processing filters
                 [filter[0].apply(self.context, item, registration, **filter[1])
                  for filter in registration.filters
@@ -132,7 +132,7 @@ class PorcupineThread(BaseServerThread, ContextThread):
         r_http_method = self.context.request.serverVariables['REQUEST_METHOD']
         r_browser = self.context.request.serverVariables['HTTP_USER_AGENT']
         r_qs = self.context.request.serverVariables['QUERY_STRING']
-        r_lang = self.context.request.getLang()
+        r_lang = self.context.request.get_lang()
         
         method_key = hashlib.md5(''.join((str(hash(item.__class__)),
                                  method_name, r_http_method,
