@@ -142,6 +142,15 @@ def applySettings(self, data):
     activeUser.update(txn)
     return True
 
+@webmethods.webmethod(of_type=RootFolder,
+                      max_age=1200,
+                      template='../browsernotsuppoted.htm')
+def __blank__(self):
+    "Displays the browser not supported HTML page"
+    return {
+        'USER_AGENT' : HttpContext.current().request.HTTP_USER_AGENT
+    }
+
 @filters.requires_login('/?cmd=login')
 @filters.i18n('org.innoscript.desktop.strings.resources')
 @webmethods.quixui(of_type=RootFolder,
@@ -220,15 +229,6 @@ def __blank__(self):
                          ' disabled="true"></menuoption>'
 
     return params
-
-@webmethods.webmethod(of_type=RootFolder,
-                      max_age=1200,
-                      template='../browsernotsuppoted.htm')
-def __blank__(self):
-    "Displays the browser not supported HTML page"
-    return {
-        'USER_AGENT' : HttpContext.current().request.HTTP_USER_AGENT
-    }
 
 @webmethods.remotemethod(of_type=RootFolder)
 def executeOqlCommand(self, command, range=None):
