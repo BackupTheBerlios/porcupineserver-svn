@@ -71,7 +71,7 @@ class WebMethodDescriptor(object):
             context.response.content_type = self.content_type
             context.response.charset = self.encoding
             if self.max_age:
-                context.response.setExpiration(self.max_age)
+                context.response.set_expiration(self.max_age)
             return self.execute(item, context)
         wm_wrapper.func_name = self.func_name
         wm_wrapper.func_doc = self.func.func_doc
