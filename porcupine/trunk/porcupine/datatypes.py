@@ -27,6 +27,7 @@ import hashlib
 import os.path
 import shutil
 import cStringIO
+import types
 
 from porcupine import db
 from porcupine.utils import misc, date
@@ -60,7 +61,11 @@ class DataType(object):
         
         @return: None
         """
-        if not isinstance(self.value, self._safetype):
+        if type(self._safetype) == tuple:
+            is_safe_type = [isinstance(self.value, t) for t in self._safetype]
+        else:
+            is_safe_type = isinstance(self.value, self._safetype)
+        if not is_safe_type:
             raise TypeError, \
                'Invalid data type for "%s". Got "%s" instead of "%s".' % \
                (self.__class__.__name__, self.value.__class__.__name__,
@@ -210,7 +215,7 @@ class Reference1(DataType):
     @type value: str
 
     """
-    _safetype = str
+    _safetype = (str, types.NoneType)
     relCc = ()
     
     def __init__(self, **kwargs):
