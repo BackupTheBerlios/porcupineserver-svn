@@ -63,13 +63,16 @@ class DataType(object):
         """
         if type(self._safetype) == tuple:
             is_safe_type = [isinstance(self.value, t) for t in self._safetype]
+            safe_type_name = ' or '.join(['"%s"' % t.__name__
+                                          for t in self._safetype])
         else:
             is_safe_type = isinstance(self.value, self._safetype)
+            safe_type_name = '"%s"' % self._safetype.__name__
         if not is_safe_type:
             raise TypeError, \
-               'Invalid data type for "%s". Got "%s" instead of "%s".' % \
+               'Invalid data type for "%s". Got "%s" instead of %s.' % \
                (self.__class__.__name__, self.value.__class__.__name__,
-                self._safetype.__name__)
+                safe_type_name)
         if self.isRequired and not self.value:
             raise ValueError, \
                '"%s" attribute is mandatory' % self.__class__.__name__
