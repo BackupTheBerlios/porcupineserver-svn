@@ -385,7 +385,8 @@ def h_200(params, variables, forObject = None):
                     'Inner scopes using "this:" are valid only in sub-queries'
             if hasattr(forObject, object_id):
                 attr = getattr(forObject, object_id)
-                if isinstance(attr, datatypes.ReferenceN):
+                if isinstance(attr, (datatypes.ReferenceN,
+                                     datatypes.Composition)):
                     refObjects = attr.get_items()
                 elif isinstance(attr, datatypes.Reference1):
                     refObjects = [attr.get_item()]
