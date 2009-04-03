@@ -455,8 +455,7 @@ QuiX.ui.Widget.prototype._calcMinHeight = function() {
 QuiX.ui.Widget.prototype.getScreenLeft = function() {
 	var oElement = this.div;
 	var iX = 0, b;
-	while(oElement && oElement.tagName && oElement.tagName!='HTML')
-	{
+	while(oElement && oElement.tagName && oElement.tagName!='HTML') {
 		if (oElement.tagName!='TR')
 			iX += oElement.offsetLeft - oElement.scrollLeft;
 		b = parseInt(oElement.style.borderWidth);
@@ -464,7 +463,7 @@ QuiX.ui.Widget.prototype.getScreenLeft = function() {
 			iX += b;
 		oElement = oElement.parentNode;
 	}
-	return(iX);
+	return iX;
 }
 
 QuiX.ui.Widget.prototype.getScreenTop = function() {
@@ -478,7 +477,7 @@ QuiX.ui.Widget.prototype.getScreenTop = function() {
 			iY += b;
 		oElement = oElement.parentNode;
 	}
-	return(iY);
+	return iY;
 }
 
 QuiX.ui.Widget.prototype.bringToFront = function() {

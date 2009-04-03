@@ -463,7 +463,7 @@ QuiX.ui.Widget.prototype.getScreenLeft = function() {
 			iX += b;
 		oElement = oElement.parentNode;
 	}
-	return(iX);
+	return iX - 1;
 }
 
 QuiX.ui.Widget.prototype.getScreenTop = function() {
@@ -477,7 +477,7 @@ QuiX.ui.Widget.prototype.getScreenTop = function() {
 			iY += b;
 		oElement = oElement.parentNode;
 	}
-	return(iY);
+	return iY - 1;
 }
 
 QuiX.ui.Widget.prototype.bringToFront = function() {

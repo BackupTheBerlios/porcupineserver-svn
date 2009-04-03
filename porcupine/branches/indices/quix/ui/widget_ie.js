@@ -464,28 +464,32 @@ QuiX.ui.Widget.prototype.getScreenLeft = function() {
 	while(oElement) {
 		if (oElement.tagName!='TR') {
 			iX += oElement.offsetLeft - oElement.scrollLeft;
-			b = parseInt(oElement.style.borderWidth);
-			if (b)
-				iX += b;
+            if (QuiX.utils.BrowserInfo.version < 8) {
+                b = parseInt(oElement.style.borderWidth);
+                if (b)
+                    iX += b;
+            }
 		}
 		oElement = oElement.parentElement;
 	}
-	return(iX - 1);
+	return iX - ((QuiX.utils.BrowserInfo.version < 8)?1:0);
 }
 
 QuiX.ui.Widget.prototype.getScreenTop = function() {
 	var oElement = this.div;
-	var iY = 0, b=0;
+	var iY = 0, b;
 	while(oElement) {
 		if (oElement.tagName!='TR') {
 			iY += oElement.offsetTop - oElement.scrollTop;
-			b = parseInt(oElement.style.borderWidth);
-			if (b)
-				iY += b;
+            if (QuiX.utils.BrowserInfo.version < 8) {
+                b = parseInt(oElement.style.borderWidth);
+                if (b)
+                    iY += b;
+            }
 		}
 		oElement = oElement.parentElement;
 	}
-	return(iY - 1);
+	return iY - ((QuiX.utils.BrowserInfo.version < 8)?1:0);
 }
 
 QuiX.ui.Widget.prototype.bringToFront = function() {
