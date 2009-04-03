@@ -61,7 +61,7 @@ def new(self):
     
     params = {
         'CC': sCC,
-        'URI': context.request.getRootUrl() + '/' + self.id,
+        'URI': context.request.get_root_url() + '/' + self.id,
         'ICON': oNewItem.__image__,
         'PROPERTIES_TAB': '',
         'EXTRA_TABS': '',
@@ -112,7 +112,7 @@ def create(self, data):
             if data[prop]['tempfile']:
                 oAttr.filename = data[prop]['filename']
                 sPath = context.server.temp_folder + '/' + data[prop]['tempfile']
-                oAttr.loadFromFile(sPath)
+                oAttr.load_from_file(sPath)
                 os.remove(sPath)
         elif isinstance(oAttr, datatypes.Date):
             oAttr.value = data[prop].value
@@ -130,7 +130,7 @@ def create(self, data):
 def getInfo(self):
     "Returns info about the container's contents"
     context = HttpContext.current()
-    sLang = context.request.getLang()
+    sLang = context.request.get_lang()
     lstChildren = []
     children = self.get_children()
     for child in children:

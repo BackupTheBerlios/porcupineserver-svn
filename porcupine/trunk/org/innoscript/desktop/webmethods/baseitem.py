@@ -180,7 +180,7 @@ def _getControlFromAttribute(item, attrname, attr, readonly, isNew=False):
 def properties(self):
     "Displays a generic edit form based on the object's schema"
     context = HttpContext.current()
-    sLang = context.request.getLang()
+    sLang = context.request.get_lang()
     
     user = context.user
     iUserRole = permsresolver.get_access(self, user)
@@ -272,7 +272,7 @@ def update(self, data):
             if data[prop]['tempfile']:
                 oAttr.filename = data[prop]['filename']
                 sPath = context.server.temp_folder + '/' + data[prop]['tempfile']
-                oAttr.loadFromFile(sPath)
+                oAttr.load_from_file(sPath)
         elif isinstance(oAttr, datatypes.Date):
             oAttr.value = data[prop].value
         elif isinstance(oAttr, datatypes.Integer):

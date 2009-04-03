@@ -53,7 +53,7 @@ def quixui(of_type, isPage=False, lang='', qs='',
                     script_name,
                     context.session.sessionid,
                     context.request.serverVariables['PATH_INFO'],
-                    context.request.getQueryString()
+                    context.request.get_query_string()
                 )
                 vars = (script_name, no_cookies_url)
                 

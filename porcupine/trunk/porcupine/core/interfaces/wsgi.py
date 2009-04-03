@@ -21,6 +21,6 @@ from cPickle import dumps
 def wsgi_handler(rh, response):
     cookies = [response.cookies[cookie_name].OutputString()
                for cookie_name in response.cookies]
-    output = [response._code, response._getBody(),
-              response._getHeaders(), cookies]
+    output = [response._code, response._get_body(),
+              response._get_headers(), cookies]
     rh.write_buffer(dumps(output, 2))

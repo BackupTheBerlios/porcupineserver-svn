@@ -47,7 +47,7 @@ class PorcupineException(Exception):
         if context != None:
             context.response._reset()
             context.response._code = self.code
-            context.response.setHeader('Cache-Control', 'no-cache')
+            context.response.set_header('Cache-Control', 'no-cache')
             code = self.code
             description = self.description
             request_type = context.request.type

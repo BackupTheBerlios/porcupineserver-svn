@@ -18,10 +18,10 @@
 
 def cgi_handler(rh, response):
     # write headers
-    for header, value in response._getHeaders().items():
+    for header, value in response._get_headers().items():
         rh.write_buffer('%s: %s\n' % (header, value))
 
-    sBody = response._getBody()
+    sBody = response._get_body()
     if sBody:
         rh.write_buffer('Content-Length: %i\n' % len(sBody))
         

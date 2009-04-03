@@ -25,6 +25,6 @@ from porcupine.systemObjects import Shortcut
 def properties(self):
     "Displays a generic edit form based on the object's schema"
     context = HttpContext.current()
-    rootUrl = context.request.getRootUrl()
+    rootUrl = context.request.get_root_url()
     context.response.redirect('%s/%s?cmd=properties' % (rootUrl,
                                                         self.target.value))

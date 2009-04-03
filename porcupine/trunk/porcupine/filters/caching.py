@@ -35,4 +35,4 @@ class ETag(PreProcessFilter):
                 response._code = 304
                 response.end()
             else: 
-                response.setHeader('ETag', '"%s"' % etag)
+                response.set_header('ETag', '"%s"' % etag)

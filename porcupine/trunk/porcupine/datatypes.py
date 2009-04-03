@@ -192,14 +192,13 @@ class Password(DataType):
         assert not self.isRequired or not self._value == self._blank, \
                '"%s" attribute is mandatory' % self.__class__.__name__
     
-    def getValue(self):
+    def get_value(self):
         return self._value
     
-    def setValue(self, sValue):
-        if sValue != self._value:
-            self._value = hashlib.md5(sValue).hexdigest()
-    
-    value = property(getValue, setValue)
+    def set_value(self, value):
+        if value != self._value:
+            self._value = hashlib.md5(value).hexdigest()
+    value = property(get_value, set_value)
     
 class RequiredPassword(Password):
     "Mandatory L{Password} data type."
@@ -384,10 +383,10 @@ class ExternalAttribute(DataType):
     These kind of attributes are not stored on the same database as
     all other object attributes.
     
-    @type isDirty: bool
+    @type is_dirty: bool
     @type value: str
     """
-    _safetype = str
+    _safetype = (str, types.NoneType)
     _eventHandler = dteventhandlers.ExternalAttributeEventHandler
     
     def __init__(self, **kwargs):
@@ -401,29 +400,28 @@ class ExternalAttribute(DataType):
     def __deepcopy__(self, memo):
         clone = copy.copy(self)
         clone._id = misc.generate_oid()
-        clone.value = self.getValue()
+        clone.value = self.get_value()
         return clone
 
-    def getValue(self, txn=None):
+    def get_value(self, txn=None):
         "L{value} property getter"
-        if self._value is None:
-            #trans = currentThread().trans
-            self._value = \
-                db._db.get_external(self._id, txn) or ''
+        if self._value == None:
+            self._value = db._db.get_external(self._id, txn) or ''
         return(self._value)
 
-    def setValue(self, value):
+    def set_value(self, value):
         "L{value} property setter"
         self._isDirty = True
         self._value = value
+    value = property(get_value, set_value, None, "the actual value")
 
-    value = property(getValue, setValue, None, "the actual value")
-
-    def getIsDirty(self):
-        "L{isDirty} property getter"
+    def get_is_dirty(self):
+        "L{is_dirty} property getter"
         return self._isDirty
-    isDirty = property(getIsDirty, None, None,
-                       "boolean indicating if the value has changed")
+    is_dirty = property(get_is_dirty, None, None,
+                        "boolean indicating if the value has changed")
+    isDirty = property(deprecated(get_is_dirty, 'is_dirty'), None, None,
+                       "deprecated")
 
 class Text(ExternalAttribute):
     """Data type to use for large text streams
@@ -434,11 +432,11 @@ class Text(ExternalAttribute):
         ExternalAttribute.__init__(self, **kwargs)
         self._size = 0
 
-    def setValue(self, value):
-        ExternalAttribute.setValue(self, value)
+    def set_value(self, value):
+        ExternalAttribute.set_value(self, value)
         self._size = len(value)
-
-    value = property(ExternalAttribute.getValue, setValue, None, "text stream")
+    value = property(ExternalAttribute.get_value, set_value, None,
+                     "text stream")
 
     def __len__(self):
         return(self._size)
@@ -461,10 +459,11 @@ class File(Text):
         Text.__init__(self, **kwargs)
         self.filename = ''
         
-    def getFile(self):
+    def get_file(self):
         return cStringIO.StringIO(self.value)
+    getFile = deprecated(get_file)
         
-    def loadFromFile(self, fname):
+    def load_from_file(self, fname):
         """
         This method sets the value property of this data type instance
         to a stream read from a file that resides on the file system.
@@ -477,6 +476,7 @@ class File(Text):
         oFile = file(fname, 'rb')
         self.value = oFile.read()
         oFile.close()
+    loadFromFile = deprecated(load_from_file)
 
 class RequiredFile(File):
     "Mandatory L{File} data type."
@@ -490,8 +490,9 @@ class ExternalFile(String):
     removeFileOnDeletion = True
     isRequired = True
     
-    def getFile(self, mode='rb'):
+    def get_file(self, mode='rb'):
         return file(self.value, mode)
+    getFile = deprecated(get_file)
     
     def __deepcopy__(self, memo):
         clone = copy.copy(self)

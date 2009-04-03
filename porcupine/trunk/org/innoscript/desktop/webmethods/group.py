@@ -33,7 +33,7 @@ from org.innoscript.desktop.webmethods import baseitem
 def properties(self):
     "Displays the group's properties form"
     context = HttpContext.current()
-    sLang = context.request.getLang()
+    sLang = context.request.get_lang()
 
     user = context.user
     iUserRole = permsresolver.get_access(self, user)

@@ -92,7 +92,7 @@ class Package(object):
         # load external attributes
         for prop in [getattr(item, x) for x in item.__props__]:
             if isinstance(prop, datatypes.ExternalAttribute):
-                prop.getValue()
+                prop.get_value()
         
         it_file.write(persist.dumps(item))
         it_file.close()

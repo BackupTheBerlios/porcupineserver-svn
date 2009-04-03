@@ -47,7 +47,7 @@ class Gzip(PostProcessFilter):
             Gzip.staticLevel = int(config['static_compress_level'])
             Gzip.dynamicLevel = int(config['dynamic_compress_level'])
         
-        context.response.setHeader('Content-Encoding', 'gzip')    
+        context.response.set_header('Content-Encoding', 'gzip')
         isStatic = (registration != None and registration.type == 0)
                 
         if isStatic:
@@ -67,7 +67,7 @@ class Gzip(PostProcessFilter):
                 res = [os.remove(oldFile) for oldFile in oldFiles]
 
                 zBuf = cStringIO.StringIO()
-                Gzip.compress(zBuf, context.response._getBody(), Gzip.staticLevel)
+                Gzip.compress(zBuf, context.response._get_body(), Gzip.staticLevel)
 
                 context.response._body = zBuf
 
@@ -83,7 +83,7 @@ class Gzip(PostProcessFilter):
                 
         else:
             zBuf = cStringIO.StringIO()
-            Gzip.compress(zBuf, context.response._getBody(), Gzip.dynamicLevel)
+            Gzip.compress(zBuf, context.response._get_body(), Gzip.dynamicLevel)
             context.response._body = zBuf
 
 class I18n(PostProcessFilter):
@@ -94,7 +94,7 @@ class I18n(PostProcessFilter):
     """
     @staticmethod
     def apply(context, item, registration, **kwargs):
-        language = context.request.getLang()
+        language = context.request.get_lang()
         lst_resources = kwargs['using'].split(',')
         bundles = [misc.get_rto_by_name(x)
                    for x in lst_resources]

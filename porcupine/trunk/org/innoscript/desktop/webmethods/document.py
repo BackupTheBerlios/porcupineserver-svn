@@ -26,5 +26,5 @@ from org.innoscript.desktop.schema.common import Document
 @filters.etag()
 @webmethods.webmethod(of_type=Document)
 def getfile(self):
-    HttpContext.current().response.writeFile(self.file.filename,
+    HttpContext.current().response.write_file(self.file.filename,
                                              self.file.value)

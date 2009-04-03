@@ -34,7 +34,7 @@ from org.innoscript.desktop.webmethods import baseitem
 def properties(self):
     "Displays the deleted item's properties form"
     context = HttpContext.current()
-    sLang = context.request.getLang()
+    sLang = context.request.get_lang()
     modified = date.Date(self.modified)
     return {
         'ICON': self.__image__,
