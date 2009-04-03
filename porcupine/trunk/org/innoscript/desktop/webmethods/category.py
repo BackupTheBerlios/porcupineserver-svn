@@ -1,5 +1,5 @@
 #===============================================================================
-#    Copyright 2005-2008, Tassos Koutsovassilis
+#    Copyright 2005-2009, Tassos Koutsovassilis
 #
 #    This file is part of Porcupine.
 #    Porcupine is free software; you can redistribute it and/or modify
@@ -19,11 +19,13 @@ Web methods for the category content class
 """
 from porcupine import webmethods
 from porcupine.utils import date
+from porcupine import filters
 
 from org.innoscript.desktop.schema.common import Category
 from org.innoscript.desktop.webmethods.basecontainer \
     import getInfo as s_getInfo
 
+@filters.etag()
 @webmethods.remotemethod(of_type=Category)
 def getInfo(self):
     "Retutns info about the category's contents"
@@ -31,7 +33,7 @@ def getInfo(self):
     info = s_getInfo(self)
         
     lstObjects = []
-    category_objects = self.category_objects.getItems()
+    category_objects = self.category_objects.get_items()
     for item in category_objects:
         obj = {
             'id' : item.id,

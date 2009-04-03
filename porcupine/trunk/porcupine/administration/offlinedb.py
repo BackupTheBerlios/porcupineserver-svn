@@ -1,5 +1,5 @@
 #===============================================================================
-#    Copyright 2005-2008, Tassos Koutsovassilis
+#    Copyright 2005-2009, Tassos Koutsovassilis
 #
 #    This file is part of Porcupine.
 #    Porcupine is free software; you can redistribute it and/or modify
@@ -14,33 +14,23 @@
 #    along with Porcupine; if not, write to the Free Software
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #===============================================================================
-"""This modules provides an offline handle for database access through
+"""
+This modules provides an offline handle for database access through
 the Porcupine API.
 """
 from threading import currentThread
 
 from porcupine.db import _db
-from porcupine.core.http.context import HttpContext
+from porcupine.core.context import SecurityContext
 
-def getHandle(identity=None):
-    #open database
-    _db.open()
-    if identity==None:
-        identity = _db.getItem('system')
-    currentThread().context = HttpContext()
-    currentThread().context.user = identity
-    currentThread().trans = None
+def getHandle(identity=None, recover=0):
+    # open database
+    _db.open(recover=recover, maintain=False)
+    if identity == None:
+        identity = _db.get_item('system')
+    currentThread().context = SecurityContext(identity)
     return _db
 
 def close():
     _db.close()
-    
-class OfflineTransaction(object):
-    def __init__(self):
-        self.txn = _db.createTransaction()
 
-    def commit(self):
-        _db.commitTransaction(self.txn)
-
-    def abort(self):
-        _db.abortTransaction(self.txn)

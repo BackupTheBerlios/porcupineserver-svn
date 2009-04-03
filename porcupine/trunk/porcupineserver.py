@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #===============================================================================
-#    Copyright 2005-2008, Tassos Koutsovassilis
+#    Copyright 2005-2009, Tassos Koutsovassilis
 #
 #    This file is part of Porcupine.
 #    Porcupine is free software; you can redistribute it and/or modify
@@ -16,14 +16,14 @@
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #===============================================================================
 "Porcupine Server"
-
-import logging
 import sys
 import os
 import time
 import signal
 import imp
 import warnings
+import select
+from errno import EINTR
 from threading import Thread, Event
 
 def main_is_frozen():
@@ -34,130 +34,121 @@ def main_is_frozen():
 if main_is_frozen():
     sys.path.insert(0, '')
 
-from porcupine.config import services, log
-from porcupine.utils import misc
-from porcupine.db import _db
-from porcupine.security import SessionManager
+from porcupine.config import services
+from porcupine.core import asyncore
+from porcupine.core import runtime
 
 warnings.filterwarnings('ignore', '', Warning, 'logging')
-__version__ = '0.5.2 build(20081010)'
+__version__ = '0.6 build(20090402)'
 PID_FILE = 'conf/.pid'
 
 class Controller(object):
+    type = 'Controller'
+
     def __init__(self):
         self.shutdowninprogress = False
         self.running = False
-        self.logger = logging.getLogger('serverlog')
         self.services = services.services
     
     def start(self):
         try:
-            # read configuration file
-            from porcupine.config.settings import settings
-            # initialize logging
-            log.initialize_logging()
-            self.logger.info('Server starting...')
-            
-            # register request interfaces
-            for key, value in settings['requestinterfaces'].items():
-                settings['requestinterfaces'][key] = \
-                    misc.getCallableByName(value)
-            self.logger.info('Succesfullly registered %i request interfaces' % \
-                             len(settings['requestinterfaces']))
-            
-            # register template languages
-            for key, value in settings['templatelanguages'].items():
-                settings['templatelanguages'][key] = \
-                    misc.getCallableByName(value)
-            self.logger.info('Succesfullly registered %i template languages' % \
-                             len(settings['templatelanguages']))
-                        
-            # load published directories
-            self.logger.info('Loading published directories\' registrations...')
-            from porcupine.config import pubdirs
-
-            # open database
-            self.logger.info('Opening database...')
-            _db.open()
-
-            # create session manager
-            self.logger.info('Creating session manager...')
-            SessionManager.open(misc.getCallableByName(
-                            settings['sessionmanager']['interface']),
-                            int(settings['sessionmanager']['timeout']))
-            
+            runtime.logger.info('Server starting...')
             self.services['_controller'] = self
             # start services
-            self.logger.info('Starting services...')
-            services.startServices()
-            
+            runtime.logger.info('Starting services...')
+            services.start()
         except Exception, e:
-            self.logger.log(logging.ERROR, e[0], *(), **{'exc_info' : True})
+            runtime.logger.error(e[0], *(), **{'exc_info' : True})
+            # stop services
+            services.stop()
             raise e
+
+        # start asyn thread
+        self._asyn_thread = Thread(target=self._async_loop,
+                                   name='Asyncore thread')
+        self._asyn_thread.start()
         
         # start shutdown thread
-        self.shutdownEvt = Event()
-        self.shutdownThread = Thread(
+        self.shutdown_evt = Event()
+        self.shutdown_thread = Thread(
             target=self.shutdown,
             name='Shutdown thread'
         )
-        self.shutdownThread.start()
+        self.shutdown_thread.start()
 
         self.running = True
 
         # record process id
         pidfile = file(PID_FILE, "w")
-        pidfile.write( str(os.getpid()) )
+        if os.name == 'posix':
+            pidfile.write(str(os.getpgid(os.getpid())))
+        else:
+            pidfile.write(str(os.getpid()))
         pidfile.close()
         
-        self.logger.info('Porcupine Server started succesfully')
+        runtime.logger.info('Porcupine Server started succesfully')
         print 'Porcupine Server v%s' % __version__
-        sPythonVersion = 'Python %s' % sys.version
-        self.logger.info(sPythonVersion)
-        print sPythonVersion
+        python_version = 'Python %s' % sys.version
+        runtime.logger.info(python_version)
+        print python_version
         print '''Porcupine comes with ABSOLUTELY NO WARRANTY.
 This is free software, and you are welcome to redistribute it under
 certain conditions; See COPYING for more details.'''
 
+    def _async_loop(self):
+        _use_poll = False
+        if hasattr(select, 'poll'):
+            _use_poll = True
+        try:
+            asyncore.loop(16.0, _use_poll)
+        except select.error, v:
+            if v[0] == EINTR:
+                print 'Shutdown not completely clean...'
+            else:
+                pass
+
+    def lock_db(self):
+        [s.lock_db() for s in services.services.values() if s != self]
+
+    def unlock_db(self):
+        [s.unlock_db() for s in services.services.values() if s != self]
+
+    def open_db(self):
+        [s.add_runtime_service('db') for s in services.services.values()
+         if s != self]
+
+    def close_db(self):
+        [s.remove_runtime_service('db') for s in services.services.values()
+         if s != self]
+
     def initiateShutdown(self, arg1=None, arg2=None):
         self.shutdowninprogress = True
-        self.shutdownEvt.set()
+        self.shutdown_evt.set()
         
     def shutdown(self):
-        self.shutdownEvt.wait()
-        self.logger.info('Initiating shutdown...')
+        self.shutdown_evt.wait()
+        print 'Initiating shutdown...'
+        runtime.logger.info('Initiating shutdown...')
+        self.running = False
 
         # stop services
-        self.logger.info('Stopping services...')
-        for service in [x for x in self.services.values()
-                        if x is not self]:
-            service.shutdown()
+        runtime.logger.info('Stopping services...')
+        services.stop()
 
-        self.running = False
-        
-        # shutdown session manager
-        if SessionManager.sm:
-            self.logger.info('Closing session manager...')
-            SessionManager.close()
-        
-        # close database
-        if _db.db_handle:
-            self.logger.info('Closing database...')
-            _db.close()
+        # join asyn thread
+        asyncore.close_all()
+        self._asyn_thread.join()
 
-        self.logger.info('All services have been shut down successfully')
-        # shutdown logging
-        logging.shutdown()
         self.shutdowninprogress = False
 
 def main(args):
     for arg in args:
         if arg == 'daemon':
             if os.name == 'posix':
-                out = file('out', 'w')
+                out = open('nul', 'w')
                 sys.stdout = out
                 sys.stderr = out
-                pid=os.fork()
+                pid = os.fork()
                 if pid:
                     sys.exit()
             else:
@@ -167,7 +158,7 @@ def main(args):
             pid = int(pidfile.read())
             pidfile.close
             if os.name == 'posix':
-                os.kill(pid, signal.SIGINT)
+                os.killpg(pid, signal.SIGINT)
             else:
                 print 'Your operating system does not support this command.'
             sys.exit()
@@ -178,20 +169,16 @@ def main(args):
     except Exception, e:
         sys.exit(e)
 
-    if (os.name=='nt'):
-        try:
-            while controller.running:
-                time.sleep(3.0)
-        except KeyboardInterrupt:
-            print 'Initiating shutdown...'
-            controller.initiateShutdown()
-    else:
-        signal.signal(signal.SIGINT, controller.initiateShutdown)
-        signal.signal(signal.SIGTERM, controller.initiateShutdown)
-        while controller.running:
-            time.sleep(3.0)
+    signal.signal(signal.SIGINT, controller.initiateShutdown)
+    signal.signal(signal.SIGTERM, controller.initiateShutdown)
 
-    controller.shutdownThread.join()
+    try:
+        while controller.running:
+            time.sleep(16.0)
+    except IOError:
+        pass
+
+    controller.shutdown_thread.join()
     sys.exit()
 
 if __name__=='__main__':

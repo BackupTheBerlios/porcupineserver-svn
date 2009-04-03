@@ -15,6 +15,7 @@ resources = ResourceStrings({
         'org.innoscript.desktop.schema.security.Group' : 'Group',
         'org.innoscript.desktop.schema.security.Policy' : 'Policy',
         'org.innoscript.desktop.schema.common.Application' : 'Application',
+        'porcupine.systemObjects.Shortcut' : 'Shortcut',
 
         # schema attributes
         'displayName' : 'Name',
@@ -33,6 +34,8 @@ resources = ResourceStrings({
         'policies' : 'Policies',
         'policyGranted' : 'Granted to',
         'fullName' : 'Full name',
+        'target' : 'Target',
+        'shortcuts' : 'Shortcuts',
         
         # strings
         'FILE' : 'File',
@@ -156,6 +159,7 @@ resources = ResourceStrings({
         'org.innoscript.desktop.schema.security.Group' : 'Ομάδα',
         'org.innoscript.desktop.schema.security.Policy' : 'Πολιτική Ασφάλειας',
         'org.innoscript.desktop.schema.common.Application' : 'Εφαρμογή',
+        'porcupine.systemObjects.Shortcut' : 'Συντόμευση',
         
         #schema attributes
         'displayName' : 'Όνομα',
@@ -174,6 +178,8 @@ resources = ResourceStrings({
         'policies' : 'Πολιτικές ασφαλείας',
         'policyGranted' : 'Αποδόθηκε στους',
         'fullName' : 'Ονοματεπώνυμο',
+        'target' : 'Προορισμός',
+        'shortcuts' : 'Συντομεύσεις',
         
         # strings
         'FILE' : 'Αρχείο',

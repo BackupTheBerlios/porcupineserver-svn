@@ -18,26 +18,26 @@
 Web methods for the recycle bin class
 """
 from porcupine import db
-from porcupine import HttpContext
 from porcupine import webmethods
 from porcupine import filters
 from porcupine.utils import date
 
 from org.innoscript.desktop.schema.common import RecycleBin
 
+@filters.etag()
 @filters.i18n('org.innoscript.desktop.strings.resources')
-@webmethods.quixui(of_type=RecycleBin, template='../ui.RecycleList.quix')
+@webmethods.quixui(of_type=RecycleBin,
+                   max_age=3600,
+                   template='../ui.RecycleList.quix')
 def list(self):
     "Displays the recycle bin's window"
-    context = HttpContext.current()
-    context.response.setExpiration(1200)
     return {'ID' : self.id}
 
 @webmethods.remotemethod(of_type=RecycleBin)
 def getInfo(self):
     "Returns info about its children"
     lstChildren = []
-    children = self.getChildren()
+    children = self.get_children()
     for child in children:
         obj = {
             'id' : child.id,
@@ -58,6 +58,6 @@ def getInfo(self):
 @db.transactional(auto_commit=True)
 def empty(self):
     "Empties the bin"
-    txn = db.getTransaction()
+    txn = db.get_transaction()
     self.empty(txn)
     return True

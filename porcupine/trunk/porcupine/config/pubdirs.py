@@ -1,5 +1,5 @@
 #===============================================================================
-#    Copyright 2005-2008 Tassos Koutsovassilis
+#    Copyright 2005-2009 Tassos Koutsovassilis
 #
 #    This file is part of Porcupine.
 #    Porcupine is free software; you can redistribute it and/or modify
@@ -73,7 +73,7 @@ class Dir(object):
         filters = []
         for filterNode in filterList:
             type = filterNode.getAttribute('type').encode('iso-8859-1')
-            filter = [misc.getCallableByName(type), {}]
+            filter = [misc.get_rto_by_name(type), {}]
             for attr in filterNode.attributes.keys():
                 filter[1][str(attr)] = filterNode.getAttribute(attr).encode('iso-8859-1')
             filters.append( tuple(filter) )

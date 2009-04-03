@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #===============================================================================
-#    Copyright 2005-2008, Tassos Koutsovassilis
+#    Copyright 2005-2009, Tassos Koutsovassilis
 #
 #    This file is part of Porcupine.
 #    Porcupine is free software; you can redistribute it and/or modify
@@ -20,11 +20,12 @@
 import getopt
 import sys
 import os
-import cPickle
 import tarfile
 import ConfigParser
 import imp
 from xml.dom import minidom
+
+from porcupine.core import persist
 
 def main_is_frozen():
    return (hasattr(sys, "frozen") or # new py2exe
@@ -84,7 +85,7 @@ class Package(object):
     
     def _exportItem(self, id, clearRolesInherited=True):
         it_file = file(self.tmp_folder + '/' + id, 'wb')
-        item = self.db.getItem(id)
+        item = self.db.get_item(id)
         if clearRolesInherited:
             item.inheritRoles = False
         
@@ -93,7 +94,7 @@ class Package(object):
             if isinstance(prop, datatypes.ExternalAttribute):
                 prop.getValue()
         
-        it_file.write( cPickle.dumps(item, 2) )
+        it_file.write(persist.dumps(item))
         it_file.close()
         self.package_files.append(
             (
@@ -111,12 +112,11 @@ class Package(object):
     
     def _importItem(self, fileobj, txn):
         sItem = fileobj.read()
-        oItem = cPickle.loads(sItem)
-        oParent = self.db.getItem(oItem.parentid, txn)
+        oItem = persist.loads(sItem)
+        oParent = self.db.get_item(oItem.parentid, txn)
         #check if the item already exists
-        try:
-            oOldItem = self.db.getItem(oItem.id, txn)
-        except exceptions.ObjectNotFound:
+        oOldItem = self.db.get_item(oItem.id, txn)
+        if oOldItem == None:
             # write external attributes
             for prop in [getattr(oItem, x) for x in oItem.__props__]:
                 if isinstance(prop, datatypes.ExternalAttribute):
@@ -129,8 +129,8 @@ class Package(object):
                     oParent._subfolders[oItem.displayName.value] = oItem._id
                 else:
                     oParent._items[oItem.displayName.value] = oItem._id
-                self.db.putItem(oParent, txn)
-            self.db.putItem(oItem, txn)
+                self.db.put_item(oParent, txn)
+            self.db.put_item(oItem, txn)
         else:
             print 'WARNING: Item "%s" already exists. Upgrading object...' % \
                 oItem.displayName.value
@@ -144,7 +144,7 @@ class Package(object):
             if oItem.isCollection:
                 oItem._subfolders = oOldItem._subfolders
                 oItem._items = oOldItem._items
-            self.db.putItem(oItem, txn)
+            self.db.put_item(oItem, txn)
         
     def _deltree(self, top):
         for root, dirs, files in os.walk(top, topdown=False):
@@ -198,7 +198,7 @@ class Package(object):
         dbfiles = [x for x in contents if x[:4] == '_db/']
         if dbfiles:
             self.db = offlinedb.getHandle()
-            txn = offlinedb.OfflineTransaction()
+            txn = self.db.get_transaction()
             try:
                 for dbfile in dbfiles:
                     print 'INFO: importing object ' + os.path.basename(dbfile)
@@ -238,13 +238,13 @@ class Package(object):
         items = self.config_file.options('items')
         itemids = [self.config_file.get('items', x) for x in items]
         self.db = offlinedb.getHandle()
-        txn = offlinedb.OfflineTransaction()
+        txn = self.db.get_transaction()
         try:
             try:
                 for itemid in itemids:
                     print 'INFO: removing object %s' % itemid
                     try:
-                        oItem = self.db.getItem(itemid, txn)
+                        oItem = self.db.get_item(itemid, txn)
                     except:
                         pass
                     else:
@@ -404,13 +404,10 @@ class Package(object):
             )
             
         # definition file
-        self.package_files.append(
-            (
+        self.package_files.append((
                 self.package_file.gettarinfo(definition, '_pkg.ini'),
-                definition
-            )
-        )
-    
+                definition))
+
         # compact files
         print 'INFO: compacting...'
         for tarinfo, fname in self.package_files:

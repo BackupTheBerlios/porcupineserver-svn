@@ -1,5 +1,5 @@
 #===============================================================================
-#    Copyright 2005-2008, Tassos Koutsovassilis
+#    Copyright 2005-2009, Tassos Koutsovassilis
 #
 #    This file is part of Porcupine.
 #    Porcupine is free software; you can redistribute it and/or modify
@@ -18,7 +18,7 @@
 Porcupine Desktop web methods for the base container content type
 =================================================================
 
-Generic interfaces applying to all container types unless overriden.
+Generic interfaces applying to all container types unless overridden.
 """
 
 import os
@@ -31,16 +31,16 @@ from porcupine import datatypes
 
 from porcupine.systemObjects import Container
 from porcupine.oql.command import OqlCommand
-from porcupine.security import objectAccess
-from porcupine.utils import date, misc
+from porcupine.utils import date, misc, permsresolver
 
 from org.innoscript.desktop.strings import resources
 from org.innoscript.desktop.webmethods import baseitem
 
+@filters.etag()
 @filters.i18n('org.innoscript.desktop.strings.resources')
 @webmethods.quixui(of_type=Container,
                    template='../ui.ContainerList.quix',
-                   max_age=1200)
+                   max_age=3600)
 def list(self):
     "Displays the container's window"
     return {
@@ -51,13 +51,13 @@ def list(self):
 @filters.i18n('org.innoscript.desktop.strings.resources')
 @webmethods.quixui(of_type=Container,
                    template='../ui.Frm_AutoNew.quix',
-                   max_age=1200)
+                   max_age=120)
 def new(self):
     "Displays a generic form for creating a new object"
     context = HttpContext.current()
-        
+    
     sCC = context.request.queryString['cc'][0]
-    oNewItem = misc.getCallableByName(sCC)()
+    oNewItem = misc.get_rto_by_name(sCC)()
     
     params = {
         'CC': sCC,
@@ -90,11 +90,12 @@ def new(self):
 def create(self, data):
     "Creates a new item"
     context = HttpContext.current()
-    oNewItem = misc.getCallableByName(data.pop('CC'))()
+    oNewItem = misc.get_rto_by_name(data.pop('CC'))()
 
     # get user role
-    iUserRole = objectAccess.getAccess(self, context.user)
-    if data.has_key('__rolesinherited') and iUserRole == objectAccess.COORDINATOR:
+    iUserRole = permsresolver.get_access(self, context.user)
+    if data.has_key('__rolesinherited') and \
+            iUserRole == permsresolver.COORDINATOR:
         oNewItem.inheritRoles = data.pop('__rolesinherited')
         if not oNewItem.inheritRoles:
             acl = data.pop('__acl')
@@ -120,17 +121,18 @@ def create(self, data):
         else:
             oAttr.value = data[prop]
             
-    txn = db.getTransaction()
-    oNewItem.appendTo(self, txn)
+    txn = db.get_transaction()
+    oNewItem.append_to(self, txn)
     return oNewItem.id
 
+@filters.etag()
 @webmethods.remotemethod(of_type=Container)
 def getInfo(self):
-    "Retutns info about the container's contents"
+    "Returns info about the container's contents"
     context = HttpContext.current()
     sLang = context.request.getLang()
     lstChildren = []
-    children = self.getChildren()
+    children = self.get_children()
     for child in children:
         obj = {
             'id' : child.id,
@@ -146,7 +148,7 @@ def getInfo(self):
     
     containment = []
     for contained in self.containment:
-        image = misc.getCallableByName(contained).__image__
+        image = misc.get_rto_by_name(contained).__image__
         if not type(image) == str:
             image = ''
         localestring = resources.getResource(contained, sLang)
@@ -154,30 +156,33 @@ def getInfo(self):
         
     return {
         'displayName' : self.displayName.value,
-        'path' : misc.getFullPath(self),
+        'path' : misc.get_full_path(self),
         'parentid' : self.parentid,
         'iscollection' : self.isCollection,
         'containment' : containment,
-        'user_role' : objectAccess.getAccess(self, context.user),
+        'user_role' : permsresolver.get_access(self, context.user),
         'contents' : lstChildren
     }
-    
+
+@filters.etag()
 @webmethods.remotemethod(of_type=Container)
 def getSubtree(self):
     l = []
-    folders = self.getSubFolders()
+    folders = self.get_subfolders()
     for folder in folders:
         o = {
             'id' : folder.id,
             'caption' : folder.displayName.value,
             'img' : folder.__image__,
-            'haschildren' : folder.hasSubfolders()
+            'haschildren' : folder.has_subfolders()
         }
         l.append(o)
     return l
 
 @filters.i18n('org.innoscript.desktop.strings.resources')
-@webmethods.quixui(of_type=Container, template='../ui.Dlg_SelectObjects.quix')
+@webmethods.quixui(of_type=Container,
+                   max_age=-1,
+                   template='../ui.Dlg_SelectObjects.quix')
 def selectobjects(self):
     "Displays the select objects dialog"
     context = HttpContext.current()
@@ -195,7 +200,7 @@ def selectobjects(self):
     sOql = "select * from '%s'" % self.id
     if sCC != '*':
         ccs = sCC.split('|')
-        ccs = ["contentclass='%s'" % x for x in ccs]
+        ccs = ["instanceof('%s')" % x for x in ccs]
         sConditions = " or ".join(ccs)
         sOql += " where %s" % sConditions
     oRes = oCmd.execute(sOql)

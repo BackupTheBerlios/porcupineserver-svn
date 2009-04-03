@@ -1,5 +1,5 @@
 #===============================================================================
-#    Copyright 2005-2008, Tassos Koutsovassilis
+#    Copyright 2005-2009, Tassos Koutsovassilis
 #
 #    This file is part of Porcupine.
 #    Porcupine is free software; you can redistribute it and/or modify
@@ -34,19 +34,19 @@ class PersonalFolderHandler(events.ContentclassEventHandler):
                 user.id : 2
             }
             
-            personal_folder.appendTo('personal', trans)
+            personal_folder.append_to('personal', trans)
             
     @staticmethod
     def on_update(user, old_user, trans):
         new_name = user.displayName.value
         old_name = old_user.displayName.value
         if new_name != old_name:
-            personal_folder = user.personalFolder.getItem(trans)
+            personal_folder = user.personalFolder.get_item(trans)
             personal_folder.displayName.value = new_name
             personal_folder.update(trans)
     
     @staticmethod
     def on_delete(user, trans, bPermanent):
         if bPermanent:
-            personal_folder = user.personalFolder.getItem(trans)
+            personal_folder = user.personalFolder.get_item(trans)
             personal_folder.delete(trans)

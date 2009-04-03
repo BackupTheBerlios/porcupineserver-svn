@@ -37,7 +37,7 @@ if (answer.upper() == 'Y'):
     
     # truncate database
     sys.stdout.write('Deleting existing database...')
-    db.db_handle._truncate()
+    db.truncate()
     sys.stdout.write('[OK]\n')
     
     # modify containment at run-time
@@ -73,7 +73,7 @@ if (answer.upper() == 'Y'):
     rootFolder._created = ftime
     rootFolder.modified = ftime
     rootFolder.security = {'everyone':1, 'administrators':8}
-    db.putItem(rootFolder, None)
+    db.put_item(rootFolder, None)
     sys.stdout.write('[OK]\n')
     
     sys.stdout.write('Creating recycle bin...')
@@ -88,17 +88,17 @@ if (answer.upper() == 'Y'):
     rb.modified = ftime
     rb.inheritRoles = False
     rb.security = {'administrators':8}
-    db.putItem(rb, None)
+    db.put_item(rb, None)
     sys.stdout.write('[OK]\n')
     
-    txn = offlinedb.OfflineTransaction()
+    txn = db.get_transaction()
     
     sys.stdout.write('Creating Categories folder...')
     catFolder = org.innoscript.desktop.schema.common.Category()
     catFolder._id = 'categories'
     catFolder.displayName.value = 'Categories'
     catFolder._isSystem = True
-    catFolder.appendTo('', txn)
+    catFolder.append_to('', txn)
     sys.stdout.write('[OK]\n')
     
     sys.stdout.write('Creating container for users\' personal storage...')
@@ -106,7 +106,7 @@ if (answer.upper() == 'Y'):
     perFolder._id = 'personal'
     perFolder.displayName.value = 'Personal folders'
     perFolder._isSystem = True
-    perFolder.appendTo('', txn)
+    perFolder.append_to('', txn)
     sys.stdout.write('[OK]\n')
     
     sys.stdout.write('Creating admin\'s personal storage...')
@@ -116,7 +116,7 @@ if (answer.upper() == 'Y'):
     adminFolder._isSystem = True
     adminFolder.inheritRoles = False
     adminFolder.security = {'admin':2, 'administrators':8}
-    adminFolder.appendTo('personal', txn)
+    adminFolder.append_to('personal', txn)
     sys.stdout.write('[OK]\n')
     
     sys.stdout.write('Creating Administrative Tools folder...')
@@ -126,7 +126,7 @@ if (answer.upper() == 'Y'):
     adminFolder._isSystem = True
     adminFolder.inheritRoles = False
     adminFolder.security = {'administrators':8}
-    adminFolder.appendTo('', txn)
+    adminFolder.append_to('', txn)
     sys.stdout.write('[OK]\n')
     
     sys.stdout.write('Creating Users folder...')
@@ -137,7 +137,7 @@ if (answer.upper() == 'Y'):
     userFolder.inheritRoles = False
     userFolder.security = {'authusers':1, 'administrators':8}
     userFolder.description.value = 'Users and Groups container'
-    userFolder.appendTo('admintools', txn)
+    userFolder.append_to('admintools', txn)
     sys.stdout.write('[OK]\n')
     
     sys.stdout.write('Creating Admin user...')
@@ -149,11 +149,11 @@ if (answer.upper() == 'Y'):
     admin.description.value = 'Administrator account'
     admin.password.value = 'admin'
     admin.settings.value = {'TASK_BAR_POS' : 'bottom'}
-    admin.appendTo('users', txn)
+    admin.append_to('users', txn)
     sys.stdout.write('[OK]\n')
     
     sys.stdout.write('Creating SYSTEM user...')
-    system.appendTo('users', txn)
+    system.append_to('users', txn)
     sys.stdout.write('[OK]\n')
     
     sys.stdout.write('Creating GUEST user...')
@@ -162,7 +162,7 @@ if (answer.upper() == 'Y'):
     guest.displayName.value = 'GUEST'
     guest._isSystem = True
     guest.description.value = 'Guest account'
-    guest.appendTo('users', txn)
+    guest.append_to('users', txn)
     sys.stdout.write('[OK]\n')
     
     sys.stdout.write('Creating Everyone group...')
@@ -171,7 +171,7 @@ if (answer.upper() == 'Y'):
     everyone.displayName.value = 'Everyone'
     everyone._isSystem = True
     everyone.description.value = 'Everyone group'
-    everyone.appendTo('users', txn)
+    everyone.append_to('users', txn)
     sys.stdout.write('[OK]\n')
     
     sys.stdout.write('Creating Authenticated Users group...')
@@ -180,7 +180,7 @@ if (answer.upper() == 'Y'):
     auth.displayName.value = 'Authenticated Users'
     auth._isSystem = True
     auth.description.value = 'Authenticated Users group'
-    auth.appendTo('users', txn)
+    auth.append_to('users', txn)
     sys.stdout.write('[OK]\n')
     
     sys.stdout.write('Creating Administrators Group...')
@@ -190,7 +190,7 @@ if (answer.upper() == 'Y'):
     admins._isSystem = True
     admins.members.value = ['admin']
     admins.description.value = 'Administrators group'
-    admins.appendTo('users', txn)
+    admins.append_to('users', txn)
     sys.stdout.write('[OK]\n')
     
     sys.stdout.write('Creating Server Policies folder...')
@@ -199,7 +199,7 @@ if (answer.upper() == 'Y'):
     polFolder.displayName.value = 'Policies'
     polFolder._isSystem = True
     polFolder.description.value = 'Server Security Policies '
-    polFolder.appendTo('admintools', txn)
+    polFolder.append_to('admintools', txn)
     sys.stdout.write('[OK]\n')
     
     sys.stdout.write('Creating Upload Policy...')
@@ -209,7 +209,7 @@ if (answer.upper() == 'Y'):
     policy._isSystem = True
     policy.policyGranted.value = ['authusers']
     policy.description.value = 'Policy for uploading documents to server temporary folder'
-    policy.appendTo('policies', txn)
+    policy.append_to('policies', txn)
     sys.stdout.write('[OK]\n')
     
     sys.stdout.write('Creating QuiX Applications folder...')
@@ -220,7 +220,7 @@ if (answer.upper() == 'Y'):
     appFolder.inheritRoles = False
     appFolder.security = {'authusers':1, 'administrators':8}
     appFolder.description.value = 'Installed applications container'
-    appFolder.appendTo('admintools', txn)
+    appFolder.append_to('admintools', txn)
     sys.stdout.write('[OK]\n')
     
     sys.stdout.write('Creating Users and Groups Management application...')
@@ -232,7 +232,7 @@ if (answer.upper() == 'Y'):
     app.icon.value = 'usermgmnt/images/icon.gif'
     app.inheritRoles = False
     app.security = {'administrators': 8}
-    app.appendTo('apps', txn)
+    app.append_to('apps', txn)
     sys.stdout.write('[OK]\n')
     
     sys.stdout.write('Creating OQL Query Performer application...')
@@ -244,7 +244,7 @@ if (answer.upper() == 'Y'):
     app.icon.value = 'queryperformer/images/icon.gif'
     app.inheritRoles = False
     app.security = {'administrators': 8}
-    app.appendTo('apps', txn)
+    app.append_to('apps', txn)
     sys.stdout.write('[OK]\n')
     
     txn.commit()

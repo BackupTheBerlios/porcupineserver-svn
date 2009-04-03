@@ -1,5 +1,5 @@
 #===============================================================================
-#    Copyright 2005-2008, Tassos Koutsovassilis
+#    Copyright 2005-2009, Tassos Koutsovassilis
 #
 #    This file is part of Porcupine.
 #    Porcupine is free software; you can redistribute it and/or modify
@@ -17,11 +17,11 @@
 """
 Porcupine post and pre processing filters.
 """
-from porcupine.db import _db
 from porcupine.core.decorators import WebMethodWrapper
 
 from porcupine.filters import output
 from porcupine.filters import authorization
+from porcupine.filters import caching
 
 def filter(filter_class, **kwargs):
     "filter decorator"
@@ -29,10 +29,10 @@ def filter(filter_class, **kwargs):
         def get_wrapper(self):
             def f_wrapper(item, context):
                 if (filter_class.type=='pre'):
-                    filter_class.apply(context, None, **kwargs)
+                    filter_class.apply(context, item, None, **kwargs)
                 self.decorator.__get__(item, item.__class__)(context)
                 if (filter_class.type=='post'):
-                    filter_class.apply(context, None, **kwargs)
+                    filter_class.apply(context, item, None, **kwargs)
             return f_wrapper
     return FDecorator
 
@@ -54,3 +54,6 @@ def requires_login(redirect=None):
 
 def requires_policy(policyid):
     return filter(authorization.RequiresPolicy, policyid=policyid)
+
+def etag(generator=caching.ETag.generate_item_etag):
+    return filter(caching.ETag, generator=generator)

@@ -1,5 +1,5 @@
 #===============================================================================
-#    Copyright 2005-2008 Tassos Koutsovassilis
+#    Copyright 2005-2009 Tassos Koutsovassilis
 #
 #    This file is part of Porcupine.
 #    Porcupine is free software; you can redistribute it and/or modify
@@ -15,21 +15,21 @@
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #===============================================================================
 "Porcupine Server management service"
-import logging
-from threading import Thread
+import os
 from cPickle import dumps, loads
 
-from porcupine.core.servicetypes import asyncBaseServer
+from porcupine.core.runtime import logger
+from porcupine.core.servicetypes import asyncserver
+from porcupine.core.networking.request import BaseRequest
+from porcupine.config import services
 from porcupine.db import _db
 
-logger = logging.getLogger('serverlog')
-
-class MgtRequest(asyncBaseServer.BaseRequest):
-    def getResponse(self, addr):
-        resp = asyncBaseServer.BaseRequest.getResponse(self, addr)
+class MgtRequest(BaseRequest):
+    def get_response(self, addr):
+        resp = BaseRequest.get_response(self, addr)
         response = MgtMessage()
         response.load(resp)
-        return(response)
+        return response
 
 class MgtMessage(object):
     """
@@ -38,13 +38,13 @@ class MgtMessage(object):
     def __init__(self, header=None, data=None):
         self.__msg = [header, data]
 
-    def getHeader(self):
+    def get_header(self):
         return(self.__msg[0])
-    header = property(getHeader)
+    header = property(get_header)
 
-    def getData(self):
+    def get_data(self):
         return(self.__msg[1])
-    data = property(getData)
+    data = property(get_data)
 
     def load(self, s):
         self.__msg = loads(s)
@@ -53,59 +53,58 @@ class MgtMessage(object):
         s = dumps(self.__msg)
         return(s)
 
-class ManagementServer(asyncBaseServer.BaseServer):
+class ManagementServer(asyncserver.BaseServer):
     "Management Service"
-    def __init__(self, name, serverAddress, worker_threads):
-        asyncBaseServer.BaseServer.__init__(self, name, serverAddress,
-            worker_threads, asyncBaseServer.BaseServerThread, ManagementRequestHandler)
+    runtime_services = [('db', (), {})]
+    
+    def __init__(self, name, address, processes, worker_threads):
+        asyncserver.BaseServer.__init__(self, name, address, processes,
+                                        worker_threads, ManagementThread)
 
-    def shutdown(self):
-        if self.running:
-            asyncBaseServer.BaseServer.shutdown(self)
-
-class ManagementRequestHandler(asyncBaseServer.BaseRequestHandler):
-    "Porcupine Server Management request handler"
-    def handleRequest(self):
+class ManagementThread(asyncserver.BaseServerThread):
+    "Porcupine Server Management thread"
+    def handle_request(self, rh):
         request = MgtMessage()
-        request.load(self.input_buffer)   
+        request.load(rh.input_buffer)
         cmd = request.header
         
         try:
-            args = self.executeCommand(cmd, request)
+            args = self.execute_command(cmd, request)
             if args:
                 response = MgtMessage(*args)
                 # send the response
-                self.write_buffer(response.serialize())
+                rh.write_buffer(response.serialize())
         except:
-            logger.log(logging.ERROR, 'Management Error:', *(), **{'exc_info':1})
+            logger.error('Management Error:', *(), **{'exc_info':1})
             error_msg = MgtMessage(-1,
-                            'Internal server error. See server log for details.')
-            self.write_buffer(error_msg.serialize())
+                        'Internal server error. See server log for details.')
+            rh.write_buffer(error_msg.serialize())
 
-    def executeCommand(self, cmd, request):        
-        #DB maintenance commands
+    def execute_command(self, cmd, request):
         try:
-            if cmd=='DB_BACKUP':
+            # DB maintenance commands
+            if cmd == 'DB_BACKUP':
                 output_file = request.data
+                if not os.path.isdir(os.path.dirname(output_file)):
+                    raise IOError
                 try:
-                    _db.lock()
-                    backfiles = _db.db_handle._backup(output_file)
+                    services.services['_controller'].lock_db()
+                    _db.backup(output_file)
                 finally:
-                    _db.unlock()
+                    services.services['_controller'].unlock_db()
                 return (0, 'Database backup completed successfully.')
             
-            elif cmd=='DB_RESTORE':
+            elif cmd == 'DB_RESTORE':
                 backup_set = request.data
-                _db.db_handle._restore(backup_set)
+                if not os.path.exists(backup_set):
+                    raise IOError
+                services.services['_controller'].close_db()
+                _db.restore(backup_set)
+                services.services['_controller'].open_db()
                 return (0, 'Database restore completed successfully.')
     
-            elif cmd=='DB_RECOVER':
-                _db.close()
-                _db._recover()
-                return (0, 'Database recovery completed successfully.')
-            
-            elif cmd=='DB_SHRINK':
-                iLogs = _db.db_handle._shrink()
+            elif cmd == 'DB_SHRINK':
+                iLogs = _db.shrink()
                 if iLogs:
                     return (0, 'Successfully removed %d log files.' % iLogs)
                 else:

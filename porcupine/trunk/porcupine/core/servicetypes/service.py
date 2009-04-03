@@ -1,5 +1,5 @@
 #===============================================================================
-#    Copyright 2005-2008, Tassos Koutsovassilis
+#    Copyright 2005-2009, Tassos Koutsovassilis
 #
 #    This file is part of Porcupine.
 #    Porcupine is free software; you can redistribute it and/or modify
@@ -15,15 +15,50 @@
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #===============================================================================
 "Porcupine service base class"
+from porcupine.core import runtime
 
 class BaseService(object):
+    runtime_services = []
+    type = None
+    
     def __init__(self, name):
         self.name = name
         self.parameters = None
         self.running = False
+        self.started_services = []
         
     def start(self):
-        raise NotImplementedError
+        for component, args, kwargs in self.runtime_services:
+            inited = self.add_runtime_service(component, *args, **kwargs)
+            if inited:
+                self.started_services.append(component)
     
     def shutdown(self):
-        raise NotImplementedError
+        self.started_services.reverse()
+        for component in self.started_services:
+            self.remove_runtime_service(component)
+
+    def add_runtime_service(self, component, *args, **kwargs):
+        if not(args or kwargs):
+            args, kwargs = [(x[1], x[2]) for x in self.runtime_services
+                            if x[0] == component][0]
+        inited = getattr(runtime, 'init_' + component)(*args, **kwargs)
+        if inited:
+            runtime.logger.info('Service "%s" - Initialized %s' %
+                                (self.name, component))
+        return inited
+
+    def remove_runtime_service(self, component):
+        if component in self.started_services:
+            runtime.logger.info('Service "%s" - Closing %s' %
+                                (self.name, component))
+            getattr(runtime, 'close_' + component)()
+
+    def lock_db(self):
+        if 'db' in self.started_services:
+            runtime.lock_db()
+
+    def unlock_db(self):
+        if 'db' in self.started_services:
+            runtime.unlock_db()
+

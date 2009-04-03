@@ -1,5 +1,5 @@
 #===============================================================================
-#    Copyright 2005-2008, Tassos Koutsovassilis
+#    Copyright 2005-2009, Tassos Koutsovassilis
 #
 #    This file is part of Porcupine.
 #    Porcupine is free software; you can redistribute it and/or modify
@@ -21,45 +21,43 @@ import time
 import copy
 from threading import currentThread
 
-from porcupine.db import _db
 from porcupine import exceptions
-from porcupine.security import objectAccess
+from porcupine.utils import permsresolver
+from porcupine.core.decorators import deprecated
 
-def getItem(sPath, trans=None):
+def get_item(oid, trans=None):
     """
-    Fetches an object from the database. If the user has no read permissions
-    on the object then C{None} is returned.
+    Fetches an object from the database.
+    If the user has no read permissions on the object
+    or the item has been deleted then C{None} is returned.
     
-    @param sPath: The object's ID or the object's full path.
-    @type sPath: str
+    @param oid: The object's ID or the object's full path.
+    @type oid: str
     
     @param trans: A valid transaction handle.
     
     @rtype: L{GenericItem<porcupine.systemObjects.GenericItem>}
-    
-    @raise porcupine.exceptions.ObjectNotFound: if the item does
-           not exist
     """
-    oItem = _db.getItem(sPath, trans)
-    # check read permissions
-    if objectAccess.getAccess(oItem, currentThread().context.user) != 0:
-        return oItem
-    else:
-        return None
+    item = _db.get_item(oid, trans)
+    if item != None and not item._isDeleted and \
+            permsresolver.get_access(item, currentThread().context.user) != 0:
+        return item
+getItem = deprecated(get_item)
 
-def getTransaction():
+def get_transaction():
     """
     Returns a transaction handle required for database updates.
     Currently, nested transactions are not supported.
     Subsequent calls to C{getTransaction} will return the same handle.
     
-    @rtype: L{Transaction<porcupine.db.transaction.Transaction>}
+    @rtype: L{BaseTransaction<porcupine.db.basetransaction.BaseTransaction>}
     """
-    txn = currentThread().trans
+    txn = currentThread().context.trans
     if txn == None:
         raise exceptions.InternalServerError, \
             "The specified method is not defined as transactional."
     return txn
+getTransaction = deprecated(get_transaction)
 
 def transactional(auto_commit=False):
     def transactional_decorator(function):
@@ -69,17 +67,17 @@ def transactional(auto_commit=False):
         """
         def transactional_wrapper(*args):
             c_thread = currentThread()
-            if c_thread.trans == None:
-                txn = _db.db_handle.transaction()
-                c_thread.trans = txn
+            if c_thread.context.trans == None:
+                txn = _db.get_transaction()
+                c_thread.context.trans = txn
                 is_top_level = True
             else:
-                txn = c_thread.trans
+                txn = c_thread.context.trans
                 is_top_level = False
             retries = 0
             
             try:
-                while retries < _db.db_handle.trans_max_retries:
+                while retries < txn.txn_max_retries:
                     try:
                         #if retries == 0:
                         #    raise exceptions.DBTransactionIncomplete
@@ -94,8 +92,9 @@ def transactional(auto_commit=False):
                     except exceptions.DBTransactionIncomplete:
                         if is_top_level:
                             txn.abort()
-                            time.sleep(0.05)
+                            time.sleep(0.03)
                             retries += 1
+                            #print retries
                             txn._retry()
                         else:
                             raise
@@ -106,7 +105,7 @@ def transactional(auto_commit=False):
                     # abort uncommitted transactions
                     if not txn._iscommited:
                         txn.abort()
-                    c_thread.trans = None
+                    c_thread.context.trans = None
         transactional_wrapper.func_name = function.func_name
         transactional_wrapper.func_doc = function.func_doc
         transactional_wrapper.__module__ = function.__module__

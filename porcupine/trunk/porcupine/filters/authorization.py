@@ -1,5 +1,5 @@
 #===============================================================================
-#    Copyright 2005-2008, Tassos Koutsovassilis
+#    Copyright 2005-2009, Tassos Koutsovassilis
 #
 #    This file is part of Porcupine.
 #    Porcupine is free software; you can redistribute it and/or modify
@@ -17,15 +17,13 @@
 """
 Porcupine authorization pre-processing filters
 """
-import re
-
 from porcupine import exceptions
 from porcupine.filters.filter import PreProcessFilter
 from porcupine.db import _db
 
 class RequiresLogin(PreProcessFilter):
     @staticmethod
-    def apply(context, registration, **kwargs):
+    def apply(context, item, registration, **kwargs):
         user = context.user
         redirect_url = kwargs['redirect']
         if not hasattr(user, 'authenticate'):
@@ -40,21 +38,21 @@ class RequiresLogin(PreProcessFilter):
 
 class RunAs(PreProcessFilter):
     @staticmethod
-    def apply(context, registration, **kwargs):
-        user = _db.getItem(kwargs['userid'])
+    def apply(context, item, registration, **kwargs):
+        user = _db.get_item(kwargs['userid'])
         context.original_user = context.user
         context.user = user
 
 class RequiresPolicy(PreProcessFilter):
     @staticmethod
-    def apply(context, registration, **kwargs):
+    def apply(context, item, registration, **kwargs):
         policyid = kwargs['policyid']
-        policy = _db.getItem(policyid)
+        policy = _db.get_item(policyid)
         user = context.user
         policyGrantedTo = policy.policyGranted.value
         
         userID = user._id
-        if userID in policyGrantedTo or user.isAdmin():
+        if userID in policyGrantedTo or user.is_admin():
             return
         
         memberOf = ['everyone']

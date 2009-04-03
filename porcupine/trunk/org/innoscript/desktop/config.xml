@@ -8,7 +8,8 @@
 		method="GET"
 		client=".*"
 		lang=".*"
-		action="$1.js"/>
+		action="$1.js"
+		max-age="1200"/>
 	<!-- Desktop images-->
 	<context match="images/(.*)"
 		method="GET"

@@ -83,8 +83,8 @@ selectObjectsDialog.refreshList = function(treeNodeSelected) {
 selectObjectsDialog.getConditions = function(s) {
 	var lst = s.split('|');
 	for (var i=0; i<lst.length; i++)
-		lst[i] = "contentclass='" + lst[i] + "'";
-	return "(" + lst.join(' or ') + ")"
+		lst[i] = "instanceof('" + lst[i] + "')";
+	return "(" + lst.join(' or ') + ")";
 }
 
 selectObjectsDialog.refreshList_oncomplete = function(req) {

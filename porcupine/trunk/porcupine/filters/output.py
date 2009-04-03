@@ -1,5 +1,5 @@
 #===============================================================================
-#    Copyright 2005-2008, Tassos Koutsovassilis
+#    Copyright 2005-2009, Tassos Koutsovassilis
 #
 #    This file is part of Porcupine.
 #    Porcupine is free software; you can redistribute it and/or modify
@@ -40,7 +40,7 @@ class Gzip(PostProcessFilter):
         zfile.close()
 
     @staticmethod
-    def apply(context, registration, **kwargs):
+    def apply(context, item, registration, **kwargs):
         if Gzip.cacheFolder == None:
             config = Gzip.loadConfig()
             Gzip.cacheFolder = config['cache']
@@ -87,19 +87,19 @@ class Gzip(PostProcessFilter):
             context.response._body = zBuf
 
 class I18n(PostProcessFilter):
-    _tokens = re.compile('(@@([\w\.]+)@@)')
+    _tokens = re.compile('(@@([\w\.]+)@@)', re.DOTALL)
     """
     Internationalization filter based on the browser's
     preferred language setting.
     """
     @staticmethod
-    def apply(context, registration, **kwargs):
+    def apply(context, item, registration, **kwargs):
         language = context.request.getLang()
         lst_resources = kwargs['using'].split(',')
-        bundles = [misc.getCallableByName(x)
+        bundles = [misc.get_rto_by_name(x)
                    for x in lst_resources]
         output = context.response._body.getvalue()
-        tokens = frozenset(re.findall(I18n._tokens, output, re.DOTALL))
+        tokens = frozenset(re.findall(I18n._tokens, output))
         for token, key in tokens:
             for bundle in bundles:
                 res = bundle.getResource(key, language)

@@ -1,5 +1,5 @@
 #===============================================================================
-#    Copyright 2005-2008, Tassos Koutsovassilis
+#    Copyright 2005-2009, Tassos Koutsovassilis
 #
 #    This file is part of Porcupine.
 #    Porcupine is free software; you can redistribute it and/or modify
@@ -15,12 +15,14 @@
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #===============================================================================
 "Porcupine Server Exception classes"
-
 import logging
 import sys
 import traceback
 
 from porcupine.utils import xml
+
+class ConfigurationError(Exception):
+    pass
 
 class ResponseEnd(Exception):
     pass
@@ -36,15 +38,15 @@ class PorcupineException(Exception):
         self.info = info
 
     def emit(self, context=None, item=None):
-        serverLogger = logging.getLogger('serverlog')
-        serverLogger.log(
+        from porcupine.core.runtime import logger
+        logger.log(
             self.severity,
             self.description,
-            *(), 
-            **{'exc_info':self.outputTraceback}
+            exc_info=self.outputTraceback
         )
         if context != None:
             context.response._reset()
+            context.response._code = self.code
             context.response.setHeader('Cache-Control', 'no-cache')
             code = self.code
             description = self.description
@@ -53,7 +55,6 @@ class PorcupineException(Exception):
             if request_type == 'xmlrpc':
                 context.response.content_type = 'text/xml'
                 error_template = 'conf/XMLRPCError.xml'
-                #description = xmlUtils.XMLEncode(description)
             else:
                 context.response.content_type = 'text/html'
                 error_template = 'conf/errorpage.html'
@@ -103,6 +104,7 @@ class NotImplemented(InternalServerError):
 class ContainmentError(InternalServerError):
     def __init__(self, info=''):
         InternalServerError.__init__(self, info, False)
+        self.description = 'Containment Error'
         self.severity = logging.WARNING
         
 class ReferentialIntegrityError(InternalServerError):
@@ -111,8 +113,8 @@ class ReferentialIntegrityError(InternalServerError):
         self.severity = logging.WARNING
         
 class NotFound(PorcupineException):
-    def __init__(self, info=''):
-        PorcupineException.__init__(self, info, True)
+    def __init__(self, info='', outputTraceback=True):
+        PorcupineException.__init__(self, info, outputTraceback)
         self.code = 404
         self.description = 'Not Found'
         self.severity = logging.INFO
@@ -123,8 +125,8 @@ class ObjectNotFound(NotFound):
 class PermissionDenied(PorcupineException):
     def __init__(self, info=''):
         PorcupineException.__init__(self, info)
-        self.code = 401
-        self.description = 'Unauthorized'
+        self.code = 403
+        self.description = 'Forbidden'
 
 class DBTransactionIncomplete(InternalServerError):
     def __init__(self):

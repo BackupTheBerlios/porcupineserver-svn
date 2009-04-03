@@ -1,5 +1,5 @@
 #===============================================================================
-#    Copyright 2005-2008, Tassos Koutsovassilis
+#    Copyright 2005-2009, Tassos Koutsovassilis
 #
 #    This file is part of Porcupine.
 #    Porcupine is free software; you can redistribute it and/or modify
@@ -22,19 +22,16 @@ Base classes for custom data types.
 See also the L{org.innoscript.desktop.schema.properties} module as
 a usage guideline.
 """
-
 import copy
-import md5
+import hashlib
 import os.path
 import shutil
 import cStringIO
 
 from porcupine import db
 from porcupine.utils import misc, date
-from porcupine.core import objectSet
-from porcupine import exceptions
 from porcupine.core import dteventhandlers
-
+from porcupine.core.decorators import deprecated
 
 class DataType(object):
     """
@@ -45,7 +42,6 @@ class DataType(object):
     @cvar isRequired: boolean indicating if the data type is mandatory
     @type isRequired: bool
     """
-    __slots__ = ()
     _eventHandler = None
     isRequired = False
 
@@ -79,7 +75,6 @@ class String(DataType):
     @ivar value: The datatype's value
     @type value: str
     """
-    __slots__ = ('value', )
     _safetype = str
     
     def __init__(self, **kwargs):
@@ -87,7 +82,6 @@ class String(DataType):
         
 class RequiredString(String):
     "Mandatory L{String} data type."
-    __slots__ = ()
     isRequired = True
 
 class Integer(DataType):
@@ -96,7 +90,6 @@ class Integer(DataType):
     @ivar value: The datatype's value
     @type value: int
     """
-    __slots__ = ('value', )
     _safetype = int
     
     def __init__(self, **kwargs):
@@ -104,7 +97,6 @@ class Integer(DataType):
         
 class RequiredInteger(Integer):
     "Mandatory L{Integer} data type."
-    __slots__ = ()
     isRequired = True
 
 class Float(DataType):
@@ -113,7 +105,6 @@ class Float(DataType):
     @ivar value: The datatype's value
     @type value: float
     """
-    __slots__ = ('value', )
     _safetype = float
     
     def __init__(self, **kwargs):
@@ -121,7 +112,6 @@ class Float(DataType):
         
 class RequiredFloat(Float):
     "Mandatory L{Float} data type."
-    __slots__ = ()
     isRequired = True
         
 class Boolean(DataType):
@@ -130,7 +120,6 @@ class Boolean(DataType):
     @ivar value: The datatype's value
     @type value: bool
     """
-    __slots__ = ('value', )
     _safetype = bool
     
     def __init__(self, **kwargs):
@@ -142,7 +131,6 @@ class List(DataType):
     @ivar value: The datatype's value
     @type value: list
     """
-    __slots__ = ('value', )
     _safetype = list
     
     def __init__(self, **kwargs):
@@ -150,7 +138,6 @@ class List(DataType):
 
 class RequiredList(List):
     "Mandatory L{List} data type."
-    __slots__ = ()
     isRequired = True
    
 class Dictionary(DataType):
@@ -159,7 +146,6 @@ class Dictionary(DataType):
     @ivar value: The datatype's value
     @type value: dict
     """
-    __slots__ = ('value', )
     _safetype = dict
     
     def __init__(self, **kwargs):
@@ -167,12 +153,10 @@ class Dictionary(DataType):
 
 class RequiredDictionary(Dictionary):
     "Mandatory L{Dictionary} data type."
-    __slots__ = ()
     isRequired = True
 
 class Date(DataType, date.Date):
     "Date data type"
-    __slots__ = ()
     _safetype = float
     
     def __init__(self, **kwargs):
@@ -180,7 +164,6 @@ class Date(DataType, date.Date):
 
 class DateTime(Date):
     "Datetime data type"
-    __slots__ = ()
 
 class Password(DataType):
     """
@@ -192,7 +175,6 @@ class Password(DataType):
     @ivar value: The datatype's value
     @type value: str
     """
-    __slots__ = ('_value', )
     _blank = 'd41d8cd98f00b204e9800998ecf8427e'
     
     def __init__(self, **kwrags):
@@ -207,13 +189,12 @@ class Password(DataType):
     
     def setValue(self, sValue):
         if sValue != self._value:
-            self._value = md5.new(sValue).hexdigest()
+            self._value = hashlib.md5(sValue).hexdigest()
     
     value = property(getValue, setValue)
     
 class RequiredPassword(Password):
     "Mandatory L{Password} data type."
-    __slots__ = ()
     isRequired = True
 
 class Reference1(DataType):
@@ -229,14 +210,13 @@ class Reference1(DataType):
     @type value: str
 
     """
-    __slots__ = ('value', )
     _safetype = str
     relCc = ()
     
     def __init__(self, **kwargs):
-        self.value = ''
+        self.value = None
 
-    def getItem(self, trans=None):
+    def get_item(self, trans=None):
         """
         This method returns the object that this data type
         instance references. If the current user has no read
@@ -248,17 +228,14 @@ class Reference1(DataType):
         @rtype: type
         @return: The referenced object, otherwise None
         """
-        oItem = None
+        item = None
         if self.value:
-            try:
-                oItem = db.getItem(self.value, trans)
-            except exceptions.ObjectNotFound:
-                pass
-        return(oItem)
+            item = db.get_item(self.value, trans)
+        return item
+    getItem = deprecated(get_item)
 
 class RequiredReference1(Reference1):
     "Mandatory L{Reference1} data type."
-    __slots__ = ()
     isRequired = True
 
 class ReferenceN(DataType):
@@ -273,28 +250,27 @@ class ReferenceN(DataType):
     @cvar relCc: a list of strings containing all the permitted content
                  classes that the instances of this type can reference.
     """
-    __slots__ = ('value', )
     _safetype = list
     relCc = ()
 
     def __init__(self, **kwargs):
         self.value = []
     
-    def getItems(self, trans=None):
+    def get_items(self, trans=None):
         """
         This method returns the items that this data type
         instance references.
         
         @param trans: A valid transaction handle
         
-        @rtype: L{ObjectSet<porcupine.core.objectSet.ObjectSet>}
+        @rtype: list}
         """
-        return(objectSet.ObjectSet(self.value, txn=trans,
-                                   resolved=False, safe=False))
+        return filter(None, [db.get_item(id, trans)
+                             for id in self.value])
+    getItems = deprecated(get_items)
 
 class RequiredReferenceN(ReferenceN):
     "Mandatory L{ReferenceN} data type."
-    __slots__ = ()
     isRequired = True
 
 class Relator1(Reference1):
@@ -317,7 +293,6 @@ class Relator1(Reference1):
                          will be deleted upon the object's deletion.
     @type cascadeDelete: bool
     """
-    __slots__ = ()
     _eventHandler = dteventhandlers.Relator1EventHandler
     respectsReferences = False
     relAttr = ''
@@ -325,7 +300,6 @@ class Relator1(Reference1):
     
 class RequiredRelator1(Relator1):
     "Mandatory L{Relator1} data type."
-    __slots__ = ()
     isRequired = True
 
 class RelatorN(ReferenceN):
@@ -348,7 +322,6 @@ class RelatorN(ReferenceN):
                          will be deleted upon the object's deletion.
     @type cascadeDelete: bool
     """
-    __slots__ = ()
     _eventHandler = dteventhandlers.RelatorNEventHandler
     relAttr = ''
     respectsReferences = False
@@ -356,7 +329,6 @@ class RelatorN(ReferenceN):
     
 class RequiredRelatorN(RelatorN):
     "Mandatory L{RelatorN} data type."
-    __slots__ = ()
     isRequired = True
 
 class Composition(DataType):
@@ -372,7 +344,6 @@ class Composition(DataType):
     
     @see: L{porcupine.systemObjects.Composite}
     """
-    __slots__ = ('value', )
     _safetype = list
     _eventHandler = dteventhandlers.CompositionEventHandler
     compositeClass = ''
@@ -380,19 +351,19 @@ class Composition(DataType):
     def __init__(self, **kwargs):
         self.value = []
 
-    def getItems(self, trans=None):
+    def get_items(self, trans=None):
         """
         Returns the items that this data type instance embeds.
         
         @param trans: A valid transaction handle
         
-        @rtype: L{ObjectSet<porcupine.core.objectSet.ObjectSet>}
+        @rtype: list
         """
-        return objectSet.ObjectSet(self.value, txn=trans, resolved=True)
+        return [db._db.get_item(id, trans) for id in self.value]
+    getItems = deprecated(get_items)
 
 class RequiredComposition(Composition):
     "Mandatory L{Composition} data type."
-    __slots__ = ()
     isRequired = True
 
 #===============================================================================
@@ -408,12 +379,11 @@ class ExternalAttribute(DataType):
     @type isDirty: bool
     @type value: str
     """
-    __slots__ = ('_id', '_value', '_isDirty')
     _safetype = str
     _eventHandler = dteventhandlers.ExternalAttributeEventHandler
     
     def __init__(self, **kwargs):
-        self._id = misc.generateOID()
+        self._id = misc.generate_oid()
         self._reset()
 
     def _reset(self):
@@ -422,7 +392,7 @@ class ExternalAttribute(DataType):
 
     def __deepcopy__(self, memo):
         clone = copy.copy(self)
-        clone._id = misc.generateOID()
+        clone._id = misc.generate_oid()
         clone.value = self.getValue()
         return clone
 
@@ -431,8 +401,7 @@ class ExternalAttribute(DataType):
         if self._value is None:
             #trans = currentThread().trans
             self._value = \
-                db._db.db_handle._getExternalAttribute(self._id, txn) \
-                or ''
+                db._db.get_external(self._id, txn) or ''
         return(self._value)
 
     def setValue(self, value):
@@ -453,8 +422,6 @@ class Text(ExternalAttribute):
     
     @type value: str
     """
-    __slots__ = ('_size', )
-    
     def __init__(self, **kwargs):
         ExternalAttribute.__init__(self, **kwargs)
         self._size = 0
@@ -474,7 +441,6 @@ class Text(ExternalAttribute):
 
 class RequiredText(Text):
     "Mandatory L{Text} data type."
-    __slots__ = ()
     isRequired = True
         
 class File(Text):
@@ -483,8 +449,6 @@ class File(Text):
     @ivar filename: the file's name
     @type filename: str
     """
-    __slots__ = ('filename', )
-    
     def __init__(self, **kwargs):
         Text.__init__(self, **kwargs)
         self.filename = ''
@@ -508,14 +472,12 @@ class File(Text):
 
 class RequiredFile(File):
     "Mandatory L{File} data type."
-    __slots__ = ()
     isRequired = True
         
 class ExternalFile(String):
     """Datatype for linking external files. Its value
     is a string which contains the path to the file.
     """
-    __slots__ = ()
     _eventHandler = dteventhandlers.ExternalFileEventHandler
     removeFileOnDeletion = True
     isRequired = True
@@ -541,5 +503,4 @@ class ExternalFile(String):
 
 class RequiredExternalFile(ExternalFile):
     "Mandatory L{ExternalFile} data type."
-    __slots__ = ()
     isRequired = True

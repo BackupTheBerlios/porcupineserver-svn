@@ -1,5 +1,5 @@
 #===============================================================================
-#    Copyright 2005-2008, Tassos Koutsovassilis
+#    Copyright 2005-2009, Tassos Koutsovassilis
 #
 #    This file is part of Porcupine.
 #    Porcupine is free software; you can redistribute it and/or modify
@@ -15,14 +15,32 @@
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #===============================================================================
 "Base classes of decorators applied to web methods"
-import md5
+import hashlib
 import types
 import os.path
 import sys
+import traceback
 
 from porcupine import exceptions
-from porcupine.security import objectAccess
+from porcupine.utils import permsresolver
 from porcupine.config.settings import settings
+
+def deprecated(function, member=None):
+    """
+    Wrapper for deprecated API calls
+    """
+    def dep_wrapper(*args, **kwargs):
+        from porcupine.core.runtime import logger
+        upper_stack = traceback.extract_stack()[-2]
+        pfile, line_no, where, line = upper_stack
+        logger.warning(
+            "DEPRECATION WARNING\n" +
+            "File \"%s\".\n" % pfile +
+            "Line %d:\n    %s\nin \"%s\". " % (line_no, line, where) +
+            "Use \"%s\" instead." % (member or function.func_name))
+        return function(*args, **kwargs)
+    dep_wrapper.func_name = function.func_name
+    return dep_wrapper
 
 class WebMethodDescriptor(object):
     def __init__(self, function, of_type, conditions,
@@ -31,7 +49,7 @@ class WebMethodDescriptor(object):
         self.func = function
         self.conditions = conditions
         self.func_name = 'WM_%s_%s' % (function.func_name,
-                                       md5.new(str(self.conditions)).hexdigest())
+                                       hashlib.md5(str(self.conditions)).hexdigest())
         # response parameters
         self.content_type = content_type
         self.encoding = encoding
@@ -48,7 +66,7 @@ class WebMethodDescriptor(object):
     
     def __get__(self, item, item_class):
         def wm_wrapper(item, context):
-            if objectAccess.getAccess(item, context.user) == 0:
+            if permsresolver.get_access(item, context.user) == 0:
                 raise exceptions.PermissionDenied
             context.response.content_type = self.content_type
             context.response.charset = self.encoding

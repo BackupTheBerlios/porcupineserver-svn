@@ -1,5 +1,5 @@
 #===============================================================================
-#    Copyright 2005-2008, Tassos Koutsovassilis
+#    Copyright 2005-2009, Tassos Koutsovassilis
 #
 #    This file is part of Porcupine.
 #    Porcupine is free software; you can redistribute it and/or modify
@@ -26,8 +26,11 @@ from porcupine.systemObjects import DeletedItem
 
 from org.innoscript.desktop.webmethods import baseitem
 
+@filters.etag()
 @filters.i18n('org.innoscript.desktop.strings.resources')
-@webmethods.quixui(of_type=DeletedItem, template='../ui.Frm_DeletedItem.quix')
+@webmethods.quixui(of_type=DeletedItem,
+                   max_age=3600,
+                   template='../ui.Frm_DeletedItem.quix')
 def properties(self):
     "Displays the deleted item's properties form"
     context = HttpContext.current()
@@ -39,14 +42,14 @@ def properties(self):
         'LOC': xml.xml_encode(self.originalLocation),
         'MODIFIED': modified.format(baseitem.DATES_FORMAT, sLang),
         'MODIFIED_BY': xml.xml_encode(self.modifiedBy),
-        'CONTENTCLASS': self.getDeletedItem().contentclass
+        'CONTENTCLASS': self.get_deleted_item().contentclass
     }
     
 @webmethods.remotemethod(of_type=DeletedItem)
 @db.transactional(auto_commit=True)
 def restore(self):
     "Restores the deleted item to its orginal location"
-    txn = db.getTransaction()
+    txn = db.get_transaction()
     self.restore(txn)
     return True
 
@@ -54,14 +57,14 @@ def restore(self):
 @db.transactional(auto_commit=True)
 def restoreTo(self, targetid):
     "Restores the deleted item to the designated target container"
-    txn = db.getTransaction()
-    self.restoreTo(targetid, txn)
+    txn = db.get_transaction()
+    self.restore_to(targetid, txn)
     return True
 
 @webmethods.remotemethod(of_type=DeletedItem)
 @db.transactional(auto_commit=True)
 def delete(self):
     "Removes the deleted item"
-    txn = db.getTransaction()
+    txn = db.get_transaction()
     self.delete(txn)
     return True

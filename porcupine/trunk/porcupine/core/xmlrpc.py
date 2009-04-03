@@ -1,5 +1,5 @@
 #===============================================================================
-#    Copyright 2005-2008, Tassos Koutsovassilis
+#    Copyright 2005-2009, Tassos Koutsovassilis
 #
 #    This file is part of Porcupine.
 #    Porcupine is free software; you can redistribute it and/or modify
@@ -22,13 +22,12 @@ from xml.dom import minidom
 from porcupine import datatypes
 from porcupine import systemObjects
 from porcupine.core import objectSet
-from porcupine.core.oql import core
+#from porcupine.core.oql import core
 from porcupine.utils import date, xml
 
-DEFAULT_PROPS = ('id', 'modified', 'owner', 'created', '__image__',
-                 'contentclass', 'parentid', 'isCollection')
-
 class XMLRPCParams(list):
+    default_props = ('id', 'modified', 'owner', 'created', '__image__',
+                     'contentclass', 'parentid', 'isCollection')
     def __init__(self, oList=[], encoding='utf-8'):
         list.__init__(self, oList)
         self.method = None
@@ -73,7 +72,7 @@ class XMLRPCParams(list):
             elif param.tagName == 'double':
                 return(float(param.childNodes[0].data))
             elif param.tagName == 'dateTime.iso8601':
-                oDate = date.Date.fromIso8601(param.childNodes[0].data)
+                oDate = date.Date.from_iso_8601(param.childNodes[0].data)
                 return(oDate)
             elif param.tagName == 'array':
                 arr = []
@@ -102,61 +101,67 @@ class XMLRPCParams(list):
 
     def __serializeParam(self, param):
         if type(param)==str:
-            return('<value>%s</value>' % xml.xml_encode(param))
+            return '<value>%s</value>' % xml.xml_encode(param)
         elif type(param)==unicode:
-            return('<value>%s</value>' % xml.xml_encode(param.encode(self.encoding)))
+            return '<value>%s</value>' % xml.xml_encode(param.encode(self.encoding))
         elif type(param)==int or type(param)==long:
-            return('<value><i4>%i</i4></value>' % param)
+            return '<value><i4>%i</i4></value>' % param
         elif type(param)==bool:
-            return('<value><boolean>%i</boolean></value>' % param)
+            return '<value><boolean>%i</boolean></value>' % param
         elif type(param)==float:
-            return('<value><double>%f</double></value>' % param)
+            return '<value><double>%f</double></value>' % param
         elif type(param)==list or type(param)==tuple:
-            sArray = '<value><array><data>'
-            for elem in param:
-                serialized = self.__serializeParam(elem)
-                if serialized:
-                    sArray += serialized
-            sArray += '</data></array></value>'
-            return(sArray)
-        elif type(param)==dict:
-            sStruct = '<value><struct>'
+            s = ['<value><array><data>']
+            s += filter(None, [self.__serializeParam(x)
+                               for x in param])
+            s += ['</data></array></value>']
+            return ''.join(s)
+        elif type(param) == dict:
+            s = ['<value><struct>']
             for member, value in param.items():
                 serialized = self.__serializeParam(value)
                 if serialized:
-                    sStruct += '<member><name>%s</name>%s</member>' % \
-                               (member.encode(self.encoding), serialized)
-            sStruct += '</struct></value>'
-            return(sStruct)
+                    s.append('<member><name>%s</name>%s</member>' % 
+                             (member.encode(self.encoding), serialized))
+            s.append('</struct></value>')
+            return ''.join(s)
         elif isinstance(param, objectSet.ObjectSet):
-            sArray = '<value><array><data>'
-            for rec in param:
-                sArray += self.__serializeParam(rec)
-            sArray += '</data></array></value>'
-            return sArray
-        elif isinstance(param, systemObjects.GenericItem) or \
-                isinstance(param, systemObjects.Composite):
+            s = ['<value><array><data>']
+            s += [self.__serializeParam(x)
+                  for x in param]
+            s += ['</data></array></value>']
+            return ''.join(s)
+        elif isinstance(param, (systemObjects.GenericItem,
+                                systemObjects.Composite)):
             xmlrpc_object = {}
-            for attr in param.__props__ + DEFAULT_PROPS:
+            for attr in param.__props__ + self.default_props:
                 try:
                     oAttr = getattr(param, attr)
                 except AttributeError:
                     continue
                 if isinstance(oAttr, datatypes.ExternalAttribute):
                     xmlrpc_object[attr] = '[EXTERNAL STREAM]'
+                elif isinstance(oAttr, datatypes.ReferenceN):
+                    xmlrpc_object[attr] = [{'id': x._id,
+                                            'displayName': x.displayName.value}
+                                            for x in oAttr.get_items()]
+                elif isinstance(oAttr, datatypes.Reference1):
+                    item_ref = oAttr.get_item()
+                    xmlrpc_object[attr] = {'id': oAttr.value}
+                    if item_ref != None:
+                        xmlrpc_object[attr]['displayName'] = \
+                            item_ref.displayName.value
+                elif isinstance(oAttr, datatypes.Date):
+                    xmlrpc_object[attr] = oAttr
+                elif isinstance(oAttr, datatypes.DataType):
+                    xmlrpc_object[attr] = oAttr.value
+                elif attr in ('created', 'modified'):
+                    xmlrpc_object[attr] = date.Date(oAttr)
                 else:
-                    oAttr = core.getAttribute(param, [attr])
-                    if isinstance(oAttr, objectSet.ObjectSet):
-                        # we have an object set with objects
-                        xmlrpc_object[attr] = [
-                            {'id': x._id, 'displayName': x.displayName.value}
-                            for x in oAttr
-                        ]
-                    else:
-                        xmlrpc_object[attr] = oAttr
-            return self.__serializeParam( xmlrpc_object )
+                    xmlrpc_object[attr] = oAttr
+            return self.__serializeParam(xmlrpc_object)
         elif isinstance(param, date.Date):
             return '<value><dateTime.iso8601>%s</dateTime.iso8601></value>' % \
-            param.toIso8601()
+                    param.to_iso_8601()
         else:
             return None#self.__serializeParam(str(param))

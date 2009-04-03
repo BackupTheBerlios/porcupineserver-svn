@@ -1,5 +1,5 @@
 #===============================================================================
-#    Copyright 2005-2008, Tassos Koutsovassilis
+#    Copyright 2005-2009, Tassos Koutsovassilis
 #
 #    This file is part of Porcupine.
 #    Porcupine is free software; you can redistribute it and/or modify
@@ -16,7 +16,9 @@
 #===============================================================================
 "Porcupine Python Server Pages"
 
-import os, re, marshal
+import os
+import re
+import marshal
 
 from porcupine import exceptions
 

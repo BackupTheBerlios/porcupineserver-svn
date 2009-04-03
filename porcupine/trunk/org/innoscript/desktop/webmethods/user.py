@@ -1,5 +1,5 @@
 #===============================================================================
-#    Copyright 2005-2008, Tassos Koutsovassilis
+#    Copyright 2005-2009, Tassos Koutsovassilis
 #
 #    This file is part of Porcupine.
 #    Porcupine is free software; you can redistribute it and/or modify
@@ -21,24 +21,23 @@ from porcupine import db
 from porcupine import HttpContext
 from porcupine import webmethods
 from porcupine import filters
-from porcupine.security import objectAccess
-from porcupine.utils import date, xml
+from porcupine.utils import date, xml, permsresolver
 
 from org.innoscript.desktop.schema.security import User
 from org.innoscript.desktop.webmethods import baseitem
 
+@filters.etag()
 @filters.i18n('org.innoscript.desktop.strings.resources')
 @webmethods.quixui(of_type=User,
+                   max_age=-1,
                    template='../ui.Frm_UserProperties.quix')
 def properties(self):
     "Displays the user's properties form"
     context = HttpContext.current()
-
-    context.response.setHeader('cache-control', 'no-cache')
     sLang = context.request.getLang()
 
     user = context.user
-    iUserRole = objectAccess.getAccess(self, user)
+    iUserRole = permsresolver.get_access(self, user)
     readonly = (iUserRole==1)
     params = {
         'ID' : self.id,
@@ -58,7 +57,7 @@ def properties(self):
     }
     
     memberof_options = []
-    memberof = self.memberof.getItems()
+    memberof = self.memberof.get_items()
     for group in memberof:
         memberof_options += [xml.xml_encode(group.__image__),
                              group.id,
@@ -66,7 +65,7 @@ def properties(self):
     params['MEMBEROF'] = ';'.join(memberof_options)
     
     policies_options = []
-    policies = self.policies.getItems()
+    policies = self.policies.get_items()
     for policy in policies:
         policies_options += [xml.xml_encode(policy.__image__),
                              policy.id,
@@ -78,6 +77,7 @@ def properties(self):
 
 @filters.i18n('org.innoscript.desktop.strings.resources')
 @webmethods.quixui(of_type=User,
+                   max_age=120,
                    template='../ui.Frm_UserResetPassword.quix')
 def resetpsw(self):
     "Displays the reset password dialog"
@@ -90,7 +90,7 @@ def resetpsw(self):
 @db.transactional(auto_commit=True)
 def resetPassword(self, new_password):
     "Resets the user's password"
-    txn = db.getTransaction()
+    txn = db.get_transaction()
     self.password.value = new_password
     self.update(txn)
     return True

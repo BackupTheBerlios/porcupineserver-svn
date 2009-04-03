@@ -3,7 +3,11 @@
 Utility for installing and controlling Porcupine
 as an NT service.
 """
-import os, sys, time, imp
+import os
+import sys
+import time
+import imp
+
 try:
 	os.chdir(os.path.abspath(os.path.dirname(__file__)))
 except:
@@ -35,7 +39,7 @@ class PorcupineServerService(win32serviceutil.ServiceFramework):
 			from porcupineserver import Controller
 			self.controller = Controller()
 			self.controller.start()
-			self.controller.shutdownEvt.wait()
+			self.controller.shutdown_evt.wait()
 		except Exception, e:
 			print e
 			if self.controller:

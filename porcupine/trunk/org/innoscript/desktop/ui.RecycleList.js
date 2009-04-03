@@ -88,6 +88,10 @@ recycleBin.doRestoreTo = function(dlg) {
 	}
 }
 
+recycleBin._onerror = function(req) {
+	req.callback_info.close();
+}
+
 recycleBin.restoreItem = function(evt, w) {
 	var win, items, title;
 	if (w.parent.owner) {
@@ -106,14 +110,15 @@ recycleBin.restoreItem = function(evt, w) {
 	
 	var _startRestoring = function(w) {
 		var w = w.callback_info || w;
+		var pb = w.getWidgetById("pb");
 		if (items.length > 0) {
 			var item = items.pop();
-			var pb = w.getWidgetById("pb");
 			pb.increase(1);
 			pb.widgets[1].setCaption(item.displayName);
 			var xmlrpc = new XMLRPCRequest(QuiX.root + item.id);
 			xmlrpc.oncomplete = _startRestoring;
 			xmlrpc.callback_info = w;
+			xmlrpc.onerror = recycleBin._onerror;
 			xmlrpc.callmethod('restore');
 		}
 		else {

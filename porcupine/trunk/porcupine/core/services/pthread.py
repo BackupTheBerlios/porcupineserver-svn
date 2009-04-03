@@ -1,5 +1,5 @@
 #===============================================================================
-#    Copyright 2005-2008, Tassos Koutsovassilis
+#    Copyright 2005-2009, Tassos Koutsovassilis
 #
 #    This file is part of Porcupine.
 #    Porcupine is free software; you can redistribute it and/or modify
@@ -16,11 +16,13 @@
 #===============================================================================
 "Porcupine Server Thread"
 import re
-import md5
+import hashlib
+from cPickle import loads
 
 from porcupine.config.settings import settings
 from porcupine.config import pubdirs
 
+from porcupine.core.context import ContextThread
 from porcupine.core.http.context import HttpContext
 from porcupine.core.http.request import HttpRequest
 from porcupine.core.http.response import HttpResponse
@@ -28,16 +30,15 @@ from porcupine.core.http import ServerPage
 
 from porcupine.db import _db
 from porcupine import exceptions
-from porcupine.core.servicetypes.asyncBaseServer import BaseServerThread
+from porcupine.core.servicetypes.asyncserver import BaseServerThread
+from porcupine.utils import misc
 
-class PorcupineThread(BaseServerThread):
+class PorcupineThread(BaseServerThread, ContextThread):
     _method_cache = {}
-    def __init__(self, target, name):
-        BaseServerThread.__init__(self, target, name)
-        self.context = None
-        self.trans = None
 
-    def get_response(self, raw_request):
+    def handle_request(self, rh, raw_request=None):
+        if raw_request == None:
+            raw_request = loads(rh.input_buffer)
         response = HttpResponse()
         request = HttpRequest(raw_request)
                 
@@ -48,9 +49,11 @@ class PorcupineThread(BaseServerThread):
             try:
                 self.context = HttpContext(request, response)
                 sPath = request.serverVariables['PATH_INFO']
-                try:
-                    item = _db.getItem(sPath)
-                except exceptions.ObjectNotFound:
+                item = _db.get_item(sPath)
+                if item != None and not item._isDeleted:
+                    self.context._fetch_session()
+                    self.dispatch_method(item)
+                else:
                     # dir request
                     lstPath = sPath.split('/')
                     dirName = lstPath[1]
@@ -67,30 +70,39 @@ class PorcupineThread(BaseServerThread):
                         raise exceptions.NotFound, \
                             'The resource "%s" does not exist' % sPath
                     
+                    rtype = registration.type
+                    if rtype == 1: # in case of psp fetch session
+                        self.context._fetch_session()
+
                     # apply pre-processing filters
-                    [filter[0].apply(self.context, registration, **filter[1])
+                    [filter[0].apply(self.context, item, registration, **filter[1])
                      for filter in registration.filters
                      if filter[0].type == 'pre']
-                
-                    rtype = registration.type
+
                     if rtype == 1: # psp page
                         ServerPage.execute(self.context, registration.context)
                     elif rtype == 0: # static file
-                        response.loadFromFile(registration.context)
-                        if registration.encoding:
-                            response.charset = registration.encoding
-                else:
-                    self.dispatch_method(item)
+                        f_name = registration.context
+                        if_none_match = request.HTTP_IF_NONE_MATCH
+                        if if_none_match != None and if_none_match == \
+                                '"%s"' % misc.generate_file_etag(f_name):
+                            response._code = 304
+                        else: 
+                            response.loadFromFile(f_name)
+                            response.setHeader('ETag', '"%s"' %
+                                               misc.generate_file_etag(f_name))
+                            if registration.encoding:
+                                response.charset = registration.encoding
             
             except exceptions.ResponseEnd, e:
                 pass
             
-            if registration != None:
+            if registration != None and response._code == 200:
                 # do we have caching directive?
                 if registration.max_age:
                     response.setExpiration(registration.max_age)
                 # apply post-processing filters
-                [filter[0].apply(self.context, registration, **filter[1])
+                [filter[0].apply(self.context, item, registration, **filter[1])
                  for filter in registration.filters
                  if filter[0].type == 'post']
 
@@ -101,7 +113,7 @@ class PorcupineThread(BaseServerThread):
                 raw_request['env']['QUERY_STRING'] = lstPathInfo[1]
             else:
                 raw_request['env']['QUERY_STRING'] = ''
-            self.get_response(raw_request)
+            self.handle_request(rh, raw_request)
             
         except exceptions.PorcupineException, e:
             e.emit(self.context, item)
@@ -109,9 +121,8 @@ class PorcupineThread(BaseServerThread):
         except:
             e = exceptions.InternalServerError()
             e.emit(self.context, item)
-        
-        settings['requestinterfaces'][request.interface](
-              self.requestHandler, response)
+
+        settings['requestinterfaces'][request.interface](rh, response)
 
     def dispatch_method(self, item):
         method_name = self.context.request.method or '__blank__'
@@ -123,9 +134,9 @@ class PorcupineThread(BaseServerThread):
         r_qs = self.context.request.serverVariables['QUERY_STRING']
         r_lang = self.context.request.getLang()
         
-        method_key = md5.new(''.join((str(hash(item.__class__)),
-                                      method_name, r_http_method,
-                                      r_qs, r_browser, r_lang))).digest()
+        method_key = hashlib.md5(''.join((str(hash(item.__class__)),
+                                 method_name, r_http_method,
+                                 r_qs, r_browser, r_lang))).digest()
         
         method = self._method_cache.get(method_key, None)
         if method == None:

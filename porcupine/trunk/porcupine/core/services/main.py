@@ -1,5 +1,5 @@
 #===============================================================================
-#    Copyright 2005-2008, Tassos Koutsovassilis
+#    Copyright 2005-2009, Tassos Koutsovassilis
 #
 #    This file is part of Porcupine.
 #    Porcupine is free software; you can redistribute it and/or modify
@@ -15,20 +15,27 @@
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #===============================================================================
 "Porcupine main service"
-from threading import currentThread
-from cPickle import loads
-
-from porcupine.core.servicetypes import asyncBaseServer
+from porcupine import exceptions
+from porcupine.utils import misc
+from porcupine.config.settings import settings
+from porcupine.core.servicetypes import asyncserver
 from porcupine.core.services.pthread import PorcupineThread
 
-class PorcupineServer(asyncBaseServer.BaseServer):
+class PorcupineServer(asyncserver.BaseServer):
     "Porcupine server class"
-    def __init__(self, name, address, threads):
-        asyncBaseServer.BaseServer.__init__(self, name,
-            address, threads, PorcupineThread, requestHandler)
+    runtime_services = [('config', (), {}),
+                        ('db', (), {'recover':1}),
+                        ('session_manager', (), {})]
 
-class requestHandler(asyncBaseServer.BaseRequestHandler):
-    "Porcupine Server request handler"
-    def handleRequest(self):
-        raw_request = loads(self.input_buffer)
-        currentThread().get_response(raw_request)
+    def __init__(self, name, address, processes, threads):
+        asyncserver.BaseServer.__init__(self, name, address, processes, threads,
+                                        PorcupineThread)
+        
+        if self.is_multiprocess:
+            # check if session manager supports multiple processes
+            sm_class = misc.get_rto_by_name(
+                settings['sessionmanager']['interface'])
+            if not sm_class.supports_multiple_processes:
+                raise exceptions.ConfigurationError, \
+                    'The session manager class does not support ' \
+                    'multiple processes.'

@@ -1,5 +1,5 @@
 #===============================================================================
-#    Copyright 2005-2008, Tassos Koutsovassilis
+#    Copyright 2005-2009, Tassos Koutsovassilis
 #
 #    This file is part of Porcupine.
 #    Porcupine is free software; you can redistribute it and/or modify
@@ -21,21 +21,15 @@ Porcupine Desktop web methods for base item content types
 Generic interfaces applying to all content classes
 unless overriden.
 """
-import os
-
 from porcupine import db
 from porcupine import HttpContext
 from porcupine import webmethods
 from porcupine import filters
 from porcupine import datatypes
-from porcupine import exceptions
 
 from porcupine.systemObjects import Item
 from porcupine.systemObjects import GenericItem
-from porcupine.security import objectAccess
-from porcupine.utils import date, xml
-
-from org.innoscript.desktop.strings import resources
+from porcupine.utils import date, xml, permsresolver
 
 AUTO_CONTROLS = {
     datatypes.String: '''
@@ -45,7 +39,6 @@ AUTO_CONTROLS = {
                 width="this.parent.getWidth()-105" value="%s" readonly="%s"/>
         </rect>
         ''',
-
     datatypes.Boolean: '''
         <rect height="24">
             <label width="100" height="20" caption="%s:"/>
@@ -53,7 +46,6 @@ AUTO_CONTROLS = {
                 readonly="%s"/>
         </rect>
         ''',
-
     datatypes.File: '''
         <rect height="24">
             <label width="100" height="20" caption="%s:"/>
@@ -61,14 +53,12 @@ AUTO_CONTROLS = {
                 readonly="%s"/>
         </rect>
         ''',
-
     datatypes.Text: '''
         <tab caption="%s">
                 <field type="textarea" name="%s" width="100%%" height="100%%"
                     readonly="%s">%s</field>
         </tab>
         ''',
-
     datatypes.Date: '''
         <rect height="24">
             <label width="100" height="20" caption="%s:"/>
@@ -76,7 +66,6 @@ AUTO_CONTROLS = {
                 readonly="%s"/>
         </rect>
         ''',
-        
     datatypes.Reference1: '''
         <rect height="24">
             <custom classname="Reference1" width="100%%"
@@ -84,7 +73,6 @@ AUTO_CONTROLS = {
                 disabled="%s"/>
         </rect>
         ''',
-        
     datatypes.ReferenceN: '''
         <tab caption="%s">
             <custom classname="ReferenceN" width="100%%" height="100%%"
@@ -104,8 +92,8 @@ DATES_FORMAT = 'ddd, dd month yyyy h12:min:sec MM'
 
 def _getSecurity(forItem, user, rolesInherited=None):
     # get user role
-    iUserRole = objectAccess.getAccess(forItem, user)
-    if iUserRole == objectAccess.COORDINATOR:
+    iUserRole = permsresolver.get_access(forItem, user)
+    if iUserRole == permsresolver.COORDINATOR:
         rolesInherited = rolesInherited or forItem.inheritRoles
         return SECURITY_TAB % str(rolesInherited).lower()
     else:
@@ -130,7 +118,7 @@ def _getControlFromAttribute(item, attrname, attr, readonly, isNew=False):
     elif isinstance(attr, datatypes.Date):
         sControl = AUTO_CONTROLS[datatypes.Date] % \
             (attrlabel, attrname,
-             attr.toIso8601(), str(readonly).lower())
+             attr.to_iso_8601(), str(readonly).lower())
         
     elif isinstance(attr, datatypes.File):
         if isNew:
@@ -150,7 +138,7 @@ def _getControlFromAttribute(item, attrname, attr, readonly, isNew=False):
         )
         
     elif isinstance(attr, datatypes.Reference1):
-        oRefItem = attr.getItem()
+        oRefItem = attr.get_item()
         if oRefItem:
             refid = oRefItem.id
             refname = oRefItem.displayName.value
@@ -168,7 +156,7 @@ def _getControlFromAttribute(item, attrname, attr, readonly, isNew=False):
         
     elif isinstance(attr, datatypes.ReferenceN):
         options = []
-        rel_items = attr.getItems()
+        rel_items = attr.get_items()
         for item in rel_items:
             options += [xml.xml_encode(item.__image__),
                         item.id,
@@ -184,17 +172,18 @@ def _getControlFromAttribute(item, attrname, attr, readonly, isNew=False):
     
     return (sControl, sTab)
 
+@filters.etag()
 @filters.i18n('org.innoscript.desktop.strings.resources')
-@webmethods.quixui(of_type=Item, template='../ui.Frm_AutoProperties.quix')
+@webmethods.quixui(of_type=Item,
+                   max_age=-1,
+                   template='../ui.Frm_AutoProperties.quix')
 def properties(self):
     "Displays a generic edit form based on the object's schema"
     context = HttpContext.current()
-    
-    context.response.setHeader('Cache-Control', 'no-cache')
     sLang = context.request.getLang()
     
     user = context.user
-    iUserRole = objectAccess.getAccess(self, user)
+    iUserRole = permsresolver.get_access(self, user)
     readonly = (iUserRole==1)
     modified = date.Date(self.modified)
     
@@ -221,15 +210,16 @@ def properties(self):
             params['EXTRA_TABS'] += tab
     
     params['PROPERTIES'] = sProperties
-        
     return params
 
+@filters.etag()
 @filters.i18n('org.innoscript.desktop.strings.resources')
-@webmethods.quixui(of_type=Item, template='../ui.Dlg_Rename.quix')
+@webmethods.quixui(of_type=Item,
+                   max_age=-1,
+                   template='../ui.Dlg_Rename.quix')
 def rename(self):
     "Displays the rename dialog"
     context = HttpContext.current()
-    context.response.setHeader('cache-control', 'no-cache')
     return {
         'TITLE': self.displayName.value,
         'ID': self.id,
@@ -237,11 +227,13 @@ def rename(self):
     }
 
 @filters.i18n('org.innoscript.desktop.strings.resources')
-@webmethods.quixui(of_type=GenericItem, template='../ui.Dlg_SelectContainer.quix') 
+@webmethods.quixui(of_type=GenericItem,
+                   max_age=3600,
+                   template='../ui.Dlg_SelectContainer.quix') 
 def selectcontainer(self):
     "Displays a dialog for selecting the destination container"
     context = HttpContext.current()
-    rootFolder = db.getItem('')
+    rootFolder = db.get_item('')
     params = {
         'ROOT_ID': '/',
         'ROOT_IMG': rootFolder.__image__,
@@ -261,8 +253,9 @@ def update(self, data):
     "Updates an object based on values contained inside the data dictionary"
     context = HttpContext.current()
     # get user role
-    iUserRole = objectAccess.getAccess(self, context.user)
-    if data.has_key('__rolesinherited') and iUserRole == objectAccess.COORDINATOR:
+    iUserRole = permsresolver.get_access(self, context.user)
+    if data.has_key('__rolesinherited') and \
+            iUserRole == permsresolver.COORDINATOR:
         self.inheritRoles = data.pop('__rolesinherited')
         if not self.inheritRoles:
             acl = data.pop('__acl')
@@ -286,7 +279,7 @@ def update(self, data):
             oAttr.value = int(data[prop])
         else:
             oAttr.value = data[prop]
-    txn = db.getTransaction()
+    txn = db.get_transaction()
     self.update(txn)
     return True
 
@@ -294,52 +287,53 @@ def update(self, data):
 @db.transactional(auto_commit=True)
 def rename(self, newName):
     "Changes the display name of an object"
-    txn = db.getTransaction()
+    txn = db.get_transaction()
     self.displayName.value = newName
     self.update(txn)
     return True
 
+@filters.etag()
 @webmethods.remotemethod(of_type=Item)
 def getSecurity(self):
     "Returns information about the object's security descriptor"
     l = []
     for sID in self.security:
-        try:
-            oUser = db.getItem(sID)
+        oUser = db.get_item(sID)
+        if oUser != None:
             dn = oUser.displayName.value
-        except exceptions.ObjectNotFound:
+        else:
             dn = sID
         l.append({
-                'id': sID,
-                'displayName': dn,
-                'role': str(self.security[sID])
+            'id': sID,
+            'displayName': dn,
+            'role': str(self.security[sID])
         })
     return l
 
 @webmethods.remotemethod(of_type=Item)
 @db.transactional(auto_commit=True)
 def copyTo(self, targetid):
-    txn = db.getTransaction()
-    self.copyTo(targetid, txn)
+    txn = db.get_transaction()
+    self.copy_to(targetid, txn)
     return True
 
 @webmethods.remotemethod(of_type=Item)
 @db.transactional(auto_commit=True)
 def moveTo(self, targetid):
-    txn = db.getTransaction()
-    self.moveTo(targetid, txn)
+    txn = db.get_transaction()
+    self.move_to(targetid, txn)
     return True
 
 @webmethods.remotemethod(of_type=GenericItem)
 @db.transactional(auto_commit=True)
 def delete(self):
-    txn = db.getTransaction()
+    txn = db.get_transaction()
     self.recycle('rb', txn)
     return True
 
 @webmethods.remotemethod(of_type=GenericItem)
 @db.transactional(auto_commit=True)
 def deletePermanent(self):
-    txn = db.getTransaction()
+    txn = db.get_transaction()
     self.delete(txn)
     return True

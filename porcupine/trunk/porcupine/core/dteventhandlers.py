@@ -1,5 +1,5 @@
 #===============================================================================
-#    Copyright 2005-2008, Tassos Koutsovassilis
+#    Copyright 2005-2009, Tassos Koutsovassilis
 #
 #    This file is part of Porcupine.
 #    Porcupine is free software; you can redistribute it and/or modify
@@ -34,17 +34,18 @@ class DatatypeEventHandler(object):
     @staticmethod
     def on_delete(item, attr, trans, bPermanent):
         pass
+    
+    @staticmethod
+    def on_undelete(item, attr, trans):
+        pass
 
 class CompositionEventHandler(DatatypeEventHandler):
     "Composition datatype event handler"
     
     @staticmethod
     def on_create(item, attr, trans):
-        if item._isDeleted:
-            attr.value = [_db.getDeletedItem(sID, trans)
-                          for sID in attr.value]
         CompositionEventHandler.on_update(item, attr, None, trans)
-        
+    
     @staticmethod
     def on_update(item, new_attr, old_attr, trans):
         from porcupine.systemObjects import Composite
@@ -54,7 +55,7 @@ class CompositionEventHandler(DatatypeEventHandler):
             if isinstance(obj, Composite):
                 obj._containerid = item._id
             elif isinstance(obj, str):
-                obj = _db.getItem(obj, trans)
+                obj = _db.get_item(obj, trans)
                 new_attr.value[i] = obj
             else:
                 raise exceptions.ContainmentError, \
@@ -63,13 +64,13 @@ class CompositionEventHandler(DatatypeEventHandler):
             dctObjects[obj._id] = obj
         
         # check containment
-        compositeClass = misc.getCallableByName(new_attr.compositeClass)
+        composite_type = misc.get_rto_by_name(new_attr.compositeClass)
         
         if [obj for obj in dctObjects.values()
-                if not isinstance(obj, compositeClass)]:
+                if not isinstance(obj, composite_type)]:
             raise exceptions.ContainmentError, \
                 'Invalid content class "%s" in composition.' % \
-                obj.getContentclass()
+                obj.get_contentclass()
         
         # get previous value
         if old_attr != None:
@@ -83,190 +84,153 @@ class CompositionEventHandler(DatatypeEventHandler):
         lstAdded = list(new_ids - old_ids)
         for obj_id in lstAdded:
             _db.handle_update(dctObjects[obj_id], None, trans)
-            dctObjects[obj_id]._isDeleted = False
-            _db.putItem(dctObjects[obj_id], trans)
+            _db.put_item(dctObjects[obj_id], trans)
         
         # calculate constant composites
         lstConstant = list(new_ids & old_ids)
         for obj_id in lstConstant:
             _db.handle_update(dctObjects[obj_id],
-                                 _db.getItem(obj_id, trans),
-                                 trans)
-            _db.putItem(dctObjects[obj_id], trans)
+                              _db.get_item(obj_id, trans),
+                              trans)
+            _db.put_item(dctObjects[obj_id], trans)
         
         # calculate removed composites
         lstRemoved = list(old_ids - new_ids)
-        for obj_id in lstRemoved:
-            composite4removal = _db.getItem(obj_id, trans)
-            CompositionEventHandler.removeComposite(composite4removal, trans)
-        
+        [CompositionEventHandler._removeComposite(_db.get_item(id, trans),
+                                                  trans)
+         for id in lstRemoved]
+                
         new_attr.value = list(new_ids)
     
     @staticmethod
     def on_delete(item, attr, trans, bPermanent):
         if bPermanent:
-            if item._isDeleted:
-                func_get = _db.getDeletedItem
-            else:
-                func_get = _db.getItem
-            composites = [func_get(sID, trans) for sID in attr.value]
-            for composite in composites:
-                CompositionEventHandler.removeComposite(composite, trans)
+            [CompositionEventHandler._removeComposite(_db.get_item(id, trans),
+                                                      trans)
+             for id in attr.value]
         else:
             for sID in attr.value:
-                composite = _db.getItem(sID, trans)
+                composite = _db.get_item(sID, trans)
                 _db.handle_delete(composite, trans, False)
-                composite._isDeleted = True
-                _db.putItem(composite, trans)
+                composite._isDeleted = 1
+                _db.put_item(composite, trans)
     
     @staticmethod
-    def removeComposite(composite, trans):
+    def _removeComposite(composite, trans):
         _db.handle_delete(composite, trans, True)
-        _db.deleteItem(composite, trans)
-        
+        _db.delete_item(composite, trans)
+
 class RelatorNEventHandler(DatatypeEventHandler):
     "RelatorN datatype event handler"
     
     @staticmethod
     def on_create(item, attr, trans):
-        if item._isDeleted and attr.cascadeDelete:
-            from porcupine.systemObjects import DeletedItem
-            deletedItem = DeletedItem(item, trans)
-            for sID in attr.value:
-                oItemRef = _db.getDeletedItem(sID, trans)
-                parent = _db.getItem(oItemRef._parentid, trans)
-                # update container
-                parent._addItemReference(oItemRef)
-                _db.putItem(parent, trans)
-                deletedItem._undelete(oItemRef, trans)
         RelatorNEventHandler.on_update(item, attr, None, trans)
     
     @staticmethod
     def on_update(item, new_attr, old_attr, trans):
-        from porcupine import datatypes
         # remove duplicates
         new_attr.value = list(set(new_attr.value))
         
         # get previous value
         if old_attr:
             prvValue = set(old_attr.value)
-            noAccessList = RelatorNEventHandler.getNoAccessIds(old_attr, trans)
+            noAccessList = RelatorNEventHandler._get_no_access_ids(old_attr,
+                                                                   trans)
         else:
             prvValue = set()
             noAccessList = []
-
+        
         # get current value
         currentValue = set(new_attr.value + noAccessList)
-
+        
         if currentValue != prvValue:
             # calculate added references
-            lstAdded = list(currentValue - prvValue)
-            for sID in lstAdded:
-                try:
-                    ref_item = _db.getItem(sID, trans)
-                except exceptions.ObjectNotFound:
-                    ref_item = None
-                if ref_item != None and \
-                        (not new_attr.relCc or
-                        ref_item.getContentclass() in new_attr.relCc):
-                    oAttrRef = getattr(ref_item, new_attr.relAttr)
-                    if isinstance(oAttrRef, datatypes.RelatorN):
-                        oAttrRef.value.append(item._id)
-                    elif isinstance(oAttrRef, datatypes.Relator1):
-                        oAttrRef.value = item._id
-                    _db.putItem(ref_item, trans)
-                else:
-                    new_attr.value.remove(sID)
-    
+            ids_added = list(currentValue - prvValue)
+            if ids_added:
+                RelatorNEventHandler._add_references(new_attr, ids_added,
+                                                     item._id, trans)
             # calculate removed references
-            lstRemoved = list(prvValue - currentValue)
-            for sID in lstRemoved:
-                ref_item = _db.getItem(sID, trans)
-                oAttrRef = getattr(ref_item, new_attr.relAttr)
-                if isinstance(oAttrRef, datatypes.RelatorN):
-                    try:
-                        oAttrRef.value.remove(item._id)
-                    except ValueError:
-                        pass
-                elif isinstance(oAttrRef, datatypes.Relator1):
-                    oAttrRef.value = ''
-                _db.putItem(ref_item, trans)
+            ids_removed = list(prvValue - currentValue)
+            if ids_removed:
+                RelatorNEventHandler._remove_references(new_attr, ids_removed,
+                                                        item._id, trans)
     
     @staticmethod
     def on_delete(item, attr, trans, bPermanent):
-        lstValue = attr.value
         if not item._isDeleted:
-            from porcupine import datatypes
-            
-            if lstValue and attr.respectsReferences:
+            if attr.value and attr.respectsReferences:
                 raise exceptions.ReferentialIntegrityError, (
                     'Cannot delete object "%s" ' % item.displayName.value +
                     'because it is being referenced by other objects.')
-            
-            # remove references
-            for sID in lstValue:
-                ref_item = _db.getItem(sID, trans)
-                if ref_item.getContentclass() in attr.relCc:
-                    oAttrRef = getattr(ref_item, attr.relAttr)
-                    if isinstance(oAttrRef, datatypes.RelatorN):
-                        try:
-                            oAttrRef.value.remove(item._id)
-                        except ValueError:
-                            pass
-                    elif isinstance(oAttrRef, datatypes.Relator1):
-                        oAttrRef.value = ''
-                    _db.putItem(ref_item, trans)
-                else:
-                    attr.value.remove(sID)
-            
-                if attr.cascadeDelete:
-                    oParent = _db.getItem(oItemRef._parentid, trans)
-                    try:
-                        oParent._removeItemReference(oItemRef)
-                        _db.putItem(oParent, trans)
-                    except KeyError:
-                        pass
-        
-        if attr.cascadeDelete:
-            for sID in lstValue:
-                if item._isDeleted:
-                    oItemRef = _db.getDeletedItem(sID, trans)
-                else:
-                    oItemRef = _db.getItem(sID, trans)
-                if bPermanent:
-                    oItemRef._delete(trans)
-                else:
-                    oItemRef._recycle(trans)
+            if attr.cascadeDelete:
+                [_db.get_item(id, trans)._recycle(trans)
+                 for id in attr.value]
+        if bPermanent:
+            if attr.cascadeDelete:
+                [_db.get_item(id, trans)._delete(trans)
+                 for id in attr.value]
+            else:
+                # remove all references
+                RelatorNEventHandler._remove_references(attr, attr.value,
+                                                        item._id, trans)
     
     @staticmethod
-    def getNoAccessIds(attr, trans):
-        lstNoAccess = []
-        for sID in attr.value:
-            oItem = db.getItem(sID, trans)
-            if not(oItem):
-                lstNoAccess.append(sID)
-        return lstNoAccess
+    def on_undelete(item, attr, trans):
+        if attr.cascadeDelete:
+            [_db.get_item(id, trans)._undelete(trans)
+             for id in attr.value]
+    
+    @staticmethod
+    def _add_references(attr, ids, oid, trans):
+        from porcupine.datatypes import Relator1, RelatorN
+        for id in ids:
+            ref_item = _db.get_item(id, trans)
+            if ref_item != None and isinstance(ref_item,
+                                               tuple([misc.get_rto_by_name(cc)
+                                                      for cc in attr.relCc])):
+                ref_attr = getattr(ref_item, attr.relAttr)
+                if isinstance(ref_attr, RelatorN):
+                    ref_attr.value.append(oid)
+                elif isinstance(ref_attr, Relator1):
+                    ref_attr.value = oid
+                ref_attr.validate()
+                _db.put_item(ref_item, trans)
+            else:
+                attr.value.remove(id)
+    
+    @staticmethod
+    def _remove_references(attr, ids, oid, trans):
+        # remove references
+        from porcupine.datatypes import Relator1, RelatorN
+        for id in ids:
+            ref_item = _db.get_item(id, trans)
+            ref_attr = getattr(ref_item, attr.relAttr)
+            if isinstance(ref_attr, RelatorN):
+                try:
+                    ref_attr.value.remove(oid)
+                except ValueError:
+                    pass
+            elif isinstance(ref_attr, Relator1):
+                ref_attr.value = ''
+            ref_attr.validate()
+            _db.put_item(ref_item, trans)
+    
+    @staticmethod
+    def _get_no_access_ids(attr, trans):
+        ids = [id for id in attr.value
+               if db.get_item(id, trans) == None]
+        return ids
     
 class Relator1EventHandler(DatatypeEventHandler):
     "Relator1 datatype event handler"
 
     @staticmethod
     def on_create(item, attr, trans):
-        if item._isDeleted and attr.cascadeDelete and attr.value:
-            from porcupine.systemObjects import DeletedItem
-            oItemRef = _db.getDeletedItem(attr.value, trans)
-            parent = _db.getItem(oItemRef._parentid, trans)
-            # update container
-            parent._addItemReference(oItemRef)
-            _db.putItem(parent, trans)
-            deletedItem = DeletedItem(oItemRef, trans)
-            deletedItem._undelete(oItemRef, trans)
         Relator1EventHandler.on_update(item, attr, None, trans)
  
     @staticmethod
     def on_update(item, new_attr, old_attr, trans):
-        from porcupine import datatypes, systemObjects
-        
         # get previous value
         if old_attr:
             prvValue = old_attr.value
@@ -275,71 +239,64 @@ class Relator1EventHandler(DatatypeEventHandler):
         
         if new_attr.value != prvValue:
             if new_attr.value:
-                try:
-                    ref_item = _db.getItem(new_attr.value, trans)
-                except exceptions.ObjectNotFound:
-                    ref_item = None
-                if ref_item != None and \
-                        (not new_attr.relCc or
-                        ref_item.getContentclass() in new_attr.relCc):
-                    oAttrRef = getattr(ref_item, new_attr.relAttr)
-                    if isinstance(oAttrRef, datatypes.RelatorN):
-                        oAttrRef.value.append(item._id)
-                    elif isinstance(oAttrRef, datatypes.Relator1):
-                        oAttrRef.value = item._id
-                    _db.putItem(ref_item, trans)
-                else:
-                    new_attr.value = ''
-            if prvValue:
-                ref_item = _db.getItem(prvValue, trans)
-                oAttrRef = getattr(ref_item, new_attr.relAttr)
-                if isinstance(oAttrRef, datatypes.RelatorN):
-                    try:
-                        oAttrRef.value.remove(item._id)
-                    except ValueError:
-                        pass
-                elif isinstance(oAttrRef, datatypes.Relator1):
-                    oAttrRef.value = ''
-                _db.putItem(ref_item, trans)
-
+                Relator1EventHandler._add_reference(new_attr, item._id, trans)
+            if old_attr and prvValue:
+                # remove old reference
+                Relator1EventHandler._remove_reference(old_attr, item._id,
+                                                       trans)
+    
     @staticmethod
     def on_delete(item, attr, trans, bPermanent):
         if not item._isDeleted:
-            from porcupine import datatypes
-            if attr.value:
-                if attr.respectsReferences:
-                    raise exceptions.ReferentialIntegrityError, (
-                        'Cannot delete object "%s" ' % item.displayName.value +
-                        'because it is referenced by other objects.')
+            if attr.value and attr.respectsReferences:
+                raise exceptions.ReferentialIntegrityError, (
+                    'Cannot delete object "%s" ' % item.displayName.value +
+                    'because it is referenced by other objects.')
+            if attr.cascadeDelete:
+                _db.get_item(attr.value, trans)._recycle(trans)
+        if bPermanent and attr.value:
+            if attr.cascadeDelete:
+                _db.get_item(attr.value, trans)._delete(trans)
+            else:
                 # remove reference
-                ref_item = _db.getItem(attr.value, trans)
-                oAttrRef = getattr(ref_item, attr.relAttr)
-                if isinstance(oAttrRef, datatypes.RelatorN):
-                    try:
-                        oAttrRef.value.remove(item._id)
-                    except ValueError:
-                        pass
-                elif isinstance(oAttrRef, datatypes.Relator1):
-                    oAttrRef.value = ''
-                _db.putItem(ref_item, trans)
-                
-                if attr.cascadeDelete:
-                    oParent = _db.getItem(oItemRef._parentid, trans)
-                    try:
-                        oParent._removeItemReference(oItemRef)
-                        _db.putItem(oParent, trans)
-                    except KeyError:
-                        pass
-        
-        if attr.cascadeDelete and attr.value:
-            if item._isDeleted:
-                oItemRef = _db.getDeletedItem(attr.value, trans)
-            else:
-                oItemRef = _db.getItem(attr.value, trans)
-            if bPermanent:
-                oItemRef._delete(trans)
-            else:
-                oItemRef._recycle(trans)
+                Relator1EventHandler._remove_reference(attr, item._id, trans)
+    
+    @staticmethod
+    def on_undelete(item, attr, trans):
+        if attr.cascadeDelete:
+            _db.get_item(attr.value, trans)._undelete(trans)
+    
+    @staticmethod
+    def _add_reference(attr, oid, trans):
+        from porcupine.datatypes import Relator1, RelatorN
+        ref_item = _db.get_item(attr.value, trans)
+        if ref_item != None and isinstance(ref_item,
+                                           tuple([misc.get_rto_by_name(cc)
+                                                  for cc in attr.relCc])):
+            ref_attr = getattr(ref_item, attr.relAttr)
+            if isinstance(ref_attr, RelatorN):
+                ref_attr.value.append(oid)
+            elif isinstance(ref_attr, Relator1):
+                ref_attr.value = oid
+            ref_attr.validate()
+            _db.put_item(ref_item, trans)
+        else:
+            attr.value = None
+    
+    @staticmethod
+    def _remove_reference(attr, oid, trans):
+        from porcupine.datatypes import Relator1, RelatorN
+        ref_item = _db.get_item(attr.value, trans)
+        ref_attr = getattr(ref_item, attr.relAttr)
+        if isinstance(ref_attr, RelatorN):
+            try:
+                ref_attr.value.remove(oid)
+            except ValueError:
+                pass
+        elif isinstance(ref_attr, Relator1):
+            ref_attr.value = None
+        ref_attr.validate()
+        _db.put_item(ref_item, trans)
 
 class ExternalAttributeEventHandler(DatatypeEventHandler):
     "External attribute event handler"
@@ -351,13 +308,13 @@ class ExternalAttributeEventHandler(DatatypeEventHandler):
     @staticmethod
     def on_update(item, new_attr, old_attr, trans):
         if new_attr.isDirty:
-            _db.db_handle._putExternalAttribute(new_attr._id, new_attr.value, trans)
+            _db.put_external(new_attr._id, new_attr.value, trans)
         new_attr._reset()
     
     @staticmethod
     def on_delete(item, attr, trans, bPermanent):
         if bPermanent:
-            _db.db_handle._deleteExternalAttribute(attr._id, trans)
+            _db.delete_external(attr._id, trans)
 
 class ExternalFileEventHandler(DatatypeEventHandler):
     "External file event handler"

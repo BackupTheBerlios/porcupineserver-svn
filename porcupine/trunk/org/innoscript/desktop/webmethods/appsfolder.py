@@ -1,5 +1,5 @@
 #===============================================================================
-#    Copyright 2005-2008, Tassos Koutsovassilis
+#    Copyright 2005-2009, Tassos Koutsovassilis
 #
 #    This file is part of Porcupine.
 #    Porcupine is free software; you can redistribute it and/or modify
@@ -25,11 +25,12 @@ from org.innoscript.desktop.schema import common
 from org.innoscript.desktop.webmethods import baseitem
 
 @filters.i18n('org.innoscript.desktop.strings.resources')
-@webmethods.quixui(of_type=common.AppsFolder, template='../ui.Frm_AppNew.quix')
+@webmethods.quixui(of_type=common.AppsFolder,
+                   max_age=3600,
+                   template='../ui.Frm_AppNew.quix')
 def new(self):
     "Displays the form for creating a new application"
     context = HttpContext.current()
-    context.response.setExpiration(1200)
     oApp = common.Application()
     return {
         'CC': oApp.contentclass,

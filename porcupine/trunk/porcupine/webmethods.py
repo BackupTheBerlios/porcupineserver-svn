@@ -1,5 +1,5 @@
 #===============================================================================
-#    Copyright 2005-2008, Tassos Koutsovassilis
+#    Copyright 2005-2009, Tassos Koutsovassilis
 #
 #    This file is part of Porcupine.
 #    Porcupine is free software; you can redistribute it and/or modify
@@ -31,7 +31,6 @@ def webmethod(of_type, http_method='GET', client='', lang='', qs='',
                                          (http_method, client, lang, qs),
                                          content_type, encoding, max_age,
                                          template, template_engine)
-        
     return WebMethod
 
 def quixui(of_type, isPage=False, lang='', qs='',
@@ -41,7 +40,8 @@ def quixui(of_type, isPage=False, lang='', qs='',
         def __init__(self, function):
             WebMethodDescriptor.__init__(self, function, of_type,
                 ('GET',
-                 '(MSIE [6-7].+Windows NT)|(Mozilla/5.0.+rv:1.[7-9])|Version/3.\d(.*)Safari|Chrome/\d.\d',
+                 '(MSIE [6-8].+Windows NT)|(Mozilla/5.0.+rv:1.[7-9])|' +
+                    'Version/[3-4].\d(.*)Safari|Chrome/\d.\d|Opera/9',
                  lang,
                  qs),
                 'text/xml', encoding, max_age, template, template_engine)
@@ -55,18 +55,14 @@ def quixui(of_type, isPage=False, lang='', qs='',
                     context.request.serverVariables['PATH_INFO'],
                     context.request.getQueryString()
                 )
-                vars = (script_name, script_name, script_name, script_name,
-                        no_cookies_url, script_name)
+                vars = (script_name, no_cookies_url)
                 
                 context.response.content_type = 'text/html'
                 context.response.write(('''
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0//EN" "http://www.w3.org/TR/REC-html40/strict.dtd">
 <html>
     <head>
-        <script type="text/javascript" defer="defer" src="%s/__quix/quixextensions.js"></script>
-        <script type="text/javascript" defer="defer" src="%s/__quix/compat.js"></script>
-        <script type="text/javascript" defer="defer" src="%s/__quix/xul_core.js"></script>
-        <script type="text/javascript" defer="defer" src="%s/__quix/xmlrpc.js"></script>
+        <script type="text/javascript" defer="defer" src="%s/__quix/quix.js"></script>
         <script type="text/javascript" defer="defer">
             var cookiesEnabled = false;
             var session_id = (new RegExp("/\(?:{|%%7b)([0-9a-f]{32})\(?:}|%%7d)", "i")).exec(document.location.href);
@@ -77,14 +73,12 @@ def quixui(of_type, isPage=False, lang='', qs='',
             if (!session_id && !cookiesEnabled)
                 document.location.href = '%s';
         </script>
-        <link type="text/css" rel="stylesheet" href="%s/__quix/quix.css"></link>
     </head>
     <body onload="QuiX.__init__()">
-        <xml id="xul" style="display:none">''' % vars).strip())
+        <xml id="quix" style="display:none">''' % vars).strip())
             WebMethodDescriptor.execute(self, item, context)
             if isPage:
                 context.response.write('</xml></body></html>')
-
     return WebMethod
 
 def remotemethod(of_type, client='', lang='', qs='', encoding='utf-8'):
@@ -109,5 +103,4 @@ def remotemethod(of_type, client='', lang='', qs='', encoding='utf-8'):
             else:
                 raise exceptions.InternalServerError, \
                     'Remote method "%s" returns no value' % context.request.method
-    
     return WebMethod

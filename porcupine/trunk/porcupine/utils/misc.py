@@ -1,5 +1,5 @@
 #===============================================================================
-#    Copyright 2005-2008, Tassos Koutsovassilis
+#    Copyright 2005-2009, Tassos Koutsovassilis
 #
 #    This file is part of Porcupine.
 #    Porcupine is free software; you can redistribute it and/or modify
@@ -17,8 +17,11 @@
 """
 Porcupine miscelaneous utilities
 """
-
-import md5, time, random, sys, imp, os
+import hashlib
+import time
+import random
+import os
+from porcupine.core.decorators import deprecated
 
 VALID_ID_CHRS = [
     chr(x) for x in \
@@ -27,7 +30,11 @@ VALID_ID_CHRS = [
     range(ord('0'), ord('9'))
 ]
 
-def generateGUID():
+def generate_file_etag(path):
+    file_info = os.stat(path)
+    return hex(file_info[6] + file_info[8])
+
+def generate_guid():
     """
     Generates a GUID string.
     
@@ -36,9 +43,10 @@ def generateGUID():
     
     @rtype: str
     """
-    return md5.new(str(time.time()+time.clock()*1000)).hexdigest()
+    return hashlib.md5(str(time.time()+time.clock()*1000)).hexdigest()
+generateGUID = deprecated(generate_guid)
     
-def generateOID():
+def generate_oid():
     """
     Generates an Object ID string.
     
@@ -47,14 +55,15 @@ def generateOID():
     @rtype: str
     """
     return ''.join(random.sample(VALID_ID_CHRS, 8))
+generateOID = deprecated(generate_oid)
 
-def getCallableByName(name):
+def get_rto_by_name(name):
     """
-    This function returns an attribute by name.
+    This function returns a runtime object by name.
     
     For example::
     
-        getCallableByName('org.innoscript.desktop.schema.common.Folder')()
+        get_rto_by_name('org.innoscript.desktop.schema.common.Folder')()
     
     instantiates a new I{Folder} object.
         
@@ -68,14 +77,15 @@ def getCallableByName(name):
         __module__ = '.'.join(modules[:-1])
         __attribute__ = modules[-1]
     
-    mod = __import__( __module__, globals(), locals(), __attribute__ )
+    mod = __import__(__module__, globals(), locals(), [__attribute__])
     if __attribute__:
         attribute = getattr(mod, __attribute__)
         return attribute
     else:
         return mod
+getCallableByName = deprecated(get_rto_by_name)
 
-def getAddressFromString(address):
+def get_address_from_string(address):
     """
     Accepts a string of the form
     C{address:port} and returns an C{(address, port)} tuple.
@@ -88,8 +98,9 @@ def getAddressFromString(address):
     address = address.split(':')
     address[1] = int(address[1])
     return tuple(address)
+getAddressFromString = deprecated(get_address_from_string)
     
-def getFullPath(item):
+def get_full_path(item):
     """
     Returns the full path of an object
     
@@ -98,9 +109,10 @@ def getFullPath(item):
     
     @rtype: str
     """
-    parents = item.getAllParents()
+    parents = item.get_all_parents()
     sPath = '/'
     for parent in parents:
         sPath += parent.displayName.value + '/'
     return sPath
+getFullPath = deprecated(get_full_path)
 

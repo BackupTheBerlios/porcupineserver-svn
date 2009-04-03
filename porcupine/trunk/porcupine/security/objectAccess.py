@@ -1,5 +1,5 @@
 #===============================================================================
-#    Copyright 2005-2008, Tassos Koutsovassilis
+#    Copyright 2005-2009, Tassos Koutsovassilis
 #
 #    This file is part of Porcupine.
 #    Porcupine is free software; you can redistribute it and/or modify
@@ -14,7 +14,11 @@
 #    along with Porcupine; if not, write to the Free Software
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #===============================================================================
-"Module for resolving object permissions"
+"""
+Deprecated module. Use "porcupine.utils.permsresolver instead"
+"""
+from porcupine.utils import permsresolver
+from porcupine.core.decorators import deprecated
 
 # 1 - read
 # 2 - update, delete if owner
@@ -26,19 +30,4 @@ AUTHOR = 2
 CONTENT_CO = 4
 COORDINATOR = 8
 
-def getAccess(oItem, oUser):
-    memberOf = ['everyone']
-    userID = oUser._id
-    if oUser.isAdmin():
-        return COORDINATOR
-    memberOf.extend(oUser.memberof.value)
-    if hasattr(oUser, 'authenticate'):
-        memberOf.extend(['authusers']) 
-    try:
-        iPerm = oItem.security[userID]
-        # user explicitly set on ACL
-        return iPerm
-    except KeyError:
-        pass
-    lstPerms = [oItem.security.get(groupID, 0) for groupID in memberOf] or [0]
-    return(max(lstPerms))
+getAccess = deprecated(permsresolver.get_access)

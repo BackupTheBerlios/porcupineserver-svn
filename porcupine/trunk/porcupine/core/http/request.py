@@ -1,5 +1,5 @@
 #===============================================================================
-#    Copyright 2005-2008 Tassos Koutsovassilis
+#    Copyright 2005-2009 Tassos Koutsovassilis
 #
 #    This file is part of Porcupine.
 #    Porcupine is free software; you can redistribute it and/or modify
@@ -131,36 +131,6 @@ class HttpRequest(object):
         try:
             return self.serverVariables[name]
         except KeyError:
-            error_string = "'HttpResponse' object has no attribute '%s'"
-            raise AttributeError, error_string % name
-
-#class HTTPRequest(Request):
-#    """This type of request is used by the
-#    L{porcupine.core.servlet.HTTPServlet} class.
-#   
-#    @ivar form: If the request method is POST, this attribute holds the posted
-#                values.
-#    @type form: dict
-#    """
-#    def __init__(self, req):
-#        self.serverVariables = req.serverVariables
-#        self.interface = req.interface
-#        self.item = req.item
-#        self.input = req.input
-#        self.cookies = req.cookies
-#        self.queryString = req.queryString
-#        self.form = FieldStorage(fp=req.input, environ=req.serverVariables)
-#
-#class XMLRPCRequest(Request):
-#    """This type of request is used by the
-#    L{porcupine.core.servlet.XMLRPCServlet} class.
-#    You won't ever need to use this directly, since this kind of request is
-#    handled automatically by the servlet internally.
-#    """
-#    def __init__(self, req):
-#        self.serverVariables = req.serverVariables
-#        self.interface = req.interface
-#        self.item = req.item
-#        self.params = xmlrpc.XMLRPCParams()
-#        self.cookies = req.cookies
-#        self.params.loadXML(req.input.getvalue())
+            return None
+            #error_string = "'HttpResponse' object has no attribute '%s'"
+            #raise AttributeError, error_string % name

@@ -1,5 +1,5 @@
 #===============================================================================
-#    Copyright 2005-2008, Tassos Koutsovassilis
+#    Copyright 2005-2009, Tassos Koutsovassilis
 #
 #    This file is part of Porcupine.
 #    Porcupine is free software; you can redistribute it and/or modify
@@ -17,12 +17,9 @@
 """
 OQL Core Interpreter
 """
-
-import time
-
 from porcupine import datatypes
 from porcupine import db
-from porcupine.core import objectSet
+from porcupine.core.objectSet import ObjectSet
 from porcupine.utils.date import Date
 from porcupine.utils import misc
 
@@ -41,8 +38,6 @@ GETPARENT   = 67
 
 CMD_ASSIGN  = 100
 OQL_SELECT  = 200
-
-SYSTEM_DATES = ('created', 'modified')
 
 # map operator symbols to corresponding operations
 opn2 = { 
@@ -76,12 +71,12 @@ fn  = {
     'str' : str,
     'lower' : lambda a: a.lower(),
     'upper' : lambda a: a.upper(),
-    'date' : lambda a: Date(time.mktime(time.strptime(a, '%Y-%m-%dT%H:%M:%S'))),
+    'date' : lambda a: Date.from_iso_8601(a),
     'trunc' : lambda a: int(a),
     'round' : lambda a: int(a+0.5),
     'sgn' : lambda a: ( (a<0 and -1) or (a>0 and 1) or 0 ),
     'isnone' : lambda a,b: a or b,
-    'getattr' : lambda a,b : getAttribute(a, [b])
+    'getattr' : lambda a,b: getAttribute(a, [b])
 }
 
 def evaluateStack(stack, variables, forObject=None):
@@ -117,15 +112,20 @@ def evaluateStack(stack, variables, forObject=None):
                     # an alias
                     alias_stack, objectid, alias_value = var
                     if objectid != forObject._id:
-                        alias_value = evaluateStack(alias_stack[:], variables, forObject)
-                        variables[op] = (alias_stack, forObject._id, alias_value)
+                        alias_value = evaluateStack(alias_stack[:], variables,
+                                                    forObject)
+                        variables[op] = (alias_stack, forObject._id,
+                                         alias_value)
                         return alias_value
                     else:
                         # get alias from cache
                         return alias_value
             else:
                 # an attribute
-                return getAttribute(forObject, op.split('.'))
+                if op == '**':
+                    return forObject
+                else:
+                    return getAttribute(forObject, op.split('.'))
 
     elif isinstance(op, list):
         cmdCode = op[0]
@@ -141,21 +141,21 @@ def getAttribute(obj, name_list):
         oAttr = getattr(obj, attr) 
         if isinstance(oAttr, datatypes.DataType):
             if isinstance(oAttr, datatypes.Reference1):
-                obj = oAttr.getItem()
+                obj = oAttr.get_item()
             elif isinstance(oAttr, datatypes.ReferenceN) or \
                     isinstance(oAttr, datatypes.Composition):
-                obj = oAttr.getItems()
+                obj = oAttr.get_items()
             elif isinstance(oAttr, datatypes.Date):
                 obj = oAttr
             else:
                 obj = oAttr.value
-        elif attr in SYSTEM_DATES:
+        elif attr in ('created', 'modified'):
             obj = Date(oAttr)
         else:
             obj = oAttr
         
         if len(name_list):
-            if isinstance(obj, objectSet.ObjectSet):
+            if isinstance(obj, list):
                 obj = [getAttribute(item, name_list[:]) for item in obj]
             else:
                 obj = getAttribute(obj, name_list[:])
@@ -189,7 +189,8 @@ def computeAggregate(aggr, lst):
         # check if list has constant values
         if lst:
             if lst != [lst[0]] * len(lst):
-                raise TypeError, 'Non aggregate expressions should be constants or included in a GROUP BY clause'
+                raise TypeError, ('Non aggregate expressions should be ' +
+                                  'constants or included in a GROUP BY clause')
             else:
                 return(lst[0])
         return None
@@ -225,7 +226,8 @@ def h_60(params, variables, forObject):
 #================================================================================
 
 def h_61(params, variables, forObject):
-    value, low, high = [evaluateStack(expr[:], variables, forObject) for expr in params]
+    value, low, high = [evaluateStack(expr[:], variables, forObject)
+                        for expr in params]
     return(low < value < high)
 
 #================================================================================
@@ -233,7 +235,8 @@ def h_61(params, variables, forObject):
 #================================================================================
 
 def h_62(params, variables, forObject):
-    value, iterable = [evaluateStack(expr[:], variables, forObject) for expr in params]
+    value, iterable = [evaluateStack(expr[:], variables, forObject)
+                       for expr in params]
     try:
         return value in iterable
     except TypeError:
@@ -276,7 +279,7 @@ def h_65(params, variables, forObject):
 #================================================================================
 def h_66(params, variables, forObject):
     className = evaluateStack(params[0][:], variables, forObject)
-    return isinstance(forObject, misc.getCallableByName(className))
+    return isinstance(forObject, misc.get_rto_by_name(className))
 
 #================================================================================
 # GETPARENT command handler
@@ -286,7 +289,7 @@ def h_67(params, variables, forObject):
         obj = evaluateStack(params[0][:], variables, forObject)
     else:
         obj = forObject
-    return obj.getParent()
+    return obj.get_parent()
 
 #================================================================================
 # assignment command handler
@@ -301,23 +304,22 @@ def h_100(params, variables):
 
 def select(deep, children, fields, condition, variables):
     results = []
-    
-    for child in [db.getItem(child_id) for child_id in children]:
-        if child:
-            if condition:
-                res = evaluateStack(condition[:], variables, child)
-            else:
-                res = True
+    for child in children:
+        if condition:
+            res = evaluateStack(condition[:], variables, child)
+        else:
+            res = True
+        
+        if res:
+            fieldlist = [evaluateStack(expr[1], variables, child)
+                         for expr in fields]
+            results.append(tuple(fieldlist))
             
-            if res:
-                fieldlist = [evaluateStack(expr[1], variables, child) for expr in fields]
-                results.append(tuple(fieldlist))
-                
-            if deep and child.isCollection:
-                children_ids = child._subfolders.values() + child._items.values()
-                results1 = select(deep, children_ids, fields, condition, variables)
-                results.extend(results1)
-
+        if deep and child.isCollection:
+            results1 = select(deep, child.get_children(), fields,
+                              condition, variables)
+            results.extend(results1)
+    
     return (results)
 
 def h_200(params, variables, forObject = None):
@@ -345,7 +347,8 @@ def h_200(params, variables, forObject = None):
                 order_by[ind] = select_fields[ field_names.index(alias) ]
             elif expr != alias:
                 if (expr, aggr) in expressions:
-                    order_by[ind] = select_fields[ expressions.index((expr, aggr)) ]
+                    order_by[ind] = select_fields[expressions.index((expr,
+                                                                     aggr))]
                 else:
                     variables[alias] = (expr, None, None)
                     aliases.append(alias)
@@ -357,10 +360,11 @@ def h_200(params, variables, forObject = None):
         for ind, group_field in enumerate(group_by):
             expr, alias, aggr = group_field
             if alias in aliases:
-                group_by[ind] = select_fields[ field_names.index(alias) ]
+                group_by[ind] = select_fields[field_names.index(alias)]
             elif expr != alias:
                 if (expr, aggr) in expressions:
-                    group_by[ind] = select_fields[ expressions.index((expr, aggr)) ]
+                    group_by[ind] = select_fields[expressions.index((expr,
+                                                                     aggr))]
                 else:
                     variables[alias] = (expr, None, None)
                     aliases.append(alias)
@@ -368,7 +372,7 @@ def h_200(params, variables, forObject = None):
     if select_fields:
         all_fields = select_fields + order_by + group_by
     else:
-        all_fields = [['id','id', '']] + order_by + group_by
+        all_fields = [['**', '**', '']] + order_by + group_by
     
     aggregates = [x[2] for x in all_fields]
     results = []
@@ -377,22 +381,30 @@ def h_200(params, variables, forObject = None):
         if deep==2:
             # this:attr
             if not forObject:
-                raise TypeError, 'Inner scopes using "this:" are valid only in sub-queries'
+                raise TypeError, \
+                    'Inner scopes using "this:" are valid only in sub-queries'
             if hasattr(forObject, object_id):
-                refObjects = getattr(forObject, object_id).value
-                if type(refObjects) == str:
-                    refObjects = [refObjects]
-                r = select(False, refObjects, all_fields, where_condition, variables)
+                attr = getattr(forObject, object_id)
+                if isinstance(attr, datatypes.ReferenceN):
+                    refObjects = attr.get_items()
+                elif isinstance(attr, datatypes.Reference1):
+                    refObjects = [attr.get_item()]
+                else:
+                    raise TypeError, ('Inner scopes using "this:" are ' +
+                                      'valid only ReferenceN or Reference1 ' +
+                                      'data types')
+                r = select(False, refObjects, all_fields,
+                           where_condition, variables)
                 results.extend(r)
         else:
             # swallow-deep
-            obj = db.getItem(object_id)    
+            obj = db.get_item(object_id)
             if obj != None and obj.isCollection:
-                children = obj._subfolders.values() + obj._items.values()
-                r = select(deep, children, all_fields, 
-                                where_condition, variables)
+                children = obj.get_children()
+                r = select(deep, children, all_fields,
+                           where_condition, variables)
                 results.extend(r)
-#    print results
+    #print results
     if results:
         if group_by:
             if select_fields:
@@ -402,34 +414,41 @@ def h_200(params, variables, forObject = None):
                 igrpend = igrpstart + len(group_by)
                 for rec in results:
                     group_value = tuple(rec[igrpstart:igrpend])
-                    group_dict[group_value] = group_dict.setdefault(group_value, [])
+                    group_dict[group_value] = \
+                        group_dict.setdefault(group_value, [])
                     group_dict[group_value].append(rec)
                 groups = [tuple(g) for g in group_dict.values()]
             else:
-                raise TypeError, 'GROUP BY clause is incompatible with SELECT *'
+                raise TypeError, \
+                    'GROUP BY clause is incompatible with SELECT *'
         else:
             groups = [results]
         
-#        print len(groups)
+        #print len(groups)
         results = []
-
+        
         if aggregates != [''] * len(aggregates) or group_by:
             for ind, group in enumerate(groups):
                 group_sum = []
                 for aggr_index, aggr_type in enumerate(aggregates):
                     # aggregates exclude None values
-                    group_sum.append( computeAggregate(aggr_type, [x[aggr_index] for x in group if x[aggr_index] != None]) )
+                    group_sum.append(computeAggregate(
+                        aggr_type,
+                        [x[aggr_index]
+                         for x in group
+                         if x[aggr_index] != None]))
                 groups[ind] = (tuple(group_sum),)
-
+        
         for group in groups:
             results.extend(group)
-
+        
         if order_by:
             # extract sort values
             istart = 1
             if select_fields:
                 istart = len(select_fields)
-            sortlist = tuple([x[istart:istart + len(order_by)] for x in results])
+            sortlist = tuple([x[istart:istart + len(order_by)]
+                              for x in results])
             results = sortList(sortlist, results)
             # if it is descending reverse the result list
             if not sort_order: results.reverse()
@@ -449,6 +468,6 @@ def h_200(params, variables, forObject = None):
         
 #    print results
 
-    return objectSet.ObjectSet(tuple(results), schema)
+    return ObjectSet(tuple(results), schema)
 
 

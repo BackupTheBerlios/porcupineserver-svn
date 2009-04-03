@@ -12,5 +12,6 @@
 		method="GET"
 		client=".*"
 		lang=".*"
-		action="hypersearch.js"/>
+		action="hypersearch.js"
+		max-age="3600"/>
 </config>

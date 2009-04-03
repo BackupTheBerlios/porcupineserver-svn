@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #===============================================================================
-#    Copyright 2005-2008, Tassos Koutsovassilis
+#    Copyright 2005-2009, Tassos Koutsovassilis
 #
 #    This file is part of Porcupine.
 #    Porcupine is free software; you can redistribute it and/or modify
@@ -41,8 +41,8 @@ DATABASE COMMANDS
         $ python porcupineadmin.py --shrink --server=SERVERNAME:SERVERPORT
         
     Recover database:
-        $ python porcupineadmin.py -c [-s SERVERNAME:SERVERPORT] or
-        $ python porcupineadmin.py --recover [--server=SERVERNAME:SERVERPORT]
+        $ python porcupineadmin.py -c or
+        $ python porcupineadmin.py --recover
     
     SERVERNAME:SERVERPORT - The management server address (i.e. localhost:6001)
     BACKUPFILE - The server's local path to the backup file
@@ -87,7 +87,7 @@ if not command or (command != 'DB_RECOVER' and not address):
     
 try:
     if address:
-        address = misc.getAddressFromString(address)
+        address = misc.get_address_from_string(address)
 except:
     sys.exit('Invalid server address...')
 
@@ -105,10 +105,10 @@ since database recovery requires a single-threaded environment.
 Are you sure you want proceed(Y/N)?''')
     if (answer.upper() == 'Y'):
         try:
-            from porcupine.db import _db
-            print 'Recovering database...'
-            _db._recover()
-            _db.close()
+            from porcupine.administration import offlinedb
+            print 'Recovering database. Please wait...'
+            db = offlinedb.getHandle(recover=2)
+            db.close()
             print 'Database recovery completed successfully.'
         except Exception, e:
             sys.exit(e)
@@ -119,7 +119,7 @@ else:
 request = management.MgtRequest(msg.serialize())
 
 try:
-    response = request.getResponse(address)
+    response = request.get_response(address)
 except socket.error:
     sys.exit('The host is unreachable...')
 

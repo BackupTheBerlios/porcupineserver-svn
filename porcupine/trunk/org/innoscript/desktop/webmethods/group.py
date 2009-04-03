@@ -1,5 +1,5 @@
 #===============================================================================
-#    Copyright 2005-2008, Tassos Koutsovassilis
+#    Copyright 2005-2009, Tassos Koutsovassilis
 #
 #    This file is part of Porcupine.
 #    Porcupine is free software; you can redistribute it and/or modify
@@ -21,23 +21,22 @@ Web methods for the group content class
 from porcupine import HttpContext
 from porcupine import webmethods
 from porcupine import filters
-from porcupine.security import objectAccess
-from porcupine.utils import date, xml
+from porcupine.utils import date, xml, permsresolver
 
 from org.innoscript.desktop.schema.security import Group
 from org.innoscript.desktop.webmethods import baseitem
 
 @filters.i18n('org.innoscript.desktop.strings.resources')
-@webmethods.quixui(of_type=Group, template='../ui.Frm_GroupProperties.quix')
+@webmethods.quixui(of_type=Group,
+                   max_age=-1,
+                   template='../ui.Frm_GroupProperties.quix')
 def properties(self):
     "Displays the group's properties form"
     context = HttpContext.current()
-
-    context.response.setHeader('cache-control', 'no-cache')
     sLang = context.request.getLang()
 
     user = context.user
-    iUserRole = objectAccess.getAccess(self, user)
+    iUserRole = permsresolver.get_access(self, user)
     readonly = (iUserRole==1)
 
     params = {
@@ -56,7 +55,7 @@ def properties(self):
     }
 
     members_options = []
-    members = self.members.getItems()
+    members = self.members.get_items()
     for user in members:
         members_options += [xml.xml_encode(user.__image__),
                             user.id,
@@ -64,7 +63,7 @@ def properties(self):
     params['MEMBERS'] = ';'.join(members_options)
 
     policies_options = []
-    policies = self.policies.getItems()
+    policies = self.policies.get_items()
     for policy in policies:
         policies_options += [xml.xml_encode(policy.__image__),
                              policy.id,
