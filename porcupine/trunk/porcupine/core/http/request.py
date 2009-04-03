@@ -21,8 +21,7 @@ import Cookie
 import cStringIO
 from cgi import parse_qs
 from cgi import FieldStorage
-
-XMLRPC_METHOD = re.compile('<methodName>(.*?)</methodName>')
+from porcupine.core.decorators import deprecated
 
 class HttpRequest(object):
     """Http request class
@@ -45,6 +44,8 @@ class HttpRequest(object):
                 values.
     @type form: dict
     """
+    _xml_rpc_detect = re.compile('<methodName>(.*?)</methodName>')
+
     def __init__(self, rawRequest):
         self.serverVariables = rawRequest['env']
         
@@ -73,7 +74,8 @@ class HttpRequest(object):
         if self.serverVariables['REQUEST_METHOD'] == 'POST':
             if self.serverVariables['CONTENT_TYPE'][:8] == 'text/xml':
                 # xmlrpc request?
-                method_match = re.search(XMLRPC_METHOD, self.input.getvalue())
+                method_match = re.search(self._xml_rpc_detect,
+                                         self.input.getvalue())
                 if method_match:
                     self.method = method_match.groups()[0]
                     self.type = 'xmlrpc'
@@ -82,22 +84,24 @@ class HttpRequest(object):
                 self.form = FieldStorage(fp=self.input, environ=self.serverVariables)
         
         
-    def getLang(self):
+    def get_lang(self):
         """Returns the preferred language of the client.
         If the client has multiple languages selected, the first is returned.
         
         @rtype: str
         """
         return(self.serverVariables['HTTP_ACCEPT_LANGUAGE'].split(',')[0])
+    getLang = deprecated(get_lang)
         
-    def getHost(self):
+    def get_host(self):
         """Returns the name of the host.
         
         @rtype: str
         """
         return(self.serverVariables["HTTP_HOST"])
+    getHost = deprecated(get_host)
 
-    def getQueryString(self):
+    def get_query_string(self):
         """Returns the full query string, including the '?'.
         
         @rtype: str
@@ -106,8 +110,9 @@ class HttpRequest(object):
             return '?' + self.serverVariables['QUERY_STRING']
         else:
             return ''
+    getQueryString = deprecated(get_query_string)
         
-    def getProtocol(self):
+    def get_protocol(self):
         """Returns the request's protocol (http or https).
         
         @rtype: str
@@ -115,22 +120,22 @@ class HttpRequest(object):
         sProtocol = 'http'
         if self.serverVariables.setdefault('HTTPS', 'off') == 'on':
             sProtocol += 's'
-        return(sProtocol)
+        return sProtocol
+    getProtocol = deprecated(get_protocol)
 
-    def getRootUrl(self):
+    def get_root_url(self):
         """Returns the site's root URL including the executing script.
         For instance, C{http://server/porcupine.py}
         
         @rtype: str
         """
-        return (self.getProtocol() + '://'
+        return (self.get_protocol() + '://'
                 + self.serverVariables['HTTP_HOST']
                 + self.serverVariables['SCRIPT_NAME'])
+    getRootUrl = deprecated(get_root_url)
         
     def __getattr__(self, name):
         try:
             return self.serverVariables[name]
         except KeyError:
             return None
-            #error_string = "'HttpResponse' object has no attribute '%s'"
-            #raise AttributeError, error_string % name

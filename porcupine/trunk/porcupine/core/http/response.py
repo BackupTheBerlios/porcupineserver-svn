@@ -22,6 +22,7 @@ import mimetypes
 import cStringIO
 
 from porcupine import exceptions
+from porcupine.core.decorators import deprecated
 
 class HttpResponse(object):
     """Base response class
@@ -48,7 +49,7 @@ class HttpResponse(object):
         self.__headers = {}
         self.clear()
         
-    def _getHeaders(self):
+    def _get_headers(self):
         ct = self.content_type
         if ct:
             if self.charset and ct[0:4]=='text':
@@ -56,12 +57,12 @@ class HttpResponse(object):
             self.__headers['Content-Type'] = ct
         return self.__headers
     
-    def _getBody(self):
+    def _get_body(self):
         body = self._body.getvalue()
         self._body.close()
         return(body)
         
-    def setExpiration(self, seconds, cache_type='private'):
+    def set_expiration(self, seconds, cache_type='private'):
         """The response becomes valid for a certain amount of time
         expressed in seconds. The response is cached and reused for x seconds
         without server roundtripping.
@@ -76,13 +77,14 @@ class HttpResponse(object):
         self.__headers['Expires'] = time.strftime(
             "%a, %d %b %Y %H:%M:%S GMT",
             time.gmtime(time.time() + seconds))
+    setExpiration = deprecated(set_expiration)
         
     def clear(self):
         "Clears the response body."
         self._body.truncate(0)
         #self._body.seek(0)
         
-    def setHeader(self, header, value):
+    def set_header(self, header, value):
         """Sets a response HTTP header.
 
         @param header: HTTP header name e.g. 'Content-Type'
@@ -93,6 +95,7 @@ class HttpResponse(object):
         @return: None
         """
         self.__headers[header] = value
+    setHeader = deprecated(set_header)
         
     def redirect(self, location):
         """Causes the client to redirect to a specified location.
@@ -132,7 +135,7 @@ class HttpResponse(object):
         and sends the response written so far to the client."""
         raise exceptions.ResponseEnd
 
-    def writeFile(self, sFilename, sStream, isAttachment=True):
+    def write_file(self, sFilename, sStream, isAttachment=True):
         """Writes a file stream to the response using a specified
         filename.
 
@@ -149,13 +152,15 @@ class HttpResponse(object):
             sPrefix = 'attachment;'
         else:
             sPrefix = ''
-        sFileExt = sFilename.split('.')[-1]
-        self.content_type = mimetypes.guess_type(sFilename, False)[0] or 'text/plain'
-        self.setHeader('Content-Disposition', '%sfilename="%s"' % (sPrefix, sFilename))
+        self.content_type = mimetypes.guess_type(sFilename, False)[0]\
+                            or 'text/plain'
+        self.set_header('Content-Disposition',
+                        '%sfilename="%s"' % (sPrefix, sFilename))
         self.clear()
         self.write(sStream)
+    writeFile = deprecated(write_file)
 
-    def loadFromFile(self, fileName):
+    def load_from_file(self, fileName):
         """Loads the response body from a file that resides on the file
         system and sets the 'Content-Type' header accordingly.
         
@@ -174,3 +179,4 @@ class HttpResponse(object):
         self._body.truncate(0)
         self._body.write(oFile.read())
         oFile.close()
+    loadFromFile = deprecated(load_from_file)

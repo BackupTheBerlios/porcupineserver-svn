@@ -90,10 +90,10 @@ class HttpContext(SecurityContext):
         new_session = SessionManager.create(settings['sessionmanager']['guest'])
         
         session_id = new_session.sessionid
-        query_string = self.request.getQueryString()
+        query_string = self.request.get_query_string()
         
         if '_nojavascript' in query_string:
-            root_url = self.request.getRootUrl()
+            root_url = self.request.get_root_url()
             path = self.request.serverVariables['PATH_INFO']
             self.response.redirect(
                 '%(root_url)s/{%(session_id)s}%(path)s' % locals()
