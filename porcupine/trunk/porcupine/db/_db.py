@@ -136,7 +136,7 @@ def test_join(conditions, trans):
 def check_unique(item, old_item, trans):
     # check index uniqueness
     for index_name in [x[0] for x in settings['store']['indices'] if x[1]]:
-        if hasattr(item, index_name):
+        if hasattr(item, index_name) and hasattr(item, '_parentid'):
             value = getattr(item, index_name).value
             if old_item != None and hasattr(old_item, index_name):
                 old_value = getattr(old_item, index_name).value
