@@ -307,7 +307,7 @@ class ExternalAttributeEventHandler(DatatypeEventHandler):
     
     @staticmethod
     def on_update(item, new_attr, old_attr, trans):
-        if new_attr.isDirty:
+        if new_attr.is_dirty:
             _db.put_external(new_attr._id, new_attr.value, trans)
         new_attr._reset()
     
