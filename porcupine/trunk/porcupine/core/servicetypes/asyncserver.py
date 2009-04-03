@@ -83,10 +83,16 @@ class BaseServer(BaseService, Dispatcher):
         # initialize base service
         BaseService.__init__(self, name)
         self.addr = address
-        self.worker_processes = worker_processes
         self.worker_threads = worker_threads
         self.thread_class = thread_class
-        self.is_multiprocess = multiprocessing and worker_processes > 0
+        self.is_multiprocess = False
+        if multiprocessing:
+            if worker_processes == 'auto':
+                worker_processes = multiprocessing.cpu_count()
+            else:
+                worker_processes = int(worker_processes)
+            self.is_multiprocess = worker_processes > 0
+        self.worker_processes = worker_processes
         self.pipes = []             # used for sending management tasks
                                     # to subrpocesses
         self.task_dispatchers = []  # used for getting completed requests

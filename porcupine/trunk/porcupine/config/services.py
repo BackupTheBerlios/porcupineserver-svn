@@ -29,7 +29,7 @@ def start():
         
         if type == 'TCPListener':
             address = misc.get_address_from_string(service['address'])
-            worker_processes = int(service['worker_processes'])
+            worker_processes = service['worker_processes']
             worker_threads = int(service['worker_threads'])
             services[name] = service_class(name, address, worker_processes,
                                            worker_threads)
