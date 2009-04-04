@@ -17,8 +17,7 @@
 """
 Porcupine Berkeley DB cursor classes
 """
-from bsddb import db
-
+from porcupine.db.bsddb import db
 from porcupine.db.basecursor import BaseCursor
 
 class Cursor(BaseCursor):

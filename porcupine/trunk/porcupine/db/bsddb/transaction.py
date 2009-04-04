@@ -15,11 +15,10 @@
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #===============================================================================
 """
-Porcupine Server BDB Transaction class
+Porcupine Server BSDDB Transaction class
 """
-from bsddb import db
-
 from porcupine import exceptions
+from porcupine.db.bsddb import db
 from porcupine.db.basetransaction import BaseTransaction
 
 class Transaction(BaseTransaction):

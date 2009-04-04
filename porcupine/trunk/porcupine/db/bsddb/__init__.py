@@ -20,17 +20,20 @@ Porcupine server Berkeley DB interface
 import os
 import time
 import glob
-from bsddb import db
+try:
+    from bsddb import db
+except ImportError:
+    from bsddb3 import db
 from threading import Thread
 
 from porcupine import exceptions
 from porcupine.core import persist
 from porcupine.core.runtime import logger
 from porcupine.config.settings import settings
-from porcupine.utils.db.backup import BackupFile
 from porcupine.db.bsddb.transaction import Transaction
 from porcupine.db.bsddb.index import DbIndex
 from porcupine.db.bsddb.cursor import Cursor, Join
+from porcupine.utils.db.backup import BackupFile
 
 _running = False
 _env = None
