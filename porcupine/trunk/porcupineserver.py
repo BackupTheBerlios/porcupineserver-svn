@@ -182,4 +182,9 @@ def main(args):
     sys.exit()
 
 if __name__=='__main__':
+    try:
+        import multiprocessing
+        multiprocessing.freeze_support()
+    except ImportError:
+        pass
     main(sys.argv[1:])

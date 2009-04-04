@@ -25,7 +25,6 @@ import select
 from threading import Thread, currentThread
 try:
     import multiprocessing
-    multiprocessing.freeze_support()
     if sys.platform == 'win32':
         import multiprocessing.reduction
 except ImportError:
@@ -88,7 +87,11 @@ class BaseServer(BaseService, Dispatcher):
         self.is_multiprocess = False
         if multiprocessing:
             if worker_processes == 'auto':
-                worker_processes = multiprocessing.cpu_count()
+                cpus = multiprocessing.cpu_count()
+                if cpus == 1:
+                    worker_processes = 0
+                else:
+                    worker_processes = cpus
             else:
                 worker_processes = int(worker_processes)
             self.is_multiprocess = worker_processes > 0
