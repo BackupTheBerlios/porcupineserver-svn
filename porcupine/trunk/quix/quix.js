@@ -36,7 +36,7 @@ QuiX.dragable = null;
 QuiX.dropTarget = null;
 QuiX.dragTimer = 0;
 QuiX.dragging = false;
-QuiX.images = [];
+QuiX._image_cache = {};
 QuiX.constructors = {
 	'script' : null,
 	'module' : null,
@@ -129,7 +129,7 @@ QuiX.Image.prototype.load = function(callback) {
 	img.resource = this;
 	img.onload = QuiX.__resource_onstatechange;
 	img.src = this.url;
-	img.style.display = 'none';
+	//img.style.display = 'none';
 	document.body.appendChild(img);
 }
 
@@ -140,6 +140,7 @@ QuiX.__resource_onstatechange = function() {
 				this.resource.width = this.width;
 				this.resource.height = this.height;
 				QuiX.removeNode(this);
+                QuiX._image_cache[this.src] = this;
 			}
 			this.resource.isLoaded = true;
             if (this.resource.callback)
@@ -151,6 +152,7 @@ QuiX.__resource_onstatechange = function() {
 			this.resource.width = this.width;
 			this.resource.height = this.height;
 			QuiX.removeNode(this);
+            QuiX._image_cache[this.src] = this;
 		}
 		this.resource.isLoaded = true;
         if (this.resource.callback)
@@ -403,9 +405,20 @@ QuiX.getEventWrapper = function(f1, f2) {
 }
 
 QuiX.getImage = function(url) {
-	var img = new Image();
-	img.src = url.replace('$THEME_URL$', QuiX.getThemeUrl());
-	return img;
+    var img;
+    url = url.replace('$THEME_URL$', QuiX.getThemeUrl());
+    if (url.slice(0,4) != 'http')
+        url = QuiX.root + url;
+    if (QuiX._image_cache[url]) {
+        img = QuiX._image_cache[url].cloneNode(false);
+        img.width = QuiX._image_cache[url].width;
+        img.height = QuiX._image_cache[url].height;
+    }
+    else {
+        img = new Image();
+        img.src = url;
+    }
+    return img;
 }
 
 QuiX.addEvent = function(el, type, proc) {
@@ -605,8 +618,8 @@ QuiX.Parser.prototype.detectModules = function(oNode) {
 	
 	if (iMod && oNode.getAttribute('img')) {
 		var src = oNode.getAttribute('img');
-		if (src!='' && !QuiX.images.hasItem(src)) {
-			QuiX.images.push(src);
+		if (src != '' && !QuiX._image_cache[src]) {
+			//QuiX.images.push(src);
 			this.__imagesToLoad.push(src);
 		}
 	}
@@ -648,15 +661,15 @@ QuiX.Parser.prototype._addModule = function(iMod) {
 }
 
 QuiX.Parser.prototype.loadModules= function() {
-	var oModule, imgurl, img;
-	var oParser = this;
+	var module, imgurl, img;
+	var self = this;
 	if (this.__modulesToLoad.length > 0) {
-		oModule = this.__modulesToLoad.pop();
-		oModule.load(function(){oParser.loadModules()});
+		module = this.__modulesToLoad.pop();
+		module.load(function(){self.loadModules()});
 	} else if (this.__imagesToLoad.length > 0) {
 		imgurl = this.__imagesToLoad.pop();
 		img = new QuiX.Image(imgurl);
-		img.load(function(){oParser.loadModules()});
+		img.load(function(){self.loadModules()});
 	} else {
 		QuiX.removeLoader();
 		this.beginRender();

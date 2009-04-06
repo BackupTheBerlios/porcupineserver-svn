@@ -156,9 +156,9 @@ QuiX.ui.Icon.prototype.redraw = function(bForceAll, memo) {
 			this._addDummyImage();
 
 		if (this.img) {
-			var percentage, caption;
+			var percentage;
 			var img = QuiX.getImage(this.img);
-			caption = this.getCaption();
+			var caption = this.getCaption();
 			img.style.verticalAlign = (this.imgAlign=='top')?'top':'middle';
 			img.ondragstart = QuiX.cancelDefault;
 			
