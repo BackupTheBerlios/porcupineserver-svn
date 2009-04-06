@@ -129,7 +129,7 @@ QuiX.Image.prototype.load = function(callback) {
 	img.resource = this;
 	img.onload = QuiX.__resource_onstatechange;
 	img.src = this.url;
-	//img.style.display = 'none';
+	img.style.display = 'none';
 	document.body.appendChild(img);
 }
 
@@ -411,6 +411,7 @@ QuiX.getImage = function(url) {
         url = QuiX.root + url;
     if (QuiX._image_cache[url]) {
         img = QuiX._image_cache[url].cloneNode(false);
+        img.style.display = '';
         img.width = QuiX._image_cache[url].width;
         img.height = QuiX._image_cache[url].height;
     }

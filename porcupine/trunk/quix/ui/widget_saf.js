@@ -631,7 +631,8 @@ QuiX.ui.Widget.prototype.redraw = function(bForceAll, memo) {
 		var hght = this.div.style.height;
         if (!memo)
             memo = {};
-		QuiX.removeNode(this.div)
+        if (QuiX.utils.BrowserInfo.browser != 'Chrome')
+            QuiX.removeNode(this.div)
 		try {
 			this._setCommonProps(memo);
 			if (this.getPosition() != '')
@@ -642,7 +643,8 @@ QuiX.ui.Widget.prototype.redraw = function(bForceAll, memo) {
 			}
 		}
 		finally {
-			container.appendChild(this.div);
+            if (QuiX.utils.BrowserInfo.browser != 'Chrome')
+                container.appendChild(this.div);
 		}
 		if ((wdth && wdth != this.div.style.width) ||
 			(hght && hght != this.div.style.height)) {
