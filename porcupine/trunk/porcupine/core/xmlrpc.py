@@ -22,7 +22,6 @@ from xml.dom import minidom
 from porcupine import datatypes
 from porcupine import systemObjects
 from porcupine.core import objectSet
-#from porcupine.core.oql import core
 from porcupine.utils import date, xml
 
 class XMLRPCParams(list):
