@@ -756,19 +756,19 @@ class DeletedItem(GenericItem, Removable):
         parent.modified = time.time()
         _db.put_item(parent, trans)
         # delete self
-        self.delete(trans, _removeDeleted=False)
+        self.delete(trans, _remove_deleted=False)
     restoreTo = deprecated(restore_to)
 
-    def delete(self, trans, _removeDeleted=True):
+    def delete(self, trans, _remove_deleted=True):
         """
         Deletes the deleted object permanently.
         
         @param trans: A valid transaction handle
-        @param _removeDeleted: Leave as is
+        @param _remove_deleted: Leave as is
         @return: None
         """
         Removable.delete(self, trans)
-        if _removeDeleted:
+        if _remove_deleted:
             # we got a direct call. remove deleted item
             deleted = _db.get_item(self._deletedId, trans)
             if deleted != None:
