@@ -232,7 +232,7 @@ class ItemEditor(GenericSchemaEditor):
                                     else:
                                         new_attr.value = old_value
                             if self.xform:
-                                item = self.xform(item)
+                                item = self.xform(item, txn)
                             db.put_item(item, txn)
                         txn.commit()
                     except Exception, e:
