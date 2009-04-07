@@ -22,14 +22,16 @@ from threading import currentThread
 
 from porcupine.db import _db
 from porcupine.core.context import SecurityContext
+from porcupine.core.decorators import deprecated
 
-def getHandle(identity=None, recover=0):
+def get_handle(identity=None, recover=0):
     # open database
     _db.open(recover=recover, maintain=False)
     if identity == None:
         identity = _db.get_item('system')
     currentThread().context = SecurityContext(identity)
     return _db
+getHandle = deprecated(get_handle)
 
 def close():
     _db.close()
