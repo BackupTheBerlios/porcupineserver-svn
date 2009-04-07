@@ -18,7 +18,7 @@
 	from porcupine.utils.date import Date
 	resources = Date.resources
 
-	sLang = Request.getLang()
+	sLang = Request.get_lang()
 	lstMonths = resources.getResource("MONTHS", sLang)
 	lstDays = resources.getResource("DAYS", sLang)
 	sMonths = ','.join(['"' + x + '"' for x in lstMonths])
