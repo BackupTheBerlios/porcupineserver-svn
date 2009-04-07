@@ -499,6 +499,19 @@ SelectList.prototype.deSelectOption = function(option) {
 	}
 }
 
+SelectList.prototype.setValue = function(val) {
+    var option;
+    if (!val instanceof Array)
+        val = [val];
+    for (var i=0; i<val.length; i++) {
+        option = this.getWidgetsByAttributeValue('value', val[i]);
+        if(option.length > 0)
+            this.selectOption(option[0]);
+        if(!this.multiple)
+            break;
+    }
+}
+
 SelectList.prototype.getValue = function() {
     var i;
 	var vs = [];
