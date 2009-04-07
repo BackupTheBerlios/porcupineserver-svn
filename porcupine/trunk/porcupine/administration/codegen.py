@@ -198,7 +198,7 @@ class ItemEditor(GenericSchemaEditor):
     
     def commit_changes(self, generate_code=True):
         from porcupine.oql.command import OqlCommand
-        if self._setProps or self._removedProps:
+        if self._setProps or self._removedProps or self.xform:
             if generate_code:
                 GenericSchemaEditor.commit_changes(self)
                 # we must reload the class module
@@ -212,9 +212,9 @@ class ItemEditor(GenericSchemaEditor):
                 self._instance.contentclass)
             try:
                 if len(rs):
+                    txn = db.get_transaction()
                     try:
                         for item in rs:
-                            txn = db.get_transaction()
                             for name in self._removedProps:
                                 if hasattr(item, name):
                                     delattr(item, name)
@@ -234,7 +234,7 @@ class ItemEditor(GenericSchemaEditor):
                             if self.xform:
                                 item = self.xform(item)
                             db.put_item(item, txn)
-                            txn.commit()
+                        txn.commit()
                     except Exception, e:
                         txn.abort()
                         raise e
