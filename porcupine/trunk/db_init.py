@@ -2,23 +2,11 @@
 "Utility for initializing the server database"
 import sys
 import time
-import imp
-
-def main_is_frozen():
-   return (hasattr(sys, "frozen") or # new py2exe
-           hasattr(sys, "importers") # old py2exe
-           or imp.is_frozen("__main__")) # tools/freeze
-
-if main_is_frozen():
-    sys.path.insert(0, '')
 
 from porcupine.administration import offlinedb
+from porcupine.utils.misc import freeze_support
 
-answer = raw_input('''WARNING: Please ensure that Porcupine Server is stopped!
-All objects will be erased!
-Are you sure you want to initialize the database(Y/N)?''')
-
-if (answer.upper() == 'Y'):
+def init_db():
     import org.innoscript.desktop.schema.common
     import org.innoscript.desktop.schema.security
 
@@ -248,7 +236,16 @@ if (answer.upper() == 'Y'):
     sys.stdout.write('[OK]\n')
     
     txn.commit()
+
     db.close()
-    
     sys.stdout.write('Store initialization completed successfully.\n')
-    sys.exit()
+
+if __name__ == '__main__':
+    freeze_support()
+
+    answer = raw_input('''WARNING: Please ensure that Porcupine Server is stopped!
+All objects will be erased!
+Are you sure you want to initialize the database(Y/N)?''')
+
+    if (answer.upper() == 'Y'):
+        init_db()

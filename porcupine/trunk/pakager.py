@@ -22,19 +22,10 @@ import sys
 import os
 import tarfile
 import ConfigParser
-import imp
 from xml.dom import minidom
 
 from porcupine.core import persist
-
-def main_is_frozen():
-   return (hasattr(sys, "frozen") or # new py2exe
-           hasattr(sys, "importers") # old py2exe
-           or imp.is_frozen("__main__")) # tools/freeze
-
-if main_is_frozen():
-    sys.path.insert(0, '')
-
+from porcupine.utils.misc import freeze_support
 from porcupine import datatypes
 from porcupine.administration import offlinedb
 from porcupine.administration import configfiles
@@ -53,7 +44,6 @@ Create package:
     python pakager.py -c -d PACKAGE_DEFINITION_FILE or
     python pakager.py --create --def=PACKAGE_DEFINITION_FILE
 """
-
 
 class Package(object):
     tmp_folder = settings['global']['temp_folder']
@@ -425,7 +415,9 @@ def usage():
     print __usage__
     sys.exit(2)
 
-if __name__=='__main__':
+if __name__ == '__main__':
+    freeze_support()
+
     # get arguments
     argv = sys.argv[1:]
     try:

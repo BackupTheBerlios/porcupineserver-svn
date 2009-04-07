@@ -21,6 +21,8 @@ import hashlib
 import time
 import random
 import os
+import sys
+import imp
 from porcupine.core.decorators import deprecated
 
 VALID_ID_CHRS = [
@@ -29,6 +31,20 @@ VALID_ID_CHRS = [
     range(ord('A'), ord('Z')) +
     range(ord('0'), ord('9'))
 ]
+
+def main_is_frozen():
+    return (hasattr(sys, "frozen")          # new py2exe
+            or hasattr(sys, "importers")    # old py2exe
+            or imp.is_frozen("__main__"))   # tools/freeze
+
+def freeze_support():
+    if main_is_frozen():
+        sys.path.insert(0, '')
+        try:
+            import multiprocessing
+            multiprocessing.freeze_support()
+        except ImportError:
+            pass
 
 def generate_file_etag(path):
     file_info = os.stat(path)

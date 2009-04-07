@@ -20,25 +20,16 @@ import sys
 import os
 import time
 import signal
-import imp
-import warnings
 import select
 from errno import EINTR
 from threading import Thread, Event
 
-def main_is_frozen():
-   return (hasattr(sys, "frozen") or # new py2exe
-           hasattr(sys, "importers") # old py2exe
-           or imp.is_frozen("__main__")) # tools/freeze
-
-if main_is_frozen():
-    sys.path.insert(0, '')
-
 from porcupine.config import services
 from porcupine.core import asyncore
 from porcupine.core import runtime
+from porcupine.utils.misc import freeze_support
 
-warnings.filterwarnings('ignore', '', Warning, 'logging')
+#warnings.filterwarnings('ignore', '', Warning, 'logging')
 __version__ = '0.6 build(20090402)'
 PID_FILE = 'conf/.pid'
 
@@ -182,9 +173,5 @@ def main(args):
     sys.exit()
 
 if __name__=='__main__':
-    try:
-        import multiprocessing
-        multiprocessing.freeze_support()
-    except ImportError:
-        pass
+    freeze_support()
     main(sys.argv[1:])
