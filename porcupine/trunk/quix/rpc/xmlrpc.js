@@ -27,6 +27,7 @@ QuiX.rpc.XMLRPCRequest = function(sUrl, async) {
 	
 	this.callback_info = null;
 	this.response = null;
+	this.use_cache = true;
 	
 	this.onerror = null;
 }
@@ -53,6 +54,7 @@ QuiX.rpc.XMLRPCRequest.prototype.processResult = function() {
 QuiX.rpc.XMLRPCRequest.prototype.callmethod = function(method_name) {
 	try {
 		if (this._validateMethodName(method_name)) {
+            var argsArray, key;
 			var message = '<?xml version="1.0"?><methodCall><methodName>' +
 						  method_name + '</methodName><params>';
 		   	for (var i=1; i<arguments.length; i++)
@@ -61,12 +63,13 @@ QuiX.rpc.XMLRPCRequest.prototype.callmethod = function(method_name) {
 		   				   '</value></param>';
 			message += '</params></methodCall>';
 
-            var argsArray = Array.prototype.concat.apply([], arguments);
-            var key = QuiX.utils.hashlib.hex_sha256(
-                this.url + QuiX.parsers.JSON.stringify(argsArray));
+			if (this.use_cache) {
+            	argsArray = Array.prototype.concat.apply([], arguments);
+            	key = QuiX.utils.hashlib.hex_sha256(
+                	this.url + QuiX.parsers.JSON.stringify(argsArray));
+			}
 
-			QuiX.addLoader();
-			
+			QuiX.addLoader();	
 			this.xmlhttp.open('POST', this.url, this.async);
 			this.xmlhttp.setRequestHeader("Content-type", "text/xml");
 			
@@ -104,7 +107,7 @@ QuiX.rpc.XMLRPCRequest.prototype.callmethod = function(method_name) {
 				}
 			}
 
-            if (QuiX.rpc._cache) {
+            if (QuiX.rpc._cache && this.use_cache) {
                 QuiX.rpc._cache.get(key, function(val) {
                     if (val != null) {
                         self.xmlhttp.setRequestHeader("If-None-Match", val[0]);
