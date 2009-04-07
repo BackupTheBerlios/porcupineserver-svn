@@ -31,7 +31,7 @@ if (answer.upper() == 'Y'):
     
     try:
         # get offline db handle
-        db = offlinedb.getHandle(system)
+        db = offlinedb.get_handle(system)
     except Exception, e:
         sys.exit(e)
     

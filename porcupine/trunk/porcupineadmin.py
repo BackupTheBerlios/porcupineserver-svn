@@ -107,7 +107,7 @@ Are you sure you want proceed(Y/N)?''')
         try:
             from porcupine.administration import offlinedb
             print 'Recovering database. Please wait...'
-            db = offlinedb.getHandle(recover=2)
+            db = offlinedb.get_handle(recover=2)
             db.close()
             print 'Database recovery completed successfully.'
         except Exception, e:

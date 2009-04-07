@@ -205,7 +205,7 @@ class ItemEditor(GenericSchemaEditor):
                 oMod = misc.get_rto_by_name(self._class.__module__)
                 reload(oMod)
             
-            db = offlinedb.getHandle()
+            db = offlinedb.get_handle()
             oql_command = OqlCommand()
             rs = oql_command.execute(
                 "select * from deep('/') where instanceof('%s')" %

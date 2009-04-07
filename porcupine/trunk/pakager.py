@@ -197,7 +197,7 @@ class Package(object):
         # database
         dbfiles = [x for x in contents if x[:4] == '_db/']
         if dbfiles:
-            self.db = offlinedb.getHandle()
+            self.db = offlinedb.get_handle()
             txn = self.db.get_transaction()
             try:
                 for dbfile in dbfiles:
@@ -237,7 +237,7 @@ class Package(object):
         # database items
         items = self.config_file.options('items')
         itemids = [self.config_file.get('items', x) for x in items]
-        self.db = offlinedb.getHandle()
+        self.db = offlinedb.get_handle()
         txn = self.db.get_transaction()
         try:
             try:
@@ -365,7 +365,7 @@ class Package(object):
         # database items
         items = self.config_file.options('items')
         itemids = [self.config_file.get('items', x) for x in items]
-        self.db = offlinedb.getHandle()
+        self.db = offlinedb.get_handle()
         try:
             for itemid in itemids:
                 self._exportItem(itemid)
