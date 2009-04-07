@@ -55,5 +55,5 @@ class Cache(dict):
         self.__lock.acquire()
         self.__accesslist.remove(key)
         dict.__delitem__(self, key)
-        self.__lock.relase()
+        self.__lock.release()
 
