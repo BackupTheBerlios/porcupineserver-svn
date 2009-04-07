@@ -20,23 +20,28 @@ Used by OQL parser to cache ASTs of most commonly used queries
 It could be used as object cache also...
 """
 import copy
+from threading import RLock
 
 class Cache(dict):
     def __init__(self, cache_size, readonly=False):
         self.size = cache_size
         self.readonly = readonly
         self.__accesslist = []
+        self.__lock = RLock()
         
     def __getitem__(self, key):
+        self.__lock.acquire()
         self.__accesslist.append(key)
         self.__accesslist.remove(key)
-        #print self.__accesslist
         if self.readonly:
-            return copy.deepcopy(dict.__getitem__(self, key))
+            obj = copy.deepcopy(dict.__getitem__(self, key))
         else:
-            return dict.__getitem__(self, key)
+            obj = dict.__getitem__(self, key)
+        self.__lock.release()
+        return obj
         
     def __setitem__(self, key, value):
+        self.__lock.acquire()
         if key in self:
             self.__accesslist.remove(key)
         else:
@@ -44,7 +49,11 @@ class Cache(dict):
                 del self[self.__accesslist[0]]
         dict.__setitem__(self, key, value)
         self.__accesslist.append(key)
+        self.__lock.release()
         
     def __delitem__(self, key):
+        self.__lock.acquire()
         self.__accesslist.remove(key)
         dict.__delitem__(self, key)
+        self.__lock.relase()
+
