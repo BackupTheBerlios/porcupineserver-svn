@@ -17,6 +17,7 @@
 """
 Porcupine Berkeley DB cursor classes
 """
+from porcupine import exceptions
 from porcupine.db.bsddb import db
 from porcupine.db.basecursor import BaseCursor
 
@@ -30,11 +31,19 @@ class Cursor(BaseCursor):
         
     def set(self, v):
         BaseCursor.set(self, v)
-        self._is_set = bool(self._cursor.set(self._value))
-    
+        try:
+            self._is_set = bool(self._cursor.set(self._value))
+        except (db.DBLockDeadlockError, db.DBLockNotGrantedError), e:
+            self._cursor.close()
+            raise exceptions.DBTransactionIncomplete
+
     def set_range(self, v1, v2):
         BaseCursor.set_range(self, v1, v2)
-        self._is_set = bool(self._cursor.set_range(self._range[0]))
+        try:
+            self._is_set = bool(self._cursor.set_range(self._range[0]))
+        except (db.DBLockDeadlockError, db.DBLockNotGrantedError), e:
+            self._cursor.close()
+            raise exceptions.DBTransactionIncomplete
 
     def reverse(self):
         BaseCursor.reverse(self)
