@@ -21,8 +21,8 @@ import time
 
 from porcupine import db
 from porcupine.core.context import ContextThread
-from porcupine.core.session.indb import schema
 from porcupine.core.session.genericsessionmanager import GenericSessionManager
+from porcupine.core.session.indb import schema
 
 class SessionManager(GenericSessionManager):
     """
@@ -62,10 +62,12 @@ class SessionManager(GenericSessionManager):
         from porcupine.core.runtime import logger
         while self._is_active:
             try:
+                expire_threshold = time.time() - self.timeout - \
+                                   self.revive_threshold
                 # get inactive sessions
                 cursor = db._db.join((
                     ('_parentid', '_sessions'),
-                    ('modified', (None, time.time() - self.timeout))), None)
+                    ('modified', (None, expire_threshold))), None)
                 cursor.fetch_all = True
                 sessions = [session for session in cursor]
                 cursor.close()
@@ -76,7 +78,7 @@ class SessionManager(GenericSessionManager):
                 logger.error('Error in session expiration thread: %s' % e)
             time.sleep(3.0)
 
-    @db.transactional(auto_commit=True)
+    @db.transactional(auto_commit=True, nosync=True)
     def create_session(self, userid):
         trans = db.get_transaction()
         session = schema.Session(userid, {})
@@ -87,13 +89,13 @@ class SessionManager(GenericSessionManager):
         session = db._db.get_item(sessionid)
         return session
 
-    @db.transactional(auto_commit=True)
+    @db.transactional(auto_commit=True, nosync=True)
     def remove_session(self, sessionid):
         trans = db.get_transaction()
         session = db._db.get_item(sessionid, trans)
         session.delete(trans)
 
-    @db.transactional(auto_commit=True)
+    @db.transactional(auto_commit=True, nosync=True)
     def revive_session(self, session):
         trans = db.get_transaction()
         session.update(trans)

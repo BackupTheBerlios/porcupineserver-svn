@@ -44,16 +44,18 @@ class SessionManager(GenericSessionManager):
     def _expire_sessions(self):
         from porcupine.core.runtime import logger
         while self._is_active:
+            expire_threshold = time.time() - session._last_accessed - \
+                               self.revive_threshold
             for sessionid in self._list:
-                session = self.get_session(sessionid, revive=False)
-                if time.time() - session._last_accessed > self.timeout:
+                session = self.get_session(sessionid)
+                if expire_threshold > self.timeout:
                     logger.debug('Expiring Session: %s' % sessionid)
                     session.terminate()
                     logger.debug('Total active sessions: %s' % \
                                  str(len(self._list)))
                 else:
                     break
-            time.sleep(1.0)
+            time.sleep(3.0)
 
     def create_session(self, userid):
         session = Session(userid, {})
@@ -61,7 +63,7 @@ class SessionManager(GenericSessionManager):
         self._list.append(session.sessionid)
         return session
 
-    def get_session(self, sessionid, revive=True):
+    def get_session(self, sessionid):
         session = self._sessions.get(sessionid, None)
         return session
 

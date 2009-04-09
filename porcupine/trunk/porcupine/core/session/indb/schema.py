@@ -41,7 +41,7 @@ class Session(GenericItem, GenericSession):
         self.__data = sessiondata
         self.__userid = userid
 
-    @db.transactional(auto_commit=True)
+    @db.transactional(auto_commit=True, nosync=True)
     def set_value(self, name, value):
         self.__data[name] = value
         trans = db.get_transaction()
@@ -58,7 +58,7 @@ class Session(GenericItem, GenericSession):
     def get_userid(self):
         return self.__userid
 
-    @db.transactional(auto_commit=True)
+    @db.transactional(auto_commit=True, nosync=True)
     def set_userid(self, value):
         self.__userid = value
         trans = db.get_transaction()
