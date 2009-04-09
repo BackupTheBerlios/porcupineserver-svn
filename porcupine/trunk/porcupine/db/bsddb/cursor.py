@@ -48,30 +48,38 @@ class Cursor(BaseCursor):
     def reverse(self):
         BaseCursor.reverse(self)
         if self._is_set:
-            if self._reversed:
-                self._get_flag = db.DB_PREV
-                if self._value:
-                    # equality
-                    self._cursor.get(db.DB_NEXT_NODUP)
-                    self._cursor.get(db.DB_PREV)
-                else:
-                    # range
-                    if self._range[1] != None:
-                        self._cursor.set_range(self._range[1])
+            try:
+                if self._reversed:
+                    self._get_flag = db.DB_PREV
+                    if self._value:
+                        # equality
+                        self._cursor.get(db.DB_NEXT_NODUP)
                         self._cursor.get(db.DB_PREV)
                     else:
-                        self._cursor.get(db.DB_LAST)
-            else:
-                self._get_flag = db.DB_NEXT
-                if self._value:
-                    # equality
-                    self._cursor.set(self._value)
+                        # range
+                        if self._range[1] != None:
+                            self._cursor.set_range(self._range[1])
+                            self._cursor.get(db.DB_PREV)
+                        else:
+                            self._cursor.get(db.DB_LAST)
                 else:
-                    # range
-                    self._cursor.set_range(self._range[0])
+                    self._get_flag = db.DB_NEXT
+                    if self._value:
+                        # equality
+                        self._cursor.set(self._value)
+                    else:
+                        # range
+                        self._cursor.set_range(self._range[0])
+            except (db.DBLockDeadlockError, db.DBLockNotGrantedError), e:
+                self._cursor.close()
+                raise exceptions.DBTransactionIncomplete
 
     def get_current(self, get_primary=False):
-        key, prim_key, value = self._cursor.pget(db.DB_CURRENT)
+        try:
+            key, prim_key, value = self._cursor.pget(db.DB_CURRENT)
+        except (db.DBLockDeadlockError, db.DBLockNotGrantedError), e:
+            self._cursor.close()
+            raise exceptions.DBTransactionIncomplete
         if get_primary:
             return prim_key
         else:
@@ -95,20 +103,24 @@ class Cursor(BaseCursor):
                     else:
                         cmp_value = [-1]
 
-            key, prim_key, value = self._cursor.pget(db.DB_CURRENT)
-            
-            while cmp(key, cmp_key) in cmp_value:
-                if self.use_primary:
-                    yield prim_key
-                else:
-                    item = self._get_item(value)
-                    if item != None:
-                        yield item
-                next = self._cursor.pget(self._get_flag)
-                if not next:
-                    break
-                key, prim_key, value = next
-    
+            try:
+                key, prim_key, value = self._cursor.pget(db.DB_CURRENT)
+
+                while cmp(key, cmp_key) in cmp_value:
+                    if self.use_primary:
+                        yield prim_key
+                    else:
+                        item = self._get_item(value)
+                        if item != None:
+                            yield item
+                    next = self._cursor.pget(self._get_flag)
+                    if not next:
+                        break
+                    key, prim_key, value = next
+            except (db.DBLockDeadlockError, db.DBLockNotGrantedError), e:
+                self._cursor.close()
+                raise exceptions.DBTransactionIncomplete
+
     def close(self):
         self._cursor.close()
 
@@ -146,7 +158,11 @@ class Join(BaseCursor):
                     get = self._join.join_item
                 else:
                     get = self._join.get
-                next = get(0)
+                try:
+                    next = get(0)
+                except (db.DBLockDeadlockError, db.DBLockNotGrantedError), e:
+                    self.close()
+                    raise exceptions.DBTransactionIncomplete
                 while next != None:
                     if self.use_primary:
                         yield next
