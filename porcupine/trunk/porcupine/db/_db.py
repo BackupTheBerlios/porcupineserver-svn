@@ -150,8 +150,8 @@ def check_unique(item, old_item, trans):
                         'has an item with the same "%s" value.' % index_name)
 
 # transactions
-def get_transaction():
-    return _db_handle.get_transaction()
+def get_transaction(nosync=False):
+    return _db_handle.get_transaction(nosync)
 
 # administrative
 def lock():

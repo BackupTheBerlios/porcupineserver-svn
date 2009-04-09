@@ -190,8 +190,8 @@ def test_join(conditions, trans):
     return result
 
 # transactions
-def get_transaction():
-    return Transaction(_env)
+def get_transaction(nosync):
+    return Transaction(_env, nosync)
 
 # administrative
 def __removeFiles():
@@ -245,7 +245,14 @@ def shrink():
 def __maintain():
     from porcupine.db import _db
     while _running:
-        time.sleep(2.0)
+        time.sleep(8.0)
+#        stats = _env.lock_stat()
+#        print 'Locks: %d' % stats['nlocks']
+#        print 'Lockers: %d' % stats['nlockers']
+#        print 'Locks wait: %d' % stats['lock_wait']
+#        print 'Lockers wait: %d' % stats['lockers_wait']
+#        print 'Acquired - Released: %d' % (stats['nrequests'] - stats['nreleases'])
+#        print '-' * 80
         # deadlock detection
         try:
             aborted = _env.lock_detect(db.DB_LOCK_RANDOM, db.DB_LOCK_CONFLICT)

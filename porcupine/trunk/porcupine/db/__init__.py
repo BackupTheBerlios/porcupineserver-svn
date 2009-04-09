@@ -59,7 +59,7 @@ def get_transaction():
     return txn
 getTransaction = deprecated(get_transaction)
 
-def transactional(auto_commit=False):
+def transactional(auto_commit=False, nosync=False):
     def transactional_decorator(function):
         """
         This is the descriptor for making a method of a content class
@@ -68,7 +68,7 @@ def transactional(auto_commit=False):
         def transactional_wrapper(*args):
             c_thread = currentThread()
             if c_thread.context.trans == None:
-                txn = _db.get_transaction()
+                txn = _db.get_transaction(nosync)
                 c_thread.context.trans = txn
                 is_top_level = True
             else:
@@ -92,10 +92,10 @@ def transactional(auto_commit=False):
                     except exceptions.DBTransactionIncomplete:
                         if is_top_level:
                             txn.abort()
-                            time.sleep(0.03)
                             retries += 1
                             #print retries
                             txn._retry()
+                            time.sleep(retries * 0.01)
                         else:
                             raise
                 else:

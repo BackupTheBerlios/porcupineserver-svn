@@ -22,13 +22,16 @@ from porcupine.db.bsddb import db
 from porcupine.db.basetransaction import BaseTransaction
 
 class Transaction(BaseTransaction):
-    def __init__(self, env):
+    def __init__(self, env, nosync):
         self.env = env
-        self.txn = env.txn_begin(None, db.DB_TXN_NOWAIT)
+        self._flags = db.DB_TXN_NOWAIT
+        if nosync:
+            self._flags |= db.DB_TXN_NOSYNC
+        self.txn = env.txn_begin(None, self._flags)
         BaseTransaction.__init__(self)
 
     def _retry(self):
-        self.txn = self.env.txn_begin(None, db.DB_TXN_NOWAIT)
+        self.txn = self.env.txn_begin(None, self._flags)
         BaseTransaction._retry(self)
 
     def commit(self):
