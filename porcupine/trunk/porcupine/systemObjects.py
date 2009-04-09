@@ -470,16 +470,16 @@ class GenericItem(object):
         self.displayName = datatypes.RequiredString()
         self.description = datatypes.String()
 
-    def _applySecurity(self, oParent, trans):
+    def _apply_security(self, parent, is_new, trans):
         if self.inheritRoles:
-            self.security = oParent.security
-        if self.isCollection:
+            self.security = parent.security
+        if self.isCollection and not is_new:
             cursor = None
             try:
                 cursor = _db.query_index('_parentid', self._id, trans)
                 cursor.fetch_all = True
                 for child in cursor:
-                    child._applySecurity(self, trans)
+                    child._apply_security(self, is_new, trans)
                     _db.put_item(child, trans)
             finally:
                 if cursor != None:
@@ -517,7 +517,7 @@ class GenericItem(object):
         # set security to new item
         if user_role == permsresolver.COORDINATOR:
             # user is COORDINATOR
-            self._applySecurity(parent, trans)
+            self._apply_security(parent, True, trans)
         else:
             # user is not COORDINATOR
             self.inheritRoles = True
@@ -816,7 +816,7 @@ class Item(GenericItem, Cloneable, Movable, Removable):
                 if (self.inheritRoles != old_item.inheritRoles) or \
                         (not self.inheritRoles and \
                          self.security != old_item.security):
-                    self._applySecurity(parent, trans)
+                    self._apply_security(parent, False, trans)
             else:
                 # restore previous ACL
                 self.security = old_item.security
@@ -943,6 +943,7 @@ class Container(Item):
         """
         conditions = (('_parentid', self._id), ('displayName', name))
         cursor = None
+        iterator = None
         try:
             cursor = _db.join(conditions, trans)
             cursor.use_primary = True
@@ -951,8 +952,9 @@ class Container(Item):
                 child = iterator.next()
             except StopIteration:
                 child = None
-            iterator.close()
         finally:
+            if iterator != None:
+                iterator.close()
             if cursor != None:
                 cursor.close()
         return child
