@@ -109,8 +109,8 @@ class BaseServer(BaseService, Dispatcher):
         if self.is_multiprocess:
             if not hasattr(socket, 'fromfd'):
                 # create queues for communicating
-                request_queue = get_shared_queue(128)
-                done_queue = get_shared_queue(128)
+                request_queue = get_shared_queue(2048)
+                done_queue = get_shared_queue(2048)
                 self.sentinel = (-1 , 'EOF')
         else:
             request_queue = Queue.Queue(worker_threads * 2)
@@ -160,7 +160,7 @@ class BaseServer(BaseService, Dispatcher):
 
             if self.request_queue != None:
                 # start task dispatcher thread(s)
-                for i in range(self.worker_processes):
+                for i in range(4):
                     t = Thread(target=self._task_dispatch,
                                name='%s task dispatcher %d' % (self.name, i+1))
                     t.start()
@@ -326,13 +326,13 @@ if multiprocessing:
         # create shared memory queues
         from array import array
         from types import MethodType
-        from ctypes import Structure, c_int, c_ubyte
+        from ctypes import Structure, c_int, c_ubyte, memmove, sizeof, addressof
         from multiprocessing.sharedctypes import Array, RawValue
 
         class Message(Structure):
             _fields_ = [('fn', c_int),
                         ('count', c_int),
-                        ('buffer', c_ubyte * 262144)]
+                        ('buffer', c_ubyte * 16384)]
 
         def get_shared_queue(size):
             queue = Array(Message, size)
@@ -345,7 +345,7 @@ if multiprocessing:
                     self.acquire()
                     if qsize.value == 0:
                         self.release()
-                        time.sleep(0.001)
+                        time.sleep(0.01)
                     else:
                         break
                 message = self[0]
@@ -359,16 +359,17 @@ if multiprocessing:
                         buffer.append(chunk.tostring())
                         i += 1
                 # shift
-                for j in xrange(qsize.value - i):
-                    self[j] = self[j + i]
+                memmove(addressof(self[0]),
+                        addressof(self[i]),
+                        (qsize.value - i) * sizeof(self[0]))
                 qsize.value -= i
                 self.release()
                 return fn, ''.join(buffer)
 
             def put(self, (fn, b)):
                 # split buffer into chunks
-                chunks = [array('B', b[i:i+262144])
-                          for i in range(0, len(b), 262144)]
+                chunks = [array('B', b[i:i + 16384])
+                          for i in range(0, len(b), 16384)]
                 while True:
                     self.acquire()
                     if qsize.value + len(chunks) > len(self):
@@ -377,10 +378,10 @@ if multiprocessing:
                     else:
                         break
                 for chunk in chunks:
+                    count = len(chunk)
                     self[qsize.value].fn = fn
-                    self[qsize.value].count = len(chunk)
-                    self[qsize.value].buffer[:len(chunk)] = chunk.tolist()
-                    # print (self[qsize.value].buffer == b)
+                    self[qsize.value].count = count
+                    self[qsize.value].buffer[:count] = chunk.tolist()
                     qsize.value += 1
                 self.release()
 
