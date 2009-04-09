@@ -299,10 +299,10 @@ function ComboBtn__onclick(evt, w) {
 }
 
 // auto complete
-function AutoComplete(params) {
+QuiX.ui.AutoComplete = function(params) {
 	params = params || {};
 	params.editable = true;
-	this.base = Combo;
+	this.base = QuiX.ui.Combo;
 	this.base(params);
 	this.textField = this.div.firstChild;
 	this.url = params.url;
@@ -321,10 +321,12 @@ function AutoComplete(params) {
 	}
 }
 
-QuiX.constructors['autocomplete'] = AutoComplete;
-AutoComplete.prototype = new Combo;
+QuiX.constructors['autocomplete'] = QuiX.ui.AutoComplete;
+QuiX.ui.AutoComplete.prototype = new QuiX.ui.Combo;
+// backwards compatibility
+var AutoComplete = QuiX.ui.AutoComplete;
 
-AutoComplete.prototype._getSelection = function(evt) {
+QuiX.ui.AutoComplete.prototype._getSelection = function(evt) {
 	var sel = this.dropdown.widgets[0].getWidgetsByClassName('option over');
 	var index = -1;
 	if (sel.length > 0) {
@@ -345,14 +347,14 @@ AutoComplete.prototype._getSelection = function(evt) {
 	}
 }
 
-AutoComplete.prototype._getResults = function() {
-	var xmlrpc = new XMLRPCRequest(QuiX.root + this.url);
+QuiX.ui.AutoComplete.prototype._getResults = function() {
+	var xmlrpc = new QuiX.rpc.XMLRPCRequest(QuiX.root + this.url);
 	xmlrpc.oncomplete = this._showResults;
 	xmlrpc.callback_info = this;
 	xmlrpc.callmethod(this.method, this.textField.value);
 }
 
-AutoComplete.prototype._showResults = function(oReq) {
+QuiX.ui.AutoComplete.prototype._showResults = function(oReq) {
 	var oAuto = oReq.callback_info;
 	oAuto.dropdown.widgets[0].clear();
 	if (oReq.response.length > 0) {
@@ -368,7 +370,7 @@ AutoComplete.prototype._showResults = function(oReq) {
 	}
 }
 
-AutoComplete.prototype._captureKey = function(evt) {
+QuiX.ui.AutoComplete.prototype._captureKey = function(evt) {
 	var index, opt;
 	if (this.textField.value == '') {
 		if (this.isExpanded)
@@ -418,12 +420,12 @@ AutoComplete.prototype._captureKey = function(evt) {
 }
 
 // Select list
-function SelectList(params) {
+QuiX.ui.SelectList  = function(params) {
 	params = params || {};
 	params.bgcolor = params.bgcolor || 'white';
 	params.border = params.border || 1;
 	params.overflow = 'auto';
-	this.base = Widget;
+	this.base = QuiX.ui.Widget;
 	this.base(params);
 	this.name = params.name;
 	this.div.className = 'field';
@@ -434,10 +436,12 @@ function SelectList(params) {
 	this.selection = [];
 }
 
-QuiX.constructors['selectlist'] = SelectList;
-SelectList.prototype = new Widget;
+QuiX.constructors['selectlist'] = QuiX.ui.SelectList;
+QuiX.ui.SelectList.prototype = new QuiX.ui.Widget;
+// backwards compatibility
+var SelectList = QuiX.ui.SelectList;
 
-SelectList.prototype.addOption = function(params) {
+QuiX.ui.SelectList.prototype.addOption = function(params) {
 	params.imgalign = 'left';
 	params.align = 'left';
 	params.width = '100%';
@@ -459,7 +463,7 @@ SelectList.prototype.addOption = function(params) {
 	return(w);
 }
 
-SelectList.prototype.clear = function() {
+QuiX.ui.SelectList.prototype.clear = function() {
 	for (var i=this.options.length-1; i>=0; i--) {
 		this.options[i].destroy();
 	}
@@ -467,7 +471,7 @@ SelectList.prototype.clear = function() {
 	this.selection = [];
 }
 
-SelectList.prototype.removeSelected = function() {
+QuiX.ui.SelectList.prototype.removeSelected = function() {
 	for (var i=0; i<this.selection.length; i++) {
 		this.options.removeItem(this.selection[i]);
 		this.selection[i].destroy();
@@ -475,13 +479,13 @@ SelectList.prototype.removeSelected = function() {
 	this.selection = [];
 }
 
-SelectList.prototype.clearSelection = function() {
+QuiX.ui.SelectList.prototype.clearSelection = function() {
 	for (var i=0; i<this.selection.length; i++) {
 		this.deSelectOption(this.selection[i]);
 	}
 }
 
-SelectList.prototype.selectOption = function(option) {
+QuiX.ui.SelectList.prototype.selectOption = function(option) {
 	if (!option.selected) {
 		if (!this.multiple)
 			this.clearSelection();
@@ -491,7 +495,7 @@ SelectList.prototype.selectOption = function(option) {
 	}
 }
 
-SelectList.prototype.deSelectOption = function(option) {
+QuiX.ui.SelectList.prototype.deSelectOption = function(option) {
 	if (option.selected) {
 		option.div.className = 'label';
 		option.selected = false;
@@ -499,7 +503,7 @@ SelectList.prototype.deSelectOption = function(option) {
 	}
 }
 
-SelectList.prototype.setValue = function(val) {
+QuiX.ui.SelectList.prototype.setValue = function(val) {
     var option;
     if (!val instanceof Array)
         val = [val];
@@ -512,7 +516,7 @@ SelectList.prototype.setValue = function(val) {
     }
 }
 
-SelectList.prototype.getValue = function() {
+QuiX.ui.SelectList.prototype.getValue = function() {
     var i;
 	var vs = [];
 	if (this.posts == 'all') {
