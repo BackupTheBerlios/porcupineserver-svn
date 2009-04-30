@@ -79,12 +79,14 @@ def transactional(auto_commit=False, nosync=False):
             try:
                 while retries < txn.txn_max_retries:
                     try:
-                        #if retries == 0:
-                        #    raise exceptions.DBTransactionIncomplete
                         if is_top_level:
                             cargs = copy.deepcopy(args)
+                            if retries > 0:
+                                time.sleep(retries * 0.01)
+                                txn._retry()
                         else:
                             cargs = args
+                        
                         val = function(*cargs)
                         if is_top_level and auto_commit:
                             txn.commit()
@@ -93,18 +95,15 @@ def transactional(auto_commit=False, nosync=False):
                         if is_top_level:
                             txn.abort()
                             retries += 1
-                            #print retries
-                            txn._retry()
-                            time.sleep(retries * 0.01)
                         else:
                             raise
+                    except:
+                        txn.abort()
+                        raise
                 else:
                     raise exceptions.DBTransactionIncomplete
             finally:
                 if is_top_level:
-                    # abort uncommitted transactions
-                    if not txn._iscommited:
-                        txn.abort()
                     c_thread.context.trans = None
         transactional_wrapper.func_name = function.func_name
         transactional_wrapper.func_doc = function.func_doc

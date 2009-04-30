@@ -17,10 +17,13 @@
 """
 Porcupine runtime services accessed by multiple processes
 """
+import sys
 import logging
 import logging.handlers
 try:
     import multiprocessing
+    if sys.platform == 'win32':
+        import multiprocessing.reduction
 except ImportError:
     multiprocessing = None
 
@@ -58,10 +61,10 @@ def unlock_db():
 
 def init_session_manager(init_expiration=True):
     return SessionManager.open(
-        misc.get_rto_by_name(settings['sessionmanager'].pop('interface')),
-        int(settings['sessionmanager'].pop('timeout')),
+        misc.get_rto_by_name(settings['sessionmanager']['interface']),
+        int(settings['sessionmanager']['timeout']),
         init_expiration,
-        **settings['sessionmanager']
+        **settings['sessionmanager']['params']
     )
 
 def init_config():
