@@ -33,7 +33,7 @@ QuiX.ui.MenuOption.prototype.addOption = function(params) {
 	return this.subMenu.addOption(params);
 }
 
-QuiX.ui.MenuOption.prototype.redraw = function(bForceAll, memo) {
+QuiX.ui.MenuOption.prototype.redraw = function(bForceAll /*, memo*/) {
 	if (this.subMenu) {
 		this.div.className = 'submenu';
 	}
@@ -214,9 +214,10 @@ QuiX.ui.ContextMenu.prototype.destroy = function() {
 	QuiX.ui.Widget.prototype.destroy.apply(this, arguments);
 }
 
-QuiX.ui.ContextMenu.prototype.redraw = function(bForceAll, memo) {
+QuiX.ui.ContextMenu.prototype.redraw = function(bForceAll /*, memo*/) {
 	var oOption, optionWidth;
 	var iHeight = 0;
+    var memo = arguments[1] || {};
 	
 	for (var i=0; i<this.options.length; i++) {
 		oOption = this.options[i];
@@ -234,12 +235,12 @@ QuiX.ui.ContextMenu.prototype.redraw = function(bForceAll, memo) {
 	
 	this.height = iHeight + 2;
 	
-	if (this.top + this.height > document.desktop.getHeight(true))
+	if (this.top + this.height > document.desktop.getHeight(true, memo))
 		this.top = this.top - this.height;
-	if (this.left + this.width > document.desktop.getWidth(true))
+	if (this.left + this.width > document.desktop.getWidth(true, memo))
 		this.left = this.left - this.width;
 
-	QuiX.ui.Widget.prototype.redraw.apply(this, arguments);
+	QuiX.ui.Widget.prototype.redraw.apply(this, [bForceAll, memo]);
 }
 
 QuiX.ui.ContextMenu.prototype.show = function(w, x, y) {
@@ -287,7 +288,7 @@ QuiX.ui.ContextMenu.prototype.addOption = function(params) {
 	}
 	else {
 		oOption = new QuiX.ui.Widget({
-			width : 'this.parent.getWidth()-22',
+			width : 'this.parent.getWidth(false, memo)-22',
 			height : 2,
 			left : 22,
 			border : 1,
@@ -311,8 +312,8 @@ function Widget__contextmenu(evt, w) {
 }
 
 // Menu Bar
-QuiX.ui.MenuBar = function(params) {
-	params = params || {};
+QuiX.ui.MenuBar = function(/*params*/) {
+	var params = arguments[0] || {};
 	params.border = params.border || 1;
 	params.padding = '2,4,0,1';
 	params.overflow = 'hidden';
@@ -330,7 +331,7 @@ QuiX.ui.MenuBar.prototype = new QuiX.ui.Widget;
 // backwards compatibility
 var MBar = QuiX.ui.MenuBar;
 
-QuiX.ui.MenuBar.prototype.redraw = function(bForceAll, memo) {
+QuiX.ui.MenuBar.prototype.redraw = function(bForceAll /*, memo*/) {
 	for (var i=0; i<this.menus.length; i++) {
 		 this.menus[i].div.style.marginRight = this.spacing + 'px';
 	}

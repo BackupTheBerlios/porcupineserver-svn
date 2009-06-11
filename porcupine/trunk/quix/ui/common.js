@@ -1,6 +1,6 @@
 // horizontal rule
-QuiX.ui.HR = function(params) {
-	params = params || {};
+QuiX.ui.HR = function(/*params*/) {
+	var params = arguments[0] || {};
 	this.base = QuiX.ui.Widget;
 	params.border = params.border || 1;
 	params.height = params.height || 2;
@@ -16,8 +16,8 @@ QuiX.ui.HR.prototype = new QuiX.ui.Widget;
 var HR = QuiX.ui.HR;
 
 // iframe
-QuiX.ui.IFrame = function(params) {
-	params = params || {};
+QuiX.ui.IFrame = function(/*params*/) {
+	var params = arguments[0] || {};
 	params.overflow = 'hidden';
 	this.base = QuiX.ui.Widget;
 	this.base(params);
@@ -40,7 +40,7 @@ QuiX.ui.IFrame.prototype.customEvents =
 // backwards compatibility
 var IFrame = QuiX.ui.IFrame;
 
-QuiX.ui.IFrame.prototype.redraw = function(bForceAll, memo) {
+QuiX.ui.IFrame.prototype.redraw = function(bForceAll /*, memo*/) {
 	this.frame.style.visibility = 'hidden';
 	QuiX.ui.Widget.prototype.redraw.apply(this, arguments);
 	this.frame.style.visibility = '';
@@ -66,8 +66,8 @@ QuiX.ui.IFrame.prototype._onload = function(evt) {
 }
 
 // GroupBox
-QuiX.ui.GroupBox = function(params) {
-	params = params || {};
+QuiX.ui.GroupBox = function(/*params*/) {
+	var params = arguments[0] || {};
 	params.overflow = 'hidden';
 	
 	var v = true;
@@ -98,7 +98,7 @@ QuiX.ui.GroupBox = function(params) {
 		top: 8,
 		width:"100%",
 		padding:"12,12,12,12",
-		height: "this.parent.getHeight()-this.top",
+		height: "this.parent.getHeight(false, memo)-this.top",
 		border: params.border || 2
 	});
 	this.border.div.className = "groupboxframe";
@@ -152,8 +152,8 @@ function GroupBox__checkBody(evt ,w) {
 }
 
 // slider
-QuiX.ui.Slider = function(params) {
-	params = params || {};
+QuiX.ui.Slider = function(/*params*/) {
+	var params = arguments[0] || {};
 	
 	params.padding = '0,0,0,0',
 	params.height = params.height || 26;
@@ -170,7 +170,7 @@ QuiX.ui.Slider = function(params) {
 	var slot = new QuiX.ui.Widget({
 		top : 'center',
 		left : 4,
-		width : 'this.parent.getWidth() - 8',
+		width : 'this.parent.getWidth(false, memo) - 8',
 		height : 2,
 		bgcolor : 'silver',
 		border : 1,
@@ -228,7 +228,7 @@ QuiX.ui.Slider.prototype.setValue = function(val) {
 QuiX.ui.Slider.prototype._update = function() {
 	var x = '((this.parent._value - this.parent.min)/' +
             '(this.parent.max - this.parent.min))*' +
-            '(this.parent.getWidth() - 8)';
+            '(this.parent.getWidth(false, memo) - 8)';
 	this.handle.moveTo(x ,'center');
 	this.label.setCaption(this._value);
 }
@@ -273,8 +273,8 @@ function Slider__mouseup(evt, desktop) {
 }
 
 // progress bar
-QuiX.ui.ProgressBar = function(params) {
-	params = params || {};
+QuiX.ui.ProgressBar = function(/*params*/) {
+	var params = arguments[0] || {};
 	this.base = QuiX.ui.Widget;
 	params.border = 1;
 	params.overflow = 'hidden';

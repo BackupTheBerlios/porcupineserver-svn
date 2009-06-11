@@ -43,6 +43,7 @@ QuiX.constructors = {
 	'stylesheet' : null
 };
 QuiX._activeLoaders = 0;
+QuiX._scrollbarSize = 16;
 QuiX.effectsEnabled = true;
 QuiX.ui = {};
 
@@ -65,7 +66,7 @@ QuiX.queryString = function(param) {
             }
         }
     }
-    return "";
+    return '';
 }
 
 QuiX.getThemeUrl = function() {
@@ -73,11 +74,10 @@ QuiX.getThemeUrl = function() {
     return QuiX.baseUrl + 'themes/' + theme + '/';
 }
 
-QuiX.progress = '<rect xmlns="http://www.innoscript.org/quix" display="none" \
-    width="18" height="18" overflow="auto" top="center" left="center">\
-    <rect width="100%" height="100%" overflow="hidden"><xhtml><![CDATA[\
+QuiX.progress = '<rect xmlns="http://www.innoscript.org/quix" \
+    width="18" height="18"><xhtml><![CDATA[\
     <img src="' + QuiX.getThemeUrl() + 'images/loader.gif">\
-    ]]></xhtml></rect></rect>';
+    ]]></xhtml></rect>';
 
 QuiX.Module = function(sName, sFile, d) {
 	this.isLoaded = false;
@@ -128,9 +128,15 @@ QuiX.Image.prototype.load = function(callback) {
 	var img = new Image();
 	img.resource = this;
 	img.onload = QuiX.__resource_onstatechange;
+    img.onerror = QuiX.__resource_error;
 	img.src = this.url;
 	img.style.display = 'none';
 	document.body.appendChild(img);
+}
+
+QuiX.__resource_error = function() {
+    if (this.resource.callback)
+        this.resource.callback();
 }
 
 QuiX.__resource_onstatechange = function() {
@@ -199,7 +205,7 @@ QuiX.tags = {
 	'datepicker':12,
 	'timer':13,
 	'combo':14,'selectlist':14,
-	'box':15,
+	'box':15, 'vbox':15, 'hbox':15, 'flowbox':15,
 	'effect':16,
     'richtext':17
 };
@@ -229,6 +235,13 @@ QuiX.__init__ = function() {
             var root = document.body.removeChild(
                 document.getElementById("quix"));
             var parser = new QuiX.Parser();
+            parser.oncomplete = function() {
+                // calculate scrollbars size
+                var w1 = document.desktop.div.clientWidth;
+                document.desktop.div.style.overflow = 'scroll';
+                QuiX._scrollbarSize = w1 - document.desktop.div.clientWidth;
+                document.desktop.div.style.overflow = 'hidden';
+            }
             parser.parse(QuiX.domFromElement(root));
         }
     );
@@ -255,10 +268,8 @@ QuiX.addLoader = function() {
 		document.body.onmousemove = function(evt) {
 			evt = evt || event;
 			var loader = document.desktop._loader;
-			if (loader.div.style.display == 'none') {
+			if (loader.div.style.display == 'none')
 				loader.show();
-				loader.redraw();
-			}
 			loader.moveTo(evt.clientX + 16, evt.clientY + 20);
 		}
 	}
@@ -568,7 +579,7 @@ QuiX.removeWidget = function(w) {
 
 	w._detachEvents();
 	
-	parentElement = w.div.parentNode || w.div.parentElement;
+	parentElement = QuiX.getParentNode(w.div);
 	if (parentElement)
 		QuiX.removeNode(w.div);
 	
@@ -579,7 +590,41 @@ QuiX.removeWidget = function(w) {
 }
 
 QuiX.getParentNode = function(el) {
-	return el.parentNode || el.parentElement;
+    if (typeof el.parentElement != 'undefined')
+        return el.parentElement;
+    else
+        return el.parentNode;
+}
+
+QuiX.setOpacity = function(el, op) {
+    if (QuiX.utils.BrowserInfo.family == 'moz')
+        el.style.MozOpacity = op;
+    else if (QuiX.utils.BrowserInfo.family == 'ie')
+        el.style.filter = 'alpha(opacity=' + op * 100 + ')';
+    else
+        el.style.opacity = op;
+}
+
+QuiX.getOpacity = function(el) {
+    if (QuiX.utils.BrowserInfo.family == 'moz')
+        return parseFloat(el.style.MozOpacity);
+    else if (QuiX.utils.BrowserInfo.family == 'ie') {
+        var re = /alpha\(opacity=(\d+)\)/;
+        var arrOpacity = re.exec(el.style.filter);
+        if (arrOpacity.length > 1)
+            return parseInt(arrOpacity[1]) / 100;
+        else
+            return 1;
+    }
+    else
+        return parseFloat(el.style.opacity);
+}
+
+QuiX.setStyle = function(el, cssText) {
+    if (QuiX.utils.BrowserInfo.family == 'ie')
+        el.style.cssText = cssText;
+    else
+        el.setAttribute('style', cssText);
 }
 
 QuiX.detachFrames = function(w) {

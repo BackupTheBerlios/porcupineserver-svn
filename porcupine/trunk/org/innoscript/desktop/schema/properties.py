@@ -20,6 +20,11 @@ by the L{org.innoscript.desktop.schema} module custom objects.
 """
 from porcupine.datatypes import RelatorN
 
+# deprecated import
+from porcupine.datatypes import RequiredString, RequiredFile, File
+# deprecated datatypes (used for backwards compatibility)
+LaunchUrl = RequiredString
+
 class CategoryObjects(RelatorN):
     """
     The objects that a category has.

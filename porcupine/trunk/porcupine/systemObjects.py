@@ -33,23 +33,19 @@ from porcupine.utils import misc, permsresolver
 from porcupine.core.decorators import deprecated
 
 class _Shortcuts(datatypes.RelatorN):
-    'Data type for keeping the shortcuts IDs that an object has'
+    "Data type for keeping the shortcuts IDs that an object has"
     relCc = ('porcupine.systemObjects.Shortcut',)
     relAttr = 'target'
     cascadeDelete = True
     
 class _TargetItem(datatypes.Relator1):
-    'The object ID of the target item of the shortcut.'
+    "The object ID of the target item of the shortcut."
     relCc = ('porcupine.systemObjects.Item',)
     relAttr = 'shortcuts'
     isRequired = True
 
-class displayName(datatypes.String):
-    """Legacy data type. To be removed in the next version.
-    Use L{porcupine.datatypes.RequiredString} instead.
-    """
-    __slots__ = ()
-    isRequired = True
+# deprecated datatype (used for backwards compatibility)
+displayName = datatypes.RequiredString
 
 #================================================================================
 # Porcupine server top level content classes
@@ -110,8 +106,7 @@ class Cloneable(object):
         target = _db.get_item(target_id, trans)
         if target == None or target._isDeleted:
             raise exceptions.ObjectNotFound, (
-                'The target container "%s" does not exist.' %
-                target_id , False)
+                'The target container "%s" does not exist.' % target_id)
         
         if isinstance(self, Shortcut):
             contentclass = self.get_target_contentclass(trans)
@@ -169,8 +164,7 @@ class Movable(object):
         target = _db.get_item(target_id, trans)
         if target == None or target._isDeleted:
             raise exceptions.ObjectNotFound, (
-                'The target container "%s" does not exist.' %
-                target_id , False)
+                'The target container "%s" does not exist.' % target_id)
         
         if isinstance(self, Shortcut):
             contentclass = self.get_target_contentclass(trans)
@@ -232,14 +226,10 @@ class Removable(object):
         _db.delete_item(self, trans)
         
         if self.isCollection:
-            cursor = None
-            try:
-                cursor = _db.query_index('_parentid', self._id, trans)
-                cursor.fetch_all = True
-                [child._delete(trans) for child in cursor]
-            finally:
-                if cursor != None:
-                    cursor.close()
+            cursor = _db.query_index('_parentid', self._id, trans)
+            cursor.fetch_all = True
+            [child._delete(trans) for child in cursor]
+            cursor.close()
 
     def delete(self, trans):
         """
@@ -280,14 +270,10 @@ class Removable(object):
         self._isDeleted = int(self._isDeleted) + 1
         
         if self.isCollection:
-            cursor = None
-            try:
-                cursor = _db.query_index('_parentid', self._id, trans)
-                cursor.fetch_all = True
-                [child._recycle(trans) for child in cursor]
-            finally:
-                if cursor != None:
-                    cursor.close()
+            cursor = _db.query_index('_parentid', self._id, trans)
+            cursor.fetch_all = True
+            [child._recycle(trans) for child in cursor]
+            cursor.close()
         
         _db.put_item(self, trans)
         
@@ -304,14 +290,10 @@ class Removable(object):
         self._isDeleted = int(self._isDeleted) - 1
         
         if self.isCollection:
-            cursor = None
-            try:
-                cursor = _db.query_index('_parentid', self._id, trans)
-                cursor.fetch_all = True
-                [child._undelete(trans) for child in cursor]
-            finally:
-                if cursor != None:
-                    cursor.close()
+            cursor = _db.query_index('_parentid', self._id, trans)
+            cursor.fetch_all = True
+            [child._undelete(trans) for child in cursor]
+            cursor.close()
         
         _db.put_item(self, trans)
 
@@ -474,16 +456,12 @@ class GenericItem(object):
         if self.inheritRoles:
             self.security = parent.security
         if self.isCollection and not is_new:
-            cursor = None
-            try:
-                cursor = _db.query_index('_parentid', self._id, trans)
-                cursor.fetch_all = True
-                for child in cursor:
-                    child._apply_security(self, is_new, trans)
-                    _db.put_item(child, trans)
-            finally:
-                if cursor != None:
-                    cursor.close()
+            cursor = _db.query_index('_parentid', self._id, trans)
+            cursor.fetch_all = True
+            for child in cursor:
+                child._apply_security(self, is_new, trans)
+                _db.put_item(child, trans)
+            cursor.close()
 
     def append_to(self, parent, trans):
         """
@@ -740,12 +718,12 @@ class DeletedItem(GenericItem, Removable):
                 'Cannot locate original item.\n' +
                 'It seems that this item resided in a container\n' +
                 'that has been permanently deleted or it is shortcut\n' +
-                'having its target permanently deleted.', False)
+                'having its target permanently deleted.')
         parent = _db.get_item(parent_id or deleted._parentid, trans)
         if parent == None or parent._isDeleted:
             raise exceptions.ObjectNotFound, (
                 'Cannot locate target container.\n' +
-                'It seems that this container is deleted.', False)
+                'It seems that this container is deleted.')
         
         if isinstance(deleted, Shortcut):
             contentclass = deleted.get_target_contentclass(trans)
@@ -942,21 +920,14 @@ class Container(Item):
         @rtype: str
         """
         conditions = (('_parentid', self._id), ('displayName', name))
-        cursor = None
-        iterator = None
+        cursor = _db.join(conditions, trans)
+        cursor.fetch_mode = 0
+        iterator = iter(cursor)
         try:
-            cursor = _db.join(conditions, trans)
-            cursor.use_primary = True
-            iterator = iter(cursor)
-            try:
-                child = iterator.next()
-            except StopIteration:
-                child = None
-        finally:
-            if iterator != None:
-                iterator.close()
-            if cursor != None:
-                cursor.close()
+            child = iterator.next()
+        except StopIteration:
+            child = None
+        cursor.close()
         return child
     getChildId = deprecated(get_child_id)
     
@@ -972,20 +943,13 @@ class Container(Item):
         @rtype: L{GenericItem}
         """
         conditions = (('_parentid', self._id), ('displayName', name))
-        cursor = None
-        iterator = None
+        cursor = _db.join(conditions, trans)
+        iterator = iter(cursor)
         try:
-            cursor = _db.join(conditions, trans)
-            iterator = iter(cursor)
-            try:
-                child = iterator.next()
-            except StopIteration:
-                child = None
-        finally:
-            if iterator != None:
-                iterator.close()
-            if cursor != None:
-                cursor.close()
+            child = iterator.next()
+        except StopIteration:
+            child = None
+        cursor.close()
         return child
     getChildByName = deprecated(get_child_by_name)
     
@@ -996,14 +960,10 @@ class Container(Item):
         @param trans: A valid transaction handle
         @rtype: L{ObjectSet<porcupine.core.objectSet.ObjectSet>}
         """
-        cursor = None
-        try:
-            cursor = _db.query_index('_parentid', self._id, trans)
-            cursor.resolve_shortcuts = resolve_shortcuts
-            children = ObjectSet([c for c in cursor])
-        finally:
-            if cursor != None:
-                cursor.close()
+        cursor = _db.query_index('_parentid', self._id, trans)
+        cursor.resolve_shortcuts = resolve_shortcuts
+        children = ObjectSet([c for c in cursor])
+        cursor.close()
         return children
     getChildren = deprecated(get_children)
     
@@ -1015,14 +975,10 @@ class Container(Item):
         @rtype: L{ObjectSet<porcupine.core.objectSet.ObjectSet>}
         """
         conditions = (('_parentid', self._id), ('isCollection', False))
-        cursor = None
-        try:
-            cursor = _db.join(conditions, trans)
-            cursor.resolve_shortcuts = resolve_shortcuts
-            items = ObjectSet([i for i in cursor])
-        finally:
-            if cursor != None:
-                cursor.close()
+        cursor = _db.join(conditions, trans)
+        cursor.resolve_shortcuts = resolve_shortcuts
+        items = ObjectSet([i for i in cursor])
+        cursor.close()
         return items
     getItems = deprecated(get_items)
     
@@ -1034,14 +990,10 @@ class Container(Item):
         @rtype: L{ObjectSet<porcupine.core.objectSet.ObjectSet>}
         """
         conditions = (('_parentid', self._id), ('isCollection', True))
-        cursor = None
-        try:
-            cursor = _db.join(conditions, trans)
-            cursor.resolve_shortcuts = resolve_shortcuts
-            subfolders = ObjectSet([f for f in cursor])
-        finally:
-            if cursor != None:
-                cursor.close()
+        cursor = _db.join(conditions, trans)
+        cursor.resolve_shortcuts = resolve_shortcuts
+        subfolders = ObjectSet([f for f in cursor])
+        cursor.close()
         return subfolders
     getSubFolders = deprecated(get_subfolders)
     

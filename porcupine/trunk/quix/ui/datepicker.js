@@ -2,8 +2,8 @@
 Date picker control
 ************************/
 
-QuiX.ui.Datepicker = function(params) {
-	params = params || {};
+QuiX.ui.Datepicker = function(/*params*/) {
+	var params = arguments[0] || {};
 	params.editable = false;
 	params.menuheight = 160;
 	params.img = params.img || '$THEME_URL$images/date16.gif';
@@ -14,7 +14,7 @@ QuiX.ui.Datepicker = function(params) {
 	this.utc = (params.utc==true || params.utc=='true')?true:false;
 	this.setValue(params.value || '');
 	this.dropdown.parseFromString(
-		'<box orientation="v" xmlns="http://www.innoscript.org/quix" ' +
+		'<vbox xmlns="http://www.innoscript.org/quix" ' +
 				'width="100%" height="100%" spacing="4" ' +
 				'childrenalign="center">' +
 			'<rect height="26" width="195" padding="2,2,2,2">' + 
@@ -27,7 +27,7 @@ QuiX.ui.Datepicker = function(params) {
 					'caption="&gt;&gt;"/>' +
 			'</rect>' +
 			'<rect/>' +
-		'</box>', Datepicker__fill);
+		'</vbox>', Datepicker__fill);
 
 	if (this._isDisabled) {
 		this.div.firstChild.disabled = true;
@@ -202,7 +202,7 @@ function DatepickerMonth__click(evt, w) {
 	if (w)
 		oCombo = w.parent
 	else
-		oCombo = (this.parentNode || this.parentElement).widget;
+		oCombo = QuiX.getParentNode(this).widget;
 	if (!oCombo.isExpanded)
 		oCombo.showDropdown();
 	else
@@ -232,10 +232,10 @@ function DatepickerPrev__click(evt, w) {
 
 function DatepickerCell__click() {
 	var oDatepicker;
-	if (QuiX.utils.BrowserInfo.family == 'moz')
-		oDatepicker = this.parentNode.parentNode.parentNode.datepicker;
-	else
+	if (typeof this.parentElement != 'undefined')
 		oDatepicker = this.parentElement.parentElement.parentElement.datepicker;
+	else
+		oDatepicker = this.parentNode.parentNode.parentNode.datepicker;
 	oDatepicker.onDay(this);
 }
 

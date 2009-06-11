@@ -55,7 +55,11 @@ class Dispatcher(asyncore.dispatcher):
 
     def handle_accept(self):
         # accept client connection
-        client = self.accept()
+        client = None
+        try:
+            client = self.accept()
+        except socket.error:
+            pass
         if client != None:
             client_socket, addr = client
             try:
@@ -211,23 +215,15 @@ class BaseServer(BaseService, Dispatcher):
         return [conn.recv() for conn in self.pipes]
 
     def add_runtime_service(self, component, *args, **kwargs):
-        inited = BaseService.add_runtime_service(self, component, *args, **kwargs)
+        inited = BaseService.add_runtime_service(self, component,
+                                                 *args, **kwargs)
         if self.is_multiprocess and component == 'db':
-            if self.request_queue == None and self.running:
-                # restart workers
-                self._start_workers()
-            else:
-                self.send('DB_OPEN')
+            self.send('DB_OPEN')
         return inited
 
     def remove_runtime_service(self, component):
         if self.is_multiprocess and component == 'db':
-            if self.request_queue == None and self.running:
-                # stop the workers in order to reflect
-                # the new db environment in case of db restoration
-                self._stop_workers()
-            else:
-                self.send('DB_CLOSE')
+            self.send('DB_CLOSE')
         BaseService.remove_runtime_service(self, component)
 
     def lock_db(self):
@@ -318,12 +314,15 @@ class RequestHandler(asyncore.dispatcher):
                 self.close()
 
     def handle_write(self):
-        if len(self.output_buffer) > 0:
-            sent = self.send(self.output_buffer)
-            self.output_buffer = self.output_buffer[sent:]
-            if len(self.output_buffer) == 0:
-                self.shutdown(socket.SHUT_WR)
-                self.close()
+        try:
+            if len(self.output_buffer) > 0:
+                sent = self.send(self.output_buffer)
+                self.output_buffer = self.output_buffer[sent:]
+                if len(self.output_buffer) == 0:
+                    self.shutdown(socket.SHUT_WR)
+                    self.close()
+        except socket.error:
+            self.close()
 
     def close(self):
         asyncore.dispatcher.close(self)
