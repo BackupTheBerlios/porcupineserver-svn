@@ -18,9 +18,9 @@
 Porcupine database session manager
 """
 import time
+from threading import Thread
 
 from porcupine import db
-from porcupine.core.context import ContextThread
 from porcupine.core.session.genericsessionmanager import GenericSessionManager
 from porcupine.core.session.indb import schema
 
@@ -29,8 +29,8 @@ class SessionManager(GenericSessionManager):
     Database session manager implementation class
     """
     supports_multiple_processes = True
-    _expire_thread = ContextThread(name='Session expriration thread',
-                                   target=None)
+    _expire_thread = Thread(name='Session expriration thread',
+                            target=None)
     
     def __init__(self, timeout, **kwargs):
         GenericSessionManager.__init__(self, timeout)
@@ -39,6 +39,7 @@ class SessionManager(GenericSessionManager):
             self._create_container()
         self._is_active = True
 
+    @db.transactional(auto_commit=True)
     def _create_container(self):
         ftime = time.time()
         session_container = schema.SessionsContainer()
@@ -51,7 +52,7 @@ class SessionManager(GenericSessionManager):
         session_container.modified = ftime
         session_container.inheritRoles = False
         session_container.security = {'administrators' : 8}
-        db._db.put_item(session_container, None)
+        db._db.put_item(session_container)
 
     def init_expiration_mechanism(self):
         if not self._expire_thread.isAlive():
@@ -66,8 +67,9 @@ class SessionManager(GenericSessionManager):
                                    self.revive_threshold
                 # get inactive sessions
                 cursor = db._db.join((
-                    ('_parentid', '_sessions'),
-                    ('modified', (None, expire_threshold))), None)
+                        ('_parentid', '_sessions'),
+                        ('modified', (None, (expire_threshold, False)))
+                    ))
                 cursor.fetch_all = True
                 sessions = [session for session in cursor]
                 cursor.close()
@@ -80,9 +82,8 @@ class SessionManager(GenericSessionManager):
 
     @db.transactional(auto_commit=True, nosync=True)
     def create_session(self, userid):
-        trans = db.get_transaction()
         session = schema.Session(userid, {})
-        session.append_to('_sessions', trans)
+        session.append_to('_sessions')
         return session
 
     def get_session(self, sessionid):
@@ -91,14 +92,12 @@ class SessionManager(GenericSessionManager):
 
     @db.transactional(auto_commit=True, nosync=True)
     def remove_session(self, sessionid):
-        trans = db.get_transaction()
-        session = db._db.get_item(sessionid, trans)
-        session.delete(trans)
+        session = db._db.get_item(sessionid)
+        session.delete()
 
     @db.transactional(auto_commit=True, nosync=True)
     def revive_session(self, session):
-        trans = db.get_transaction()
-        session.update(trans)
+        session.update()
 
     def close(self):
         self._is_active = False

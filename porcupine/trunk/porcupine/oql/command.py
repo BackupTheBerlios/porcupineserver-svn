@@ -17,12 +17,10 @@
 """
 OQL command object
 """
+#import cProfile
 
-#import hotshot
 from porcupine import exceptions
 from porcupine.core.oql import parser, core
-
-#PROFILER = hotshot.Profile("profiler/hotshot.prof")
 
 class OqlCommand(object):
     def __init__(self):
@@ -34,23 +32,22 @@ class OqlCommand(object):
             p = parser.OqlParser()
             self.__ast = p.parse(script)
 
-    def __execute(self):
-        retVal = []
+    def _execute(self):
+        result = []
         for cmd in self.__ast:
-            cmdCode = cmd[0]
-            cmdHandlerFunc = getattr(core, 'h_' + str(cmdCode))
-            ret = cmdHandlerFunc(cmd[1], self.oql_vars)
-            if ret is not None:
-                retVal.append(ret)
-
-        return retVal
+            cmd_code, args = cmd
+            cmd_handler = getattr(core, 'h_%s' % cmd_code)
+            ret = cmd_handler(args, self.oql_vars)
+            if ret != None:
+                result.append(ret)
+        return result
 
     def execute(self, oql_script):
         try:
             self.__parse(oql_script)
-            #PROFILER.runcall(self.__parse, *(oql_script,))
-            ret = self.__execute()
-            #ret = PROFILER.runcall(self.__execute)
+            #ret = []
+            #cProfile.runctx('ret = self._execute()', globals(), locals())
+            ret = self._execute()
         
         except SyntaxError, e:
             lineno = e[1]
@@ -69,7 +66,7 @@ class OqlCommand(object):
         except TypeError, e:
             raise exceptions.InternalServerError, e[0]
         
-        if len(ret)==1:
+        if len(ret) == 1:
            ret = ret[0]
         
         return ret

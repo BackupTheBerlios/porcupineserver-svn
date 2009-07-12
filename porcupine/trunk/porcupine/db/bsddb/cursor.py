@@ -18,251 +18,269 @@
 Porcupine Berkeley DB cursor classes
 """
 import copy
-from threading import local
+import struct
 
+from porcupine import context
 from porcupine import exceptions
 from porcupine.db.bsddb import db
 from porcupine.db.basecursor import BaseCursor
-
-# thread local storage of open non-transactional cursors
-# used for duplicating cursors in order not avoid
-# lockers starvation
-_cursors = local()
+from porcupine.utils.db import pack_value
 
 class Cursor(BaseCursor):
     "BerkeleyDB cursor class"
-    def __init__(self, index, trans=None):
-        BaseCursor.__init__(self, index, trans)
-        if trans != None:
-            self._cursor = self._index.db.cursor(trans.txn)
-            trans._cursors.append(self)
+    def __init__(self, index):
+        BaseCursor.__init__(self, index)
+        self._get_cursor()
+        if context._trans != None:
+            context._trans._cursors.append(self)
+        self._get_flag = db.DB_NEXT
+
+    def _get_cursor(self):
+        if context._trans != None:
+            self._cursor = self._index.db.cursor(context._trans.txn,
+                                                 db.DB_READ_COMMITTED)
         else:
-            if hasattr(_cursors, index.name):
-                self._cursor = getattr(_cursors, index.name).dup()
+            if context._cursors.has_key(self._index.name):
+                self._cursor = context._cursors[self._index.name].dup()
             else:
                 self._cursor = self._index.db.cursor(None, db.DB_READ_COMMITTED)
-                setattr(_cursors, index.name, self._cursor)
-        
-        self._is_set = False
-        self._get_flag = db.DB_NEXT
+                context._cursors[self._index.name] = self._cursor
+        self._closed = False
 
     def duplicate(self):
         clone = copy.copy(self)
-        clone._cursor = self._cursor.dup()
-        clone._is_set = False
+        clone._get_cursor()
         return clone
 
-    def reset(self):
-        self._reset_position()
-
-    def _reset_position(self):
+    def _set(self):
         try:
+            is_set = False
             if self._reversed:
                 if self._value != None:
                     # equality
                     self._cursor.set(self._value)
                     self._cursor.get(db.DB_NEXT_NODUP)
-                    self._is_set = bool(self._cursor.get(db.DB_PREV))
-                else:
+                    is_set = bool(self._cursor.get(db.DB_PREV))
+                elif self._range != None:
                     # range
                     if self._range._upper_value != None:
-                        self._is_set = False
                         if self._range._upper_inclusive:
-                            self._is_set = bool(
+                            is_set = bool(
                                 self._cursor.set(self._range._upper_value))
-                        if not self._is_set:
+                        if not is_set:
                             self._cursor.set_range(self._range._upper_value)
-                            self._is_set = bool(self._cursor.get(db.DB_PREV))
+                            is_set = bool(self._cursor.get(db.DB_PREV))
                     else:
                         # move to last
-                        self._is_set = bool(self._cursor.get(db.DB_LAST))
+                        is_set = bool(self._cursor.get(db.DB_LAST))
             else:
                 if self._value != None:
                     # equality
-                    self._is_set = bool(self._cursor.set(self._value))
-                else:
+                    is_set = bool(self._cursor.set(self._value))
+                elif self._range != None:
                     # range
                     if self._range._lower_value != None:
-                        self._is_set = False
                         if self._range._lower_inclusive:
-                            self._is_set = bool(
+                            is_set = bool(
                                 self._cursor.set(self._range._lower_value))
-                        if not self._is_set:
-                            self._is_set = bool(
+                        if not is_set:
+                            is_set = bool(
                                 self._cursor.set_range(self._range._lower_value))
                     else:
                         # move to first
-                        self._is_set = bool(self._cursor.get(db.DB_FIRST))
+                        is_set = bool(self._cursor.get(db.DB_FIRST))
+            return is_set
         except (db.DBLockDeadlockError, db.DBLockNotGrantedError):
-            self._trans.abort()
+            context._trans.abort()
             raise exceptions.DBRetryTransaction
 
-    def set(self, v):
-        BaseCursor.set(self, v)
-        self._is_set = False
-        self._reset_position()
-
-    def set_range(self, v1, v2):
-        BaseCursor.set_range(self, v1, v2)
-        self._is_set = False
-        self._reset_position()
+    def _eval(self, item):
+        if hasattr(item, self._index.name):
+            attr = getattr(item, self._index.name)
+            if attr.__class__.__module__ != '__builtin__':
+                attr = attr.value
+            packed = pack_value(attr)
+            if self._value != None:
+                return self._value == packed
+            else:
+                return packed in self._range
+        return False
 
     def reverse(self):
         BaseCursor.reverse(self)
-        if self._is_set:
-            if self._reversed:
-                self._get_flag = db.DB_PREV
-            else:
-                self._get_flag = db.DB_NEXT
-            self._reset_postition()
+        if self._reversed:
+            self._get_flag = db.DB_PREV
+        else:
+            self._get_flag = db.DB_NEXT
 
     def __iter__(self):
-        if self._is_set:
+        if self._set():
             if self._value != None:
                 # equality
                 cmp_func = lambda x: x == self._value
             else:
                 # range
                 cmp_func = lambda x: x in self._range
-            
+
             try:
-                key, prim_key, value = \
-                    (('',) + self._cursor.pget(db.DB_CURRENT))[-3:]
-                
+                key, value = self._cursor.get(db.DB_CURRENT)
                 while cmp_func(key):
-                    if self.fetch_mode == 0:
-                        yield prim_key
-                    elif self.fetch_mode == 1:
-                        item = self._get_item(value)
-                        if item != None:
+                    item = self._get_item(value)
+                    if item != None:
+                        if self.fetch_mode == 0:
+                            yield item._id
+                        elif self.fetch_mode == 1:
                             yield item
-                    elif self.fetch_mode == 2:
-                        yield (prim_key, value)
-                    next = self._cursor.pget(self._get_flag)
+                    next = self._cursor.get(self._get_flag)
                     if not next:
                         break
-                    key, prim_key, value = (('',) + next)[-3:]
+                    key, value = next
             except (db.DBLockDeadlockError, db.DBLockNotGrantedError):
-                self._trans.abort()
+                context._trans.abort()
                 raise exceptions.DBRetryTransaction
 
     def _close(self):
         self._cursor.close()
 
     def close(self):
-        if self._trans != None:
-            self._trans._cursors.remove(self)
-        else:
-            if getattr(_cursors, self._index.name) == self._cursor:
-                delattr(_cursors, self._index.name)
-        try:
-            self._close()
-        except (db.DBLockDeadlockError, db.DBLockNotGrantedError):
-            self._trans.abort()
-            raise exceptions.DBRetryTransaction
+        if not self._closed:
+            if context._trans != None:
+                context._trans._cursors.remove(self)
+            elif context._cursors[self._index.name] == self._cursor:
+                del context._cursors[self._index.name]
+            self._closed = True
+            try:
+                self._close()
+            except (db.DBLockDeadlockError, db.DBLockNotGrantedError):
+                context._trans.abort()
+                raise exceptions.DBRetryTransaction
 
 class Join(BaseCursor):
     "Helper cursor for performing joins"
-    def __init__(self, primary_db, cursor_list, trans=None):
-        BaseCursor.__init__(self, None, trans)
+    def __init__(self, primary_db, cursor_list):
+        BaseCursor.__init__(self, None)
         self._cur_list = cursor_list
         self._join = None
         self._db = primary_db
-        if trans:
-            trans._cursors.append(self)
+        if context._trans != None:
+            context._trans._cursors.append(self)
 
     def duplicate(self):
         clone = copy.copy(self)
         clone._cur_list = [cur.duplicate() for cur in self._cur_list]
-        # re-set initial cursor positions
-        clone.reset()
         return clone
-
-    def reset(self):
-        [cur.reset() for cur in self._cur_list]
 
     def reverse(self):
         self._reversed = not self._reversed
         [c.reverse() for c in self._cur_list]
 
+    def _optimize(self):
+        sizes = []
+        clones = [c._cursor.dup(db.DB_POSITION) for c in self._cur_list]
+        for cursor, clone in zip(self._cur_list, clones):
+            if cursor._value != None:
+                # equality
+                sizes.append(clone.count())
+            else:
+                # range cursor - approximate sizing
+                # assuming even distribution of keys
+                first_value = struct.unpack('>L',
+                    (clone.first()[0] + '\x00' * 4)[:4])[0]
+                last_value = struct.unpack('>L',
+                    (clone.last()[0] + '\x00' * 4)[:4])[0]
+
+                cursor_range = float(last_value - first_value)
+
+                if cursor._range._lower_value != None:
+                    start_value = struct.unpack('>L',
+                        (cursor._range._lower_value + '\x00' * 4)[:4])[0]
+                    if start_value < first_value:
+                        start_value = first_value
+                else:
+                    start_value = first_value
+
+                if cursor._range._upper_value != None:
+                    end_value = struct.unpack('>L',
+                        (cursor._range._upper_value + '\x00' * 4)[:4])[0]
+                    if end_value > last_value:
+                        end_value = last_value
+                else:
+                    end_value = last_value
+
+                if cursor_range == 0:
+                    size = 0
+                else:
+                    size = int(((end_value - start_value) / cursor_range) *
+                               len(cursor._index.db))
+                sizes.append(size)
+            # close clone
+            try:
+                clone.close()
+            except (db.DBLockDeadlockError, db.DBLockNotGrantedError):
+                # close remaining clones
+                for c in clones[clones.index(clone) + 1:]:
+                    try:
+                        c.close()
+                    except (db.DBLockDeadlockError, db.DBLockNotGrantedError):
+                        pass
+                context._trans.abort()
+                raise exceptions.DBRetryTransaction
+
+        cursors = zip(sizes, self._cur_list)
+        cursors.sort()
+
+        rte_cursors = [c[1] for c in cursors[1:]]
+        # close run-time evaluated cursors
+        [c.close() for c in rte_cursors]
+        return cursors[0][1], rte_cursors
+
     def __iter__(self):
         is_natural = True
         is_set = True
-        
-        for cur in self._cur_list:
-            is_natural = (cur._value != None) and is_natural
-            is_set = cur._is_set and is_set
 
-        if is_set and is_natural and not self._reversed:
-            self._join = self._db.join([c._cursor for c in self._cur_list])
-
+        is_natural = all([cur._value != None for cur in self._cur_list])
+        is_set = all([cur._set() for cur in self._cur_list])
         if is_set:
-            try:
-                if self._join != None:
-                    # natural join
-                    if self.fetch_mode == 0:
-                        get = self._join.join_item
-                    else:
-                        get = self._join.get
-                    next = get(0)
+            if is_natural and not self._reversed:
+                # a natural join
+                self._join = self._db.join([c._cursor for c in self._cur_list])
+                try:
+                    next = self._join.get(0)
                     while next != None:
-                        if self.fetch_mode == 0:
-                            yield next
-                        elif self.fetch_mode == 1:
-                            item = self._get_item(next[1])
-                            if item != None:
+                        item = self._get_item(next[1])
+                        if item != None:
+                            if self.fetch_mode == 0:
+                                yield item._id
+                            elif self.fetch_mode == 1:
                                 yield item
-                        elif self.fetch_mode == 2:
-                            yield next
-                        next = get(0)
-                else:
-                    # not a natural join
-                    # TODO: sort cursors
-                    [setattr(c, 'fetch_mode', 0)
-                     for c in self._cur_list[1:]]
-
-                    if self.fetch_mode == 0:
-                        self._cur_list[0].fetch_mode = 0
-                        ids = set(self._cur_list[0])
-                    else:
-                        self._cur_list[0].fetch_mode = 2
-                        ids = None
-
-                    for cursor in self._cur_list[1:]:
-                        if ids != None:
-                            ids.intersection_update(cursor)
-                        else:
-                            ids = set(cursor)
-                        if len(ids) == 0:
-                            raise StopIteration
-                    
-                    if self.fetch_mode == 0:
-                        for id in ids:
-                            yield id
-                    elif self.fetch_mode == 1:
-                        for id, value in self._cur_list[0]:
-                            if id in ids:
-                                item = self._get_item(value)
-                                if item != None:
-                                    yield item
-                    elif self.fetch_mode == 2:
-                        for id, value in self._cur_list[0]:
-                            if id in ids:
-                                yield (id, value)
-            except (db.DBLockDeadlockError, db.DBLockNotGrantedError):
-                self._trans.abort()
-                raise exceptions.DBRetryTransaction
+                        next = self._join.get(0)
+                except (db.DBLockDeadlockError, db.DBLockNotGrantedError):
+                    context._trans.abort()
+                    raise exceptions.DBRetryTransaction
+            else:
+                # not a natural join
+                cursor, rte_cursors = self._optimize()
+                cursor.fetch_all = self.fetch_all
+                cursor.fetch_mode = 1
+                for item in cursor:
+                    is_valid = all([c._eval(item)
+                                   for c in rte_cursors])
+                    if is_valid:
+                        if self.fetch_mode == 0:
+                            yield item._id
+                        elif self.fetch_mode == 1:
+                            yield item
 
     def _close(self):
-        self._join.close()
+        if self._join != None:
+            self._join.close()
 
     def close(self):
-        if self._trans:
-            self._trans._cursors.remove(self)
-        if self._join:
-            try:
-                self._close()
-            except (db.DBLockDeadlockError, db.DBLockNotGrantedError):
-                self._trans.abort()
-                raise exceptions.DBRetryTransaction
         [cur.close() for cur in self._cur_list]
+        if context._trans:
+            context._trans._cursors.remove(self)
+        try:
+            self._close()
+        except (db.DBLockDeadlockError, db.DBLockNotGrantedError):
+            context._trans.abort()
+            raise exceptions.DBRetryTransaction

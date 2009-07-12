@@ -27,13 +27,14 @@ except ImportError:
     from bsddb import db
 from threading import Thread
 
+from porcupine import context
 from porcupine import exceptions
 from porcupine.core import persist
 from porcupine.config.settings import settings
 from porcupine.db.bsddb.transaction import Transaction
 from porcupine.db.bsddb.index import DbIndex
 from porcupine.db.bsddb.cursor import Cursor, Join
-from porcupine.utils.db import _err_unsupported_type
+from porcupine.utils.db import _err_unsupported_index_type
 from porcupine.utils.db.backup import BackupFile
 
 class DB(object):
@@ -46,10 +47,16 @@ class DB(object):
     log_dir = os.path.abspath(settings['store'].get('bdb_log_dir', dir))
     if log_dir[-1] != '/':
         log_dir += '/'
-    # checkpoint interval
-    checkpoint_interval = settings['store'].get('checkpoint_interval', 10)
+    # temporary directory
+    tmp_dir = os.path.abspath(settings['global']['temp_folder'])
+    if tmp_dir[-1] != '/':
+        tmp_dir += '/'
     # cache size
     cache_size = settings['store'].get('cache_size', None)
+    # transaction timeout
+    txn_timeout = settings['store'].get('tx_timeout', 0)
+    # shared memory key
+    shm_key = settings['store'].get('shm_key', None)
     # maintenance (checkpoint) thread
     _maintenance_thread = None
 
@@ -61,17 +68,25 @@ class DB(object):
             additional_flags |= db.DB_RECOVER_FATAL
         elif recovery_mode == 1:
             additional_flags |= db.DB_RECOVER
-        if hasattr(db, 'DB_REGISTER'):
-            additional_flags |= db.DB_RECOVER | db.DB_REGISTER
+            if hasattr(db, 'DB_REGISTER'):
+                additional_flags |= db.DB_REGISTER
 
         self._env = db.DBEnv()
         self._env.set_data_dir(self.dir)
         self._env.set_lg_dir(self.log_dir)
+        if self.txn_timeout > 0:
+            self._env.set_timeout(self.txn_timeout, db.DB_SET_TXN_TIMEOUT)
+        else:
+            self._env.set_flags(db.DB_TXN_NOWAIT, 1)
 
         if self.cache_size != None:
             self._env.set_cachesize(*self.cache_size)
 
-        self._env.open(self.dir,
+        if os.name != 'nt' and self.shm_key:
+            self._env.set_shm_key(self.shm_key)
+            additional_flags |= db.DB_SYSTEM_MEM
+
+        self._env.open(self.tmp_dir,
                        db.DB_THREAD | db.DB_INIT_MPOOL | db.DB_INIT_LOCK |
                        db.DB_INIT_LOG | db.DB_INIT_TXN | db.DB_CREATE |
                        additional_flags)
@@ -101,8 +116,9 @@ class DB(object):
 
         # open indices
         self._indices = {}
-        for name, unique in settings['store']['indices']:
-            self._indices[name] = DbIndex(self._env, self._itemdb, name, unique)
+        for name, unique, immutable in settings['store']['indices']:
+            self._indices[name] = DbIndex(self._env, self._itemdb,
+                                          name, unique, immutable)
 
         self._running = True
 
@@ -116,59 +132,61 @@ class DB(object):
         return self._running
 
     # item operations
-    def get_item(self, oid, trans=None):
+    def get_item(self, oid):
         try:
-            return self._itemdb.get(oid, txn=trans and trans.txn)
+            return self._itemdb.get(oid,
+                                    txn=context._trans and context._trans.txn)
         except (db.DBLockDeadlockError, db.DBLockNotGrantedError):
-            trans.abort()
+            context._trans.abort()
             raise exceptions.DBRetryTransaction
 
-    def put_item(self, item, trans=None):
+    def put_item(self, item):
         try:
-            self._itemdb.put(item._id, persist.dumps(item), trans and trans.txn)
+            self._itemdb.put(item._id, persist.dumps(item), context._trans.txn)
         except (db.DBLockDeadlockError, db.DBLockNotGrantedError):
-            trans.abort()
+            context._trans.abort()
             raise exceptions.DBRetryTransaction
         except db.DBError, e:
-            if e[0] == _err_unsupported_type:
+            if e[0] == _err_unsupported_index_type:
                 raise db.DBError, "Unsupported indexed data type"
             else:
                 raise
 
-    def delete_item(self, oid, trans):
+    def delete_item(self, oid):
         try:
-            self._itemdb.delete(oid, trans and trans.txn)
+            self._itemdb.delete(oid, context._trans.txn)
         except (db.DBLockDeadlockError, db.DBLockNotGrantedError):
-            trans.abort()
+            context._trans.abort()
             raise exceptions.DBRetryTransaction
 
     # external attributes
-    def get_external(self, id, trans):
+    def get_external(self, id):
         try:
-            return self._docdb.get(id, txn=trans and trans.txn)
+            return self._docdb.get(id,
+                                   txn=context._trans and context._trans.txn)
         except (db.DBLockDeadlockError, db.DBLockNotGrantedError):
-            trans.abort()
+            context._trans.abort()
             raise exceptions.DBRetryTransaction
 
-    def put_external(self, id, stream, trans):
+    def put_external(self, id, stream):
         try:
-            self._docdb.put(id, stream, trans and trans.txn)
+            self._docdb.put(id, stream, context._trans.txn)
         except (db.DBLockDeadlockError, db.DBLockNotGrantedError):
-            trans.abort()
+            context._trans.abort()
             raise exceptions.DBRetryTransaction
 
-    def delete_external(self, id, trans):
+    def delete_external(self, id):
         try:
-            self._docdb.delete(id, trans and trans.txn)
+            self._docdb.delete(id, context._trans.txn)
         except (db.DBLockDeadlockError, db.DBLockNotGrantedError):
-            trans.abort()
+            context._trans.abort()
             raise exceptions.DBRetryTransaction
 
     # indices
-    def get_cursor_list(self, conditions, trans):
+    def get_cursor_list(self, conditions):
         cur_list = []
         for index, value in conditions:
-            cursor = Cursor(self._indices[index], trans)
+            cursor = Cursor(self._indices[index])
             if type(value) == tuple:
                 cursor.set_range(value[0], value[1])
             else:
@@ -176,13 +194,13 @@ class DB(object):
             cur_list.append(cursor)
         return cur_list
 
-    def query_index(self, index, value, trans):
-        cursor = self.get_cursor_list(((index, value),), trans)[0]
+    def query_index(self, index, value):
+        cursor = self.get_cursor_list(((index, value),))[0]
         return cursor
 
-    def join(self, conditions, trans):
-        cur_list = self.get_cursor_list(conditions, trans)
-        c_join = Join(self._itemdb, cur_list, trans)
+    def join(self, conditions):
+        cur_list = self.get_cursor_list(conditions)
+        c_join = Join(self._itemdb, cur_list)
         return c_join
 
     def switch_cursor_scope(self, cursor, scope):
@@ -192,9 +210,9 @@ class DB(object):
         else:
             cursor.set(scope)
 
-    def test_join(self, conditions, trans):
-        cur_list = self.get_cursor_list(conditions, trans)
-        c_join = Join(self._itemdb, cur_list, trans)
+    def test_join(self, conditions):
+        cur_list = self.get_cursor_list(conditions)
+        c_join = Join(self._itemdb, cur_list)
         iterator = iter(c_join)
         try:
             result = bool(iterator.next())
@@ -207,12 +225,15 @@ class DB(object):
     def get_transaction(self, nosync):
         return Transaction(self._env, nosync)
 
-    # administrative
-    def __removeFiles(self):
-        # environment files
-        files = glob.glob(self.dir + '__db.*')
+    def __remove_env(self):
+        files = glob.glob(self.tmp_dir + '__db.???')
         for file in files:
             os.remove(file)
+
+    # administrative
+    def __remove_files(self):
+        # environment files
+        self.__remove_env()
         # log files
         files = glob.glob(self.log_dir + 'log.*')
         for file in files:
@@ -231,7 +252,7 @@ class DB(object):
             # close database
             self.close()
             # remove old database files
-            self.__removeFiles()
+            self.__remove_files()
             # open db
             self.__init__()
     
@@ -239,16 +260,14 @@ class DB(object):
         # force checkpoint
         self._env.txn_checkpoint(0, 0, db.DB_FORCE)
         logs = self._env.log_archive(db.DB_ARCH_LOG)
-        logs.sort()
-        backfiles = (self.dir + 'porcupine.db',
-                     self.dir + 'porcupine.idx',
-                     self.log_dir + logs[-1])
+        backfiles = [self.dir + 'porcupine.db', self.dir + 'porcupine.idx'] + \
+                    [self.log_dir + log for log in logs]
         # compact backup....
         backup = BackupFile(output_file)
         backup.add_files(backfiles)
         
     def restore(self, bset):
-        self.__removeFiles()
+        self.__remove_files()
         backup = BackupFile(bset)
         backup.extract(self.dir, self.log_dir)
 
@@ -259,15 +278,20 @@ class DB(object):
         return len(logs)
 
     def __maintain(self):
-        "checkpoint thread"
-        timer = 0
+        "deadlock detection thread"
+        from porcupine.core.runtime import logger
         while self._running:
-            time.sleep(8.0)
-            timer += 8
-            if timer > self.checkpoint_interval * 60:
-                # checkpoint
-                self._env.txn_checkpoint(0, self.checkpoint_interval, 0)
-                timer = 0
+            time.sleep(0.05)
+            # deadlock detection
+            try:
+                aborted = self._env.lock_detect(db.DB_LOCK_RANDOM,
+                                                db.DB_LOCK_CONFLICT)
+                if aborted:
+                    logger.critical(
+                        "Deadlock: Aborted %d deadlocked transaction(s)"
+                        % aborted)
+            except db.DBError:
+                 pass
             #stats = self._env.txn_stat()
             #print 'txns: %d' % stats['nactive']
             #print 'max txns: %d' % stats['maxnactive']
@@ -289,16 +313,6 @@ class DB(object):
             #print 'Requested: %d' % stats['nrequests']
             #print 'Released: %d' % stats['nreleases']
             #print '-' * 80
-            # deadlock detection
-            #try:
-            #     aborted = self._env.lock_detect(db.DB_LOCK_RANDOM,
-            #                                     db.DB_LOCK_CONFLICT)
-            #     if aborted:
-            #          logger.critical(
-            #              "Deadlock: Aborted %d deadlocked transaction(s)"
-            #             % aborted)
-            #except db.DBError:
-            #     pass
 
     def close(self):
         if self._running:
@@ -307,4 +321,9 @@ class DB(object):
                 self._maintenance_thread.join()
             self._itemdb.close()
             self._docdb.close()
+            # close indexes
+            [index.close() for index in self._indices.values()]
             self._env.close()
+            # clean-up environment files
+            #if self._maintenance_thread != None:
+            #    self.__remove_env()

@@ -18,7 +18,7 @@
 Web methods for the user content class
 """
 from porcupine import db
-from porcupine import HttpContext
+from porcupine import context
 from porcupine import webmethods
 from porcupine import filters
 from porcupine.utils import date, xml, permsresolver
@@ -33,9 +33,7 @@ from org.innoscript.desktop.webmethods import baseitem
                    template='../ui.Frm_UserProperties.quix')
 def properties(self):
     "Displays the user's properties form"
-    context = HttpContext.current()
     sLang = context.request.get_lang()
-
     user = context.user
     iUserRole = permsresolver.get_access(self, user)
     readonly = (iUserRole==1)
@@ -90,7 +88,6 @@ def resetpsw(self):
 @db.transactional(auto_commit=True)
 def resetPassword(self, new_password):
     "Resets the user's password"
-    txn = db.get_transaction()
     self.password.value = new_password
-    self.update(txn)
+    self.update()
     return True

@@ -19,8 +19,8 @@ Porcupine database package
 """
 import time
 import copy
-from threading import currentThread
 
+from porcupine import context
 from porcupine import exceptions
 from porcupine.utils import permsresolver
 from porcupine.core.decorators import deprecated
@@ -38,9 +38,9 @@ def get_item(oid, trans=None):
     
     @rtype: L{GenericItem<porcupine.systemObjects.GenericItem>}
     """
-    item = _db.get_item(oid, trans)
+    item = _db.get_item(oid)
     if item != None and not item._isDeleted and \
-            permsresolver.get_access(item, currentThread().context.user) != 0:
+            permsresolver.get_access(item, context.user) != 0:
         return item
 getItem = deprecated(get_item)
 
@@ -52,29 +52,44 @@ def get_transaction():
     
     @rtype: L{BaseTransaction<porcupine.db.basetransaction.BaseTransaction>}
     """
-    txn = currentThread().context.trans
+    txn = context._trans
     if txn == None:
         raise exceptions.InternalServerError, \
-            "Not in a transactional context. Use @db.transactional."
+            "Not in a transactional context. Use @db.transactional()."
     return txn
 getTransaction = deprecated(get_transaction)
 
+def requires_transactional_context(function):
+    """
+    Use this descriptor to ensure that a function or method is
+    run in a transactional context. Required for functions/methods that perform
+    database updates.
+    """
+    def rtc_wrapper(*args, **kwargs):
+        if context._trans == None:
+            raise exceptions.InternalServerError, \
+                "Not in a transactional context. Use @db.transactional()."
+        return function(*args, **kwargs)
+    rtc_wrapper.func_name = function.func_name
+    rtc_wrapper.func_doc = function.func_doc
+    rtc_wrapper.__module__ = function.__module__
+    return rtc_wrapper
+
 def transactional(auto_commit=False, nosync=False):
     _min_sleep_time = 0.072
-    _max_sleep_time = 0.576
+    _max_sleep_time = 0.288
     def transactional_decorator(function):
         """
-        This is the descriptor for making a function or a web method
+        This is the descriptor for making a function or a Web method
         transactional.
         """
         def transactional_wrapper(*args):
-            c_thread = currentThread()
-            if c_thread.context.trans == None:
+            if context._trans == None:
                 txn = _db.get_transaction(nosync)
-                c_thread.context.trans = txn
+                context._trans = txn
                 is_top_level = True
             else:
-                txn = c_thread.context.trans
+                txn = context._trans
                 is_top_level = False
             retries = 0
             sleep_time = _min_sleep_time
@@ -110,7 +125,7 @@ def transactional(auto_commit=False, nosync=False):
                 raise exceptions.DBDeadlockError
             finally:
                 if is_top_level:
-                    c_thread.context.trans = None
+                    context._trans = None
         transactional_wrapper.func_name = function.func_name
         transactional_wrapper.func_doc = function.func_doc
         transactional_wrapper.__module__ = function.__module__

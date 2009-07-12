@@ -64,7 +64,7 @@ class Gzip(PostProcessFilter):
             if not(os.path.exists(compfn)):
                 # remove old compressed files
                 oldFiles = glob.glob(glob_f + '*.gzip')
-                res = [os.remove(oldFile) for oldFile in oldFiles]
+                [os.remove(oldFile) for oldFile in oldFiles]
 
                 zBuf = cStringIO.StringIO()
                 Gzip.compress(zBuf, context.response._get_body(), Gzip.staticLevel)
@@ -102,7 +102,7 @@ class I18n(PostProcessFilter):
         tokens = frozenset(re.findall(I18n._tokens, output))
         for token, key in tokens:
             for bundle in bundles:
-                res = bundle.getResource(key, language)
+                res = bundle.get_resource(key, language)
                 if res != key:
                     break
             output = output.replace(token, res)

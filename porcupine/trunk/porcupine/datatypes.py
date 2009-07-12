@@ -170,8 +170,16 @@ class Date(DataType, date.Date):
     def __init__(self, **kwargs):
         date.Date.__init__(self)
 
+class RequiredDate(Date):
+    "Mandatory L{Date} data type."
+    isRequired = True
+
 class DateTime(Date):
     "Datetime data type"
+
+class RequiredDateTime(DateTime):
+    "Mandatory L{DateTime} data type."
+    isRequired = True
 
 class Password(DataType):
     """
@@ -366,7 +374,7 @@ class Composition(DataType):
         
         @rtype: list
         """
-        return [db._db.get_item(id, trans) for id in self.value]
+        return [db._db.get_item(id) for id in self.value]
     getItems = deprecated(get_items)
 
 class RequiredComposition(Composition):
@@ -406,7 +414,7 @@ class ExternalAttribute(DataType):
     def get_value(self, txn=None):
         "L{value} property getter"
         if self._value == None:
-            self._value = db._db.get_external(self._id, txn) or ''
+            self._value = db._db.get_external(self._id) or ''
         return(self._value)
 
     def set_value(self, value):

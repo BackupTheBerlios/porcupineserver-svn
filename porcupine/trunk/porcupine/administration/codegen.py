@@ -22,7 +22,9 @@ import inspect
 import sys
 import types
 import time
+import re
 
+from porcupine import db
 from porcupine import datatypes
 from porcupine import systemObjects
 from porcupine.utils import misc
@@ -73,8 +75,8 @@ class GenericSchemaEditor(object):
             elif callable(moduledict[x]) and \
                     (sys.modules[moduledict[x].__module__] != self._module):
                 imported = misc.get_rto_by_name(moduledict[x].__module__ +
-                                                  '.' + x)
-                self._imports[imported] = x
+                                                '.' + moduledict[x].__name__)
+                self._imports[imported] = moduledict[x].__name__
     
     def generate_code(self):
         raise NotImplementedError
@@ -127,7 +129,11 @@ class GenericSchemaEditor(object):
         return min(import_lines)
         
     def _cleanup_imports(self, sourcelines):
-        source = ''.join(sourcelines)
+        source = '\n'.join(sourcelines)
+        # remove strings/comments from source
+        strings = re.compile("'{1,3}.+?'{1,3}|\"{1,3}.+?\"{1,3}", re.DOTALL)
+        source = re.sub(strings, '', source)
+        # TODO: remove comments too
         unused = []
         for module in self._imports:
             if self._imports[module] not in source:
@@ -205,15 +211,15 @@ class ItemEditor(GenericSchemaEditor):
                 oMod = misc.get_rto_by_name(self._class.__module__)
                 reload(oMod)
             
-            db = offlinedb.get_handle()
+            db_handle = offlinedb.get_handle()
             oql_command = OqlCommand()
             rs = oql_command.execute(
                 "select * from deep('/') where instanceof('%s')" %
                 self._instance.contentclass)
             try:
                 if len(rs):
-                    txn = db.get_transaction()
-                    try:
+                    @db.transactional(auto_commit=True)
+                    def _update_db():
                         for item in rs:
                             for name in self._removedProps:
                                 if hasattr(item, name):
@@ -232,13 +238,9 @@ class ItemEditor(GenericSchemaEditor):
                                     else:
                                         new_attr.value = old_value
                             if self.xform:
-                                item = self.xform(item, txn)
-                            db.put_item(item, txn)
-                        txn.commit()
-                    except Exception, e:
-                        txn.abort()
-                        raise e
-                        sys.exit(2)
+                                item = self.xform(item)
+                            db_handle.put_item(item)
+                    _update_db()
             finally:
                 offlinedb.close()
     # backwards compatibility
@@ -265,7 +267,7 @@ class ItemEditor(GenericSchemaEditor):
             code.append('    __props__ = ')
             if ccbases:
                 code.append(' + '.join([x + '.__props__' for x in ccbases]) + ' + ')
-            code.append('(' + ', '.join(dts) + ')\n')
+            code.append('(' + ', '.join(dts) + ', )\n')
             
         # isCollection
         if (self.isCollection != None):
