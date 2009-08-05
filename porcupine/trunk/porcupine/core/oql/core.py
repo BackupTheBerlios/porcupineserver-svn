@@ -18,6 +18,7 @@
 OQL Core Interpreter
 """
 import types
+import copy
 
 from porcupine import datatypes
 from porcupine import db
@@ -73,13 +74,22 @@ fn  = {
     'str' : str,
     'lower' : lambda a: a.lower(),
     'upper' : lambda a: a.upper(),
-    'date' : lambda a: Date.from_iso_8601(a),
+    'date' : lambda a: Date.from_iso_8601(a).value,
     'trunc' : lambda a: int(a),
     'round' : lambda a: int(a+0.5),
     'sgn' : lambda a: ( (a<0 and -1) or (a>0 and 1) or 0 ),
     'isnone' : lambda a,b: a or b,
     'getattr' : lambda a,b: get_attribute(a, [b])
 }
+
+def pop_stack(stack):
+    op = stack.pop()
+    if type(op) == str:
+        if op in operators2:
+            pop_stack(stack)
+            pop_stack(stack)
+        elif op in operators1:
+            pop_stack(stack)
 
 def evaluate_stack(stack, variables, for_object=None):
     try:
@@ -88,9 +98,9 @@ def evaluate_stack(stack, variables, for_object=None):
         op = stack
 
     if type(op) == list:
-        cmd_code = op[0]
+        cmd_code, params = op
         handler = globals()['h_%s' % cmd_code]
-        return handler(op[1], variables, for_object)
+        return handler(params, variables, for_object)
 
     elif type(op) == types.FunctionType:
         return op(for_object)
@@ -121,7 +131,7 @@ def evaluate_stack(stack, variables, for_object=None):
             if variables.has_key(op) and type(variables[op]) == tuple:
                 # an alias or optimized attribute
                 alias_stack, objectid, alias_value = variables[op]
-                if objectid != for_object._id:
+                if for_object is not None and objectid != for_object._id:
                     # compute alias
                     alias_value = evaluate_stack(alias_stack[:],
                                                  variables,
@@ -139,7 +149,7 @@ def evaluate_stack(stack, variables, for_object=None):
                 if op == '**':
                     return for_object
                 else:
-                    if for_object != None:
+                    if for_object is not None:
                         return get_attribute(for_object, op.split('.'))
     else:
         return op
@@ -198,8 +208,8 @@ def compute_aggregate(aggr, lst):
         # check if list has constant values
         if lst:
             if lst != [lst[0]] * len(lst):
-                raise TypeError, ('Non aggregate expressions should be ' +
-                                  'constants or included in a GROUP BY clause')
+                raise TypeError('Non aggregate expressions should be ' +
+                                'constants or included in a GROUP BY clause')
             else:
                 return(lst[0])
         return None
@@ -237,7 +247,14 @@ def h_60(params, variables, for_object):
 def h_61(params, variables, for_object):
     value, low, high = [evaluate_stack(expr[:], variables, for_object)
                         for expr in params]
-    return(low < value < high)
+    return low < value < high
+
+def h_61_opt(params, variables):
+    if len(params[0]) == 1 and db._db.has_index(params[0][0]):
+        bounds = [evaluate_stack(expr[:], variables)
+                  for expr in params[1:]]
+        if all(bounds):
+            return [params[0][0], ((bounds[0], False), (bounds[1], False))]
 
 #===============================================================================
 # IN command handler
@@ -311,60 +328,128 @@ def h_100(params, variables):
 # oql select command handler
 #===============================================================================
 
-def select(container_id, deep, iterable, fields, condition, variables):
-    results = []
-    if condition:
-        results = [tuple(evaluate_stack(expr[1], variables, item)
-                         for expr in fields)
-                   for item in iterable
-                   if evaluate_stack(condition[:], variables, item)]
-    else:
-        results = [tuple(evaluate_stack(expr[1], variables, item)
-                         for expr in fields)
-                   for item in iterable]
+def select(container_id, deep, specifier, fields, variables):
+    results = ObjectSet([])
+    for iterable, condition in specifier:
+        if condition:
+            results1 = [tuple(evaluate_stack(expr[1], variables, item)
+                              for expr in fields)
+                        for item in iterable
+                        if evaluate_stack(condition[:], variables, item)]
+        else:
+            results1 = [tuple(evaluate_stack(expr[1], variables, item)
+                              for expr in fields)
+                        for item in iterable]
+        results |= ObjectSet(results1)
 
     if deep:
-        subfolders = db._db.join((('_parentid', container_id),
-                                  ('isCollection', True)))
+        subfolders = db._db.query((('isCollection', True), ))
+        subfolders.set_scope(container_id)
         for folder in subfolders:
-            cursor = iterable.duplicate()
-            db._db.switch_cursor_scope(cursor, folder._id)
-            results1 = select(folder._id, deep, cursor, fields, condition,
-                              variables)
-            cursor.close()
-            results.extend(results1)
+            c_specifier = [[c.duplicate(), conditions]
+                           for c, conditions in specifier]
+            [l[0].set_scope(folder._id)
+             for l in c_specifier]
+            results1 = select(folder._id, deep, c_specifier, fields, variables)
+            c_specifier.reverse()
+            [l[0].close() for l in c_specifier]
+            results |= results1
         subfolders.close()
     
     return results
 
-def optimize_query(conditions, variables):
-    indexes = []
-    if len(conditions) == 3 \
-            and db._db.has_index(conditions[1]) \
-            and conditions[2] in ['=', '<', '>', '<=', '>=']:
-        index_value = evaluate_stack(conditions[0], variables)
-        if index_value != None:
-            if conditions[2] == '=':
-                indexes.append((conditions[1], index_value))
-            elif conditions[2] == '<':
-                indexes.append((conditions[1],
-                               (None, (index_value, False))))
-            elif conditions[2] == '<=':
-                indexes.append((conditions[1],
-                               (None, (index_value, True))))
-            elif conditions[2] == '>':
-                indexes.append((conditions[1],
-                               ((index_value, False), None)))
-            elif conditions[2] == '>=':
-                indexes.append((conditions[1],
-                               ((index_value, True), None)))
-            conditions = []
-    #print indexes
-    return indexes, conditions
+def optimize_query(conditions, variables, parent_op=None):
+    op2 = None
+    op = conditions[-1]
+    # list of [[indexed_lookups], [rte conditions]]
+    optimized = [[[], []]]
+    # keep a copy of conditions
+    cp_conditions = conditions[:]
+
+    if type(op) == str and op in operators2:
+        op2 = conditions.pop()
+        if op == 'and':
+            op1 = optimize_query(conditions, variables, op)
+            op2 = optimize_query(conditions, variables, op)
+            # calculate indexed lookups
+            if op2[0][0]:
+                optimized[0][0] += op2[0][0]
+            if op1[0][0]:
+                # check if the same index is already included
+                is_optimized = False
+                if op1[0][0][0][0] in [l[0] for l in optimized[0][0]]:
+                    if type(op1[0][0][0][1]) == tuple:
+                        new_lookup = op1[0][0][0]
+                        lookups = [l for l in optimized[0][0]
+                                   if l[0] == new_lookup[0]]
+                        for lookup in lookups:
+                            if type(lookup[1]) == tuple:
+                                if lookup[1][0] is None and new_lookup[1][0]:
+                                    lookup[1] = (new_lookup[1][0], lookup[1][1])
+                                    is_optimized = True
+                                    break
+                                elif lookup[1][1] is None and new_lookup[1][1]:
+                                    lookup[1] = (lookup[1][0], new_lookup[1][1])
+                                    is_optimized = True
+                                    break
+                if not is_optimized:
+                    optimized[0][0] += op1[0][0]
+
+            # calculate rte conditions
+            optimized[0][1] += op2[0][1] + op1[0][1]
+            if op2[0][1] and op1[0][1]:
+                optimized[0][1] += ['and']
+        elif op == 'or':
+            if parent_op == 'and':
+                # remove operands
+                pop_stack(conditions)
+                pop_stack(conditions)
+                optimized[0][1] += cp_conditions[len(conditions):]
+            else:
+                op1 = optimize_query(conditions, variables, op)
+                op2 = optimize_query(conditions, variables, op)
+                optimized = op1 + op2
+        elif op in ['=', '<', '>', '<=', '>=']:
+            index = conditions[-1]
+            lookup = None
+            if type(index) == str and db._db.has_index(index):
+                conditions.pop()
+                index_value = evaluate_stack(conditions, variables)
+                if index_value is not None:
+                    if op == '=':
+                        lookup = [index, index_value]
+                    elif op in ['<', '<=']:
+                        lookup = [index, (None, (index_value, '=' in op))]
+                    elif op in ['>', '>=']:
+                        lookup = [index, ((index_value, '=' in op), None)]
+            if lookup is not None:
+                optimized[0][0].append(lookup)
+            else:
+                # remove operands
+                pop_stack(conditions)
+                pop_stack(conditions)
+                optimized[0][1] = cp_conditions[len(conditions):] + \
+                                  optimized[0][1]
+    # functions
+    elif type(op) == list:
+        lookup = None
+        cmd_code, params = op
+        optimizer = globals().get('h_%s_opt' % cmd_code)
+        if optimizer is not None:
+            lookup = optimizer(params, variables)
+        if lookup is None:
+            optimized[0][1] = [op] + optimized[0][1]
+        else:
+            optimized[0][0].append(lookup)
+    else:
+        pop_stack(conditions)
+        optimized[0][1] = cp_conditions[len(conditions):] + optimized[0][1]
+
+    return optimized
 
 def h_200(params, variables, for_object=None):
-    select_fields = params[0]
-    
+    select_fields = params[0][:]
+
     # get aliases
     aliases = []
     for expr, alias, aggr in select_fields:
@@ -374,7 +459,7 @@ def h_200(params, variables, for_object=None):
 
     field_names = [x[1] for x in select_fields]
     expressions = [tuple(x[0::2]) for x in select_fields]
-    
+
     select_from = params[1]
     where_condition = params[2]
     
@@ -410,6 +495,10 @@ def h_200(params, variables, for_object=None):
                     aliases.append(alias)
 
     if select_fields:
+        # add _id in order for set operations work correctly
+        # an aggregate type of None will prevent aggregation
+        if not ('id' in field_names or '_id' in field_names):
+            select_fields.append(['_id', '_id', None])
         all_fields = select_fields + order_by + group_by
     else:
         all_fields = [['**', '**', '']] + order_by + group_by
@@ -424,20 +513,27 @@ def h_200(params, variables, for_object=None):
                 None, None)
     
     aggregates = [x[2] for x in all_fields]
-    results = []
 
-    #print where_condition
-    if for_object == None:
+    #print 'where: %s' % where_condition
+
+    uses_indexes = False
+    if for_object is None and where_condition:
         # in case of not being a subquery, optimize query
-        indexed_lookups, where_condition = \
-            optimize_query(where_condition[:], variables)
-    
+        optimized = optimize_query(where_condition[:], variables)
+        uses_indexes = all([l[0] for l in optimized])
+
+    if for_object is None and not uses_indexes:
+        optimized = [[[('displayName', (None, None))], where_condition]]
+
+    #print 'opt: %s' % optimized
+
+    results = ObjectSet([])
     for deep, object_id in select_from:
         if deep==2:
             # this:attr
             if not for_object:
-                raise TypeError, \
-                    'Inner scopes using "this:" are valid only in sub-queries'
+                raise TypeError(
+                    'Inner scopes using "this:" are valid only in sub-queries')
             if hasattr(for_object, object_id):
                 attr = getattr(for_object, object_id)
                 if isinstance(attr, (datatypes.ReferenceN,
@@ -446,40 +542,30 @@ def h_200(params, variables, for_object=None):
                 elif isinstance(attr, datatypes.Reference1):
                     ref_objects = [attr.get_item()]
                 else:
-                    raise TypeError, ('Inner scopes using "this:" are ' +
-                                      'valid only ReferenceN, Reference1 ' +
-                                      'and Composition data types')
-                r = select(for_object._id, False, ref_objects, all_fields,
-                           where_condition, variables)
-                results.extend(r)
+                    raise TypeError('Inner scopes using "this:" are ' +
+                                    'valid only ReferenceN, Reference1 ' +
+                                    'and Composition data types')
+                r = select(for_object._id, False,
+                           [[ref_objects, where_condition]],
+                           all_fields, variables)
+                results |= r
         else:
             # swallow-deep
             obj = db.get_item(object_id)
-            if obj != None and obj.isCollection:
-                if deep and obj._id == '':
-                    deep = False
-                    scope_condition = []
-                else:
-                    scope_condition = [('_parentid', obj._id)]
-                
-                if len(indexed_lookups) == 0:
-                    #print 'not using index'
-                    if scope_condition == []:
-                        # deep traversal of root without index
-                        scope_condition = [('displayName', (None, None))]
-                    cursor = db._db.query_index(*scope_condition[0])
-                else:
-                    #print 'using index'
-                    if len(indexed_lookups) == 1 and not scope_condition:
-                        cursor = db._db.query_index(*indexed_lookups[0])
-                    else:
-                        cursor = db._db.join(indexed_lookups + scope_condition)
+            if obj is not None and obj.isCollection:
+                cp_optimized = copy.deepcopy(optimized)
+                # create cursors
+                for l in cp_optimized:
+                    l[0] = db._db.query(l[0])
+                    l[0].set_scope(obj._id)
+                r = select(obj._id, deep, cp_optimized, all_fields, variables)
+                # close cursors
+                cp_optimized.reverse()
+                [l[0].close() for l in cp_optimized]
+                results |= r
 
-                r = select(obj._id, deep, cursor, all_fields, where_condition,
-                           variables)
-                cursor.close()
-                results.extend(r)
-    
+    results = results.to_list()
+
     if results:
         if group_by:
             if select_fields:
@@ -494,24 +580,23 @@ def h_200(params, variables, for_object=None):
                     group_dict[group_value].append(rec)
                 groups = [tuple(g) for g in group_dict.values()]
             else:
-                raise TypeError, \
-                    'GROUP BY clause is incompatible with SELECT *'
+                raise TypeError('GROUP BY clause is incompatible with SELECT *')
         else:
             groups = [results]
         
-        #print len(groups)
         results = []
         
-        if aggregates != [''] * len(aggregates) or group_by:
+        if any(aggregates) or group_by:
             for ind, group in enumerate(groups):
                 group_sum = []
                 for aggr_index, aggr_type in enumerate(aggregates):
-                    # aggregates exclude None values
-                    group_sum.append(compute_aggregate(
-                        aggr_type,
-                        [x[aggr_index]
-                         for x in group
-                         if x[aggr_index] != None]))
+                    if aggr_type is not None:
+                        # aggregates exclude None values
+                        group_sum.append(compute_aggregate(
+                            aggr_type,
+                            [x[aggr_index]
+                             for x in group
+                             if x[aggr_index] is not None]))
                 groups[ind] = (tuple(group_sum),)
         
         for group in groups:
@@ -540,5 +625,7 @@ def h_200(params, variables, for_object=None):
     else:
         schema = None
         results = tuple([x[:1][0] for x in results])
-    
-    return ObjectSet(results, schema)
+
+    results = ObjectSet(results)
+    results.schema = schema
+    return results

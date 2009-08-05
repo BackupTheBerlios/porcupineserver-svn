@@ -30,19 +30,23 @@ class BaseCursor(object):
         self._value = None
         self._range = None
         self._reversed = False
+        self._scope = None
 
         # fetch_mode possible values are
         # 0: return primary key only
         # 1: return objects
         self.fetch_mode = 1
-        self.fetch_all = False
+        self.enforce_permissions = True
         self.resolve_shortcuts = False
+
+    def set_scope(self, scope):
+        self._scope = scope
 
     def _get_item(self, s):
         item = persist.loads(s)
-        if self.fetch_all:
+        if not self.enforce_permissions:
             if self.resolve_shortcuts:
-                while item != None and isinstance(item, Shortcut):
+                while item is not None and isinstance(item, Shortcut):
                     item = _db.get_item(item.target.value)
         else:
             # check read permissions
@@ -90,7 +94,7 @@ class Range(object):
         self.set_upper_bound(upper_bound)
 
     def set_lower_bound(self, lower_bound):
-        if lower_bound != None:
+        if lower_bound is not None:
             value, inclusive = lower_bound
             self._lower_value = pack_value(value)
             self._lower_inclusive = inclusive
@@ -99,7 +103,7 @@ class Range(object):
             self._lower_inclusive = False
 
     def set_upper_bound(self, upper_bound):
-        if upper_bound != None:
+        if upper_bound is not None:
             value, inclusive = upper_bound
             self._upper_value = pack_value(value)
             self._upper_inclusive = inclusive
@@ -108,13 +112,13 @@ class Range(object):
             self._upper_inclusive = False
 
     def __contains__(self, string_value):
-        if self._lower_value != None:
+        if self._lower_value is not None:
             cmp_value = [-1]
             if self._lower_inclusive:
                 cmp_value.append(0)
             if not cmp(self._lower_value, string_value) in cmp_value:
                 return False
-        if self._upper_value != None:
+        if self._upper_value is not None:
             cmp_value = [1]
             if self._upper_inclusive:
                 cmp_value.append(0)

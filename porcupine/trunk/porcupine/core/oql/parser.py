@@ -76,7 +76,7 @@ functions = (
     'getattr'
 )
 
-reserved_map = { }
+reserved_map = {}
 for r in reserved:
     reserved_map[r.lower()] = r
 
@@ -182,7 +182,7 @@ def t_newline(t):
     t.lineno += t.value.count("\n")
 
 def t_error(t):
-    raise SyntaxError, ('', t.lineno, t.value[0])#, hex(ord(t.value[0])),)
+    raise SyntaxError('', t.lineno, t.value[0])#, hex(ord(t.value[0])),)
 
 
 class OqlParser:
@@ -257,8 +257,7 @@ class OqlParser:
         select_statement : SELECT TIMES FROM object_list
                         | SELECT select_list FROM object_list
         '''
-#        print 'found select'
-#        print [p[i] for i in range(len(p))]
+        # [select_fields, scopes, where_condition, order_by, group_by]
         if p[2]=='*':
             p[0] = [ core.OQL_SELECT, [ [], p[4], [], [], [] ] ]
         else:
@@ -266,8 +265,6 @@ class OqlParser:
 
     def p_select_statement_2(self, p):
         'select_statement : select_statement WHERE expression'
-#        print 'found WHERE'
-#        print [p[i] for i in range(len(p))]
         p[1][1][2] = p[3]
         p[0] = p[1]
 
@@ -276,8 +273,6 @@ class OqlParser:
         select_statement : select_statement ORDER BY field_list ASC
                         | select_statement ORDER BY field_list DESC
         '''
-#        print 'found ORDER BY'
-#        print [p[i] for i in range(len(p))]
         p[1][1][3] = (p[5].upper()=='ASC', p[4])
         p[0] = p[1]
     
@@ -301,7 +296,8 @@ class OqlParser:
         
     def p_fieldspec_3(self, p):
         'fieldspec : LPAREN IF expression THEN expression ELSE expression RPAREN'
-        p[0] = [ [ [core.IF, [p[3], p[5], p[7]] ] ], 'expr' + str(self.expr_index), '' ]
+        p[0] = [ [ [core.IF, [p[3], p[5], p[7]] ] ],
+                    'expr' + str(self.expr_index), '' ]
         self.expr_index += 1
 
     def p_fieldspec_4(self, p):
@@ -540,7 +536,7 @@ class OqlParser:
         p[0] = [p[1]]
 
     def p_error(self, p):
-        if p != None:
-            raise SyntaxError, ('', p.lineno, p.value)
+        if p is not None:
+            raise SyntaxError('', p.lineno, p.value)
         else:
-            raise SyntaxError, ('', 0, '')
+            raise SyntaxError('', 0, '')

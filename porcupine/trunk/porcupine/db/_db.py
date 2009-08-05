@@ -20,7 +20,6 @@ import time
 
 from porcupine import context
 from porcupine.core import persist
-from porcupine import exceptions
 from porcupine.utils import misc
 from porcupine.config.settings import settings
 
@@ -48,7 +47,7 @@ def _get_item_by_path(lstPath):
     for name in lstPath[1:len(lstPath)]:
         if name:
             child_id = child.get_child_id(name)
-            if child_id == None:
+            if child_id is None:
                 return None
             else:
                 child = get_item(child_id)
@@ -56,7 +55,7 @@ def _get_item_by_path(lstPath):
 
 def get_item(oid):
     item = _db_handle.get_item(oid)
-    if item == None:
+    if item is None:
         path_tokens = oid.split('/')
         path_depth = len(path_tokens)
         if path_depth > 1:
@@ -64,9 +63,9 @@ def get_item(oid):
             if path_depth == 2:
                 item = _db_handle.get_item(path_tokens[1])
             # /folder1/folder2/item
-            if item == None:
+            if item is None:
                 return _get_item_by_path(path_tokens)
-    if item != None:
+    if item is not None:
         item = persist.loads(item)
         return item
 
@@ -95,7 +94,7 @@ def handle_update(item, old_item):
             # create
             [handler.on_create(item, context._trans)
              for handler in item._eventHandlers]
-    check_unique(item, old_item)
+
     for attr_name in item.__props__:
         try:
             attr = getattr(item, attr_name)
@@ -123,7 +122,6 @@ def handle_delete(item, is_permanent):
      if attr._eventHandler]
 
 def handle_undelete(item):
-    check_unique(item, None)
     attrs = [getattr(item, attr_name)
              for attr_name in item.__props__
              if hasattr(item, attr_name)]
@@ -135,33 +133,11 @@ def handle_undelete(item):
 def has_index(name):
     return name in _indices
 
-def query_index(index, value):
-    return _db_handle.query_index(index, value)
+def query(conditions):
+    return _db_handle.query(conditions)
 
-def join(conditions):
-    return _db_handle.join(conditions)
-
-def switch_cursor_scope(cursor, scope):
-    _db_handle.switch_cursor_scope(cursor, scope)
-
-def test_join(conditions):
-    return _db_handle.test_join(conditions)
-
-def check_unique(item, old_item):
-    # check index uniqueness
-    for index_name in [x[0] for x in settings['store']['indices'] if x[1]]:
-        if hasattr(item, index_name) and hasattr(item, '_parentid'):
-            value = getattr(item, index_name).value
-            if old_item != None and hasattr(old_item, index_name):
-                old_value = getattr(old_item, index_name).value
-            else:
-                old_value = None
-            if value != old_value:
-                join = (('_parentid', item._parentid), (index_name, value))
-                if test_join(join):
-                    raise exceptions.ContainmentError, (
-                        'The container already ' +
-                        'has an item with the same "%s" value.' % index_name)
+def test_conditions(scope, conditions):
+    return _db_handle.test_conditions(scope, conditions)
 
 # transactions
 def get_transaction(nosync=False):

@@ -32,6 +32,7 @@ import types
 from porcupine import db
 from porcupine.utils import misc, date
 from porcupine.core import dteventhandlers
+from porcupine.core.objectSet import ObjectSet
 from porcupine.core.decorators import deprecated
 
 class DataType(object):
@@ -69,13 +70,13 @@ class DataType(object):
             is_safe_type = isinstance(self.value, self._safetype)
             safe_type_name = '"%s"' % self._safetype.__name__
         if not is_safe_type:
-            raise TypeError, \
-               'Invalid data type for "%s". Got "%s" instead of %s.' % \
+            raise TypeError(
+               'Invalid data type for "%s". Got "%s" instead of %s.' %
                (self.__class__.__name__, self.value.__class__.__name__,
-                safe_type_name)
+                safe_type_name))
         if self.isRequired and not self.value:
-            raise ValueError, \
-               '"%s" attribute is mandatory' % self.__class__.__name__
+            raise ValueError(
+               '"%s" attribute is mandatory' % self.__class__.__name__)
 
 class String(DataType):
     """String data type
@@ -240,7 +241,7 @@ class Reference1(DataType):
         
         @param trans: A valid transaction handle
         
-        @rtype: type
+        @rtype: L{GenericItem<porcupine.systemObjects.GenericItem>}
         @return: The referenced object, otherwise None
         """
         item = None
@@ -278,10 +279,10 @@ class ReferenceN(DataType):
         
         @param trans: A valid transaction handle
         
-        @rtype: list}
+        @rtype: L{ObjectSet<porcupine.core.objectSet.ObjectSet>}
         """
-        return filter(None, [db.get_item(id, trans)
-                             for id in self.value])
+        return ObjectSet(filter(None, [db.get_item(id, trans)
+                                       for id in self.value]))
     getItems = deprecated(get_items)
 
 class RequiredReferenceN(ReferenceN):
@@ -372,9 +373,10 @@ class Composition(DataType):
         
         @param trans: A valid transaction handle
         
-        @rtype: list
+        @rtype: L{ObjectSet<porcupine.core.objectSet.ObjectSet>}
         """
-        return [db._db.get_item(id) for id in self.value]
+        return ObjectSet([db._db.get_item(id)
+                          for id in self.value])
     getItems = deprecated(get_items)
 
 class RequiredComposition(Composition):
@@ -413,7 +415,7 @@ class ExternalAttribute(DataType):
 
     def get_value(self, txn=None):
         "L{value} property getter"
-        if self._value == None:
+        if self._value is None:
             self._value = db._db.get_external(self._id) or ''
         return(self._value)
 

@@ -27,7 +27,9 @@ class DbIndex(BaseIndex):
     def __init__(self, env, primary_db, name, unique=False, immutable=False):
         BaseIndex.__init__(self, name, unique)
         self.db = db.DB(env)
-        self.db.set_flags(db.DB_DUPSORT)
+        self.db.set_pagesize(1024)
+        if not unique:
+            self.db.set_flags(db.DB_DUPSORT)
         self.db.open(
             'porcupine.idx',
             name,
@@ -51,8 +53,8 @@ class DbIndex(BaseIndex):
                 self.close()
                 _db = db.DB(env)
                 _db.remove('porcupine.idx', dbname=name)
-                raise exceptions.ConfigurationError, \
-                    'Unsupported data type for index "%s".' % name
+                raise exceptions.ConfigurationError(
+                    'Unsupported data type for index "%s".' % name)
             else:
                 raise
 
