@@ -14,30 +14,34 @@
 #    along with Porcupine; if not, write to the Free Software
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #===============================================================================
-"Porcupine Server CGI Interface"
-try:
-    # python 2.6
-    import httplib
-except ImportError:
-    # python 3
-    import http.client as httplib
+"Porcupine JSON-RPC 2.0 Library"
+import json
 
-def cgi_handler(rh, response):
-    # write status line
-    rh.write_buffer('Status: %d %s\n' % (response._code,
-                                         httplib.responses[response._code]))
-    # write headers
-    for header, value in response._get_headers().items():
-        rh.write_buffer('%s: %s\n' % (header, value))
+from porcupine.core.rpc import BaseEncoder
 
-    sBody = response._get_body()
-    if sBody:
-        rh.write_buffer('Content-Length: %i\n' % len(sBody))
-        
-    if len(response.cookies) > 0:
-        rh.write_buffer(response.cookies.output() + '\n')
+def error(code, message, data, request_id):
+    response = {
+        'jsonrpc' : '2.0',
+        'error' : {
+            'code' : code,
+            'message' : message,
+            'data' : data
+        },
+        'id' : request_id
+    }
+    return json.dumps(response)
 
-    rh.write_buffer('\n')
+def loads(s):
+    request = json.loads(s)
+    return (request['id'], request['params'])
 
-    # write body
-    rh.write_buffer(sBody)
+def dumps(request_id, obj, encoding):
+    response = {
+        'jsonrpc' : '2.0',
+        'result' : obj,
+        'id' : request_id
+    }
+    return json.dumps(response, cls=_JSONEncoder)
+
+class _JSONEncoder(json.JSONEncoder, BaseEncoder):
+    default = BaseEncoder.default

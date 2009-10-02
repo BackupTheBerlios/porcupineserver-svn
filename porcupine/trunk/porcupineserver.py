@@ -21,21 +21,18 @@ import os
 import time
 import signal
 import select
+import asyncore
 from errno import EINTR
 from threading import Thread, Event
 
-from porcupine.config import services
-from porcupine.core import asyncore
 from porcupine.core import runtime
+from porcupine.config import services
 from porcupine.utils.misc import freeze_support
 
-#warnings.filterwarnings('ignore', '', Warning, 'logging')
 __version__ = '0.6 build(20090402)'
 PID_FILE = 'conf/.pid'
 
 class Controller(object):
-    type = 'Controller'
-
     def __init__(self):
         self.shutdowninprogress = False
         self.running = False
@@ -44,12 +41,11 @@ class Controller(object):
     def start(self):
         try:
             runtime.logger.info('Server starting...')
-            self.services['_controller'] = self
             # start services
             runtime.logger.info('Starting services...')
             services.start()
-        except Exception, e:
-            runtime.logger.error(e[0], *(), **{'exc_info' : True})
+        except Exception as e:
+            runtime.logger.error(e, *(), **{'exc_info' : True})
             # stop services
             services.stop()
             raise e
@@ -70,7 +66,7 @@ class Controller(object):
         self.running = True
 
         # record process id
-        pidfile = file(PID_FILE, "w")
+        pidfile = open(PID_FILE, "w")
         if os.name == 'posix':
             pidfile.write(str(os.getpgid(os.getpid())))
         else:
@@ -78,13 +74,13 @@ class Controller(object):
         pidfile.close()
         
         runtime.logger.info('Porcupine Server started succesfully')
-        print 'Porcupine Server v%s' % __version__
+        print('Porcupine Server v%s' % __version__)
         python_version = 'Python %s' % sys.version
         runtime.logger.info(python_version)
-        print python_version
-        print '''Porcupine comes with ABSOLUTELY NO WARRANTY.
+        print(python_version)
+        print('''Porcupine comes with ABSOLUTELY NO WARRANTY.
 This is free software, and you are welcome to redistribute it under
-certain conditions; See COPYING for more details.'''
+certain conditions; See COPYING for more details.''')
 
     def _async_loop(self):
         _use_poll = False
@@ -92,27 +88,11 @@ certain conditions; See COPYING for more details.'''
             _use_poll = True
         try:
             asyncore.loop(16.0, _use_poll)
-        except select.error, v:
-            if v[0] == EINTR:
-                print 'Shutdown not completely clean...'
+        except select.error as v:
+            if v.args[0] == EINTR:
+                print('Shutdown not completely clean...')
             else:
                 pass
-
-    def lock_db(self):
-        [s.lock_db() for s in services.services.values() if s != self]
-
-    def unlock_db(self):
-        [s.unlock_db() for s in services.services.values() if s != self]
-
-    def open_db(self):
-        [services.services[s['name']].add_runtime_service('db')
-         for s in services.settings['services']
-         if s != self]
-
-    def close_db(self):
-        [services.services[s['name']].remove_runtime_service('db')
-         for s in services.settings['services']
-         if s != self]
 
     def initiateShutdown(self, arg1=None, arg2=None):
         self.shutdowninprogress = True
@@ -120,7 +100,7 @@ certain conditions; See COPYING for more details.'''
         
     def shutdown(self):
         self.shutdown_evt.wait()
-        print 'Initiating shutdown...'
+        print('Initiating shutdown...')
         runtime.logger.info('Initiating shutdown...')
         self.running = False
 
@@ -145,7 +125,7 @@ def main(args):
                 if pid:
                     sys.exit()
             else:
-                print 'Your operating system does not support daemon mode.'
+                print('Your operating system does not support daemon mode.')
         elif arg == 'stop':
             pidfile = open(PID_FILE, 'r')
             pid = int(pidfile.read())
@@ -153,13 +133,17 @@ def main(args):
             if os.name == 'posix':
                 os.killpg(pid, signal.SIGINT)
             else:
-                print 'Your operating system does not support this command.'
+                print('Your operating system does not support this command.')
             sys.exit()
 
     try:
         controller = Controller()
         controller.start()
-    except Exception, e:
+    except Exception as e:
+        import traceback
+        output = traceback.format_exception(*sys.exc_info())
+        output = ''.join(output)
+        print(output)
         sys.exit(e)
 
     signal.signal(signal.SIGINT, controller.initiateShutdown)

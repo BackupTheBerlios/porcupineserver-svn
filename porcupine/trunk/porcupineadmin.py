@@ -15,11 +15,10 @@
 #    along with Porcupine; if not, write to the Free Software
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #===============================================================================
-"Utility for Porcupine Server database backup"
-
+"Administrative Tools utility for Porcupine Server"
 import getopt
-import sys
 import socket
+import sys
 
 from porcupine.utils import misc
 from porcupine.core.services import management
@@ -49,21 +48,23 @@ DATABASE COMMANDS
 """
 
 def usage():
-    print __usage__
+    print(__usage__)
     sys.exit(2)
 
 # get arguments
 argv = sys.argv[1:]
 try:
-    opts, args = getopt.getopt(argv, "brhcs:f:",
+    opts, args = getopt.getopt(argv, "brhcs:f:l:",
                                ["backup","restore","shrink",
-                                "recover","server=","file="])
+                                "recover","server=","file=",
+                                "reload="])
 except getopt.GetoptError:
     usage()
 
 command = ''
 address = ()
 file = ''
+data = ''
 
 if opts:
     for opt, arg in opts:                
@@ -79,6 +80,9 @@ if opts:
             address = arg
         elif opt in ('-f', '--file'):
             file = arg
+        elif opt in ('-l', '--reload'):
+            command = 'RELOAD'
+            data = arg
 else:
     usage()
 
@@ -91,13 +95,20 @@ try:
 except:
     sys.exit('Invalid server address...')
 
+if sys.version_info[0] == 2:
+    # python 2.6
+    input_ = raw_input
+else:
+    # python 3
+    input_ = input
+
 # construct request object
 if command in ('DB_BACKUP', 'DB_RESTORE'):
     if not(file):
         usage()
     msg = management.MgtMessage(command, file)
 elif command == 'DB_RECOVER' and not address:
-    answer = raw_input('''
+    answer = input_('''
 WARNING: You are about to perform an offline recovery.
 Please ensure that all Porcupine services are stopped,
 since database recovery requires a single-threaded environment.
@@ -106,15 +117,15 @@ Are you sure you want proceed(Y/N)?''')
     if (answer.upper() == 'Y'):
         try:
             from porcupine.administration import offlinedb
-            print 'Recovering database. Please wait...'
+            print('Recovering database. Please wait...')
             db = offlinedb.get_handle(recover=2)
             db.close()
-            print 'Database recovery completed successfully.'
-        except Exception, e:
+            print('Database recovery completed successfully.')
+        except Exception as e:
             sys.exit(e)
     sys.exit()
 else:
-    msg = management.MgtMessage(command, '')
+    msg = management.MgtMessage(command, data)
 
 request = management.MgtRequest(msg.serialize())
 
@@ -124,6 +135,6 @@ except socket.error:
     sys.exit('The host is unreachable...')
 
 if response.header == 0:
-    print response.data
+    print(response.data)
 else:
     sys.exit(response.data)

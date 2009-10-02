@@ -26,12 +26,12 @@ class BaseRequest(object):
     Syncronous base request object
     """
     # port range to use when the ephemeral port range is exhausted
-    _port_range = xrange(65535, 49150, -1)
+    _port_range = range(65535, 49150, -1)
     _client_ip = socket.gethostbyname(socket.gethostname())
     _host_ports = {}
     _next_port_lock = RLock()
 
-    def __init__(self, buffer=''):
+    def __init__(self, buffer=b''):
         self.buffer = buffer
 
     def __next_port(self, address):
@@ -44,42 +44,30 @@ class BaseRequest(object):
 
     def get_response(self, address):
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-
         try:
-            # TODO: remove this try
-            # THIS TRY IS FOR DEBUGGING PURPOSES
-            try:
+            err = s.connect_ex(address)
+            while not err in (0, EISCONN):
+                if err == EADDRINUSE:  # address already in use
+                    # the ephemeral port range is exhausted
+                    s.close()
+                    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                    s.bind((SERVER_IP, self.__next_port(address)))
+                else:
+                    # the host refuses conncetion
+                    raise socket.error
                 err = s.connect_ex(address)
-                while not err in (0, EISCONN):
-                    if err == EADDRINUSE:  # address already in use
-                        # the ephemeral port range is exhausted
-                        s.close()
-                        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-                        s.bind((SERVER_IP, self.__next_port(address)))
-                    else:
-                        # the host refuses conncetion
-                        break
-                    err = s.connect_ex(address)
 
-                s.send(self.buffer)
-                s.shutdown(1)
-                # Get the response object from master
-                response = []
+            s.send(self.buffer)
+            s.shutdown(socket.SHUT_WR)
+            # Get the response object from master
+            response = []
 
+            rdata = s.recv(8192)
+            while rdata:
+                response.append(rdata)
                 rdata = s.recv(8192)
-                while rdata:
-                    response.append(rdata)
-                    rdata = s.recv(8192)
-            except socket.error:
-                import traceback
-                import sys
-                output = traceback.format_exception(*sys.exc_info())
-                output = ''.join(output)
-                print output
-                raise
-
         finally:
             s.close()
 
-        sResponse = ''.join(response)
-        return(sResponse)
+        response_bytes = b''.join(response)
+        return response_bytes

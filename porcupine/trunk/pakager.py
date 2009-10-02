@@ -21,7 +21,13 @@ import getopt
 import sys
 import os
 import tarfile
-import ConfigParser
+import io
+try:
+    # python 2.6
+    import ConfigParser as configparser
+except ImportError:
+    # python 3
+    import configparser
 from xml.dom import minidom
 
 from porcupine import db
@@ -58,12 +64,13 @@ class Package(object):
         
         if package_file:
             self.package_file = tarfile.open(package_file, 'r:gz')
-            ini_file = self.package_file.extractfile('_pkg.ini')
+            ini_file = io.StringIO(
+                self.package_file.extractfile('_pkg.ini').read().decode())
         elif ini_file:
-            ini_file = file(ini_file)
+            ini_file = open(ini_file)
         
         if ini_file:
-            self.config_file = ConfigParser.RawConfigParser()
+            self.config_file = configparser.RawConfigParser()
             self.config_file.readfp(ini_file)
             self.name = self.config_file.get('package', 'name')
             self.version = self.config_file.get('package', 'version')
@@ -76,7 +83,7 @@ class Package(object):
             self.package_file.close()
     
     def _export_item(self, item, clear_roles_inherited=True):
-        it_file = file(self.tmp_folder + '/' + item._id, 'wb')
+        it_file = open(self.tmp_folder + '/' + item._id, 'wb')
         if clear_roles_inherited:
             item.inheritRoles = False
         
@@ -110,8 +117,8 @@ class Package(object):
                     prop._eventHandler.on_create(item, prop)
             self.db.put_item(item)
         else:
-            print 'WARNING: Item "%s" already exists. Upgrading object...' % \
-                item.displayName.value
+            print('WARNING: Item "%s" already exists. Upgrading object...' %
+                  item.displayName.value)
             item.displayName.value = old_item.displayName.value
             item.description.value = old_item.description.value
             item.inheritRoles = old_item.inheritRoles
@@ -133,20 +140,24 @@ class Package(object):
         self.package_files.append((
             self.package_file.gettarinfo(path, path), path))
 
+    def _execute_script(self, filename, name):
+        exec(compile(open(filename).read(), name, 'exec'))
+
     def install(self):
-        print 'INFO: installing [%s-%s] package...' % (self.name, self.version)
+        print('INFO: installing [%s-%s] package...' % (self.name, self.version))
         contents = self.package_file.getnames()
         
         # pre-install script
         if '_pre.py' in contents:
-            print 'INFO: running pre installation script...'
+            print('INFO: running pre installation script...')
             self.package_file.extract('_pre.py', self.tmp_folder)
-            execfile(self.tmp_folder + '/_pre.py')
+            self._execute_script(self.tmp_folder + '/_pre.py',
+                                 'Pre-installation script')
             os.remove(self.tmp_folder + '/_pre.py')
         
         # published directories
         if '_pubdir.xml' in contents:
-            print 'INFO: installing published directories...'
+            print('INFO: installing published directories...')
             dirsfile = self.package_file.extractfile('_pubdir.xml')
             _dom = minidom.parse(dirsfile)
             dirsConfig = configfiles.PubDirManager()
@@ -154,7 +165,7 @@ class Package(object):
             for dir_node in dir_nodes:
                 dir_node = dir_node.cloneNode(True)
                 dir_name = dir_node.getAttribute('name')
-                print 'INFO: installing published directory "%s"' % dir_name
+                print('INFO: installing published directory "%s"' % dir_name)
                 old_node = dirsConfig.getDirNode(dir_name)
                 if old_node:
                     dirsConfig.replaceDirNode(dir_node, old_node)
@@ -165,7 +176,7 @@ class Package(object):
                 
         # files and dirs
         for pfile in [x for x in contents if x[0] != '_']:
-            print 'INFO: extracting ' + pfile
+            print('INFO: extracting ' + pfile)
             self.package_file.extract(pfile)
                 
         # database
@@ -176,17 +187,16 @@ class Package(object):
             @db.transactional(auto_commit=True)
             def _import_items():
                 for dbfile in dbfiles:
-                    print 'INFO: importing object ' + os.path.basename(dbfile)
+                    print('INFO: importing object ' + os.path.basename(dbfile))
                     fn = '%s/%s' % (self.tmp_folder, dbfile)
                     self.package_file.extract(dbfile, self.tmp_folder)
                     objfile = None
                     try:
-                        try:
-                            objfile = file(fn, 'rb')
-                            self._import_item(objfile)
-                        except Exception, e:
-                            raise e
-                            sys.exit(2)
+                        objfile = open(fn, 'rb')
+                        self._import_item(objfile)
+                    except Exception as e:
+                        raise e
+                        sys.exit(2)
                     finally:
                         if objfile:
                             objfile.close()
@@ -201,13 +211,15 @@ class Package(object):
             
         # post-install script
         if '_post.py' in contents:
-            print 'INFO: running post installation script...'
+            print('INFO: running post installation script...')
             self.package_file.extract('_post.py', self.tmp_folder)
-            execfile(self.tmp_folder + '/_post.py')
+            self._execute_script(self.tmp_folder + '/_post.py',
+                                 'Post-installation script')
             os.remove(self.tmp_folder + '/_post.py')
             
     def uninstall(self):
-        print 'INFO: uninstalling [%s-%s] package...' % (self.name, self.version)
+        print('INFO: uninstalling [%s-%s] package...'
+              % (self.name, self.version))
         
         # database items
         items = self.config_file.options('items')
@@ -222,9 +234,9 @@ class Package(object):
                     for itemid in itemids:
                         item = self.db.get_item(itemid)
                         if item is not None:
-                            print 'INFO: removing object %s' % itemid
+                            print('INFO: removing object %s' % itemid)
                             item.delete()
-                except Exception, e:
+                except Exception as e:
                     raise e
                     sys.exit(2)
 
@@ -236,16 +248,17 @@ class Package(object):
         # uninstall script
         contents = self.package_file.getnames()
         if '_uninstall.py' in contents:
-            print 'INFO: running uninstallation script...'
+            print('INFO: running uninstallation script...')
             self.package_file.extract('_uninstall.py', self.tmp_folder)
-            execfile(self.tmp_folder + '/_uninstall.py')
+            self._execute_script(self.tmp_folder + '/_uninstall.py',
+                                 'Uninstall script')
             os.remove(self.tmp_folder + '/_uninstall.py')
         
         # files
         files = self.config_file.options('files')
         for fl in files:
             fname = self.config_file.get('files', fl)
-            print 'INFO: removing file ' + fname
+            print('INFO: removing file ' + fname)
             if os.path.exists(fname):
                 os.remove(fname)
             # check if it is a python file
@@ -259,12 +272,12 @@ class Package(object):
         for dir in dirs:
             dirname = self.config_file.get('dirs', dir)
             if os.path.exists(dirname):
-                print 'INFO: removing directory ' + dirname
+                print('INFO: removing directory ' + dirname)
                 self._deltree(dirname)
                 
         # published dirs
         if '_pubdir.xml' in contents:
-            print 'INFO: uninstalling web apps...'
+            print('INFO: uninstalling web apps...')
             dirsfile = self.package_file.extractfile('_pubdir.xml')
             _dom = minidom.parse(dirsfile)
             dirsConfig = configfiles.PubDirManager()
@@ -272,12 +285,13 @@ class Package(object):
             for dir_node in dir_nodes:
                 #app_node = app_node.cloneNode(True)
                 dir_name = dir_node.getAttribute('name')
-                print 'INFO: uninstalling published directory "%s"' % dir_name
+                print('INFO: uninstalling published directory "%s"' % dir_name)
                 old_node = dirsConfig.getDirNode(dir_name)
                 if old_node:
                     dirsConfig.removeDirNode(old_node)
                 else:
-                    print 'WARNING: published directory "%s" does not exist' % dir_name
+                    print('WARNING: published directory "%s" does not exist'
+                          % dir_name)
                 dirname = dir_node.getAttribute('path')
                 if os.path.exists(dirname):
                     self._deltree(dirname)
@@ -290,16 +304,15 @@ class Package(object):
         files = self.config_file.options('files')
         for fl in files:
             fname = self.config_file.get('files', fl)
-            print 'INFO: adding file ' + fname
-            self.package_files.append(
-                (self.package_file.gettarinfo(fname, fname), fname)
-            )
+            print('INFO: adding file ' + fname)
+            self.package_files.append((
+                self.package_file.gettarinfo(fname, fname), fname))
     
         # directories
         dirs = self.config_file.options('dirs')
         for dir in dirs:
             dirname = self.config_file.get('dirs', dir)
-            print 'INFO: adding directory ' + dirname
+            print('INFO: adding directory ' + dirname)
             self._addtree(dirname)
         
         # published directories
@@ -310,17 +323,18 @@ class Package(object):
             dir_nodes = []
             for dir in pubdirs:
                 dirname = self.config_file.get('pubdir', dir)
-                print 'INFO: adding published directory "%s"' % dirname
+                print('INFO: adding published directory "%s"' % dirname)
                 dir_node = dirsConfig.getDirNode(dirname)
                 if dir_node:
                         dir_nodes.append(dir_node)
                         dir_location = dir_node.getAttribute('path')
                         self._addtree(dir_location)
                 else:
-                    print 'WARNING: published directory "%s" does not exist' % appname
+                    print('WARNING: published directory "%s" does not exist'
+                          % appname)
             
             if dir_nodes:
-                dirsFile = file(self.tmp_folder + '/_pubdir.xml', 'w')
+                dirsFile = open(self.tmp_folder + '/_pubdir.xml', 'w')
                 dirsFile.write('<?xml version="1.0" encoding="utf-8"?><dirs>')
                 for dir_node in dir_nodes:
                     dirsFile.write(dir_node.toxml('utf-8'))
@@ -350,33 +364,24 @@ class Package(object):
         # scripts
         if self.config_file.has_option('scripts', 'preinstall'):
             preinstall = self.config_file.get('scripts', 'preinstall')
-            print 'INFO: adding pre-install script "%s"' % preinstall
-            self.package_files.append(
-                (
-                    self.package_file.gettarinfo(preinstall, '_pre.py'),
-                    preinstall
-                )
-            )
+            print('INFO: adding pre-install script "%s"' % preinstall)
+            self.package_files.append((
+                self.package_file.gettarinfo(preinstall, '_pre.py'),
+                preinstall))
 
         if self.config_file.has_option('scripts', 'postinstall'):
             postinstall = self.config_file.get('scripts', 'postinstall')
-            print 'INFO: adding post-install script "%s"' % postinstall
-            self.package_files.append(
-                (
-                    self.package_file.gettarinfo(postinstall, '_post.py'),
-                    postinstall
-                )
-            )
+            print('INFO: adding post-install script "%s"' % postinstall)
+            self.package_files.append((
+                self.package_file.gettarinfo(postinstall, '_post.py'),
+                postinstall))
                 
         if self.config_file.has_option('scripts', 'uninstall'):
             uninstall = self.config_file.get('scripts', 'uninstall')
-            print 'INFO: adding uninstall script "%s"' % uninstall
-            self.package_files.append(
-                (
-                    self.package_file.gettarinfo(uninstall, '_uninstall.py'),
-                    uninstall
-                )
-            )
+            print('INFO: adding uninstall script "%s"' % uninstall)
+            self.package_files.append((
+                self.package_file.gettarinfo(uninstall, '_uninstall.py'),
+                uninstall))
             
         # definition file
         self.package_files.append((
@@ -384,7 +389,7 @@ class Package(object):
                 definition))
 
         # compact files
-        print 'INFO: compacting...'
+        print('INFO: compacting...')
         for tarinfo, fname in self.package_files:
             if tarinfo.isfile():
                 self.package_file.addfile(tarinfo, file(fname, 'rb'))
@@ -397,7 +402,7 @@ class Package(object):
                 self.package_file.add(fname)
 
 def usage():
-    print __usage__
+    print(__usage__)
     sys.exit(2)
 
 if __name__ == '__main__':

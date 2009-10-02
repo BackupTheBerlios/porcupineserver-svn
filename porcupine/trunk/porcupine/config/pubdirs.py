@@ -72,15 +72,15 @@ class Dir(object):
         filterList = contextNode.getElementsByTagName('filter')
         filters = []
         for filterNode in filterList:
-            type = filterNode.getAttribute('type').encode('iso-8859-1')
+            type = filterNode.getAttribute('type')
             filter = [misc.get_rto_by_name(type), {}]
             for attr in filterNode.attributes.keys():
-                filter[1][str(attr)] = filterNode.getAttribute(attr).encode('iso-8859-1')
+                filter[1][str(attr)] = filterNode.getAttribute(attr)
             filters.append( tuple(filter) )
         return tuple(filters)
 
     def getRegistration(self, sPath, sHttpMethod, sBrowser, sLang):
-        if self.__cache.has_key((sPath, sHttpMethod, sBrowser, sLang)):
+        if (sPath, sHttpMethod, sBrowser, sLang) in self.__cache:
             return self.__cache[(sPath, sHttpMethod, sBrowser, sLang)]
         else:
             for paramList in self.__config:

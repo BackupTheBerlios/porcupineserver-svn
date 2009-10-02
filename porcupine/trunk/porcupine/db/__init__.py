@@ -23,6 +23,7 @@ import copy
 from porcupine import context
 from porcupine import exceptions
 from porcupine.utils import permsresolver
+from porcupine.core import compat
 from porcupine.core.decorators import deprecated
 
 def get_item(oid, trans=None):
@@ -70,8 +71,8 @@ def requires_transactional_context(function):
             raise exceptions.InternalServerError(
                 "Not in a transactional context. Use @db.transactional().")
         return function(*args, **kwargs)
-    rtc_wrapper.func_name = function.func_name
-    rtc_wrapper.func_doc = function.func_doc
+    compat.set_func_name(rtc_wrapper, compat.get_func_name(function))
+    compat.set_func_doc(rtc_wrapper, compat.get_func_doc(function))
     rtc_wrapper.__module__ = function.__module__
     return rtc_wrapper
 
@@ -84,6 +85,13 @@ def transactional(auto_commit=False, nosync=False):
         transactional.
         """
         def transactional_wrapper(*args):
+            # check if running in a replicated site and is master
+            rep_mgr = _db.get_replication_manager()
+            if rep_mgr is not None and not rep_mgr.local_site.is_master:
+                # TODO: abort txn in chained calls?
+                raise exceptions.DBReadOnly(
+                    'Attempted write operation in read-only database.')
+            
             if context._trans is None:
                 txn = _db.get_transaction(nosync)
                 context._trans = txn
@@ -98,7 +106,7 @@ def transactional(auto_commit=False, nosync=False):
                 while retries < txn.txn_max_retries:
                     try:
                         if is_top_level:
-                            cargs = copy.deepcopy(args)
+                            cargs = copy.deepcopy(args, {'_dup_ext_' : False})
                             if retries > 0:
                                 time.sleep(sleep_time)
                                 sleep_time *= 2
@@ -126,8 +134,8 @@ def transactional(auto_commit=False, nosync=False):
             finally:
                 if is_top_level:
                     context._trans = None
-        transactional_wrapper.func_name = function.func_name
-        transactional_wrapper.func_doc = function.func_doc
+        compat.set_func_name(transactional_wrapper, compat.get_func_name(function))
+        compat.set_func_doc(transactional_wrapper, compat.get_func_doc(function))
         transactional_wrapper.__module__ = function.__module__
         return transactional_wrapper
     return transactional_decorator

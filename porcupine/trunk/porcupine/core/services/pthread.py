@@ -16,8 +16,13 @@
 #===============================================================================
 "Porcupine Server Thread"
 import re
-import hashlib
-from cPickle import loads
+import sys
+try:
+    # python 2.6
+    from cPickle import loads
+except ImportError:
+    # python 3
+    from pickle import loads
 
 from porcupine import context
 from porcupine import exceptions
@@ -31,6 +36,7 @@ from porcupine.core.http.request import HttpRequest
 from porcupine.core.http.response import HttpResponse
 from porcupine.core.http import ServerPage
 from porcupine.core.session import SessionManager
+from porcupine.core.networking.request import BaseRequest
 from porcupine.core.servicetypes.asyncserver import BaseServerThread
 
 class PorcupineThread(BaseServerThread):
@@ -50,6 +56,8 @@ class PorcupineThread(BaseServerThread):
         session_id = None
         cookies_enabled = True
         path_info = request.serverVariables['PATH_INFO']
+
+        #print(path_info)
         
         # detect if sessionid is injected in the URL
         session_match = re.match(self._sid_pattern, path_info)
@@ -59,7 +67,7 @@ class PorcupineThread(BaseServerThread):
             session_id = session_match.group(1)
             cookies_enabled = False
         # otherwise check cookie
-        elif request.cookies.has_key('_sid'):
+        elif '_sid' in request.cookies:
             session_id = request.cookies['_sid'].value
             cookies_enabled = True
         
@@ -92,7 +100,7 @@ class PorcupineThread(BaseServerThread):
                     if not registration:
                         raise exceptions.NotFound(
                             'The resource "%s" does not exist' % path_info)
-                    
+
                     rtype = registration.type
                     if rtype == 1: # in case of psp fetch session
                         self._fetch_session(session_id, cookies_enabled)
@@ -113,11 +121,11 @@ class PorcupineThread(BaseServerThread):
                         else: 
                             response.load_from_file(f_name)
                             response.set_header('ETag', '"%s"' %
-                                               misc.generate_file_etag(f_name))
+                                                misc.generate_file_etag(f_name))
                             if registration.encoding:
                                 response.charset = registration.encoding
             
-            except exceptions.ResponseEnd, e:
+            except exceptions.ResponseEnd as e:
                 pass
             
             if registration is not None and response._code == 200:
@@ -129,7 +137,7 @@ class PorcupineThread(BaseServerThread):
                  for filter in registration.filters
                  if filter[0].type == 'post']
 
-        except exceptions.InternalRedirect, e:
+        except exceptions.InternalRedirect as e:
             lstPathInfo = e.args[0].split('?')
             raw_request['env']['PATH_INFO'] = lstPathInfo[0]
             if len(lstPathInfo) == 2:
@@ -137,8 +145,25 @@ class PorcupineThread(BaseServerThread):
             else:
                 raw_request['env']['QUERY_STRING'] = ''
             self.handle_request(rh, raw_request)
+
+        except exceptions.DBReadOnly:
+            context._reset()
+            # proxy request to master
+            rep_mgr = _db.get_replication_manager()
+            master_addr = rep_mgr.master.req_address
+            master_request = BaseRequest(rh.input_buffer)
+            try:
+                master_response = master_request.get_response(master_addr)
+            except:
+                e = exceptions.InternalServerError(
+                    'Database is in read-only mode')
+                e.output_traceback = False
+                e.emit(context, item)
+            else:
+                rh.write_buffer(master_response)
+                return
             
-        except exceptions.PorcupineException, e:
+        except exceptions.PorcupineException as e:
             e.emit(context, item)
                 
         except:
@@ -157,28 +182,49 @@ class PorcupineThread(BaseServerThread):
         r_browser = context.request.serverVariables['HTTP_USER_AGENT']
         r_qs = context.request.serverVariables['QUERY_STRING']
         r_lang = context.request.get_lang()
-        
-        method_key = hashlib.md5(''.join((str(hash(item.__class__)),
-                                 method_name, r_http_method,
-                                 r_qs, r_browser, r_lang))).digest()
+
+        method_key = misc.hash(str(hash(item.__class__)),
+                               method_name,
+                               r_http_method,
+                               r_qs,
+                               r_browser,
+                               r_lang).digest()
         
         method = self._method_cache.get(method_key, None)
         if method is None:
             candidate_methods = [meth for meth in dir(item)
                                  if meth[:4+len(method_name)] == \
                                  'WM_%s_' % method_name]
-            
-            candidate_methods.sort(
-                cmp=lambda x,y:-cmp(
-                    int(getattr(item,x).func_dict['cnd'][1]!='') +
-                    int(getattr(item,x).func_dict['cnd'][3]!=''),
-                    int(getattr(item,y).func_dict['cnd'][1]!='') +
-                    int(getattr(item,y).func_dict['cnd'][3]!=''))
-            )
+
+            if sys.version_info[0] == 2:
+                # python 2.6
+                kwargs = {
+                    'cmp' : lambda x,y: -cmp(
+                        int(getattr(item, x).func_dict['cnd'][1] != '') +
+                        int(getattr(item, x).func_dict['cnd'][3] != ''),
+                        int(getattr(item, y).func_dict['cnd'][1] != '') +
+                        int(getattr(item, y).func_dict['cnd'][3] != ''))
+                }
+            else:
+                # python 3
+                kwargs = {
+                    'key' : lambda x: - (
+                        int(getattr(item, x).__dict__['cnd'][1] != '') +
+                        int(getattr(item, x).__dict__['cnd'][3] != '')
+                    )
+                }
+
+            candidate_methods.sort(**kwargs)
             
             for method_name in candidate_methods:
-                http_method, client, lang, qs = \
-                    getattr(item, method_name).func_dict['cnd']
+                try:
+                    # python 2.6
+                    http_method, client, lang, qs = \
+                        getattr(item, method_name).func_dict['cnd']
+                except AttributeError:
+                    # python 3
+                    http_method, client, lang, qs = \
+                        getattr(item, method_name).__dict__['cnd']
             
                 if re.match(http_method, r_http_method) and \
                         re.search(qs, r_qs) and \
@@ -190,8 +236,13 @@ class PorcupineThread(BaseServerThread):
             self._method_cache[method_key] = method
     
         if method is None:
-            raise exceptions.NotImplemented(
-                'Unknown method call "%s"' % method_name)
+            if context.request.type == 'http':
+                raise exceptions.NotFound(
+                    'Unknown method call "%s"' % method_name)
+            else:
+                # rpc call
+                raise exceptions.RPCMethodNotFound(
+                    'Remote method "%s" is not found' % method_name)
         else:
             # execute method
             getattr(item, method)(context)

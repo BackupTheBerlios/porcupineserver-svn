@@ -15,13 +15,19 @@
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #===============================================================================
 "Porcupine HTTP response class"
+try:
+    # python 2.6
+    import Cookie as cookies
+except ImportError:
+    # python 3
+    import http.cookies as cookies
 
-import Cookie
+import io
 import time
 import mimetypes
-import cStringIO
 
 from porcupine import exceptions
+from porcupine.core.compat import str
 from porcupine.core.decorators import deprecated
 
 class HttpResponse(object):
@@ -39,10 +45,10 @@ class HttpResponse(object):
     """
     def __init__(self):
         self.__headers = {}
-        self.cookies = Cookie.SimpleCookie()
+        self.cookies = cookies.SimpleCookie()
         self.content_type = 'text/html'
         self.charset = 'utf-8'
-        self._body = cStringIO.StringIO()
+        self._body = io.BytesIO()
         self._code = 200
     
     def _reset(self):
@@ -60,7 +66,7 @@ class HttpResponse(object):
     def _get_body(self):
         body = self._body.getvalue()
         self._body.close()
-        return(body)
+        return body
         
     def set_expiration(self, seconds, cache_type='private'):
         """The response becomes valid for a certain amount of time
@@ -82,7 +88,6 @@ class HttpResponse(object):
     def clear(self):
         "Clears the response body."
         self._body.truncate(0)
-        #self._body.seek(0)
         
     def set_header(self, header, value):
         """Sets a response HTTP header.
@@ -94,6 +99,8 @@ class HttpResponse(object):
         
         @return: None
         """
+        if type(value) == str:
+            value = value.encode('utf-8')
         self.__headers[header] = value
     setHeader = deprecated(set_header)
         
@@ -128,55 +135,61 @@ class HttpResponse(object):
         
         @return: None
         """
-        self._body.write(str(s))
+        if isinstance(s, str):
+            self._body.write(s.encode(self.charset))
+        elif isinstance(s, bytes):
+            self._body.write(s)
+        else:
+            self._body.write(str(s))
 
     def end(self):
         """Terminates the response processing cycle
         and sends the response written so far to the client."""
         raise exceptions.ResponseEnd
 
-    def write_file(self, sFilename, sStream, isAttachment=True):
+    def write_file(self, filename, bytestream, is_attachment=True):
         """Writes a file stream to the response using a specified
         filename.
 
-        @param sFilename: file name
-        @type sFilename: str
-        @param sStream: file stream
-        @type sStream: str
-        @param isAttachment: If C{True} then the file is sent as an attachment.
-        @type isAttachment: bool
+        @param filename: file name
+        @type filename: str
+        @param bytestream: file stream
+        @type bytestream: str
+        @param is_attachment: If C{True} then the file is sent as an attachment.
+        @type is_attachment: bool
 
         @return: None
         """
-        if isAttachment:
-            sPrefix = 'attachment;'
+        if is_attachment:
+            prefix = 'attachment;'
         else:
-            sPrefix = ''
-        self.content_type = mimetypes.guess_type(sFilename, False)[0]\
+            prefix = ''
+        content_disposition = '%sfilename="%s"' % (prefix, filename)
+        self.content_type = mimetypes.guess_type(filename, False)[0]\
                             or 'text/plain'
-        self.set_header('Content-Disposition',
-                        '%sfilename="%s"' % (sPrefix, sFilename))
+        self.set_header('Content-Disposition', content_disposition)
         self.clear()
-        self.write(sStream)
+        self.write(bytestream)
     writeFile = deprecated(write_file)
 
-    def load_from_file(self, fileName):
+    def load_from_file(self, filename):
         """Loads the response body from a file that resides on the file
         system and sets the 'Content-Type' header accordingly.
         
-        @param fileName: path of the file to be loaded
-        @type fileName: str
+        @param filename: path of the file to be loaded
+        @type filename: str
         
         @return: None
         """
         try:
-            oFile = file(fileName, 'rb')
+            f = open(filename, 'rb')
         except IOError:
             raise exceptions.NotFound(
-                'The file "%s" can not be found' % fileName)
+                'The file "%s" can not be found' % filename)
         
-        self.content_type = mimetypes.guess_type(fileName, False)[0] or 'text/plain'
+        self.content_type = mimetypes.guess_type(filename, False)[0] or \
+                            'text/plain'
         self._body.truncate(0)
-        self._body.write(oFile.read())
-        oFile.close()
+        self._body.write(f.read())
+        f.close()
     loadFromFile = deprecated(load_from_file)

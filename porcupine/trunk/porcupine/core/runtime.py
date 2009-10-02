@@ -49,9 +49,8 @@ else:
 logger.addHandler(_loghandler)
 logger.setLevel(int(settings['log']['level']))
 
-def init_db(init_maintenance=True, recover=0):
-    return _db.open(**{'maintain' : init_maintenance,
-                       'recover' : recover})
+def init_db(**kwargs):
+    return _db.open(**kwargs)
 
 def lock_db():
     _db.lock()
@@ -69,7 +68,7 @@ def init_session_manager(init_expiration=True):
 
 def init_config():
     # check if config is inited
-    if type(settings['requestinterfaces'].values()[0]) == str:
+    if type(list(settings['requestinterfaces'].values())[0]) == str:
         # register request interfaces
         for key, value in settings['requestinterfaces'].items():
             settings['requestinterfaces'][key] = misc.get_rto_by_name(value)

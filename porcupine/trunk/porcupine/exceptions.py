@@ -19,7 +19,7 @@ import logging
 import sys
 import traceback
 
-from porcupine.utils import xml
+from string import Template
 
 class ConfigurationError(Exception):
     pass
@@ -33,9 +33,13 @@ class InternalRedirect(Exception):
 class DBRetryTransaction(Exception):
     pass
 
+class DBReadOnly(Exception):
+    pass
+
 class PorcupineException(Exception):
     """Base class of all server related exceptions"""
     code = 0
+    rpc_code = -32603
     severity = 0
     description = ''
     output_traceback = False
@@ -45,11 +49,7 @@ class PorcupineException(Exception):
 
     def emit(self, context=None, item=None):
         from porcupine.core.runtime import logger
-        logger.log(
-            self.severity,
-            self.description,
-            exc_info=True
-        )
+        logger.log(self.severity, self.description, exc_info=True)
         if context is not None:
             context.response._reset()
             context.response._code = self.code
@@ -57,37 +57,43 @@ class PorcupineException(Exception):
             code = self.code
             description = self.description
             request_type = context.request.type
-            
-            if request_type == 'xmlrpc':
-                context.response.content_type = 'text/xml'
-                error_template = 'conf/XMLRPCError.xml'
-            else:
-                context.response.content_type = 'text/html'
-                error_template = 'conf/errorpage.html'
-                    
-            http_method = context.request.REQUEST_METHOD
-            browser = context.request.HTTP_USER_AGENT
-            lang = context.request.HTTP_ACCEPT_LANGUAGE
-            method = context.request.method
-            
-            if item is not None:
-                contentclass = item.contentclass
-            else:
-                contentclass = '-'
         
             if self.output_traceback:
                 tbk = traceback.format_exception(*sys.exc_info())
                 tbk = '\n'.join(tbk)
-                if request_type == 'xmlrpc':
-                    tbk = xml.xml_encode(tbk)
                 info = tbk
             else:
-                info = self
-            
-            file = open(error_template)
-            body = file.read()
-            file.close()
-            context.response.write(body % vars())
+                info = self.info
+
+            if request_type == 'xmlrpc':
+                from porcupine.core.rpc import xmlrpc
+                context.response.content_type = 'text/xml'
+                context.response.write(xmlrpc.error(self.rpc_code,
+                                                    description, info))
+            elif request_type == 'jsonrpc':
+                from porcupine.core.rpc import jsonrpc
+                context.response.content_type = 'application/json'
+                context.response.write(jsonrpc.error(self.rpc_code, description,
+                                                     info, context.request.id))
+            else:
+                http_method = context.request.REQUEST_METHOD
+                browser = context.request.HTTP_USER_AGENT
+                lang = context.request.HTTP_ACCEPT_LANGUAGE
+                method = context.request.method
+
+                if item is not None:
+                    contentclass = item.contentclass
+                else:
+                    contentclass = '-'
+
+                # write response
+                context.response.content_type = 'text/html'
+                f = open('conf/errorpage.html')
+                try:
+                    template = Template(f.read())
+                    context.response.write(template.substitute(vars()))
+                finally:
+                    f.close()
         
     def __str__(self):
         return self.info
@@ -134,3 +140,20 @@ class ObjectNotFound(NotFound):
 class PermissionDenied(PorcupineException):
     code = 403
     description = 'Forbidden'
+
+# rpc exceptions
+class RPCParseError(InternalServerError):
+    rpc_code = -32700
+    description = 'Parse Error'
+
+class RPCInvalidRequestError(InternalServerError):
+    rpc_code = -32600
+    description = 'Invalid Request'
+
+class RPCMethodNotFound(NotFound):
+    rpc_code = -32601
+    description = 'Method Not Found'
+
+class RPCInvalidParams(InternalServerError):
+    rpc_code = -32602
+    description = 'Invalid Params'

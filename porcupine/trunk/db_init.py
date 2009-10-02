@@ -14,18 +14,28 @@ def init_db():
     system.displayName.value = 'SYSTEM'
     system._isSystem = True
     system.description.value = 'System account'
+
+    db = None
     try:
-        # open offline db handle
         db = offlinedb.get_handle(system)
-    except Exception, e:
+        initialize_db()
+    except Exception as e:
         sys.exit(e)
-    initialize_db()
-    db.close()
+    finally:
+        if db is not None:
+            db.close()
 
 if __name__ == '__main__':
     freeze_support()
 
-    answer = raw_input('''WARNING: Please ensure that Porcupine Server is stopped!
+    if sys.version_info[0] == 2:
+        # python 2.6
+        input_ = raw_input
+    else:
+        # python 3
+        input_ = input
+
+    answer = input_('''WARNING: Please ensure that Porcupine Server is stopped!
 All objects will be erased!
 Are you sure you want to initialize the database(Y/N)?''')
 

@@ -21,8 +21,8 @@ import os
 import os.path
 import glob
 import gzip
-import cStringIO
 import re
+import io
 
 from porcupine.filters.filter import PostProcessFilter
 from porcupine.utils import misc
@@ -66,28 +66,29 @@ class Gzip(PostProcessFilter):
                 oldFiles = glob.glob(glob_f + '*.gzip')
                 [os.remove(oldFile) for oldFile in oldFiles]
 
-                zBuf = cStringIO.StringIO()
-                Gzip.compress(zBuf, context.response._get_body(), Gzip.staticLevel)
+                zBuf = io.BytesIO()
+                Gzip.compress(zBuf, context.response._get_body(),
+                              Gzip.staticLevel)
 
                 context.response._body = zBuf
 
-                cache_file = file(compfn, 'wb')
+                cache_file = open(compfn, 'wb')
                 cache_file.write(zBuf.getvalue())
                 
                 cache_file.close()
             else:
-                cache_file = file(compfn, 'rb')
+                cache_file = open(compfn, 'rb')
                 context.response.clear()
                 context.response.write(cache_file.read())
                 cache_file.close()
                 
         else:
-            zBuf = cStringIO.StringIO()
+            zBuf = io.StringIO()
             Gzip.compress(zBuf, context.response._get_body(), Gzip.dynamicLevel)
             context.response._body = zBuf
 
 class I18n(PostProcessFilter):
-    _tokens = re.compile('(@@([\w\.]+)@@)', re.DOTALL)
+    _tokens = re.compile(b'(@@([\w\.]+)@@)', re.DOTALL)
     """
     Internationalization filter based on the browser's
     preferred language setting.
@@ -102,9 +103,9 @@ class I18n(PostProcessFilter):
         tokens = frozenset(re.findall(I18n._tokens, output))
         for token, key in tokens:
             for bundle in bundles:
-                res = bundle.get_resource(key, language)
+                res = bundle.get_resource(key.decode(), language)
                 if res != key:
                     break
-            output = output.replace(token, res)
+            output = output.replace(token, res.encode(context.response.charset))
         context.response.clear()
         context.response.write(output)

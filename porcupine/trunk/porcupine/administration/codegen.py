@@ -23,6 +23,7 @@ import sys
 import types
 import time
 import re
+import imp
 
 from porcupine import db
 from porcupine import datatypes
@@ -72,7 +73,7 @@ class GenericSchemaEditor(object):
         for x in moduledict:
             if type(moduledict[x]) == types.ModuleType:
                 self._imports[moduledict[x]] = x
-            elif callable(moduledict[x]) and \
+            elif hasattr(moduledict[x], '__call__') and \
                     (sys.modules[moduledict[x].__module__] != self._module):
                 imported = misc.get_rto_by_name(moduledict[x].__module__ +
                                                 '.' + moduledict[x].__name__)
@@ -82,10 +83,10 @@ class GenericSchemaEditor(object):
         raise NotImplementedError
     
     def _get_full_name(self, callable):
-        if callable.__module__ == '__builtin__':
+        if callable.__module__ == ''.__class__.__module__:
             return callable.__name__
         module = misc.get_rto_by_name(callable.__module__)
-        if self._imports.has_key(module):
+        if module in self._imports:
             return self._imports[module] + '.' + callable.__name__
         else:
             if module == self._module:
@@ -158,7 +159,7 @@ class GenericSchemaEditor(object):
             if modulefilename[-1] in ['c', 'o']:
                 modulefilename = modulefilename[:-1]
             
-            modfile = file(modulefilename, 'w')
+            modfile = open(modulefilename, 'w')
             modfile.writelines(new_source)
             modfile.close()
     # backwards compatibility
@@ -196,7 +197,7 @@ class ItemEditor(GenericSchemaEditor):
     setProperty = set_property
     
     def remove_property(self, name):
-        if self._attrs.has_key(name):
+        if name in self._attrs:
             del self._attrs[name]
             self._removedProps.append(name)
     # kept for backwards compatibility
@@ -209,7 +210,7 @@ class ItemEditor(GenericSchemaEditor):
                 GenericSchemaEditor.commit_changes(self)
                 # we must reload the class module
                 oMod = misc.get_rto_by_name(self._class.__module__)
-                reload(oMod)
+                imp.reload(oMod)
             
             db_handle = offlinedb.get_handle()
             oql_command = OqlCommand()
@@ -296,11 +297,11 @@ class ItemEditor(GenericSchemaEditor):
             
             # props
             for prop in [x for x in self._attrs
-                    if self._attrs[x].__class__.__module__ != '__builtin__']:
+                    if self._attrs[x].__class__.__module__ != ''.__class__.__module__]:
                 code.append('        self.%s = %s()\n' %
                         (prop, self._get_full_name(self._attrs[prop].__class__)))
             for prop in [x for x in self._attrs
-                    if self._attrs[x].__class__.__module__ == '__builtin__']:
+                    if self._attrs[x].__class__.__module__ == ''.__class__.__module__]:
                 if prop != '_id':
                     code.append('        self.%s = %s\n' %
                             (prop, repr(self._attrs[prop])))
@@ -387,11 +388,11 @@ class DatatypeEditor(GenericSchemaEditor):
             
             # props
             for prop in [x for x in self._attrs
-                    if self._attrs[x].__class__.__module__ != '__builtin__']:
+                    if self._attrs[x].__class__.__module__ != ''.__class__.__module__]:
                 code.append('        self.%s = %s()\n' %
                         (prop, self._get_full_name(self._attrs[prop].__class__)))
             for prop in [x for x in self._attrs
-                    if self._attrs[x].__class__.__module__ == '__builtin__']:
+                    if self._attrs[x].__class__.__module__ == ''.__class__.__module__]:
                 code.append('        self.%s = %s\n' % 
                         (prop, repr(self._attrs[prop])))
         

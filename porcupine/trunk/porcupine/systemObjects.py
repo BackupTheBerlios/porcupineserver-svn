@@ -75,19 +75,21 @@ class Cloneable(object):
         if self.isCollection:
             [child._copy(clone) for child in self.get_children()]
 
-    def clone(self, dup_ext_files=True):
+    def clone(self, dup_ext=True):
         """
         Creates an in-memory clone of the item.
         This is a shallow copy operation meaning that the item's
         references are not cloned.
         
-        @param dup_ext_files: Boolean indicating if the external
-                              files should be also duplicated
-        @type dup_ext_files: bool
+        @param dup_ext: Boolean indicating if the external
+                        files and external datatypes should be
+                        also duplicated
+        @type dup_ext: bool
+
         @return: the clone object
-        @rtype: type
+        @rtype: L{GenericItem}
         """
-        clone = copy.deepcopy(self, {'df':dup_ext_files})
+        clone = copy.deepcopy(self, {'_dup_ext_':dup_ext})
         clone._id = misc.generate_oid()
         return clone
 
@@ -164,7 +166,7 @@ class Movable(object):
         parent_id = self._parentid
         target = db._db.get_item(target_id)
         if target is None or target._isDeleted:
-            raise exceptions.ObjectNotFound, (
+            raise exceptions.ObjectNotFound(
                 'The target container "%s" does not exist.' % target_id)
         
         if isinstance(self, Shortcut):
@@ -185,7 +187,7 @@ class Movable(object):
                 raise exceptions.ContainmentError(
                     'The target container does not accept '
                     'objects of type\n"%s".' % contentclass)
-            
+
             self._parentid = target._id
             self.inheritRoles = False
             self.modified = time.time()
@@ -242,17 +244,17 @@ class Removable(object):
         @return: None
         """
         user = context.user
-        self = db._db.get_item(self._id)
+        self_ = db._db.get_item(self._id)
 
-        user_role = permsresolver.get_access(self, user)
+        user_role = permsresolver.get_access(self_, user)
         can_delete = (user_role > permsresolver.AUTHOR) or \
-            (user_role == permsresolver.AUTHOR and self._owner == user._id)
+            (user_role == permsresolver.AUTHOR and self_._owner == user._id)
         
-        if (not(self._isSystem) and can_delete):
+        if (not(self_._isSystem) and can_delete):
             # delete item physically
-            self._delete()
+            self_._delete()
             # update container
-            parent = db._db.get_item(self._parentid)
+            parent = db._db.get_item(self_._parentid)
             parent.modified = time.time()
             db._db.put_item(parent)
         else:
@@ -317,15 +319,15 @@ class Removable(object):
         @return: None
         """
         user = context.user
-        self = db._db.get_item(self._id)
+        self_ = db._db.get_item(self._id)
         
-        user_role = permsresolver.get_access(self, user)
+        user_role = permsresolver.get_access(self_, user)
         can_delete = (user_role > permsresolver.AUTHOR) or \
                      (user_role == permsresolver.AUTHOR and
-                      self._owner == user._id)
+                      self_._owner == user._id)
         
-        if (not(self._isSystem) and can_delete):
-            deleted = DeletedItem(self)
+        if (not(self_._isSystem) and can_delete):
+            deleted = DeletedItem(self_)
             deleted._owner = user._id
             deleted._created = time.time()
             deleted.modifiedBy = user.displayName.value
@@ -343,10 +345,10 @@ class Removable(object):
             db._db.put_item(deleted)
             
             # delete item logically
-            self._recycle()
+            self_._recycle()
             
             # update container
-            parent = db._db.get_item(self._parentid)
+            parent = db._db.get_item(self_._parentid)
             parent.modified = time.time()
             db._db.put_item(parent)
         else:
@@ -942,9 +944,10 @@ class Container(Item):
         cursor = db._db.query(conditions)
         cursor.set_scope(self._id)
         cursor.fetch_mode = 0
+        cursor.enforce_permissions = False
         iterator = iter(cursor)
         try:
-            childid = iterator.next()
+            childid = next(iterator)
         except StopIteration:
             childid = None
         cursor.close()
@@ -967,7 +970,7 @@ class Container(Item):
         cursor.set_scope(self._id)
         iterator = iter(cursor)
         try:
-            child = iterator.next()
+            child = next(iterator)
         except StopIteration:
             child = None
         cursor.close()

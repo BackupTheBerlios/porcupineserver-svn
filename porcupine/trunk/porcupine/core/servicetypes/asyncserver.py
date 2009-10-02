@@ -17,16 +17,23 @@
 """
 Porcupine base classes for multi processing, multi threaded network servers
 """
+try:
+    # python 2.6
+    import Queue as queue
+except ImportError:
+    # python 3
+    import queue
+
+import asyncore
+import select
 import socket
 import time
-import Queue
-import select
-from threading import Thread, currentThread
+from errno import EINTR
+from threading import Thread, current_thread
 
-from porcupine.core import asyncore
-from porcupine.db.basetransaction import BaseTransaction
 from porcupine.core.runtime import multiprocessing
 from porcupine.core.servicetypes.service import BaseService
+from porcupine.db.basetransaction import BaseTransaction
 
 class BaseServerThread(Thread):
     def handle_request(self, request_handler):
@@ -34,13 +41,14 @@ class BaseServerThread(Thread):
 
 class Dispatcher(asyncore.dispatcher):
     def __init__(self, request_queue, done_queue=None, socket_map=None):
+        asyncore.dispatcher.__init__(self, map=socket_map)
         # create queue for inactive RequestHandler objects i.e. those served
-        self.rh_queue = Queue.Queue(0)
+        self.rh_queue = queue.Queue(0)
         self.active_connections = 0
         self.request_queue = request_queue
         self.done_queue = done_queue
         self.socket_map = socket_map
-        self.accepting = 1
+        self.accepting = True
 
     def readable(self):
         return self.accepting
@@ -66,7 +74,7 @@ class Dispatcher(asyncore.dispatcher):
             try:
                 # get inactive requestHandler from queue
                 rh = self.rh_queue.get_nowait()
-            except Queue.Empty:
+            except queue.Empty:
                 # if empty then create new requestHandler
                 rh = RequestHandler(self)
             # set the client socket of requestHandler
@@ -113,9 +121,9 @@ class BaseServer(BaseService, Dispatcher):
                 # create queues for communicating
                 request_queue = get_shared_queue(2048)
                 done_queue = get_shared_queue(2048)
-                self.sentinel = (-1 , 'EOF')
+                self.sentinel = (-1 , b'EOF')
         else:
-            request_queue = Queue.Queue(worker_threads * 2)
+            request_queue = queue.Queue(worker_threads * 2)
 
         Dispatcher.__init__(self, request_queue, done_queue)
 
@@ -130,7 +138,7 @@ class BaseServer(BaseService, Dispatcher):
         self._socket.setblocking(0)
         try:
             self._socket.bind(self.addr)
-        except socket.error, v:
+        except socket.error as v:
             self._socket.close()
             raise v
         self._socket.listen(64)
@@ -163,8 +171,14 @@ class BaseServer(BaseService, Dispatcher):
             BaseTransaction._txn_max_s = \
                 multiprocessing.Semaphore(BaseTransaction.txn_max)
 
+            # check if running in replicated environment
+            from porcupine.db import _db
+            rep_mgr = _db.get_replication_manager()
+            if rep_mgr is not None:
+                kwargs['master'] = rep_mgr.master
+
             # start worker processes
-            for i in range(self.worker_processes):
+            for i in list(range(self.worker_processes)):
                 pname = '%s server process %d' % (self.name, i+1)
                 pconn, cconn = multiprocessing.Pipe()
                 p = SubProcess(pname, self.worker_threads, self.thread_class,
@@ -256,7 +270,7 @@ class BaseServer(BaseService, Dispatcher):
 
     def _thread_loop(self):
         "loop for threads serving content to clients (non mutltiprocessing)"
-        thread = currentThread()
+        thread = current_thread()
         while True:
             # get next waiting client request
             request_handler = self.request_queue.get()
@@ -276,10 +290,11 @@ class BaseServer(BaseService, Dispatcher):
 class RequestHandler(asyncore.dispatcher):
     "Request handler object"
     def __init__(self, server):
+        asyncore.dispatcher.__init__(self, map=server.socket_map)
         self.server = server
         self.has_request = False
         self.has_response = False
-        self.output_buffer = ''
+        self.output_buffer = b''
         self.input_buffer = []
 
     def activate(self, sock, socket_map=None):
@@ -305,18 +320,15 @@ class RequestHandler(asyncore.dispatcher):
         if data:
             self.input_buffer.append(data)
         else:
-            self.input_buffer = ''.join(self.input_buffer)
-            self.has_request = True
             if self.input_buffer:
+                self.input_buffer = b''.join(self.input_buffer)
                 if self.server.done_queue is not None:
                     self.server.request_queue.put((self._fileno,
                                                    self.input_buffer))
                 else:
                     # put it in the queue so that is served
                     self.server.request_queue.put(self)
-            else:
-                # we have a dead socket(?)
-                self.close()
+                self.has_request = True
 
     def handle_write(self):
         try:
@@ -331,17 +343,17 @@ class RequestHandler(asyncore.dispatcher):
 
     def close(self):
         asyncore.dispatcher.close(self)
-        if self.server.socket_map is not None:
-            self.del_channel(self.server.socket_map)
+        #if self.server.socket_map is not None:
+        #    self.del_channel(self.server.socket_map)
         self.has_request = False
         self.has_response = False
         self.input_buffer = []
-        self.output_buffer = ''
+        self.output_buffer = b''
         if self.server is not None:
             # put it in inactive request handlers queue
             self.server.rh_queue.put(self)
             self.server.active_connections -= 1
-            # print 'Total: ' + str(self.server.active_connections)
+            # print('Total: ' + str(self.server.active_connections))
 
 if multiprocessing:
     if not hasattr(socket, 'fromfd'):
@@ -387,9 +399,10 @@ if multiprocessing:
                 qsize.value -= i
                 self.item_popped.notify()
                 self.release()
-                return fn, ''.join(buffer)
+                return fn, b''.join(buffer)
 
-            def put(self, (fn, b)):
+            def put(self, t):
+                fn, b = t
                 # split buffer into chunks
                 chunks = [array('B', b[i:i + 16384])
                           for i in range(0, len(b), 16384)]
@@ -408,8 +421,8 @@ if multiprocessing:
                 self.item_pushed.notify()
                 self.release()
 
-            queue.get = MethodType(get, queue, type(queue))
-            queue.put = MethodType(put, queue, type(queue))
+            queue.get = MethodType(get, queue)
+            queue.put = MethodType(put, queue)
             queue.qsize = qsize
             queue.item_pushed = item_pushed
             queue.item_popped = item_popped
@@ -418,23 +431,23 @@ if multiprocessing:
         class RequestHandlerProxy(object):
             def __init__(self, input_buffer):
                 self.input_buffer = input_buffer
-                self.output_buffer = ''
+                self.output_buffer = b''
 
             def write_buffer(self, s):
                 self.output_buffer += s
 
             def close(self):
-                self.input_buffer = ''
-                self.output_buffer = ''
+                self.input_buffer = b''
+                self.output_buffer = b''
 
     class SubProcess(BaseService, multiprocessing.Process):
         runtime_services = [('config', (), {}),
-                            ('db', (), {'init_maintenance':False}),
+                            ('db', (), {}),
                             ('session_manager', (), {'init_expiration':False})]
 
         def __init__(self, name, worker_threads, thread_class, connection,
-                     txn_max_s, request_queue = None, done_queue = None,
-                     sentinel=None, socket = None):
+                     txn_max_s, request_queue=None, done_queue=None,
+                     sentinel=None, socket=None, master=None):
             BaseService.__init__(self, name)
             multiprocessing.Process.__init__(self, name=name)
             self.worker_threads = worker_threads
@@ -446,19 +459,20 @@ if multiprocessing:
             self.sentinel = sentinel
             self.socket = socket
             self.is_alive = True
+            self.master = master
 
         def start(self):
             multiprocessing.Process.start(self)
 
         def _async_loop(self, socket_map):
-            _use_poll = False
+            use_poll = False
             if hasattr(select, 'poll'):
-                _use_poll = True
+                use_poll = True
             try:
-                asyncore.loop(16.0, _use_poll, socket_map)
-            except select.error, v:
-                if v[0] == EINTR:
-                    print 'Shutdown not completely clean...'
+                asyncore.loop(16.0, use_poll, socket_map)
+            except select.error as v:
+                if v.args[0] == EINTR:
+                    print('Shutdown not completely clean...')
                 else:
                     pass
 
@@ -467,7 +481,9 @@ if multiprocessing:
                 command = self.connection.recv()
                 if command == self.sentinel:
                     break
-                elif command == 'DB_LOCK':
+                if isinstance(command, (list, tuple)):
+                    command, params = command
+                if command == 'DB_LOCK':
                     self.lock_db()
                 elif command == 'DB_UNLOCK':
                     self.unlock_db()
@@ -475,6 +491,10 @@ if multiprocessing:
                     self.add_runtime_service('db')
                 elif command == 'DB_CLOSE':
                     self.remove_runtime_service('db')
+                elif command == 'NEW_MASTER':
+                    from porcupine.db import _db
+                    #print(self.name, params.address)
+                    _db.get_replication_manager().master = params
                 self.connection.send(True)
             self.connection.send(None)
             self.is_alive = False
@@ -485,12 +505,17 @@ if multiprocessing:
             # set tx_max multiprocessing semaphore
             BaseTransaction._txn_max_s = self.txn_max_s
 
+            # set initial site master
+            if self.master is not None:
+                from porcupine.db import _db
+                _db.get_replication_manager().master = self.master
+
             # start server
             if self.socket is not None:
                 socket_map = {}
                 
                 # start server
-                self.request_queue = Queue.Queue(self.worker_threads * 2)
+                self.request_queue = queue.Queue(self.worker_threads * 2)
                 self.done_queue = None
                 server = Dispatcher(self.request_queue, None, socket_map)
                 # activate server socket
@@ -504,7 +529,7 @@ if multiprocessing:
             else:
                 # create queue for inactive RequestHandlerProxy objects
                 # i.e. those served
-                self.rhproxy_queue = Queue.Queue(0)
+                self.rhproxy_queue = queue.Queue(0)
                 # patch shared queues
                 self.request_queue = init_queue(*self.request_queue)
                 self.done_queue = init_queue(*self.done_queue)
@@ -549,7 +574,7 @@ if multiprocessing:
 
         def _thread_loop(self):
             "subprocess loop for threads serving content to clients"
-            thread = currentThread()
+            thread = current_thread()
             while True:
                 # get next waiting client request
                 request_handler = self.request_queue.get()
@@ -567,7 +592,7 @@ if multiprocessing:
                             # get inactive RequestHandlerProxy from queue
                             proxy = self.rhproxy_queue.get_nowait()
                             proxy.input_buffer = input_buffer
-                        except Queue.Empty:
+                        except queue.Empty:
                             # if empty then create new RequestHandlerProxy
                             proxy = RequestHandlerProxy(input_buffer)
 

@@ -15,7 +15,6 @@
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #===============================================================================
 "Porcupine Python Server Pages"
-
 import os
 import re
 import marshal
@@ -96,17 +95,14 @@ def execute(context, filename):
         marshal.dump(oCode, pspBinaryFile)
         pspBinaryFile.seek(0)
 
-    pspDir = {
-        'Server'    :context.server,
-        'Session'   :context.session,
-        'Response'  :context.response,
-        'Request'   :context.request,
-#        'item'      :self.item,
-#        'include'   :self.include,
-#        'servlet'   :self
+    psp_globals = {
+        'Server' : context.server,
+        'Session' : context.session,
+        'Response' : context.response,
+        'Request' : context.request
     }
-    oCode = marshal.load(pspBinaryFile)
+    code = marshal.load(pspBinaryFile)
     try:
-        exec oCode in pspDir
+        exec(code, psp_globals)
     finally:
         pspBinaryFile.close()

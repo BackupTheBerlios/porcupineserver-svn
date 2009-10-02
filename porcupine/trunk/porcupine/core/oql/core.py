@@ -25,6 +25,7 @@ from porcupine import db
 from porcupine.core.objectSet import ObjectSet
 from porcupine.utils.date import Date
 from porcupine.utils import misc
+from porcupine.core.compat import str
 
 NEG         = 1
 
@@ -105,7 +106,7 @@ def evaluate_stack(stack, variables, for_object=None):
     elif type(op) == types.FunctionType:
         return op(for_object)
 
-    elif type(op) == str:
+    elif isinstance(op, (bytes, str)):
         if op[0] == "'":
             # a string
             return op[1:-1]
@@ -128,7 +129,7 @@ def evaluate_stack(stack, variables, for_object=None):
             return opn1[op](op1)
 
         else:
-            if variables.has_key(op) and type(variables[op]) == tuple:
+            if op in variables and type(variables[op]) == tuple:
                 # an alias or optimized attribute
                 alias_stack, objectid, alias_value = variables[op]
                 if for_object is not None and objectid != for_object._id:
@@ -158,7 +159,7 @@ def get_attribute(obj, name_list):
     try:
         attr_name = name_list.pop(0)
         attr = getattr(obj, attr_name)
-        if attr.__class__.__module__ != '__builtin__':
+        if attr.__class__.__module__ != ''.__class__.__module__:
             if isinstance(attr, datatypes.Reference1):
                 obj = attr.get_item()
             elif isinstance(attr,
@@ -178,19 +179,18 @@ def get_attribute(obj, name_list):
                 obj = [get_attribute(item, name_list[:]) for item in obj]
             else:
                 obj = get_attribute(obj, name_list[:])
-        
         return obj
     except AttributeError:
         return None
         
 def sort_list(list1, list2):
-    pairs = zip(list1, list2)
+    pairs = list(zip(list1, list2))
     pairs.sort()
     res = [x[1] for x in pairs]
     return res
 
 def compute_aggregate(aggr, lst):
-    #print aggr, list
+    #print(aggr, list)
     if aggr=='COUNT':
         return len(lst)
     elif aggr=='MAX':
@@ -236,7 +236,7 @@ def h_51(params, variables, for_object):
 def h_60(params, variables, for_object):
     func = fn[params[0]]
     args = params[1]
-    #print args
+    #print(args)
     f_args = [evaluate_stack(arg[:], variables, for_object) for arg in args]
     return func(*f_args)
 
@@ -284,10 +284,10 @@ def h_64(params, variables, for_object):
     expression = evaluate_stack(params[0][:], variables, for_object)
     low = evaluate_stack(params[1][:], variables, for_object) or None
     high = evaluate_stack(params[2][:], variables, for_object) or None
-    if type(expression)==str:
-        return unicode(expression, 'utf-8')[low:high].encode('utf-8')
-    else:
-        return expression[low:high]
+#    if type(expression) == str:
+#        return unicode(expression, 'utf-8')[low:high].encode('utf-8')
+#    else:
+    return expression[low:high]
 
 #===============================================================================
 # IF command handler
@@ -462,7 +462,7 @@ def h_200(params, variables, for_object=None):
 
     select_from = params[1]
     where_condition = params[2]
-    
+
     if params[3]:
         sort_order, order_by = params[3]
         
@@ -514,7 +514,7 @@ def h_200(params, variables, for_object=None):
     
     aggregates = [x[2] for x in all_fields]
 
-    #print 'where: %s' % where_condition
+    #print('where: %s' % where_condition)
 
     uses_indexes = False
     if for_object is None and where_condition:
@@ -525,7 +525,7 @@ def h_200(params, variables, for_object=None):
     if for_object is None and not uses_indexes:
         optimized = [[[('displayName', (None, None))], where_condition]]
 
-    #print 'opt: %s' % optimized
+    #print('opt: %s' % optimized)
 
     results = ObjectSet([])
     for deep, object_id in select_from:
