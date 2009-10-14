@@ -24,6 +24,7 @@ import random
 import os
 import sys
 import imp
+import types
 
 from porcupine.core.compat import str
 from porcupine.core.decorators import deprecated
@@ -95,7 +96,7 @@ def get_rto_by_name(name):
         get_rto_by_name('org.innoscript.desktop.schema.common.Folder')()
     
     instantiates a new I{Folder} object.
-        
+    
     @rtype: callable type
     """
     modules = name.split('.')
@@ -128,6 +129,25 @@ def get_address_from_string(address):
     address[1] = int(address[1])
     return tuple(address)
 getAddressFromString = deprecated(get_address_from_string)
+
+def reload_module_tree(module, memo={}):
+    """
+    Reloads a module hierarchy.
+
+    @param module: the top-level module
+    @type module: module
+    """
+    if not memo:
+        memo['__root__'] = module.__name__
+    if not module.__name__ in memo:
+        imp.reload(module)
+        #print(module.__name__)
+        memo[module.__name__] = True
+        # get modules
+        [reload_module_tree(m, memo)
+         for m in module.__dict__.values()
+         if isinstance(m, types.ModuleType) and
+         m.__name__.startswith(memo['__root__'])]
     
 def get_full_path(item):
     """
