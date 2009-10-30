@@ -31,6 +31,7 @@ class SessionManager(GenericSessionManager):
     Cookie based session manager implementation class
     """
     supports_multiple_processes = True
+    requires_cookies = True
 
     def __init__(self, timeout, **kwargs):
         GenericSessionManager.__init__(self, timeout)
@@ -152,6 +153,10 @@ class Session(GenericSession):
         return self.__data.get(name, None)
     getValue = deprecated(get_value)
 
+    def remove_value(self, name):
+        del self.__data[name]
+        self._update()
+        
     def get_data(self):
         return(self.__data)
 
