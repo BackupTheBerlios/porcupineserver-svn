@@ -21,30 +21,27 @@ QuiX.rpc.XMLRPCRequest = function(sUrl /*, async*/) {
     this.base = QuiX.rpc.BaseRPCRequest;
     this.base(sUrl, async);
 }
+// backwards compatibility
+var XMLRPCRequest = QuiX.rpc.XMLRPCRequest;
 
 QuiX.rpc.XMLRPCRequest.prototype = new QuiX.rpc.BaseRPCRequest;
 
 QuiX.rpc.XMLRPCRequest.prototype._contentType = 'text/xml';
 
 QuiX.rpc.XMLRPCRequest.prototype._processResult = function(/*xmlrpcstr*/) {
-    try {
-        var dom;
-        if (arguments[0]) {
-            dom = QuiX.domFromString(arguments[0]);
-        }
-        else {
-            dom = this.xmlhttp.responseXML;
-        }
-        if (dom) {
-            return QuiX.parsers.XMLRPC.parse(dom);
-        }
-        else {
-            throw new QuiX.Exception('QuiX.rpc.XMLRPCRequest',
-                                     'Malformed XMLRPC response');
-        }
+    var dom;
+    if (arguments[0]) {
+        dom = QuiX.domFromString(arguments[0]);
     }
-    catch (e) {
-        QuiX.rpc.handleError(this, e);
+    else {
+        dom = this.xmlhttp.responseXML;
+    }
+    if (dom) {
+        return QuiX.parsers.XMLRPC.parse(dom);
+    }
+    else {
+        throw new QuiX.Exception('QuiX.rpc.XMLRPCRequest',
+                                 'Malformed XMLRPC response');
     }
 }
 

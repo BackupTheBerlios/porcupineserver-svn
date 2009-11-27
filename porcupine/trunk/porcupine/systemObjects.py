@@ -125,7 +125,7 @@ class Cloneable(object):
         user = context.user
         user_role = permsresolver.get_access(target, user)
         if not(self._isSystem) and user_role > permsresolver.READER:
-            if not(contentclass in target.containment):
+            if contentclass not in target.containment:
                 raise exceptions.ContainmentError(
                     'The target container does not accept '
                     'objects of type\n"%s".' % contentclass)
@@ -183,7 +183,7 @@ class Movable(object):
         
         if (not(self._isSystem) and can_move and
                 user_role2 > permsresolver.READER):
-            if not(contentclass in target.containment):
+            if contentclass not in target.containment:
                 raise exceptions.ContainmentError(
                     'The target container does not accept '
                     'objects of type\n"%s".' % contentclass)
@@ -230,8 +230,9 @@ class Removable(object):
         if _update_parent:
             # update container modification timestamp
             parent = db._db.get_item(self._pid)
-            parent.modified = time.time()
-            db._db.put_item(parent)
+            if parent is not None:
+                parent.modified = time.time()
+                db._db.put_item(parent)
         
         db._db.handle_post_delete(self, True)
 
@@ -505,7 +506,7 @@ class GenericItem(object):
             raise exceptions.PermissionDenied(
                 'The user does not have write permissions '
                 'on the parent folder.')
-        if not(contentclass in parent.containment):
+        if contentclass not in parent.containment:
             raise exceptions.ContainmentError(
                 'The target container does not accept '
                 'objects of type\n"%s".' % contentclass)
@@ -884,7 +885,7 @@ class Shortcut(Item):
             parent = db._db.get_item(parent)
 
         contentclass = self.get_target_contentclass()
-        if not(contentclass in parent.containment):
+        if contentclass not in parent.containment:
             raise exceptions.ContainmentError(
                 'The target container does not accept '
                 'objects of type\n"%s".' % contentclass)
@@ -897,7 +898,7 @@ class Shortcut(Item):
             target = db._db.get_item(target)
 
         contentclass = self.get_target_contentclass()
-        if not(contentclass in target.containment):
+        if contentclass not in target.containment:
             raise exceptions.ContainmentError(
                 'The target container does not accept '
                 'objects of type\n"%s".' % contentclass)
@@ -910,7 +911,7 @@ class Shortcut(Item):
             target = db._db.get_item(target)
 
         contentclass = self.get_target_contentclass()
-        if not(contentclass in target.containment):
+        if contentclass not in target.containment:
             raise exceptions.ContainmentError(
                 'The target container does not accept '
                 'objects of type\n"%s".' % contentclass)
@@ -921,7 +922,7 @@ class Shortcut(Item):
     def update(self):
         parent = db._db.get_item(self._pid)
         contentclass = self.get_target_contentclass()
-        if not(contentclass in parent.containment):
+        if contentclass not in parent.containment:
             raise exceptions.ContainmentError(
                 'The parent container does not accept '
                 'objects of type\n"%s".' % contentclass)
