@@ -35,6 +35,7 @@ class ETag(PreProcessFilter):
 
             method_id = [context.user._id,
                          struct.pack('>d', item.modified),
+                         struct.pack('>q', hash(tuple(item.__props__))),
                          context.request.get_lang()]
             try:
                 # python 2.6
@@ -42,7 +43,7 @@ class ETag(PreProcessFilter):
             except AttributeError:
                 # python 3
                 func_hash = hash(wrapper.func.__code__)
-            method_id.append(struct.pack('>l', func_hash))
+            method_id.append(struct.pack('>q', func_hash))
             
             if wrapper.template is not None:
                 func_dir = os.path.dirname(
