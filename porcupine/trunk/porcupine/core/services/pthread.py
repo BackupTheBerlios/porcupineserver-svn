@@ -120,8 +120,12 @@ class PorcupineThread(BaseServerThread):
                             response._code = 304
                         else: 
                             response.load_from_file(f_name)
-                            response.set_header('ETag', '"%s"' %
-                                                misc.generate_file_etag(f_name))
+                            if not any([f[0].mutates_output
+                                        for f in registration.filters
+                                        if f[0].type == 'post']):
+                                response.set_header(
+                                    'ETag', '"%s"' %
+                                    misc.generate_file_etag(f_name))
                             if registration.encoding:
                                 response.charset = registration.encoding
             
