@@ -45,7 +45,8 @@ class ETag(PreProcessFilter):
                 func_code = wrapper.func.__code__
             method_id.append(func_code.co_code)
             method_id.append(struct.pack('>q', hash(func_code.co_varnames)))
-            method_id.append(struct.pack('>q', hash(func_code.co_consts)))
+            # exclude None from consts
+            method_id.append(struct.pack('>q', hash(func_code.co_consts[1:])))
 
             if wrapper.template is not None:
                 func_dir = os.path.dirname(
