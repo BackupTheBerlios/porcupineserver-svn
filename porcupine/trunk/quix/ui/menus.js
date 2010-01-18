@@ -9,7 +9,8 @@ QuiX.ui.MenuOption = function(params) {
 	params.overflow = 'visible';
 	params.padding = '4,0,3,2';
 	params.onmouseover = MenuOption__onmouseover;
-	params.onclick = QuiX.getEventWrapper(params.onclick, MenuOption__onclick);
+	params.onclick = QuiX.wrappers.eventWrapper(params.onclick,
+                                                MenuOption__onclick);
 
 	this.base = QuiX.ui.Icon;
 	this.base(params);
@@ -36,7 +37,7 @@ QuiX.ui.MenuOption.prototype.redraw = function(bForceAll /*, memo*/) {
 		this.div.className = 'option submenu';
 	else
 		this.div.className = 'option';
-    
+
 	if (this.type) {
 		if (this.selected) {
 			switch (this.type) {
@@ -55,6 +56,7 @@ QuiX.ui.MenuOption.prototype.redraw = function(bForceAll /*, memo*/) {
 		this.setPadding([24,8,3,2]);
 	else
 		this.setPadding([5,8,3,2]);
+    
 	QuiX.ui.Icon.prototype.redraw.apply(this, arguments);
 }
 
@@ -131,7 +133,14 @@ function MenuOption__onmouseover(evt, w) {
 
 function MenuOption__onclick(evt, w) {
 	if (w.type) w.select();
-	QuiX.cleanupOverlays();
+    if (QuiX.utils.BrowserInfo.family == 'ie' && !w.subMenu) {
+        // clear hover state
+        var dv = w.div.cloneNode(true);
+        w.div.parentNode.replaceChild(dv, w.div);
+        w.div = dv;
+    }
+    if (!w.subMenu)
+        QuiX.cleanupOverlays();
 }
 
 //context menu
