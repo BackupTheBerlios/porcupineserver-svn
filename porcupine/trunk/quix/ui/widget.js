@@ -501,7 +501,7 @@ QuiX.ui.Widget.prototype._calcSize = function(height, offset, getHeight, memo) {
     else {
         value = typeof(this[height]) == 'function'?
                 this[height].apply(this, [memo]):this[height];
-        if (value != null) {
+        if (value) {
             if (!isNaN(value))
                 value =  parseInt(value);
             else if (value.slice(value.length-1) == '%') {
@@ -533,7 +533,7 @@ QuiX.ui.Widget.prototype._calcPos = function(left, offset, getWidth, memo) {
     else {
         value = typeof(this[left]) == 'function'?
             this[left].apply(this, [memo]):this[left];
-        if (value != null) {
+        if (value) {
             if (!isNaN(value))
                 value = parseInt(value);
             else if (value.slice(value.length-1) == '%') {
@@ -677,12 +677,7 @@ QuiX.ui.Widget.prototype.moveTo = function(x, y) {
     y = (isNaN(y))? this._calcTop(memo) : y + padding[2];
     this.div.style.left = x + 'px';
     this.div.style.top = y + 'px';
-    if (QuiX.utils.BrowserInfo.family == 'ie'
-                && this.div.style.visibility == '') {
-        // IE: ie 8 requires visibility toggle in order to update DOM
-        this.div.style.visibility = 'hidden';
-        this.div.style.visibility = '';
-    }
+    QuiX._ieDomUpdate(this.div);
 }
 
 QuiX.ui.Widget.prototype.resize = function(x, y) {
@@ -743,24 +738,23 @@ QuiX.ui.Widget.prototype._startResize = function (evt) {
 }
 
 QuiX.ui.Widget.prototype._resizing = function(evt) {
-    evt = evt || event;
     var offsetX = evt.clientX - QuiX.startX;
     if (QuiX.dir == 'rtl')
         offsetX = -offsetX;
     var offsetY = evt.clientY - QuiX.startY;
-    QuiX.tmpWidget.resize(this.getWidth(true) + offsetX,
-        this.getHeight(true) + offsetY);
+    if (QuiX.tmpWidget)
+        QuiX.tmpWidget.resize(this.getWidth(true) + offsetX,
+                              this.getHeight(true) + offsetY);
 }
 
 QuiX.ui.Widget.prototype._endResize = function(evt) {
-    evt = evt || event;
     QuiX.tmpWidget.destroy();
     var offsetX = evt.clientX - QuiX.startX;
     if (QuiX.dir == 'rtl')
         offsetX = -offsetX;
     var offsetY = evt.clientY - QuiX.startY;
     this.resize(this.getWidth(true) + offsetX,
-        this.getHeight(true) + offsetY);
+                this.getHeight(true) + offsetY);
     this.bringToFront();
     document.desktop.detachEvent('onmouseup');
     document.desktop.detachEvent('onmousemove');
@@ -769,7 +763,6 @@ QuiX.ui.Widget.prototype._endResize = function(evt) {
 
 QuiX.ui.Widget.prototype._startMove = function(evt) {
     var self = this;
-    evt = evt || event;
     var clientX = evt.clientX;
     if (QuiX.dir == 'rtl')
         clientX = QuiX.transformX(clientX);
@@ -787,7 +780,6 @@ QuiX.ui.Widget.prototype._startMove = function(evt) {
 }
 
 QuiX.ui.Widget.prototype._moving = function(evt) {
-    evt = evt || event;
     var clientX = evt.clientX;
     if (QuiX.dir == 'rtl')
         clientX = QuiX.transformX(clientX);
@@ -796,7 +788,6 @@ QuiX.ui.Widget.prototype._moving = function(evt) {
 }
 
 QuiX.ui.Widget.prototype._endMove = function(evt) {
-    evt = evt || event;
     document.desktop.detachEvent('onmouseup');
     document.desktop.detachEvent('onmousemove');
     this.parent.div.style.cursor = '';
@@ -841,12 +832,7 @@ QuiX.ui.Widget.prototype.redraw = function(bForceAll /*, memo*/) {
                     parseInt(hght));
         }
 
-        if (QuiX.utils.BrowserInfo.family == 'ie'
-                && this.div.style.visibility == '') {
-            // IE: ie 8 requires visibility toggle in order to update DOM
-            this.div.style.visibility = 'hidden';
-            this.div.style.visibility = '';
-        }
+        QuiX._ieDomUpdate(this.div);
     }
     return memo;
 }
@@ -1241,14 +1227,15 @@ QuiX.ui.Desktop.prototype = new QuiX.ui.Widget;
 var Desktop = QuiX.ui.Desktop;
 
 QuiX.ui.Desktop.prototype.msgbox = function(mtitle, message, buttons, image,
-        mleft, mtop /*, mwidth, mheight*/) {
+        mleft, mtop /*, mwidth, mheight, container*/) {
     var sButtons = '';
     var handler;
     var oButton;
     var innHTML;
     var mwidth = arguments[6] || 240;
     var mheight = arguments[7] || 120;
-    
+    var container = arguments[8] || this;
+
     if (image) {
         QuiX.getImage(image);
         innHTML = '<td><img src="' + image + '"></img></td><td>' +
@@ -1268,9 +1255,10 @@ QuiX.ui.Desktop.prototype.msgbox = function(mtitle, message, buttons, image,
         sButtons = '<dlgbutton onclick="__closeDialog__" caption="' +
         buttons + '" width="80" height="22"/>';
 
-    this.parseFromString('<dialog xmlns="http://www.innoscript.org/quix"' +
-        ' title="' + mtitle + '" close="true"' +
-        ' width="' + mwidth + '" height="' + mheight + '" left="' + mleft +
+    container.parseFromString(
+        '<dialog xmlns="http://www.innoscript.org/quix" ' +
+        'title="' + mtitle + '" close="true" ' +
+        'width="' + mwidth + '" height="' + mheight + '" left="' + mleft +
         '" top="' + mtop + '">' +
         '<wbody><xhtml><![CDATA[<table cellpadding="4"><tr>' + innHTML +
         '</tr></table>]]></xhtml></wbody>' + sButtons + '</dialog>',
@@ -1280,12 +1268,12 @@ QuiX.ui.Desktop.prototype.msgbox = function(mtitle, message, buttons, image,
                 for (var i=0; i<buttons.length; i++) {
                     oButton = buttons[i];
                     handler = '__closeDialog__';
-                    if (oButton.length>2) handler = oButton[2];
+                    if (oButton.length > 2) handler = oButton[2];
                     w.buttons[i].attachEvent('onclick', handler);
                 }
             }
         }
-        );
+    );
 }
 
 function Desktop__onmousedown(evt, w) {
