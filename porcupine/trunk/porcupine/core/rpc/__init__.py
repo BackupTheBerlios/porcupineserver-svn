@@ -1,28 +1,29 @@
-#===============================================================================
-#    Copyright 2005-2009, Tassos Koutsovassilis
+#==============================================================================
+#   Copyright 2005-2009, Tassos Koutsovassilis
 #
-#    This file is part of Porcupine.
-#    Porcupine is free software; you can redistribute it and/or modify
-#    it under the terms of the GNU Lesser General Public License as published by
-#    the Free Software Foundation; either version 2.1 of the License, or
-#    (at your option) any later version.
-#    Porcupine is distributed in the hope that it will be useful,
-#    but WITHOUT ANY WARRANTY; without even the implied warranty of
-#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#    GNU Lesser General Public License for more details.
-#    You should have received a copy of the GNU Lesser General Public License
-#    along with Porcupine; if not, write to the Free Software
-#    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-#===============================================================================
+#   This file is part of Porcupine.
+#   Porcupine is free software; you can redistribute it and/or modify
+#   it under the terms of the GNU Lesser General Public License as published by
+#   the Free Software Foundation; either version 2.1 of the License, or
+#   (at your option) any later version.
+#   Porcupine is distributed in the hope that it will be useful,
+#   but WITHOUT ANY WARRANTY; without even the implied warranty of
+#   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#   GNU Lesser General Public License for more details.
+#   You should have received a copy of the GNU Lesser General Public License
+#   along with Porcupine; if not, write to the Free Software
+#   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+#==============================================================================
 "Porcupine RPC Libraries"
 from porcupine import datatypes
 from porcupine import systemObjects
 from porcupine.core import objectSet
 from porcupine.utils import date
 
+
 class BaseEncoder(object):
-    default_props = ('id', 'modified', 'owner', 'created', '__image__',
-                     'contentclass', 'parentid', 'isCollection')
+    default_props = ['id', 'modified', 'owner', 'created', '__image__',
+                     'contentclass', 'parentid', 'isCollection']
 
     def default(self, obj):
         if isinstance(obj, objectSet.ObjectSet):
@@ -30,7 +31,7 @@ class BaseEncoder(object):
         elif isinstance(obj, (systemObjects.GenericItem,
                               systemObjects.Composite)):
             rpc_object = {}
-            for attr in obj.__props__ + self.default_props:
+            for attr in list(obj.__props__.keys()) + self.default_props:
                 try:
                     oAttr = getattr(obj, attr)
                 except AttributeError:
