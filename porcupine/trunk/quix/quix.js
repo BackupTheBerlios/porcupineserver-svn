@@ -1,4 +1,4 @@
-//==============================================================================
+//=============================================================================
 //  Copyright 2005-2009 Tassos Koutsovassilis and Contributors
 //
 //  This file is part of Porcupine.
@@ -13,22 +13,22 @@
 //  You should have received a copy of the GNU Lesser General Public License
 //  along with Porcupine; if not, write to the Free Software
 //  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-//==============================================================================
+//=============================================================================
 
 var QuiX = {};
 QuiX.version = '1.0 build 20090402';
 QuiX.namespace = 'http://www.innoscript.org/quix';
 QuiX.root = (new RegExp(
-	"https?://[^/]+(?:/[^/\?]+)?(?:/(?:{|%7B)(?:.*?)(?:}|%7D))?",
-	"i")).exec(document.location.href) + '/';
+    "https?://[^/]+(?:/[^/\?]+)?(?:/(?:{|%7B)(?:.*?)(?:}|%7D))?",
+    "i")).exec(document.location.href) + '/';
 QuiX.baseUrl = '__quix/';
 QuiX.maxz = 999999999;
 QuiX.startX = 0;
 QuiX.startY = 0;
 QuiX.clipboard = new (function() {
-	this.contains = '';
-	this.action = '';
-	this.items = [];
+    this.contains = '';
+    this.action = '';
+    this.items = [];
 })();
 QuiX.tmpWidget = null;
 QuiX.dragable = null;
@@ -36,10 +36,11 @@ QuiX.dropTarget = null;
 QuiX.dragTimer = 0;
 QuiX.dragging = false;
 QuiX._image_cache = {};
+QuiX._strip_tags_re = /<(.|\n)+?>/gi;
 QuiX.constructors = {
-	'script' : null,
-	'module' : null,
-	'stylesheet' : null
+    'script' : null,
+    'module' : null,
+    'stylesheet' : null
 };
 QuiX._activeLoaders = 0;
 QuiX._scrollbarSize = 16;
@@ -48,11 +49,11 @@ QuiX.effectsEnabled = true;
 QuiX.ui = {};
 
 QuiX.queryString = function(param) {
-	function urlEncodeIfNecessary(s) {
-		var regex = /[\\\"<>\.;]/;
-		var hasBadChars = regex.exec(s) != null;
-		return hasBadChars ? encodeURIComponent(s) : s;
-	}
+    function urlEncodeIfNecessary(s) {
+        var regex = /[\\\"<>\.;]/;
+        var hasBadChars = regex.exec(s) != null;
+        return hasBadChars ? encodeURIComponent(s) : s;
+    }
     var q = document.location.search || document.location.hash;
     if (param == null) {
         return urlEncodeIfNecessary(q);
@@ -79,60 +80,64 @@ QuiX.progress = '<rect xmlns="http://www.innoscript.org/quix" \
     <img src="' + QuiX.getThemeUrl() + 'images/loader.gif">\
     ]]></xhtml></rect>';
 
+// module
+
 QuiX.Module = function(sName, sFile, depends, prio) {
-	this.isLoaded = false;
-	this.name = sName;
-	this.file = sFile;
-	this.dependencies = depends;
+    this.isLoaded = false;
+    this.name = sName;
+    this.file = sFile;
+    this.dependencies = depends;
     this.priority = prio;
-	this.type = 'script';
-	this.callback = null;
+    this.type = 'script';
+    this.callback = null;
 }
 
 QuiX.Module.prototype.load = function(callback) {
-	var oElement;
-	this.callback = callback;
-	if (this.type == 'script') {
-		oElement = document.createElement('SCRIPT');
-		oElement.type = 'text/javascript';
-		oElement.defer = true;
-		oElement.src = this.file;
-		var onload = (document.all)?'onreadystatechange':'onload';
-		oElement[onload] = QuiX.__resource_onstatechange;
-	}
-	else {
-		oElement = document.createElement('LINK');
-		oElement.type = 'text/css';
-		oElement.href = this.file;
-		oElement.rel = 'stylesheet';
-	}
-	oElement.resource = this;
-	oElement.id = this.file;
-	document.getElementsByTagName('head')[0].appendChild(oElement);
-	if (this.type=='stylesheet') {
-		this.isLoaded = true;
+    var oElement;
+    this.callback = callback;
+    if (this.type == 'script') {
+        var onload = (document.all)?'onreadystatechange':'onload';
+        oElement = document.createElement('SCRIPT');
+        oElement.type = 'text/javascript';
+        oElement.defer = true;
+        oElement.src = this.file;
+        oElement[onload] = QuiX.__resource_onstatechange;
+    }
+    else {
+        oElement = document.createElement('LINK');
+        oElement.type = 'text/css';
+        oElement.href = this.file;
+        oElement.rel = 'stylesheet';
+    }
+    document.getElementsByTagName('head')[0].appendChild(oElement);
+    oElement.resource = this;
+    oElement.id = this.file;
+    if (this.type=='stylesheet') {
+        this.isLoaded = true;
         if (callback)
             callback();
-	}
+    }
 }
 
+// image
+
 QuiX.Image = function(url) {
-	this.url = url.replace('$THEME_URL$', QuiX.getThemeUrl());
-	this.isLoaded = false;
-	this.callback = null;
-	this.width = 0;
-	this.height = 0;
+    this.url = url.replace('$THEME_URL$', QuiX.getThemeUrl());
+    this.isLoaded = false;
+    this.callback = null;
+    this.width = 0;
+    this.height = 0;
 }
 
 QuiX.Image.prototype.load = function(callback) {
-	this.callback = callback;
-	var img = new Image();
-	img.resource = this;
-	img.onload = QuiX.__resource_onstatechange;
+    this.callback = callback;
+    var img = new Image();
+    img.resource = this;
+    img.onload = QuiX.__resource_onstatechange;
     img.onerror = QuiX.__resource_error;
-	img.src = this.url;
-	img.style.display = 'none';
-	document.body.appendChild(img);
+    img.src = this.url;
+    img.style.display = 'none';
+    document.body.appendChild(img);
 }
 
 QuiX.__resource_error = function() {
@@ -141,30 +146,30 @@ QuiX.__resource_error = function() {
 }
 
 QuiX.__resource_onstatechange = function() {
-	if (this.readyState) {
-		if (this.readyState=='loaded' || this.readyState=='complete') {
-			if (this.tagName=='IMG') {
-				this.resource.width = this.width;
-				this.resource.height = this.height;
-				QuiX.removeNode(this);
+    if (this.readyState) {
+        if (this.readyState=='loaded' || this.readyState=='complete') {
+            if (this.tagName=='IMG') {
+                this.resource.width = this.width;
+                this.resource.height = this.height;
+                QuiX.removeNode(this);
                 QuiX._image_cache[this.resource.url] = this;
-			}
-			this.resource.isLoaded = true;
+            }
+            this.resource.isLoaded = true;
             if (this.resource.callback)
                 this.resource.callback();
-		}
-	}
-	else {
-		if (this.tagName=='IMG') {
-			this.resource.width = this.width;
-			this.resource.height = this.height;
-			QuiX.removeNode(this);
+        }
+    }
+    else {
+        if (this.tagName=='IMG') {
+            this.resource.width = this.width;
+            this.resource.height = this.height;
+            QuiX.removeNode(this);
             QuiX._image_cache[this.src] = this;
-		}
-		this.resource.isLoaded = true;
+        }
+        this.resource.isLoaded = true;
         if (this.resource.callback)
             this.resource.callback();
-	}
+    }
 }
 
 QuiX.modules = [
@@ -207,11 +212,12 @@ QuiX.modules = [
 QuiX.tags = {
     'desktop':-1, 'xhtml':-1, 'script':-1, 'prop':-1, 'stylesheet':-1,
     'rect':-1, 'module':-1, 'custom':-1,
-    
+
     'window':0, 'dialog':0,
     'menubar':1, 'menu':1, 'menuoption':1, 'contextmenu':1,
     'splitter':2,
     'dlgbutton':3, 'button':3, 'flatbutton':3, 'label':3, 'icon':3, 'link':3,
+        'spritebutton':3,
     'tabpane':4, 'tab':4,
     'listview':5,
     'tree':6, 'treenode':6, 'foldertree':6,
@@ -228,15 +234,14 @@ QuiX.tags = {
 };
 
 QuiX.bootLibraries = [
-    // utils
-    QuiX.baseUrl + 'utils/utils.js',
-    QuiX.baseUrl + 'utils/date.js',
+    // libs
+    QuiX.baseUrl + 'lib/extensions.js',
+    QuiX.baseUrl + 'lib/utils.js',
+    QuiX.baseUrl + 'lib/parsers_hashlib.js',
+    QuiX.baseUrl + 'lib/persist.js',
+    QuiX.baseUrl + 'lib/rpc.js',
     // base widget
     QuiX.baseUrl + 'ui/widget.js',
-    // persistence
-    QuiX.baseUrl + 'persist/persist.js',
-    // rpc
-    QuiX.baseUrl + 'rpc/rpc.js',
     // swfupload
     QuiX.baseUrl + 'swfupload/swfupload.js',
     // theme css
@@ -277,7 +282,7 @@ QuiX.__init__ = function() {
                 QuiX._scrollbarSize = w1 - document.desktop.div.clientWidth;
                 document.desktop.setOverflow(overflow);
             }
-            parser.parse(QuiX.domFromElement(root));
+            parser.parse(QuiX.parsers.domFromElement(root));
         }
     );
 }
@@ -287,7 +292,7 @@ QuiX.load = function(modules, callback) {
         if (modules.length > 0) {
             var r_info = modules.shift();
             var m = new QuiX.Module(null, r_info, []);
-            m.type = (r_info.substring(r_info.length-3)=='css')?
+            m.type = (r_info.substring(r_info.length - 3) == 'css')?
                      'stylesheet':'script';
             m.load(bootstrap);
         }
@@ -299,44 +304,51 @@ QuiX.load = function(modules, callback) {
 }
 
 QuiX.addLoader = function() {
-	if (QuiX._activeLoaders == 0) {
-		document.body.onmousemove = function(evt) {
-			evt = evt || event;
-			var loader = document.desktop._loader;
-			if (loader.div.style.display == 'none')
-				loader.show();
+    if (QuiX._activeLoaders == 0) {
+        document.body.onmousemove = function(evt) {
+            evt = evt || event;
+            var loader = document.desktop._loader;
+            if (loader.div.style.display == 'none')
+                loader.show();
             var x = evt.clientX + 16;
             if (QuiX.dir == 'rtl')
                 x = QuiX.transformX(x - 16);
-			loader.moveTo(x, evt.clientY + 20);
-		}
-	}
-	QuiX._activeLoaders++;
+            loader.moveTo(x, evt.clientY + 20);
+        }
+    }
+    QuiX._activeLoaders++;
 }
 
 QuiX.removeLoader = function() {
-	if (QuiX._activeLoaders > 0) {
-		QuiX._activeLoaders--;
-		if (QuiX._activeLoaders == 0) {
-			document.body.onmousemove = null;
-			document.desktop._loader.hide();
-		}
-	}
+    if (QuiX._activeLoaders > 0) {
+        QuiX._activeLoaders--;
+        if (QuiX._activeLoaders == 0) {
+            document.body.onmousemove = null;
+            document.desktop._loader.hide();
+        }
+    }
 }
 
 QuiX.cleanupOverlays = function() {
-	var ovr = document.desktop.overlays;
-	while (ovr.length>0) ovr[0].close();
+    var ovr = document.desktop.overlays;
+    while (ovr.length>0) ovr[0].close();
 }
 
 QuiX.Exception = function(name, msg) {
-	this.name = name;
-	this.message = msg;
+    this.name = name;
+    this.message = msg;
 }
 QuiX.Exception.prototype = new Error
 
 QuiX.displayError = function(e) {
-	document.desktop.parseFromString(
+    var msg = e.name + '\n\n' + e.message;
+    if (e.stack) {
+        msg += '\n\n' + e.stack;
+    }
+    if (e.lineNumber && e.fileName) {
+        msg += '\nFile: "' + e.fileName + '" Line: ' + e.lineNumber;
+    }
+    document.desktop.parseFromString(
         '<dialog xmlns="http://www.innoscript.org/quix" title="Error" \
                 resizable="true" close="true" width="560" height="240" \
                 left="center" top="center"> \
@@ -346,8 +358,7 @@ QuiX.displayError = function(e) {
                         img="$THEME_URL$images/error32.gif"/> \
                     <rect padding="4,4,4,4" overflow="auto"><xhtml><![CDATA[ \
                         <pre style="color:red;font-size:12px; \
-                            font-family:monospace;padding-left:4px">' +
-                            e.name + '\n\n' + e.message +
+                            font-family:monospace;padding-left:4px">' + msg +
                         '</pre>]]></xhtml> \
                     </rect> \
                 </hbox> \
@@ -358,57 +369,61 @@ QuiX.displayError = function(e) {
 }
 
 QuiX.getTarget = function(evt) {
-	if (evt.target) {
-		var node = evt.target;
-		while (node.nodeType != node.ELEMENT_NODE)
-			node = node.parentNode;
-		return node;
-	}
-	else
-		return evt.srcElement;
+    if (evt.target) {
+        var node = evt.target;
+        while (node.nodeType != node.ELEMENT_NODE)
+            node = node.parentNode;
+        return node;
+    }
+    else
+        return evt.srcElement;
 }
 
 QuiX.getTargetWidget = function(evt) {
-	var el = QuiX.getTarget(evt);
-	while (el && !el.widget)
-		el = QuiX.getParentNode(el);
-	return (el)?el.widget:null;
+    var el = QuiX.getTarget(evt);
+    return QuiX.getWidget(el);
+}
+
+QuiX.getWidget = function(el) {
+    while (el && !el.widget)
+        el = QuiX.getParentNode(el);
+    return (el)? el.widget:null;    
 }
 
 QuiX.removeNode = function(node) {
-	var oNode;
-	if (node.removeNode)
-		oNode = node.removeNode(true);
-	else
-		oNode = node.parentNode.removeChild(node);
-	return oNode;
+    var oNode;
+    if (node.removeNode)
+        oNode = node.removeNode(true);
+    else
+        oNode = node.parentNode.removeChild(node);
+    return oNode;
 }
 
 QuiX.getDraggable = function(w) {
-	var d = new QuiX.ui.Widget({
-		left : w.getLeft(),
-		top : w.getTop(),
-		width : w.getWidth(true),
-		height : w.getHeight(true),
-		border : 1
-	});
-	d.div.innerHTML = w.div.innerHTML;
-	d.div.className = w.div.className;
-	d.div.style.cssText = w.div.style.cssText;
-	d.div.style.border = '1px solid transparent';
-	d.setPosition('absolute');
-	return d;
+    var d = new QuiX.ui.Widget({
+        left : w.getLeft(),
+        top : w.getTop(),
+        width : w.getWidth(true),
+        height : w.getHeight(true),
+        border : 1
+    });
+    d.div.innerHTML = w.div.innerHTML;
+    d.div.className = w.div.className;
+    d.div.style.cssText = w.div.style.cssText;
+    d.div.style.border = '1px solid transparent';
+    d.setPosition('absolute');
+    return d;
 }
 
 QuiX.getMouseButton = function(evt) {
-	var iButton = evt.button;
-	if (QuiX.utils.BrowserInfo.family == 'ie') {
-		if (iButton == 1) //left
-			iButton = 0;
-		else if (iButton == 4) //middle
-			iButton = 1;
-	}
-	return iButton;
+    var iButton = evt.button;
+    if (QuiX.utils.BrowserInfo.family == 'ie') {
+        if (iButton == 1) //left
+            iButton = 0;
+        else if (iButton == 4) //middle
+            iButton = 1;
+    }
+    return iButton;
 }
 
 QuiX._ieDomUpdate = function(el) {
@@ -420,54 +435,53 @@ QuiX._ieDomUpdate = function(el) {
 }
 
 QuiX.createOutline = function(w) {
-	var macff = QuiX.utils.BrowserInfo.family == 'moz' &&
+    var macff = QuiX.utils.BrowserInfo.family == 'moz' &&
                 QuiX.utils.BrowserInfo.OS == 'MacOS';
-	var fl = (macff)?'auto':'hidden';
-	
-	var o = new QuiX.ui.Widget({
-		left : w.getLeft(),
-		top : w.getTop(),
-		width : w.getWidth(true),
-		height : w.getHeight(true),
-		border : 2,
-		overflow : fl
-	});
-	
-	if (macff) {
-		var inner = new QuiX.ui.Widget({
-			width : '100%',
-			height : '100%',
-			overflow : 'hidden'
-		});
-		o.appendChild(inner);
-	}
-	
-	var t = QuiX.getImage(QuiX.getThemeUrl() + 'images/transp.gif');
-	t.style.width = '100%';
-	t.style.height = '100%';
-	((macff)?inner:o).div.appendChild(t);
-	
-	w.parent.appendChild(o);
-	o.redraw();
-		
-	//calculate size because minw/minh procedure can
-	//depend on it's children size
-	o.minw = (typeof w.minw == "function")?w.minw(w):w.minw;
-	o.minh = (typeof w.minh == "function")?w.minh(w):w.minh;
-	o.div.className = 'outline';
-	return(o);
+    var fl = (macff)?'auto':'hidden';
+
+    var o = new QuiX.ui.Widget({
+        left : w.getLeft(),
+        top : w.getTop(),
+        width : w.getWidth(true),
+        height : w.getHeight(true),
+        border : 1,
+        overflow : fl
+    });
+
+    var inner = new QuiX.ui.Widget({
+        width : '100%',
+        height : '100%',
+        opacity: .2,
+        overflow : 'hidden'
+    });
+    o.appendChild(inner);
+
+    var t = QuiX.getImage(QuiX.getThemeUrl() + 'images/transp.gif');
+    t.style.width = '100%';
+    t.style.height = '100%';
+    ((macff)?inner:o).div.appendChild(t);
+
+    w.parent.appendChild(o);
+    o.redraw();
+
+    //calculate size because minw/minh procedure can
+    //depend on it's children size
+    o.minw = (typeof w.minw == "function")?w.minw(w):w.minw;
+    o.minh = (typeof w.minh == "function")?w.minh(w):w.minh;
+    o.div.className = 'outline';
+    return(o);
 }
 
 QuiX.getEventListener = function(f) {
-	if (typeof(f) != 'function') {
-		try {
-			f = eval(f);
-		}
-		catch(e) {
-			f = null;
-		}
-	}
-	return(f);
+    if (typeof(f) != 'function') {
+        try {
+            f = eval(f);
+        }
+        catch(e) {
+            f = null;
+        }
+    }
+    return(f);
 }
 
 QuiX.wrappers = {
@@ -530,84 +544,132 @@ QuiX.getImage = function(url) {
 }
 
 QuiX.addEvent = function(el, type, proc) {
-	if (el.addEventListener) {
-		el.addEventListener(type.slice(2,type.length), proc, false);
-		return true;
-	} else if (el.attachEvent) {
-		return el.attachEvent(type, proc);
-	} else
+    if (el.addEventListener) {
+        el.addEventListener(type.slice(2,type.length), proc, false);
+        return true;
+    } else if (el.attachEvent) {
+        return el.attachEvent(type, proc);
+    } else
         return false;
 }
 
 QuiX.removeEvent = function(el, type, proc) {
-	if (el.removeEventListener) {
-		el.removeEventListener(type.slice(2,type.length), proc, false);
-		return true;
-	} else if (el.detachEvent) {
-		return el.detachEvent(type, proc);
-	} else
+    if (el.removeEventListener) {
+        el.removeEventListener(type.slice(2,type.length), proc, false);
+        return true;
+    } else if (el.detachEvent) {
+        return el.detachEvent(type, proc);
+    } else
         return false;
 }
 
 QuiX.sendEvent = function(el, module, type /*, args*/) {
-	if (el.dispatchEvent) {
-		if (!document.implementation.hasFeature(module, ""))
-			return false;
-		var e = document.createEvent(module);
-		e.initEvent(type.slice(2,type.length), true, false/*, args */);
-		el.dispatchEvent(e);
-		return true;
-	} else if (el.fireEvent) {
-		return el.fireEvent(type);
-	} else
+    if (el.dispatchEvent) {
+        if (!document.implementation.hasFeature(module, ""))
+            return false;
+        var e = document.createEvent(module);
+        e.initEvent(type.slice(2,type.length), true, false/*, args */);
+        el.dispatchEvent(e);
+        return true;
+    } else if (el.fireEvent) {
+        return el.fireEvent(type);
+    } else
         return false;
 }
 
 QuiX.stopPropag = function(evt) {
-	if (evt && evt.stopPropagation) evt.stopPropagation();
-	else if (window.event) window.event.cancelBubble = true;
+    if (evt && evt.stopPropagation) evt.stopPropagation();
+    else if (window.event) window.event.cancelBubble = true;
 }
 
 QuiX.cancelDefault = function(evt) {
-	if (evt && evt.preventDefault)
-		evt.preventDefault();
-	else if (window.event)
-		window.event.returnValue = false;
+    if (evt && evt.preventDefault)
+        evt.preventDefault();
+    else if (window.event)
+        window.event.returnValue = false;
 }
 
 QuiX.XHRPool = (
-	function() {
-		var stack = [];
-		var poolSize = 10;
-		var nullFunction = function(){};
-		function createXHR() {
-			if (window.XMLHttpRequest)
-				return new XMLHttpRequest();
-			else if (window.ActiveXObject)
-				return new ActiveXObject('Microsoft.XMLHTTP');
+    function() {
+        var stack = [];
+        var poolSize = 10;
+        var nullFunction = function(){};
+        function createXHR() {
+            if (window.XMLHttpRequest)
+                return new XMLHttpRequest();
+            else if (window.ActiveXObject)
+                return new ActiveXObject('Microsoft.XMLHTTP');
             else
                 return null;
-		}
-		for (var i = 0; i<poolSize; i++)
-			stack.push(createXHR());
-		return ({
-			release : function(xhr) {
-				xhr.onreadystatechange = nullFunction;
-				xhr.abort();
-				stack.push(xhr);
-			},
-			getInstance : function() {
-				if (stack.length < 1)
-	    			return createXHR();
-				else
-					return stack.pop();
-	  		},
-	  		toString : function() {
-				return "stack size = " + stack.length;
-			}
-	 	});
-	}
+        }
+        for (var i = 0; i<poolSize; i++)
+            stack.push(createXHR());
+        return ({
+            release : function(xhr) {
+                xhr.onreadystatechange = nullFunction;
+                xhr.abort();
+                stack.push(xhr);
+            },
+            getInstance : function() {
+                if (stack.length < 1)
+                    return createXHR();
+                else
+                    return stack.pop();
+            },
+            toString : function() {
+                return "stack size = " + stack.length;
+            }
+        });
+    }
 )();
+
+QuiX.getTextNodes = function(el){
+    var textnodes = [];
+    for (var i=0; i<el.childNodes.length; i++) {
+        if (el.childNodes[i].nodeType == 3) {
+            textnodes.push(el.childNodes[i]);
+        }
+        else {
+            textnodes = textnodes.concat(QuiX.getTextNodes(el.childNodes[i]));
+        }
+    }
+    return textnodes;
+}
+
+QuiX.contains = function(w, reText) {
+    var text = w.div.innerHTML.replace(QuiX._strip_tags_re, '');
+    return new RegExp(reText, 'gi').test(text);
+}
+
+QuiX.highlight = function(el, reText) {
+    QuiX.removeHighlight(el);
+    var tn = QuiX.getTextNodes(el),
+        re = new RegExp(reText, 'gi'),
+        p, span;
+    for (var i=0; i<tn.length; i++) {
+        if (re.test(tn[i].nodeValue)) {
+            p = QuiX.getParentNode(tn[i]);
+            span = ce('SPAN');
+            span.id = '_hl';
+            span.innerHTML = tn[i].nodeValue.replace(re, '<span>$1</span>');
+            p.replaceChild(span, tn[i]);
+        }
+    }
+}
+
+QuiX.removeHighlight = function(el) {
+    var span, text;
+    var spans = el.getElementsByTagName('SPAN');
+    for (var i=0; i<spans.length; i++) {
+        span = spans[i];
+        if (span.id == '_hl') {
+            text = span.innerHTML.replace(QuiX._strip_tags_re, '');
+            QuiX.getParentNode(span).replaceChild(
+                document.createTextNode(text),
+                span);
+        }
+    }
+}
 
 QuiX.setInnerText = function(node, text) {
     var textNode = document.createTextNode(text);
@@ -638,57 +700,42 @@ QuiX.getInnerText = function(node) {
     return text;
 }
 
-QuiX.domFromString = function(s) {
-	var dom = null;
-	if (window.DOMParser)
-		dom = (new DOMParser).parseFromString(s, 'text/xml');
-	else if (window.ActiveXObject) {
-		dom = new ActiveXObject("msxml2.domdocument");
-		dom.loadXML(s);
-	}
-	return dom;
-}
-
-QuiX.domFromElement = function(el) {
-	if (el.XMLDocument)
-		return el.XMLDocument;
-	else
-		return QuiX.domFromString(el.innerHTML);
-}
-
 QuiX.localName = function(node) {
-	if (node.localName)
-		return node.localName;
-	else {
-		var tokens = node.tagName.split(':');
-		return (tokens.length==1)?tokens[0]:tokens[1];
-	}
+    if (node.localName)
+        return node.localName;
+    else {
+        var tokens = node.tagName.split(':');
+        return (tokens.length == 1)? tokens[0]:tokens[1];
+    }
 }
 
 QuiX.removeWidget = function(w) {
-	var parentElement;
-	
-	if (w.__tooltip || w.__tooltipID)
-		QuiX.ui.Widget._onmouseout(null, w);
-	if (w._customRegistry.onunload)
-		w._customRegistry.onunload(w);
-	while (w.widgets.length>0)
-		QuiX.removeWidget(w.widgets[0]);
-    if (w.contextMenu)
-        QuiX.removeWidget(w.contextMenu);
-	if (w.parent)
-		w.parent.widgets.removeItem(w);
+    var parentElement;
 
-	w._detachEvents();
-	
-	parentElement = QuiX.getParentNode(w.div);
-	if (parentElement)
-		QuiX.removeNode(w.div);
-	
-	w.div.widget = null;
-	for (var v in w)
-		w[v] = null;
-	w = null;
+    if (w.__tooltip || w.__tooltipID)
+        QuiX.ui.Widget._onmouseout(null, w);
+    if (w._customRegistry.onunload)
+        w._customRegistry.onunload(w);
+    while (w.widgets.length>0)
+        QuiX.removeWidget(w.widgets[0]);
+    if (w.contextMenu) {
+        if (w.contextMenu.isOpen)
+            w.contextMenu.close();
+        QuiX.removeWidget(w.contextMenu);
+    }
+    if (w.parent)
+        w.parent.widgets.removeItem(w);
+
+    w._detachEvents();
+
+    parentElement = QuiX.getParentNode(w.div);
+    if (parentElement)
+        QuiX.removeNode(w.div);
+
+    w.div.widget = null;
+    for (var v in w)
+        w[v] = null;
+    w = null;
 }
 
 QuiX.getParentNode = function(el) {
@@ -730,22 +777,22 @@ QuiX.setStyle = function(el, cssText) {
 }
 
 QuiX.detachFrames = function(w) {
-	if (QuiX.modules[9].isLoaded) {
-		var frms = w.getWidgetsByType(IFrame);
-		for (var i=0; i<frms.length; i++) {
-			if (QuiX.getParentNode(frms[i].frame))
-				QuiX.removeNode(frms[i].frame);
-		}
-	}
+    if (QuiX.modules[9].isLoaded) {
+        var frms = w.getWidgetsByType(QuiX.ui.IFrame);
+        for (var i=0; i<frms.length; i++) {
+            if (QuiX.getParentNode(frms[i].frame))
+                QuiX.removeNode(frms[i].frame);
+        }
+    }
 }
 
 QuiX.attachFrames = function(w) {
-	if (QuiX.modules[9].isLoaded) {
-		var frms = w.getWidgetsByType(IFrame);
-		for (var i=0; i<frms.length; i++)
-			if (!QuiX.getParentNode(frms[i].frame))
-				frms[i].div.appendChild(frms[i].frame);
-	}
+    if (QuiX.modules[9].isLoaded) {
+        var frms = w.getWidgetsByType(QuiX.ui.IFrame);
+        for (var i=0; i<frms.length; i++)
+            if (!QuiX.getParentNode(frms[i].frame))
+                frms[i].div.appendChild(frms[i].frame);
+    }
 }
 
 QuiX.transformX = function(x /*, parent*/) {
@@ -793,7 +840,7 @@ QuiX.measureWidget = function(w, dim) {
     if (w[other] != 'auto')
         div.style[other] = w[other_func](true) + 'px';
     div.innerHTML = w.div.innerHTML;
-    // required by safari
+    // required by webkit
     var imgs = div.getElementsByTagName('IMG');
     if (imgs.length > 0)
         imgs[imgs.length - 1].style.height = '';
@@ -808,38 +855,41 @@ QuiX.measureWidget = function(w, dim) {
 }
 
 // QuiX UI Parser
+
 QuiX.Parser = function() {
-	this.__modulesToLoad = [];
-	this.__onload = [];
-	this.dom = null;
-	this.oncomplete = null;
+    this.__modulesToLoad = [];
+    this.__onload = [];
+    this.__customPrio = -1;
+    this.dom = null;
+    this.oncomplete = null;
 }
 
 QuiX.Parser.prototype.detectModules = function(oNode) {
-	if (oNode.nodeType != 1)
+    if (oNode.nodeType != 1)
         return;
-	var sTag = QuiX.localName(oNode),
+    var sTag = QuiX.localName(oNode),
         iMod = QuiX.tags[sTag],
         i;
     if (iMod > -1) {
         this._addModule(QuiX.modules[iMod]);
     }
-	else if (sTag == 'script' || sTag == 'module' || sTag == 'stylesheet') {
-		var params = this.getNodeParams(oNode);
-		if (!document.getElementById(params.src)) {
-			var oMod = new QuiX.Module(params.name, params.src, [], 0);
-			if (sTag == 'stylesheet')
-				oMod.type = 'stylesheet';
-			else if (params.depends) {
+    else if (sTag == 'script' || sTag == 'module' || sTag == 'stylesheet') {
+        var params = this.getNodeParams(oNode);
+        if (!document.getElementById(params.src)) {
+            var oMod = new QuiX.Module(params.name, params.src, [],
+                                       this.__customPrio);
+            if (sTag == 'stylesheet')
+                oMod.type = 'stylesheet';
+            else if (params.depends)
                 oMod.dependencies = params.depends.split(',');
-            }
             this._addModule(oMod);
-		}
-	}
+            this.__customPrio--;
+        }
+    }
 
-	for (i=0; i<oNode.childNodes.length; i++) {
-		this.detectModules(oNode.childNodes[i]);
-	}
+    for (i=0; i<oNode.childNodes.length; i++) {
+        this.detectModules(oNode.childNodes[i]);
+    }
 }
 
 QuiX.Parser.prototype._addModule = function(oMod) {
@@ -852,15 +902,15 @@ QuiX.Parser.prototype._addModule = function(oMod) {
 }
 
 QuiX.Parser.prototype.loadModules = function() {
-	var module;
-	var self = this;
-	if (this.__modulesToLoad.length > 0) {
-		module = this.__modulesToLoad.pop();
-		module.load(function(){self.loadModules()});
-	} else {
-		QuiX.removeLoader();
+    var module;
+    var self = this;
+    if (this.__modulesToLoad.length > 0) {
+        module = this.__modulesToLoad.pop();
+        module.load(function(){self.loadModules()});
+    } else {
+        QuiX.removeLoader();
         this.beginRender();
-	}
+    }
 }
 
 QuiX.Parser.prototype.onerror = function(e) {
@@ -868,8 +918,8 @@ QuiX.Parser.prototype.onerror = function(e) {
 }
 
 QuiX.Parser.prototype.parse = function(dom, parentW) {
-	this.dom = dom;
-	this.parentWidget = parentW;
+    this.dom = dom;
+    this.parentWidget = parentW;
     if (dom == null || dom.documentElement == null ||
             dom.documentElement.tagName == 'parsererror') {
         this.onerror(new QuiX.Exception(
@@ -890,49 +940,60 @@ QuiX.Parser.prototype.parse = function(dom, parentW) {
 }
 
 QuiX.Parser.prototype.beginRender = function() {
-	var on_load;
-	var widget = this.render();
+    var on_load;
+    var widget = this.render();
     this.__onload.reverse();
-	while (this.__onload.length > 0) {
-		on_load = this.__onload.pop();
-		on_load[0](on_load[1]);
-	}
-	widget.redraw(true);
+    while (this.__onload.length > 0) {
+        on_load = this.__onload.pop();
+        try {
+            on_load[0](on_load[1]);
+        }
+        catch(e) {
+            this.onerror(e);
+        }
+    }
+    widget.redraw(true);
     this.dom = null;
-	if (this.oncomplete)
-		this.oncomplete(widget);
+    if (this.oncomplete) {
+        try {
+            this.oncomplete(widget);
+        }
+        catch(e) {
+            this.onerror(e);
+        }
+    }
 }
 
 QuiX.Parser.prototype.render = function() {
     var widget;
-	var parentW = this.parentWidget;
-	var frag = document.createDocumentFragment();
-	if (parentW) {
-		var root = parentW.div;
-		frag.appendChild(root.cloneNode(false));
-		parentW.div = frag.firstChild;
-		widget = this.parseXul(this.dom.documentElement, parentW);
-		root.appendChild(widget.div);
-		parentW.div = root;
-	}
-	else {
-		widget = this.parseXul(this.dom.documentElement, frag);
-		document.body.appendChild(frag);
-	}
-	frag = null;
-	return(widget);
+    var parentW = this.parentWidget;
+    var frag = document.createDocumentFragment();
+    if (parentW) {
+        var root = parentW.div;
+        frag.appendChild(root.cloneNode(false));
+        parentW.div = frag.firstChild;
+        widget = this.parseXul(this.dom.documentElement, parentW);
+        root.appendChild(widget.div);
+        parentW.div = root;
+    }
+    else {
+        widget = this.parseXul(this.dom.documentElement, frag);
+        document.body.appendChild(frag);
+    }
+    frag = null;
+    return(widget);
 }
 
 QuiX.Parser.prototype.getNodeParams = function(oNode) {
-	var params = {};
-	for (var i=0; i<oNode.attributes.length; i++)
-		params[oNode.attributes[i].name] = oNode.attributes[i].value;
-	return(params);
+    var params = {};
+    for (var i=0; i<oNode.attributes.length; i++)
+        params[oNode.attributes[i].name] = oNode.attributes[i].value;
+    return(params);
 }
 
 QuiX.Parser.prototype.parseXul = function(oNode, parentW) {
     var oWidget = null;
-	if (oNode.nodeType == 1) {
+    if (oNode.nodeType == 1) {
         var params = this.getNodeParams(oNode);
         if (oNode.namespaceURI == QuiX.namespace) {
             var localName = QuiX.localName(oNode).toLowerCase();
@@ -1020,7 +1081,8 @@ QuiX.Parser.prototype.parseXul = function(oNode, parentW) {
                             attr_value = (isNaN(attr_value))?null:attr_value;
                             break;
                         case 'bool':
-                            attr_value = new Boolean(parseInt(attr_value)).valueOf();
+                            attr_value = new Boolean(parseInt(attr_value)).
+                                         valueOf();
                             break;
                         case 'float':
                             attr_value = parseFloat(attr_value);
@@ -1065,366 +1127,10 @@ QuiX.Parser.prototype.parseXul = function(oNode, parentW) {
                         this.parseXul(oNode.childNodes[i], oWidget);
 
                 if (oWidget._customRegistry.onload)
-                    this.__onload.push([oWidget._customRegistry.onload, oWidget]);
+                    this.__onload.push([oWidget._customRegistry.onload,
+                                        oWidget]);
             }
         }
     }
-	return oWidget;
+    return oWidget;
 }
-
-//==============================================================================
-// RPC Parsers
-//==============================================================================
-QuiX.parsers = {};
-
-// XML-RPC
-QuiX.parsers.XMLRPC = {};
-
-QuiX.parsers.XMLRPC.stringify = function(obj) {
-    if (obj == null || obj == undefined || (typeof obj == "number" &&
-                                            !isFinite(obj)))
-        return false.toXMLRPC();
-    else {
-        if (!obj.toXMLRPC) {
-            var retstr = "<struct>";
-            for (var prop in obj) {
-                if(typeof obj[prop] != "function") {
-                    retstr += "<member><name>" + prop + "</name><value>" +
-                              QuiX.parsers.XMLRPC.stringify(obj[prop]) +
-                              "</value></member>";
-                }
-            }
-            retstr += "</struct>";
-            return retstr;
-        }
-        else
-            return obj.toXMLRPC();
-    }
-}
-
-QuiX.parsers.XMLRPC.parse = function(xml) {
-    function getNode(data, len) {
-        var nc = 0; //nodeCount
-        if (data != null) {
-            for (var i=0; i<data.childNodes.length; i++) {
-                if(data.childNodes[i].nodeType == 1) {
-                    if(nc == len)
-                        return data.childNodes[i];
-                    else
-                        nc++
-                }
-            }
-        }
-        return false;
-    }
-    function toObject(data) {
-        var ret, i, elem;
-        switch (data.tagName) {
-            case "string":
-                return (data.firstChild)?
-                       data.firstChild.nodeValue.toString():"";
-                break;
-            case "int":
-            case "i4":
-            case "double":
-                return (data.firstChild)?
-                       new Number(data.firstChild.nodeValue):0;
-                break;
-            case "dateTime.iso8601":
-                return Date.parseIso8601(data.firstChild.nodeValue);
-                break;
-            case "array":
-                data = getNode(data, 0);
-                if (data && data.tagName == "data") {
-                    ret = [];
-                    for (i=0; i<data.childNodes.length; ++i) {
-                        elem = data.childNodes[i];
-                        if (elem.nodeType == 1) ret.push(toObject(elem));
-                    }
-                    return ret;
-                }
-                else
-                    throw new QuiX.Exception('QuiX.parsers.XMLRPC.parse',
-                                             'Bad array.');
-                break;
-            case "struct":
-                ret = {};
-                for (i=0; i<data.childNodes.length; ++i) {
-                    elem = data.childNodes[i];
-                    if (elem.nodeType == 1) {
-                        if(elem.tagName == "member")
-                            ret[getNode(elem,0).firstChild.nodeValue] =
-                                toObject(getNode(elem, 1));
-                        else
-                            throw new QuiX.Exception(
-                                    'QuiX.parsers.XMLRPC.parse',
-                                    "'member' element expected, found '" +
-                                    elem.tagName + "' instead");
-                    }
-                }
-                return ret;
-                break;
-            case "boolean":
-                return Boolean(isNaN(parseInt(data.firstChild.nodeValue))?
-                    (data.firstChild.nodeValue == "true"):
-                    parseInt(data.firstChild.nodeValue));
-                break;
-            case "value":
-                var child = getNode(data, 0);
-                return (!child)? ((data.firstChild)?
-                    data.firstChild.nodeValue.toString():""):toObject(child);
-                break;
-            case "nil":
-                return null;
-            default:
-                throw new QuiX.Exception('QuiX.parsers.XMLRPC.parse',
-                                         'Invalid tag name: ' + data.tagName);
-        }
-    }
-
-    if (typeof xml === 'string')
-        xml = QuiX.domFromString(xml);
-
-    //Check for XMLRPC Errors
-    var rpcErr = xml.getElementsByTagName("fault");
-    if (rpcErr.length > 0) {
-        rpcErr = toObject(getNode(rpcErr[0], 0));
-        throw new QuiX.Exception('QuiX.parsers.XMLRPC.parse',
-                                 rpcErr.faultCode + ' - ' + rpcErr.faultString);
-    }
-    //handle result
-    var main = xml.getElementsByTagName("param");
-    if (main.length == 0) {
-        throw new QuiX.Exception('QuiX.parsers.XMLRPC.parse',
-                                 '"param" element is missing');
-    }
-    var data = toObject(getNode(main[0], 0));
-    return data;
-}
-
-String.prototype.toXMLRPC = function() {
-    return "<string>" + this.xmlEncode() + "</string>";
-}
-
-Number.prototype.toXMLRPC = function() {
-    if (this == parseInt(this)) {
-        return "<int>" + this + "</int>";
-    }
-    else if(this == parseFloat(this)) {
-        return "<double>" + this + "</double>";
-    }
-    else {
-        return false.toXMLRPC();
-    }
-}
-
-Boolean.prototype.toXMLRPC = function() {
-    if (this==true) return "<boolean>1</boolean>";
-    else return "<boolean>0</boolean>";
-}
-
-Date.prototype.toXMLRPC = function() {
-    var d = "<dateTime.iso8601>" + this.toIso8601() + "</dateTime.iso8601>";
-    return(d);
-}
-
-Array.prototype.toXMLRPC = function() {
-    var retstr = "<array><data>";
-    for (var i=0; i<this.length; i++) {
-        retstr += "<value>" + QuiX.parsers.XMLRPC.stringify(this[i]) +
-                  "</value>";
-    }
-    return retstr + "</data></array>";
-}
-
-// JSON Parser
-QuiX.parsers.JSON = {};
-
-(function() {
-    var cx = /[\u0000\u00ad\u0600-\u0604\u070f\u17b4\u17b5\u200c-\u200f\u2028-\u202f\u2060-\u206f\ufeff\ufff0-\uffff]/g,
-        escapable = /[\\\"\x00-\x1f\x7f-\x9f\u00ad\u0600-\u0604\u070f\u17b4\u17b5\u200c-\u200f\u2028-\u202f\u2060-\u206f\ufeff\ufff0-\uffff]/g,
-        gap, indent,
-        meta = { // table of character substitutions
-            '\b': '\\b',
-            '\t': '\\t',
-            '\n': '\\n',
-            '\f': '\\f',
-            '\r': '\\r',
-            '"' : '\\"',
-            '\\': '\\\\'
-        },
-        rep;
-
-    function quote(string) {
-        escapable.lastIndex = 0;
-        return escapable.test(string) ?
-            '"' + string.replace(escapable, function (a) {
-                var c = meta[a];
-                return typeof c === 'string' ? c :
-                    '\\u' + ('0000' + a.charCodeAt(0).toString(16)).slice(-4);
-            }) + '"' :
-            '"' + string + '"';
-    }
-
-    function str(key, holder) {
-        var i,          // The loop counter.
-            k,          // The member key.
-            v,          // The member value.
-            length,
-            mind = gap,
-            partial,
-            value = holder[key];
-        if (value && typeof value === 'object' &&
-                typeof value.toJSON === 'function') {
-            value = value.toJSON(key);
-        }
-        if (typeof rep === 'function') {
-            value = rep.call(holder, key, value);
-        }
-        switch (typeof value) {
-            case 'string':
-                return quote(value);
-            case 'number':
-                return isFinite(value) ? String(value) : 'null';
-            case 'boolean':
-            case 'null':
-                return String(value);
-            case 'object':
-                if (!value) {
-                    return 'null';
-                }
-                gap += indent;
-                partial = [];
-                if (Object.prototype.toString.apply(value)==='[object Array]') {
-                    length = value.length;
-                    for (i = 0; i < length; i += 1) {
-                        partial[i] = str(i, value) || 'null';
-                    }
-                    v = partial.length === 0 ? '[]' :
-                        gap ? '[\n' + gap +
-                                partial.join(',\n' + gap) + '\n' +
-                                    mind + ']' :
-                              '[' + partial.join(',') + ']';
-                    gap = mind;
-                    return v;
-                }
-                if (rep && typeof rep === 'object') {
-                    length = rep.length;
-                    for (i = 0; i < length; i += 1) {
-                        k = rep[i];
-                        if (typeof k === 'string') {
-                            v = str(k, value);
-                            if (v) {
-                                partial.push(quote(k) + (gap ? ': ' : ':') + v);
-                            }
-                        }
-                    }
-                }
-                else {
-                    for (k in value) {
-                        if (Object.hasOwnProperty.call(value, k)) {
-                            v = str(k, value);
-                            if (v) {
-                                partial.push(quote(k) + (gap ? ': ' : ':') + v);
-                            }
-                        }
-                    }
-                }
-                v = partial.length === 0 ? '{}' :
-                    gap ? '{\n' + gap + partial.join(',\n' + gap) + '\n' +
-                            mind + '}' : '{' + partial.join(',') + '}';
-                gap = mind;
-                return v;
-        }
-    }
-
-    function dateReviver (key, value) {
-        if (typeof value === 'string') {
-            if (Date._iso8601Re.test(value)) {
-                return Date.parseIso8601(value);
-            }
-        }
-        return value;
-    }
-
-    QuiX.parsers.JSON.stringify = function (value, replacer, space) {
-        var i;
-        gap = '';
-        indent = '';
-        if (typeof space === 'number') {
-            for (i=0; i<space; i+=1) {
-                indent += ' ';
-            }
-        }
-        else if (typeof space === 'string') {
-            indent = space;
-        }
-        rep = replacer;
-        if (replacer && typeof replacer !== 'function' &&
-                (typeof replacer !== 'object' ||
-                 typeof replacer.length !== 'number')) {
-            throw new QuiX.Exception('QuiX.parsers.JSON.stringify',
-                                     'Invalid replacer');
-        }
-        return str('', {'': value});
-    }
-
-    QuiX.parsers.JSON.parse = function (text, reviver) {
-        var j;
-        if (typeof reviver === 'undefined')
-            reviver = dateReviver;
-        function walk(holder, key) {
-            var k, v, value = holder[key];
-            if (value && typeof value === 'object') {
-                for (k in value) {
-                    if (Object.hasOwnProperty.call(value, k)) {
-                        v = walk(value, k);
-                        if (v !== undefined) {
-                            value[k] = v;
-                        }
-                        else {
-                            delete value[k];
-                        }
-                    }
-                }
-            }
-            return reviver.call(holder, key, value);
-        }
-        cx.lastIndex = 0;
-        if (cx.test(text)) {
-            text = text.replace(cx, function (a) {
-                return '\\u' +
-                    ('0000' + a.charCodeAt(0).toString(16)).slice(-4);
-            });
-        }
-        if (/^[\],:{}\s]*$/.
-test(text.replace(/\\(?:["\\\/bfnrt]|u[0-9a-fA-F]{4})/g, '@').
-replace(/"[^"\\\n\r]*"|true|false|null|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?/g, ']').
-replace(/(?:^|:|,)(?:\s*\[)+/g, ''))) {
-            j = eval('(' + text + ')');
-            return typeof reviver === 'function' ?
-                walk({'': j}, '') : j;
-        }
-        throw new QuiX.Exception('QuiX.parsers.JSON.stringify',
-                                 'Invalid JSON string');
-    }
-})();
-
-
-Date.prototype.toJSON = function (key) {
-    // normally this should be used
-    // return this.toIso8601();
-    // but in order to accomodate the Python
-    // json parser using an object hook
-    // we encode dates in a somehow different way
-    return {
-        __date__ : true,
-        value : this.toIso8601()
-    }
-};
-
-String.prototype.toJSON =
-Number.prototype.toJSON =
-Boolean.prototype.toJSON = function (key) {
-    return this.valueOf();
-};
