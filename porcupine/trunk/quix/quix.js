@@ -241,11 +241,12 @@ QuiX.bootLibraries = [
     QuiX.baseUrl + 'ui/widget.js',
     // swfupload
     QuiX.baseUrl + 'swfupload/swfupload.js',
-    // theme css
-    QuiX.getThemeUrl() + 'quix.css'
+    // theme
+    QuiX.getThemeUrl() + 'theme.css',
+    QuiX.getThemeUrl() + 'theme.js'
 ];
 
-QuiX.__init__ = function() {
+QuiX.__init__ = function(id) {
     var boot_loader_url = QuiX.getThemeUrl() + 'images/boot_loader.gif';
     var boot_loader = new QuiX.Image(boot_loader_url);
     var boot_completed = false;
@@ -265,7 +266,7 @@ QuiX.__init__ = function() {
         function() {
             boot_completed = true;
             var root = document.body.removeChild(
-                document.getElementById("quix"));
+                document.getElementById(id));
             var parser = new QuiX.Parser();
             parser.oncomplete = function() {
                 try {
@@ -279,7 +280,7 @@ QuiX.__init__ = function() {
                 QuiX._scrollbarSize = w1 - document.desktop.div.clientWidth;
                 document.desktop.setOverflow(overflow);
             }
-            parser.parse(QuiX.parsers.domFromElement(root));
+            parser.parse(QuiX.parsers.domFromString(root.value));
         }
     );
 }

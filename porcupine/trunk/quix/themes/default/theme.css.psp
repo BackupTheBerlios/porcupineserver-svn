@@ -198,16 +198,16 @@ BODY {
 
 .splitter .handleV {
     border-style : solid;
-    background-color: menu;
-    border-color: menu ThreeDDarkShadow
-                  menu ThreedHighlight;
+    background-color: buttonface;
+    border-color: buttonface ThreeDDarkShadow
+                  buttonface ThreedHighlight;
 }
 
 .splitter .handleH {
     border-style: solid;
-    background-color: menu;
-    border-color: ThreedHighlight menu
-                  ThreeDDarkShadow menu;
+    background-color: buttonface;
+    border-color: ThreedHighlight buttonface
+                  ThreeDDarkShadow buttonface;
 }
 
 .outlookbar {
@@ -239,7 +239,7 @@ BODY {
     border-style: solid;
     border-color: ThreedHighlight ThreeDShadow
                   ThreeDShadow ThreedHighlight;
-    white-space : nowrap;
+    white-space: nowrap;
 }
 
 .menubar .menu {
