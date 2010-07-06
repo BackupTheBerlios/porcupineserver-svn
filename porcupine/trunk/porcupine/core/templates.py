@@ -50,6 +50,7 @@ _normal_cache = {}
 def normal_template(context, filename, vars):
     tag = misc.generate_file_etag(filename)
     src = _get_template_src(filename)
+    src = preprocessor.expand_includes(src)
 
     # extract data from base-template
     src, data = preprocessor.extract_data(src)
