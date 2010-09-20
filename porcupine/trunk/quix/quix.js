@@ -1,5 +1,5 @@
 //=============================================================================
-//  Copyright 2005-2009 Tassos Koutsovassilis and Contributors
+//  Copyright (c) 2005-2010 Tassos Koutsovassilis and Contributors
 //
 //  This file is part of Porcupine.
 //  Porcupine is free software; you can redistribute it and/or modify
@@ -16,7 +16,7 @@
 //=============================================================================
 
 var QuiX = {};
-QuiX.version = '1.0 build 20090402';
+QuiX.version = '1.1 build 20100825';
 QuiX.namespace = 'http://www.innoscript.org/quix';
 QuiX.root = (new RegExp(
     "https?://[^/]+(?:/[^/\?]+)?(?:/(?:{|%7B)(?:.*?)(?:}|%7D))?",
@@ -140,8 +140,9 @@ QuiX.Image.prototype.load = function(callback) {
 }
 
 QuiX.__resource_error = function() {
-    if (this.resource.callback)
+    if (this.resource.callback) {
         this.resource.callback();
+    }
 }
 
 QuiX.__resource_onstatechange = function() {
@@ -204,6 +205,8 @@ QuiX.modules = [
                     QuiX.baseUrl + 'ui/box.js', [], 10),
     new QuiX.Module('Rich Text Editor',     //16
                     QuiX.baseUrl + 'ui/richtext.js', [8,15,9], 4),
+    new QuiX.Module('Color Picker',         //17
+                    QuiX.baseUrl + 'ui/colorpicker.js', [8], 4)
 ];
 
 QuiX.tags = {
@@ -227,7 +230,8 @@ QuiX.tags = {
     'timer':13, 'effect':13,
     'combo':14, 'selectlist':14,
     'box':15, 'vbox':15, 'hbox':15, 'flowbox':15,
-    'richtext':16
+    'richtext':16,
+    'colorpicker':17
 };
 
 QuiX.bootLibraries = [
@@ -510,7 +514,7 @@ QuiX.getImage = function(url) {
 
 QuiX.addEvent = function(el, type, proc) {
     if (el.addEventListener) {
-        el.addEventListener(type.slice(2,type.length), proc, false);
+        el.addEventListener(type.slice(2, type.length), proc, false);
         return true;
     }
     else if (el.attachEvent) {
@@ -740,6 +744,30 @@ QuiX.getOpacity = function(el) {
         return parseFloat(el.style.opacity);
 }
 
+QuiX._css2Js = function(css) {
+    var js = '';
+    for (var i=0; i<css.length; i++) {
+        if (css.charAt(i) == '-') {
+            i++;
+            js += css.charAt(i).toUpperCase();
+        }
+        else {
+            js += css.charAt(i);
+        }
+    }
+    return js;
+}
+
+QuiX.getStyle = function(el, styleProp) {
+    if (el.currentStyle) {
+        var y = el.currentStyle[QuiX._css2Js(styleProp)];
+    }
+    else if (window.getComputedStyle)
+        var y = document.defaultView.getComputedStyle(el, null)
+                .getPropertyValue(styleProp);
+    return y;
+}
+
 QuiX.setStyle = function(el, cssText) {
     if (QuiX.utils.BrowserInfo.family == 'ie')
         el.style.cssText = cssText;
@@ -794,6 +822,21 @@ QuiX.getScrollLeft = function(el) {
     }
     else
         return el.scrollLeft;
+}
+
+QuiX.measureText = function(sourceEl, text) {
+    var span, size,
+        st = 'font-size:' + QuiX.getStyle(sourceEl, 'font-size') +
+         ';font-family:' + QuiX.getStyle(sourceEl, 'font-family') +
+         ';font-weight:' + QuiX.getStyle(sourceEl, 'font-weight');
+    span = ce('SPAN');
+    QuiX.setStyle(span, st);
+    QuiX.setInnerText(span, text);
+    span.style.padding = '0px';
+    document.body.appendChild(span);
+    size = [span.offsetWidth, span.offsetHeight];
+    QuiX.removeNode(span);
+    return size;
 }
 
 QuiX.measureWidget = function(w, dim) {

@@ -1,5 +1,5 @@
 #==============================================================================
-#   Copyright 2005-2009, Tassos Koutsovassilis
+#   Copyright (c) 2005-2010, Tassos Koutsovassilis
 #
 #   This file is part of Porcupine.
 #   Porcupine is free software; you can redistribute it and/or modify
@@ -50,6 +50,8 @@ _normal_cache = {}
 def normal_template(context, filename, vars):
     tag = misc.generate_file_etag(filename)
     src = _get_template_src(filename)
+
+    # process includes
     src = preprocessor.expand_includes(src)
 
     # extract data from base-template

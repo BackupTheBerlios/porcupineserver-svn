@@ -1,5 +1,5 @@
 #==============================================================================
-#   Copyright 2005-2009, Tassos Koutsovassilis
+#   Copyright (c) 2005-2010, Tassos Koutsovassilis
 #
 #   This file is part of Porcupine.
 #   Porcupine is free software; you can redistribute it and/or modify
@@ -172,7 +172,6 @@ def __blank__(self):
         params['RB_NAME'] = None
 
     params['BOTTOM'] = taskbar_position == 'bottom'
-    params['TOP'] = not params['BOTTOM']
 
     # get applications
     sOql = "select launchUrl, displayName, icon from 'apps' " + \
